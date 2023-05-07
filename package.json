@@ -13,7 +13,7 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
-  "icon": "resources/image/title.128.png",
+  "icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png?token=GHSAT0AAAAAACCJKI4K4ONWS5EGL4WK37UCZCXUIZA",
   "contributes": {
     "commands": [
       {

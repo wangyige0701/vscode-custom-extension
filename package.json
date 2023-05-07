@@ -34,7 +34,9 @@
       "custom-function": [
         {
           "id": "custom.backgroundimage",
-          "name": "背景图片"
+          "name": "背景图片",
+          "type": "webview",
+          "visibility": "visible"
         }
       ]
     },

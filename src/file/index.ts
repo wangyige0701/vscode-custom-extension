@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import { Uri, workspace } from 'vscode';
 import { posix } from 'path';
 
 /**
@@ -7,7 +7,7 @@ import { posix } from 'path';
  * @param path 新路径
  * @returns 根据新路径生成的新uri
  */
-export function newUri (uri: vscode.Uri, path: string): vscode.Uri | undefined {
+export function newUri (uri: Uri, path: string): Uri | undefined {
     if (!uri) {
         return;
     }
@@ -28,8 +28,8 @@ export function createBuffer (content: string): Buffer {
  * @param uri 生成文件的uri
  * @param buffer 输入文件内容数据
  */
-export function createFile (uri: vscode.Uri, buffer: Buffer): void {
+export function createFile (uri: Uri, buffer: Buffer): void {
     if (uri) {
-        vscode.workspace.fs.writeFile(uri, buffer);
+        workspace.fs.writeFile(uri, buffer);
     }
 }

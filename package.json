@@ -1,0 +1,98 @@
+{
+  "name": "wangyige",
+  "displayName": "WangYige",
+  "description": "My custom extension",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "icon": "resources/image/title.128.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "wangyige.start",
+        "title": "查看所有功能 | search all function"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "custom-function",
+          "title": "自定义功能列表",
+          "icon": "resources/svg/custom.svg"
+        }
+      ]
+    },
+    "views": {
+      "custom-function": [
+        {
+          "id": "custom.backgroundimage",
+          "name": "背景图片"
+        }
+      ]
+    },
+    "configuration": [
+        {
+        "title": "custom background image",
+        "properties": {
+          "wangyige.background.opacity": {
+            "type": "number",
+            "maximum": 1,
+            "minimum": 0,
+            "default": 0.3,
+            "description": "背景透明度(0-1)"
+          },
+          "wangyige.background.nowImagePath": {
+            "type": "string",
+            "default": "",
+            "description": "当前选中图片路径"
+          },
+          "wangyige.background.allImagePath": {
+            "type": "array",
+            "default": [],
+            "description": "所有选择的背景图路径数组"
+          },
+          "wangyige.background.hasImage": {
+            "type": "boolean",
+            "default": false,
+            "description": "当前是否选择了背景图文件"
+          },
+          "wangyige.background.isSetBackground": {
+            "type": "boolean",
+            "default": false,
+            "description": "当前是否设置了背景图"
+          }
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vitest --run"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.0.1",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.78.0",
+    "@typescript-eslint/eslint-plugin": "^5.49.0",
+    "@typescript-eslint/parser": "^5.49.0",
+    "@vscode/test-electron": "^2.2.2",
+    "eslint": "^8.33.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.1.0",
+    "typescript": "^4.9.4",
+    "vitest": "^0.29.8"
+  }
+}

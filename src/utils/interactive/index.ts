@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { check } from '../utils/index';
+import { check } from '../index';
 
 /**
  * 调用输入框api获取输入内容

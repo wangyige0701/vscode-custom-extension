@@ -58,3 +58,26 @@ export function *range (end: number, start: number = 0, step: number = 1) {
         yield i;
     }
 }
+
+export function getNonce() {
+	let text = '';
+	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+	for (let i = 0; i < 32; i++) {
+		text += possible.charAt(Math.floor(Math.random() * possible.length));
+	}
+	return text;
+}
+
+/**
+ * 生成一个指定长度的哈希序列，默认24位
+ * @param {Number|String} length 生成哈希字符串的长度
+ * @returns 返回一个哈希序列
+ */
+export function getHashCode (length: number | string = 24): string {
+    let str: string = '';
+    length = Number(length) || 24 as number;
+    for (let i: number = 0; i < length; i++) {
+        str += Math.floor(Math.random() * 36).toString(36);
+    }
+    return str;
+}

@@ -29,7 +29,7 @@
     "views": {
       "custom-function": [
         {
-          "id": "custom.backgroundimage",
+          "id": "wangyige.custom.backgroundimage",
           "name": "背景图片",
           "type": "webview",
           "visibility": "visible"

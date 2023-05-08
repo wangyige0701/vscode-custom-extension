@@ -4,7 +4,7 @@ import { webviewCreateByHtml, contextContainer, registWebview } from './utils/we
 export function activate(context: vscode.ExtensionContext) {
 	contextContainer.instance = context;
 
-	const backgroundWebview = registWebview('custom.backgroundimage', new webviewCreateByHtml('src/webview/barview'));
+	const backgroundWebview = registWebview('wangyige.custom.backgroundimage', new webviewCreateByHtml('src/webview/barview'));
 
 	context.subscriptions.push(backgroundWebview);
 }

@@ -16,10 +16,6 @@
   "icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png",
   "contributes": {
     "commands": [
-      {
-        "command": "wangyige.start",
-        "title": "查看所有功能 | search all function"
-      }
     ],
     "viewsContainers": {
       "activitybar": [
@@ -41,7 +37,7 @@
       ]
     },
     "configuration": [
-        {
+      {
         "title": "custom background image",
         "properties": {
           "wangyige.background.opacity": {

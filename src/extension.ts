@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
+import { webviewCreateByHtml, contextContainer, registWebview } from './utils/webview';
 
 export function activate(context: vscode.ExtensionContext) {
-	const start = vscode.commands.registerCommand('wangyige.start', () => {
-		vscode.window.showInformationMessage('Hello World from WangYige!!!!!!');
-	});
+	contextContainer.instance = context;
 
-	context.subscriptions.push(start);
+	const backgroundWebview = registWebview('custom.backgroundimage', new webviewCreateByHtml('src/webview/barview'));
+
+	context.subscriptions.push(backgroundWebview);
 }
 
 // This method is called when your extension is deactivated

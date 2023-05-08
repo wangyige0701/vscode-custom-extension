@@ -1,0 +1,45 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 10px;
+}
+
+body {
+    --main-font-color: #fff;
+    --sub-font-color: #dfdfdf;
+    --title-font-size: 2.5rem;
+    --subtitle-font-size: 2rem;
+    --main-font-size: 2rem;
+}
+
+div {
+    /* background-color: aqua; */
+}
+
+.main {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100vw;
+    height: 100vh;
+    color: var(--main-font-color);
+    background-color: aqua;
+}
+
+.main .top {
+    color: red;
+    width: 100%;
+    min-height: 100px;
+    font-size: var(--main-font-size);
+    background-color: antiquewhite;
+}
+
+.main .list {
+    flex: 1;
+    width: 100%;
+    background-color: rebeccapurple;
+}

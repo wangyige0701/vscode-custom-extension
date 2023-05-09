@@ -30,9 +30,11 @@ export class webviewCreateByHtml implements WebviewViewProvider {
     private readonly title: string = '';
     private htmlContent: string = '';
     private cssUri?: Uri;
+    private newCssUri?: Uri;
     private jsUri?: Uri;
     private vscodeCssUri?: Uri;
     private resetCssUri?: Uri;
+    private iconUri?: Uri;
 
     constructor (path: string, title:string = '') {
         if (!contextContainer.instance) return;
@@ -41,6 +43,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         const publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'src', 'webview');
         this.vscodeCssUri = newUri(publicFileUri, 'vscode.css');
         this.resetCssUri = newUri(publicFileUri, 'reset.css');
+        this.iconUri = publicFileUri;
     }
 
     async start () {
@@ -71,37 +74,82 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         }
         webviewView.title = this.title;
         this.setHtml(webviewView.webview).then(html => {
-            console.log(html);
             // html赋值
             webviewView.webview.html = html;
         });
+        messageHandle(webviewView.webview);
     }
 
+    /**
+     * 生成html字符串
+     * @param webview 
+     * @returns 
+     */
     private async setHtml (webview: Webview): Promise<string> {
         const nonce = getNonce();
+        type fb = Buffer | string | Uint8Array;
         // 查询指定html文件路径
         await this.start().then(async () => {
             // 将html文本内js和css替换为指定路径下的对应文件
             // 只能引入一个css文件，需要将其余引用样式写入主css文件中
-            let [resetCss, vscodeCss, css] = await Promise.all([
-                readFileUri(this.resetCssUri!),
-                readFileUri(this.vscodeCssUri!),
-                readFileUri(this.cssUri!)
-            ]);
-            css = createBuffer(resetCss.toString() + '\n' + vscodeCss.toString() + '\n' + css.toString());
-            writeFileUri(this.cssUri!, css);
+            if (this.cssUri) {
+                let [resetCss, vscodeCss, css]: [fb, fb, fb] = await Promise.all([
+                    readFileUri(this.resetCssUri!),
+                    readFileUri(this.vscodeCssUri!),
+                    readFileUri(this.cssUri!)
+                ]);
+                // css文件整合，icon引入路径修改
+                css = createBuffer(
+                    resetCss.toString().replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`) + 
+                    '\n' + vscodeCss.toString() + 
+                    '\n' + css.toString());
+                this.newCssUri = newUri(this.baseUri!, 'index.css');
+                // 合并css文件
+                writeFileUri(this.newCssUri, css);
+            }
+            // html文本处理
             this.htmlContent = this.htmlContent
                 .replace(/(#policy)/, 
-                    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https:;`)
-                .replace(/(#css)/, this.cssUri?
-                    `<link href="${webview.asWebviewUri(this.cssUri!)}" rel="stylesheet />`:
+                    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
+                        webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https:;">`
+                    )
+                .replace(/(#css)/, this.newCssUri?
+                    `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:
                     '')
                 .replace(/(#js)/, this.jsUri?
-                    `<script nonce="${nonce}" src="${webview.asWebviewUri(this.jsUri!)}"></script>`:
+                    `<script nonce="${nonce}" src="${webview.asWebviewUri(this.jsUri)}"></script>`:
                     '');
         });
         return Promise.resolve(this.htmlContent);
     }
+}
+
+/**
+ * webview侧通信事件接收
+ */
+function messageHandle (webview: Webview) {
+    webview.onDidReceiveMessage((message: {type: string, value: any}) => {
+        switch (message.type) {
+            case 'selectImage':
+                // value: false | true
+                let test = 'https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png';
+                messageSend(webview, {
+                    type: 'newImage',
+                    value: [test, '11']
+                });
+                break;
+            case 'deleteImage':
+                // value: number
+                console.log(message.value);
+                break;
+            default:
+                break;
+        }
+    });
+}
+
+function messageSend (webview: Webview, options: { type: string, value: any }) {
+    if (webview) webview.postMessage(options);
 }
 
 /**

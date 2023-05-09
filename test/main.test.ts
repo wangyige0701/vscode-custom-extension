@@ -6,7 +6,7 @@ test("dateFormat", async () => {
     // console.log(getDate(undefined, 'YYYY'));
 });
 
-test.only("htmlReplace", () => {
+test("htmlReplace", () => {
     let html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -29,6 +29,8 @@ test.only("htmlReplace", () => {
         <script src=""></script>
     `);
     console.log(html);
-    
-    
+});
+
+test("unit8", () => {
+  
 });

@@ -91,24 +91,3 @@ input::placeholder,
 textarea::placeholder {
 	color: var(--vscode-input-placeholderForeground);
 }
-
-/* img */
-img {
-	max-width: 90%;
-	max-height: 150px;
-	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
-	border: 2px solid transparent;
-	margin: 0 auto;
-}
-
-img:hover {
-	cursor: pointer;
-}
-
-img:not(.select):hover {
-	border-color: var(--vscode-imagePreview-border);
-}
-
-img.select {
-	border-color: var(--image-select);
-}

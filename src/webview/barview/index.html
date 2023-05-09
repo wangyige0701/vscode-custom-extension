@@ -10,16 +10,20 @@
     #css
 </head>
 <body>
-    <div class="main">
-        <button class="main-button">选择图片</button>
-    </div>
-    <div class="list">
-        <div class="image">
-            <img src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png">
-        </div>
-        <div class="image select">
-            <img class="select" src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png">
-        </div>
+    <div class="container">
+        <header class="top" id="top">
+            <button class="button" id="selectImage">选择图片</button>
+        </header>
+        <nav class="list" id="list">
+            <div class="image-container">
+                <img class="image" loading="lazy" src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png">
+                <span class="image-operation image-select icon-circle-background select"></span>
+                <span class="image-operation image-delete icon-delete"></span>
+            </div>
+            <!-- <div class="image-container select">
+                <img class="image" src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png">
+            </div> -->
+        </nav>
     </div>
     <!-- js文件 -->
     #js

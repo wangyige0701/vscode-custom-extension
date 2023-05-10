@@ -9,7 +9,7 @@ import { readFileSync } from 'fs';
  * @returns 根据新路径生成的新uri
  */
 export function newUri (uri: Uri, path: string): Uri {
-    return uri.with({ path: posix.join(uri.path, path) });
+    return uri.with({ path: posix.join(uri.fsPath, path) });
 }
 
 /**
@@ -46,7 +46,7 @@ export function createBuffer (content: string): Buffer {
  * @param target 
  * @param options 
  */
-export function uriCopy (source: Uri, target: Uri, options?: { overwrite: boolean }): Thenable<void> {
+export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boolean | undefined } | undefined): Thenable<void> {
     return workspace.fs.copy(source, target, options);
 }
 
@@ -56,7 +56,10 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite: boolea
  * @param options 
  * @returns 
  */
-export function uriDelete (uri: Uri, options?: { recursive: boolean, useTrash: boolean }): Thenable<void> {
+export function uriDelete (uri: Uri, options?: { 
+    recursive?: boolean | undefined, 
+    useTrash?: boolean | undefined 
+} | undefined): Thenable<void> {
     return workspace.fs.delete(uri, options);
 }
 

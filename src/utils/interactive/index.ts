@@ -1,5 +1,5 @@
 import { Uri, window } from 'vscode';
-import { check } from '../index';
+import { check, isString } from '../index';
 import { dirname } from 'path';
 
 /**
@@ -40,9 +40,8 @@ interface SelectFileParams {
     filters?: { [name: string]: string[] };
     title?: string;
     openLabel?: string;
+    defaultUri?: Uri | string;
 }
-
-var selectFileDefaultUri: Uri | undefined = undefined;
 
 /**
  * 选择文件
@@ -55,35 +54,43 @@ export function selectFile ({
     many = false,
     filters = undefined,
     title = '选择文件',
-    openLabel = '确认'
-}: SelectFileParams): Promise<{uri:Uri[], file:boolean}> {
-    if (files && folders) folders = false;
-    if (!files && !folders) files = true;
-    if (folders && many) many = false;
-    if (folders && filters) filters = undefined;
+    openLabel = '确认',
+    defaultUri
+}: SelectFileParams): Promise<{uri:Uri[], file:boolean, dirName:string}> {
     return new Promise((resolve, reject) => {
-        window.showOpenDialog({
-            defaultUri: selectFileDefaultUri,
-            canSelectFiles: files,
-            canSelectFolders: folders,
-            canSelectMany: many,
-            filters,
-            title,
-            openLabel
-        }).then(res => {
-            if (res) {
-                let dirName;
-                if (files) {
-                    dirName = dirname(res[0].fsPath);
-                } else {
-                    dirName = res[0].path;
-                }
-                // 设置默认选择路径
-                selectFileDefaultUri = Uri.file(dirName);
-                resolve({ uri: res, file: files });
+        try {
+            if (files && folders) folders = false;
+            if (!files && !folders) files = true;
+            if (folders && many) many = false;
+            if (folders && filters) filters = undefined;
+            if (isString(defaultUri) && (defaultUri as string).length > 0) {
+                defaultUri = Uri.file(defaultUri as string);
             } else {
-                reject();
+                defaultUri = undefined;
             }
-        });
+            window.showOpenDialog({
+                defaultUri: defaultUri as Uri | undefined,
+                canSelectFiles: files,
+                canSelectFolders: folders,
+                canSelectMany: many,
+                filters,
+                title,
+                openLabel
+            }).then(res => {
+                if (res) {
+                    let dirName;
+                    if (files) {
+                        dirName = dirname(res[0].fsPath);
+                    } else {
+                        dirName = res[0].path;
+                    }
+                    resolve({ uri: res, file: files, dirName });
+                } else {
+                    throw new Error('undefinded select data');
+                }
+            });
+        } catch (error) {
+            reject(error);
+        }
     });
 }

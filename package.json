@@ -15,7 +15,13 @@
   "main": "./out/extension.js",
   "icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png",
   "contributes": {
-    "commands": [
+    "commands": [],
+    "iconThemes": [
+      {
+        "id": "wyg",
+        "label": "WYG",
+        "path": "./fileicons/wyg-icon-theme.json"
+      }
     ],
     "viewsContainers": {
       "activitybar": [
@@ -66,6 +72,11 @@
             "type": "boolean",
             "default": false,
             "description": "当前是否设置了背景图"
+          },
+          "wangyige.background.defaultPath": {
+            "type": "string",
+            "default": "",
+            "description": "选择文件默认打开的路径"
           }
         }
       }

@@ -1,0 +1,7 @@
+{
+    "iconDefinitions": {
+        "wyg": {
+            "iconPath": "../resources/svg/icon.svg"
+        }
+    }
+}

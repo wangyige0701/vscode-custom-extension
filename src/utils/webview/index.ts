@@ -1,7 +1,9 @@
 import { window, WebviewViewProvider, Disposable, ExtensionContext, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
-import { createBuffer, newUri, readDirectoryUri, readFileUri, uriStat, writeFileUri } from "../file";
+import { createBuffer, newUri, readDirectoryUri, readFileUri, writeFileUri } from "../file";
 import { getNonce } from "..";
-import { selectImage } from "./barview";
+import { errHandle } from "../../error";
+import { MessageData } from "./main";
+import { backgroundExecute } from "../../backgroundImage/execute";
 
 interface options {
     readonly webviewOptions?: {
@@ -68,17 +70,21 @@ export class webviewCreateByHtml implements WebviewViewProvider {
     }
 
     resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext<unknown>, token: CancellationToken): void | Thenable<void> {
-        webviewView.webview.options = {
-            enableCommandUris: true,
-            enableScripts: true, // 允许加载js脚本
-            enableForms: true
+        try {
+            webviewView.webview.options = {
+                enableCommandUris: true,
+                enableScripts: true, // 允许加载js脚本
+                enableForms: true
+            }
+            webviewView.title = this.title;
+            this.setHtml(webviewView.webview).then(html => {
+                // html赋值
+                webviewView.webview.html = html;
+            });
+            messageHandle(webviewView.webview);
+        } catch (error) {
+            errHandle(error as Error);
         }
-        webviewView.title = this.title;
-        this.setHtml(webviewView.webview).then(html => {
-            // html赋值
-            webviewView.webview.html = html;
-        });
-        messageHandle(webviewView.webview);
     }
 
     /**
@@ -129,18 +135,11 @@ export class webviewCreateByHtml implements WebviewViewProvider {
  * webview侧通信事件接收
  */
 function messageHandle (webview: Webview) {
-    webview.onDidReceiveMessage((message: {type: string, value: any}) => {
-        const value = message.value;
-        switch (message.type) {
-            case 'selectImage':
-                // value: false | true
-                if (value) {
-                    selectImage(messageSend, webview);
-                }
-                break;
-            case 'deleteImage':
-                // value: number
-                console.log(message.value);
+    webview.onDidReceiveMessage((message: MessageData) => {
+        switch (message.group) {
+            case 'background':
+                // 背景图数据处理
+                backgroundExecute(message.name, message.value, messageSend, webview);
                 break;
             default:
                 break;
@@ -151,8 +150,14 @@ function messageHandle (webview: Webview) {
 /**
  * webview端发送通信信息
 */
-function messageSend (webview: Webview, options: { type: string, value: any }): void {
-    if (webview) webview.postMessage(options);
+function messageSend (webview: Webview, options: MessageData): void {
+    if (webview) {
+        try {
+            webview.postMessage(options);
+        } catch (error) {
+            errHandle(error as Error);
+        }
+    }
 }
 
 /**

@@ -61,7 +61,7 @@ div.image-container:hover {
 }
 
 div.image-container:not(:last-child) {
-	margin-bottom: 5px;
+	margin-bottom: 10px;
 }
 
 div.image-container > img.image {

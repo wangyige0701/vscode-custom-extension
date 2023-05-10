@@ -79,6 +79,10 @@
         return el;
     }
 
+    /**
+     * 创建图片列表操作方法实例
+     * @returns 
+     */
     function createInstance () {
         class ImageList {
             selectImageList = [];
@@ -205,6 +209,7 @@
                 const { path: [self, parent, list] } = e;
                 const { children } = list;
                 let i = 0;
+                // 获取点击位置索引
                 while (i < children.length) {
                     if (parent == children[i]) {
                         this.toggleSelectStateToImageIcon(i);

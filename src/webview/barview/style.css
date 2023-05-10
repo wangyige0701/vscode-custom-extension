@@ -80,7 +80,7 @@ div.image-container > span.image-operation {
 	height: 2.2rem;
 	border-radius: 50%;
 	position: absolute;
-	top: 10px;
+	top: 0;
 	opacity: .4;
 	transition: opacity .1s ease;
 }
@@ -113,13 +113,13 @@ div.image-container > span.image-operation:active {
 /* 未选中按钮 */
 div.image-container > span.image-select {
 	color: #fff;
-	left: 10px;
+	left: 0;
 }
 
 /* 删除按钮 */
 div.image-container > span.image-delete {
 	color: var(--vscode-inputValidation-errorBorder);
-	right: 10px;
+	right: 0;
 }
 div.image-container > span.image-delete::after {
 	color: #fff;

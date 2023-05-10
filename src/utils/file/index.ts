@@ -1,6 +1,6 @@
 import { FileStat, FileType, Uri, workspace } from 'vscode';
-import { posix } from 'path';
-import * as fs from 'fs';
+import { posix, extname, resolve as pathResolve } from 'path';
+import { readFileSync } from 'fs';
 
 /**
  * 生成新uri
@@ -95,4 +95,21 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Thenable<void> {
  */
 export function uriStat (uri: Uri): Thenable<FileStat> {
     return workspace.fs.stat(uri);
+}
+
+/**
+ * 将图片转为base64编码
+ * @param path 
+ * @returns 
+ */
+export function imageToBase64 (path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        try {
+            const fileType = extname(path).substring(1);
+            path = readFileSync(pathResolve(path)).toString('base64');
+            resolve(`data:image/${fileType};base64,${path}`);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }

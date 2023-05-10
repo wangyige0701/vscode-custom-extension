@@ -1,6 +1,7 @@
 import { window, WebviewViewProvider, Disposable, ExtensionContext, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
-import { createBuffer, joinPathUri, newUri, readDirectoryUri, readFileUri, uriStat, writeFileUri } from "../file";
-import { getHashCode, getNonce } from "..";
+import { createBuffer, newUri, readDirectoryUri, readFileUri, uriStat, writeFileUri } from "../file";
+import { getNonce } from "..";
+import { selectImage } from "./barview";
 
 interface options {
     readonly webviewOptions?: {
@@ -111,7 +112,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
             this.htmlContent = this.htmlContent
                 .replace(/(#policy)/, 
                     `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
-                        webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https:;">`
+                        webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:;">`
                     )
                 .replace(/(#css)/, this.newCssUri?
                     `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:
@@ -129,14 +130,13 @@ export class webviewCreateByHtml implements WebviewViewProvider {
  */
 function messageHandle (webview: Webview) {
     webview.onDidReceiveMessage((message: {type: string, value: any}) => {
+        const value = message.value;
         switch (message.type) {
             case 'selectImage':
                 // value: false | true
-                let test = 'https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.png';
-                messageSend(webview, {
-                    type: 'newImage',
-                    value: [test, '11']
-                });
+                if (value) {
+                    selectImage(messageSend, webview);
+                }
                 break;
             case 'deleteImage':
                 // value: number
@@ -148,7 +148,10 @@ function messageHandle (webview: Webview) {
     });
 }
 
-function messageSend (webview: Webview, options: { type: string, value: any }) {
+/**
+ * webview端发送通信信息
+*/
+function messageSend (webview: Webview, options: { type: string, value: any }): void {
     if (webview) webview.postMessage(options);
 }
 

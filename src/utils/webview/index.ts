@@ -106,18 +106,48 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         });
     }
 
+    /**
+     * 将不同文件内容根据顺序合并
+     * @param fileUri 
+     * @returns 
+     */
     private concatAllFile (fileUri: Uri[]): Promise<string> {
         return new Promise((resolve, reject) => {
             readFileUriList(fileUri).then(res => {
-                let list: string[] | string = [];
+                let list: string[] = [];
+                const position: number[] = [];
                 res.forEach((str: Uint8Array | string) => {
                     str = str.toString();
                     let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
-                    index = index ? parseFloat(index[1]) : -1;
-                    (list as string[]).splice(index, 0, str);
+                    index = index ? parseFloat(index[1]) : 0;
+
+                    // 二分法排序
+                    if (list.length === 0 || index >= position[position.length-1]) {
+                        list.push(str);
+                        position.push(index);
+                    } else if (index <=  position[0]) {
+                        list.unshift(str);
+                        position.unshift(index);
+                    } else {
+                        let length = position.length;
+                        function handle (length: number, array: number[], target: number, start: number = 0): number {
+                            let l = length / 2;
+                            if (length % 2 > 0) l--;
+                            let i = start + l;
+                            let n = array[i];
+                            if (length === 3 || length === 2) return n > target ? i : i+1;
+                            if (target >= n) {
+                                return handle(array.length-i, array, target, i);
+                            } else {
+                                return handle(i+1, array, target, start);
+                            }
+                        }
+                        let res = handle(length, position, index);
+                        list.splice(res, 0, str);
+                        position.splice(res, 0, index);
+                    }
                 });
-                list = list.join('\n\n');
-                resolve(list as string);
+                resolve(list.join('\n\n'));
             }).catch(err => {
                 reject(err);
             });
@@ -162,9 +192,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                 }).then(str => {
                     let js: Buffer = createBuffer(
                         `(function () {${
-                            '\n'+
-                            str+
-                            '\n'
+                            '\n'+str+'\n'
                         }})();`
                     );
                     writeFileUri(this.newJsUri!, js);

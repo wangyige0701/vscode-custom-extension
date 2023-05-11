@@ -18,7 +18,7 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
 
 /**
  * 获取储存背景图资源的uri
- * @returns 
+ * @returns {Uri|undefined}
  */
 export function imageStoreUri (): Uri | undefined {
     const uri = contextContainer.instance?.extensionUri;
@@ -105,7 +105,7 @@ interface bufferAndCode {
 /**
  * 将读取的图片数据和哈希码一起返回
  * @param buffers 
- * @returns 
+ * @returns {Promise<string[][]>}
  */
 function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
     return new Promise((resolve, reject) => {
@@ -144,7 +144,7 @@ function codeListRefresh (code: string, state: codeChangeType='add') {
 /**
  * 判断列表中是否含有此哈希码
  * @param code 
- * @returns 
+ * @returns {boolean}
  */
 function hasHashCode (code: string): boolean {
     return backgroundImageCodeList.includes(code);
@@ -152,7 +152,6 @@ function hasHashCode (code: string): boolean {
 
 /**
  * 比较缓存数据和新数据是否相同并更新
- * @returns 
  */
 function refreshGlobalBackgroundImageList () {
     if (compareCodeList(
@@ -181,7 +180,7 @@ function compareCodeList (oldData: string[], newData: string[]): boolean {
  * 校验文件并进行数据读取
  * @param files 
  * @param uri 
- * @returns 
+ * @returns {Promise<bufferAndCode[]>}
  */
 function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferAndCode[]> {
     return new Promise((resolve, reject) => {
@@ -208,7 +207,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
  * 返回图片文件的base64数据和哈希码
  * @param uri 
  * @param code 
- * @returns 
+ * @returns {Promise<bufferAndCode>}
  */
 function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
     return new Promise((resolve, reject) => {
@@ -227,6 +226,7 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
 
 /**
  * 获取背景图目录下的所有文件
+ * @returns {Promise<{ files: [string, FileType][], uri: Uri }>}
  */
 function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
@@ -254,6 +254,7 @@ function newHashCode (): string {
 
 /**
  * 创建文件储存图片文件
+ * @returns {Promise<{hashCode:string, base64:string}>}
  */
 function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
     return new Promise((resolve, reject) => {
@@ -276,7 +277,7 @@ function createFileStore (base64: string): Promise<{hashCode:string, base64:stri
 /**
  * 根据哈希码删除文件
  * @param code 
- * @returns 
+ * @returns {Promise<string>}
  */
 function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {

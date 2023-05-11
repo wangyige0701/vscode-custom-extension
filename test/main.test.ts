@@ -32,5 +32,9 @@ test("htmlReplace", () => {
 });
 
 test("unit8", () => {
-  
+    const a = '/* index(1) */'
+    const index = a.match(/\/\* index\((\d*)\) \*\//);
+    console.log(a);
+    
+    console.log(index);
 });

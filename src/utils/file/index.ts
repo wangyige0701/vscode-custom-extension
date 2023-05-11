@@ -8,8 +8,8 @@ import { readFileSync } from 'fs';
  * @param path 新路径
  * @returns 根据新路径生成的新uri
  */
-export function newUri (uri: Uri, path: string): Uri {
-    return uri.with({ path: posix.join(uri.fsPath, path) });
+export function newUri (uri: Uri, ...path: string[]): Uri {
+    return uri.with({ path: posix.join(uri.fsPath, ...path) });
 }
 
 /**
@@ -79,6 +79,20 @@ export function readDirectoryUri (uri: Uri): Thenable<[string, FileType][]> {
  */
 export function readFileUri (uri: Uri): Thenable<Uint8Array> {
     return workspace.fs.readFile(uri);
+}
+
+export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
+    return new Promise((resolve, reject) => {
+        const list: Thenable<Uint8Array>[] = [];
+        uri.forEach(item => {
+            list.push(readFileUri(item));
+        });
+        Promise.all(list).then(res => {
+            resolve(res);
+        }).catch(err => {
+            reject(err);
+        });
+    });
 }
 
 /**

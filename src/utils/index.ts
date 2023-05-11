@@ -82,26 +82,67 @@ export function getHashCode (length: number | string = 24): string {
     return str;
 }
 
+/**
+ * 是否是字符串类型
+ * @param value 
+ * @returns {boolean}
+ */
 export function isString (value: any): boolean {
     return typeof value === 'string';
 }
 
+/**
+ * 是否是数字类型
+ * @param value 
+ * @returns {boolean}
+ */
 export function isNumber (value: any): boolean {
     return typeof value === 'number';
 }
 
+/**
+ * 是否是数组类型
+ * @param value 
+ * @returns {boolean}
+ */
 export function isArray (value: any): boolean {
     return Array.isArray(value);
 }
 
+/**
+ * 是否是null类型
+ * @param value 
+ * @returns {boolean}
+ */
 export function isNull (value: any): boolean {
     return value === null;
 }
 
+/**
+ * 是否是对象类型
+ * @param value 
+ * @returns {boolean}
+ */
 export function isObject (value: any):boolean {
     return typeof value === 'object' && !isArray(value) && !isNull(value);
 }
 
-export function isUndefinded (value: any): boolean {
+/**
+ * 是否是undefined类型
+ * @param value 
+ * @returns {boolean}
+ */
+export function isUndefined (value: any): boolean {
     return typeof value === 'undefined';
+}
+
+/**
+ * 输出在一个最小最大范围内的值
+ * @param min 最小值
+ * @param max 最大值
+ * @param value 判断的数据
+ * @returns 
+ */
+export function minmax (min: number, max: number, value: number): number {
+    return value <= min ? min : value >= max ? max : value;
 }

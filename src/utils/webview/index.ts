@@ -1,5 +1,5 @@
 import { window, WebviewViewProvider, Disposable, ExtensionContext, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
-import { createBuffer, newUri, readDirectoryUri, readFileUri, writeFileUri } from "../file";
+import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";
 import { errHandle } from "../../error";
 import { MessageData } from "./main";
@@ -21,8 +21,8 @@ interface webFileType {
 
 const webFile: webFileType = {
     html: 'index.html',
-    css: 'style.css',
-    js: 'index.js'
+    css: 'css',
+    js: 'js'
 }
 
 /**
@@ -32,9 +32,10 @@ export class webviewCreateByHtml implements WebviewViewProvider {
     private readonly baseUri?: Uri;
     private readonly title: string = '';
     private htmlContent: string = '';
-    private cssUri?: Uri;
+    private cssUri?: Uri; // css文件夹
     private newCssUri?: Uri;
-    private jsUri?: Uri;
+    private jsUri?: Uri; // js文件夹
+    private newJsUri?: Uri;
     private vscodeCssUri?: Uri;
     private resetCssUri?: Uri;
     private iconUri?: Uri;
@@ -46,6 +47,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         const publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'src', 'webview');
         this.vscodeCssUri = newUri(publicFileUri, 'vscode.css');
         this.resetCssUri = newUri(publicFileUri, 'reset.css');
+        this.newCssUri = newUri(this.baseUri!, 'index.css');
+        this.newJsUri = newUri(this.baseUri!, 'index.js');
         this.iconUri = publicFileUri;
     }
 
@@ -87,6 +90,40 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         }
     }
 
+    private readDirectoryFile (uri: Uri): Promise<Uri[]> {
+        return new Promise((resolve, reject) => {
+            try {
+                readDirectoryUri(newUri(uri)).then(res => {
+                    const list: Uri[] = [];
+                    res.forEach(item => {
+                        if (item[1] === 1) list.push(newUri(uri, item[0]));
+                    });
+                    resolve(list);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+
+    private concatAllFile (fileUri: Uri[]): Promise<string> {
+        return new Promise((resolve, reject) => {
+            readFileUriList(fileUri).then(res => {
+                let list: string[] | string = [];
+                res.forEach((str: Uint8Array | string) => {
+                    str = str.toString();
+                    let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
+                    index = index ? parseFloat(index[1]) : -1;
+                    (list as string[]).splice(index, 0, str);
+                });
+                list = list.join('\n\n');
+                resolve(list as string);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+
     /**
      * 生成html字符串
      * @param webview 
@@ -98,21 +135,42 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         // 查询指定html文件路径
         await this.start().then(async () => {
             // 将html文本内js和css替换为指定路径下的对应文件
-            // 只能引入一个css文件，需要将其余引用样式写入主css文件中
             if (this.cssUri) {
-                let [resetCss, vscodeCss, css]: [fb, fb, fb] = await Promise.all([
+                // 外部统一样式处理
+                let [resetCss, vscodeCss]: [fb, fb] = await Promise.all([
                     readFileUri(this.resetCssUri!),
-                    readFileUri(this.vscodeCssUri!),
-                    readFileUri(this.cssUri!)
+                    readFileUri(this.vscodeCssUri!)
                 ]);
-                // css文件整合，icon引入路径修改
-                css = createBuffer(
-                    resetCss.toString().replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`) + 
-                    '\n' + vscodeCss.toString() + 
-                    '\n' + css.toString());
-                this.newCssUri = newUri(this.baseUri!, 'index.css');
-                // 合并css文件
-                writeFileUri(this.newCssUri, css);
+                // 只能引入一个css文件，需要将其余引用样式写入主css文件中
+                await this.readDirectoryFile(this.cssUri).then(res => {
+                    return this.concatAllFile(res);
+                }).then(str => {
+                    // css文件整合，icon引入路径修改
+                    let css: Buffer = createBuffer(
+                        resetCss.toString().replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`) + 
+                        '\n' + vscodeCss.toString() + 
+                        '\n' + str);
+                    // 合并css文件
+                    writeFileUri(this.newCssUri!, css);
+                }).catch(err => {
+                    throw err;
+                });
+            }
+            if (this.jsUri) {
+                await this.readDirectoryFile(this.jsUri).then(res => {
+                    return this.concatAllFile(res);
+                }).then(str => {
+                    let js: Buffer = createBuffer(
+                        `(function () {${
+                            '\n'+
+                            str+
+                            '\n'
+                        }})();`
+                    );
+                    writeFileUri(this.newJsUri!, js);
+                }).catch(err => {
+                    throw err;
+                });
             }
             // html文本处理
             this.htmlContent = this.htmlContent

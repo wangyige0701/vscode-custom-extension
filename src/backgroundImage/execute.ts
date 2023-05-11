@@ -31,6 +31,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             if (value) deleteImage(value);
             break;
         case 'settingBackground':
+            // 设置背景图 value: { code, index }
             if (value) {
                 modifyCssFileForBackground(value.code).then(() => {
                     backgroundSendMessage({

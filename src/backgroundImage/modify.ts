@@ -198,10 +198,9 @@ function setSourceCssImportInfo () : Promise<void> {
                 const { content, uri } = data;
                 return writeFileUri(
                     uri!,
-                    createBuffer(content! + `${'\n'+
-                    importStart+'\n'
-                    }@import "./${externalFileName}";${
-                    '\n'+importEnd}`)
+                    createBuffer(`${importStart+'\n'
+                    }@import url("./${externalFileName}");${
+                    '\n'+importEnd}`+content)
                 );
             }).then(() => {
                 resolve();

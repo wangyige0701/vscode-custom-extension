@@ -4,6 +4,7 @@ import { getNonce } from "..";
 import { errHandle } from "../../error";
 import { MessageData } from "./main";
 import { backgroundExecute } from "../../backgroundImage/execute";
+import { backgroundMessageData } from "src/backgroundImage/data";
 
 interface options {
     readonly webviewOptions?: {
@@ -225,7 +226,10 @@ function messageHandle (webview: Webview) {
         switch (message.group) {
             case 'background':
                 // 背景图数据处理
-                backgroundExecute(message.name, message.value, messageSend, webview);
+                backgroundExecute({ 
+                    name: message.name, 
+                    value: message.value 
+                } as backgroundMessageData, messageSend, webview);
                 break;
             default:
                 break;

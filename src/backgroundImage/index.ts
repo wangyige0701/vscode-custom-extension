@@ -1,11 +1,11 @@
 import { Uri, Webview, FileType } from "vscode";
 import { MessageSend } from "../utils/webview/main";
 import { getHashCode } from "../utils";
-import { contextContainer } from "../utils/webview";
-import { createBuffer, imageToBase64, joinPathUri, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
+import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { selectFile } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
+import { imageStoreUri } from "./utils";
 
 // 图片类型过滤
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -15,19 +15,6 @@ const backgroundImageCodeList: string[] = [];
 
 // 选择文件默认路径
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
-
-/**
- * 获取储存背景图资源的uri
- * @returns {Uri|undefined}
- */
-export function imageStoreUri (): Uri | undefined {
-    const uri = contextContainer.instance?.extensionUri;
-    if (uri) {
-        return joinPathUri(uri, 'resources', 'background');
-    } else {
-        return;
-    }
-}
 
 /**
  * 删除一张图片

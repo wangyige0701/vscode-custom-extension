@@ -51,13 +51,24 @@ function buttonClickSelectImage () {
 
 /**
  * 删除图标按钮点击
- * @param {String} code 
+ * @param {string} code 
  * @returns 
  */
 function iconClickDeleteImage (code) {
     if (!canSelect) return;
     sendMessage({
         name: 'deleteImage',
+        value: code
+    });
+}
+
+/**
+ * 设置背景图样式
+ * @param {{code:string,target:Element}} code 
+ */
+function settingBackground (code) {
+    sendMessage({
+        name: 'settingBackground',
         value: code
     });
 }
@@ -81,6 +92,9 @@ function receiveMessage ({ data }) {
         case 'deleteImageSuccess':
             // value: number | array，确定删除图片
             deleteImageHandle(value);
+            break;
+        case 'settingBackgroundSuccess':
+            listInstance.imageClickHandle(value);
             break;
         default:
             break;
@@ -126,8 +140,8 @@ function sendMessage (options={}) {
 
 /**
  * 创建标签元素
- * @param {String} name 标签名
- * @param {Object} option 属性
+ * @param {string} name 标签名
+ * @param {object} option 属性
  * @returns {Element}
  */
 function createELement (name, option={}) {

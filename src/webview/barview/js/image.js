@@ -248,18 +248,34 @@ function createInstance () {
             });
         }
 
+        /**
+         * 删除按钮事件绑定
+         * @param {Element} el 
+         */
         imageDeleteIconEventBind(el) {
             if (el) el.addEventListener('click', this.deleteOneImageIcon.bind(this));
         }
 
+        /**
+         * 删除按钮解除事件绑定
+         * @param {Element} el 
+         */
         imageDeleteIconEventUnbind(el) {
             if (el) el.removeEventListener('click', this.deleteOneImageIcon.bind(this));
         }
         
+        /**
+         * 选择按钮事件绑定
+         * @param {Element} el 
+         */
         imageSelectIconEventBind(el) {
             if (el) el.addEventListener('click', this.selectOneImageIcon.bind(this));
         }
 
+        /**
+         * 选择按钮解除事件绑定
+         * @param {Element} el 
+         */
         imageSelectIconEventUnbind(el) {
             if (el) el.removeEventListener('click', this.selectOneImageIcon.bind(this));
         }
@@ -273,7 +289,7 @@ function createInstance () {
         }
 
         /**
-         * 解除事件绑定
+         * 解除图片事件绑定
          * @param {Element} el 
         */
         imageElementEventUnbind (el) {
@@ -298,6 +314,13 @@ function createInstance () {
          */
         imageClick ({ target }) {
             if (!canSelect) return;
+            settingBackground({
+                code: '',
+                target
+            });
+        }
+
+        imageClickHandle (target) {
             if (target.classList.contains(imageClass)) {
                 target = target.parentElement;
             }

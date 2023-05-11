@@ -31,7 +31,7 @@ test("htmlReplace", () => {
     console.log(html);
 });
 
-test("unit8", () => {
+test("sort", () => {
     const a = '/* index(1) */';
     const b = '/* index(2) */';
     const c = '/* index(3) */';
@@ -73,3 +73,17 @@ test("unit8", () => {
     const str = list.join('\n\n');
     console.log(str);
 });
+
+test("opacity", () => {
+    function minmax (min: number, max: number, value: number): number {
+        return value <= min ? min : value >= max ? max : value;
+`   `}
+
+    function dot (opacity: number) {
+        opacity = minmax(0.1, 1, opacity);
+        opacity = +(0.95 + (-0.45 * opacity)).toFixed(2);
+        console.log(opacity);
+        
+    }
+    dot(11);
+})

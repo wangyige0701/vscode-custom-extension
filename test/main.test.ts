@@ -86,4 +86,21 @@ test("opacity", () => {
         
     }
     dot(11);
+});
+
+test("regexp", () => {
+    // const a = 'version [ ${extensionVer} ]';
+    // const reg = a.match(new RegExp('version\\s\*\\[\\s\*(\\S\*)\\s\*\\]'));
+    // console.log(reg);
+
+    // const b = '/* wangyige.background.start */\n/**\n* version [ 0.0.1 ]\n* date [ 2023-05-11 23:34:21 ]\n* imageCode [ rru51wr92p668m8eehy83e1q ]\n*/\nbody {\n   opacity: 0.81;\n   background-repeat: no-repeat;\n   background-size: cover;\n   background-position: center;\n   background-image: \n}\n/* wangyige.background.end */'
+    // const reg = /\/\* wangyige.background.start \*\/[\s\S]*version\s*\[\s*(\S*)\s*\][\s\S]*date\s*\[\s*(\S*)\s*\][\s\S]*imageCode\s*\[\s*(\S*)\s*\][\s\S]*\/\* wangyige.background.end \*\//;
+    // const reg = /\/\* wangyige.background.start \*\/[\s\S]*version\s*\[\s*(\S*)\s*\][\s\S]*date\s*\[\s*([\s\S]*)\s*\][\s\S]*\/\* wangyige.background.end \*\//;
+    // console.log(b.match(reg));
+
+    const a = '[   acbbbb   ]'
+    const reg = /\[\s*(\S*\s*\S{1,})\s*\]/
+    console.log(a.match(reg));
+    
+    
 })

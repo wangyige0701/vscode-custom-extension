@@ -1,5 +1,5 @@
-import { joinPathUri } from "src/utils/file";
-import { contextContainer } from "src/utils/webview";
+import { joinPathUri } from "../utils/file";
+import { contextContainer } from "../utils/webview";
 import { Uri } from "vscode";
 
 /**

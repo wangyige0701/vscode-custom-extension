@@ -5,7 +5,8 @@ const vscode = acquireVsCodeApi();
 const selectButtonId = 'selectImage'; // 选择图片的按钮
 const listId = 'list'; // 图片列表区域id
 const listImageClass = 'image-container';
-const imageContainerCodeName = 'data-code';
+const imageContainerCode = 'code';
+const imageContainerCodeName = 'data-'+imageContainerCode;
 const imageClass = 'image';
 const selectClass = 'select';
 const imageButtonClass = 'image-operation'; // 图片操作按钮类名
@@ -64,7 +65,7 @@ function iconClickDeleteImage (code) {
 
 /**
  * 设置背景图样式
- * @param {{code:string,target:Element}} code 
+ * @param {string} code 
  */
 function settingBackground (code) {
     sendMessage({
@@ -94,6 +95,7 @@ function receiveMessage ({ data }) {
             deleteImageHandle(value);
             break;
         case 'settingBackgroundSuccess':
+            // value: number，点击图片处理完成，返回列表内对象，修改显示状态
             listInstance.imageClickHandle(value);
             break;
         default:

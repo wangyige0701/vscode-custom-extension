@@ -1,8 +1,12 @@
 import { Webview } from "vscode";
 import { backgroundImageDataInit, deleteImage, selectImage } from ".";
-import { MessageSend } from "../utils/webview/main";
+import { MessageData } from "../utils/webview/main";
 import { modifyCssFileForBackground } from "./modify";
-import { backgroundMessageData } from "./data";
+import { backgroundMessageData, backgroundSendMessageData } from "./data";
+import { isObject } from "../utils";
+import { messageSend } from "../utils/webview";
+
+var webviewInstance: Webview;
 
 /**
  * 背景图通信数据处理
@@ -11,24 +15,43 @@ import { backgroundMessageData } from "./data";
  * @param messageSend 
  * @param webview 
  */
-export function backgroundExecute ({ name, value }: backgroundMessageData, messageSend: MessageSend, webview: Webview) {
+export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
+    if (!webviewInstance) webviewInstance = webview;
     switch (name) {
         case 'backgroundInit':
             // 初始化背景图数据 value: false | true
-            if (value) backgroundImageDataInit(messageSend, webview);
+            if (value) backgroundImageDataInit();
             break;
         case 'selectImage':
             // 选择图片 value: false | true
-            if (value) selectImage(messageSend, webview);
+            if (value) selectImage();
             break;
         case 'deleteImage':
             // 删除图片 value: string
-            if (value) deleteImage(messageSend, webview, value);
+            if (value) deleteImage(value);
             break;
         case 'settingBackground':
-            if (value) modifyCssFileForBackground(value.code);
+            if (value) {
+                modifyCssFileForBackground(value.code).then(() => {
+                    backgroundSendMessage({
+                        name: 'settingBackgroundSuccess',
+                        value: value.index
+                    });
+                });
+            }
             break;
         default:
             break;
+    }
+}
+
+/**
+ * 背景图设置webview端发送通信统一处理
+ * @param options 
+ */
+export function backgroundSendMessage (options: backgroundSendMessageData): void {
+    if (webviewInstance && options && isObject(options)) {
+        options.group = 'background';
+        messageSend(webviewInstance, options as MessageData);
     }
 }

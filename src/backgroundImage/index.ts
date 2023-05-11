@@ -1,11 +1,11 @@
-import { Uri, Webview, FileType } from "vscode";
-import { MessageSend } from "../utils/webview/main";
+import { Uri, FileType } from "vscode";
 import { getHashCode } from "../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { selectFile } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { imageStoreUri } from "./utils";
+import { backgroundSendMessage } from "./execute";
 
 // 图片类型过滤
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -22,10 +22,9 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
  * @param webview 
  * @param code 
  */
-export function deleteImage (messageSend: MessageSend, webview: Webview, code: string) {
+export function deleteImage (code: string) {
     deleteFileStore(code).then(target => {
-        messageSend(webview, {
-            group: 'background',
+        backgroundSendMessage({
             name: 'deleteImageSuccess',
             value: target
         });
@@ -39,7 +38,7 @@ export function deleteImage (messageSend: MessageSend, webview: Webview, code: s
  * @param messageSend 
  * @param webview 
  */
-export function selectImage (messageSend: MessageSend, webview: Webview) {
+export function selectImage () {
     selectFile({
         many: true,
         files: true,
@@ -52,8 +51,7 @@ export function selectImage (messageSend: MessageSend, webview: Webview) {
     }).then(base64 => {
         return createFileStore(base64);
     }).then(({ hashCode, base64 }) => {
-        messageSend(webview, {
-            group: 'background',
+        backgroundSendMessage({
             name: 'newImage',
             value: [base64, hashCode]
         });
@@ -67,15 +65,14 @@ export function selectImage (messageSend: MessageSend, webview: Webview) {
  * @param messageSend 
  * @param webview 
  */
-export function backgroundImageDataInit (messageSend: MessageSend, webview: Webview) {
+export function backgroundImageDataInit () {
     selectAllImage().then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
         return changeToString(buffers);
     }).then(str => {
         refreshGlobalBackgroundImageList();
-        messageSend(webview, {
-            group: 'background',
+        backgroundSendMessage({
             name: 'backgroundInitData',
             value: str
         });

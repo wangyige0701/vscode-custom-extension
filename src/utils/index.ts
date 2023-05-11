@@ -137,6 +137,24 @@ export function isUndefined (value: any): boolean {
 }
 
 /**
+ * 是否是函数类型
+ * @param value 
+ * @returns {boolean}
+ */
+export function isFunction (value: any): boolean {
+    return typeof value === 'function';
+}
+
+/**
+ * 是否是布朗类型
+ * @param value 
+ * @returns {boolean}
+ */
+export function isBoolean (value: any): boolean {
+    return typeof value === 'boolean';
+}
+
+/**
  * 输出在一个最小最大范围内的值
  * @param min 最小值
  * @param max 最大值
@@ -145,4 +163,27 @@ export function isUndefined (value: any): boolean {
  */
 export function minmax (min: number, max: number, value: number): number {
     return value <= min ? min : value >= max ? max : value;
+}
+
+type switchData = string | number | boolean;
+
+interface newSwitchCase {
+    case: (key: switchData, func: Function) => void | newSwitchCase;
+}
+
+/**
+ * 使用if-else的switch方法，测试
+ * @param name 
+ * @returns 
+ */
+export function newSwitch (name: switchData): void | newSwitchCase {
+    return {
+        case: function (key: switchData, func: Function) {
+            if (key === name) {
+                func?.();
+            } else {
+                return this;
+            }
+        }
+    }
 }

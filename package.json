@@ -56,12 +56,12 @@
           "wangyige.background.nowImagePath": {
             "type": "string",
             "default": "",
-            "description": "当前选中图片路径"
+            "description": "当前选中图片路径哈希值"
           },
           "wangyige.background.allImagePath": {
             "type": "array",
             "default": [],
-            "description": "所有选择的背景图路径数组"
+            "description": "所有选择的背景图路径哈希值数组"
           },
           "wangyige.background.hasImage": {
             "type": "boolean",

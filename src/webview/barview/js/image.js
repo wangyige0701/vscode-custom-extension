@@ -45,7 +45,7 @@ function createInstance () {
             const list = this.getChild();
             let index = -1;
             for (let i = 0; i < list.length; i++) {
-                if (list[i].getAttribute(imageContainerCodeName) === code) {
+                if (this.getCodeValue(list[i]) === code) {
                     index = i;
                     break;
                 }
@@ -161,7 +161,7 @@ function createInstance () {
             e.stopPropagation();
             if (!canSelect) return;
             const { path: [self, parent] } = e;
-            const code = parent.getAttribute(imageContainerCodeName);
+            const code = this.getCodeValue(parent);
             if (code) iconClickDeleteImage(code);
         }
 
@@ -179,13 +179,13 @@ function createInstance () {
 
         getPosition ({ path: [self, parent, list] }) {
             const { children } = list;
-            let i = 0;
+            let i = -1;
             // 获取点击位置索引
             while (i < children.length) {
+                i++;
                 if (parent == children[i]) {
                     break;
                 }
-                i++;
             }
             return i;
         }
@@ -249,6 +249,73 @@ function createInstance () {
         }
 
         /**
+         * 取消冒泡
+         * @param {Element} el 
+         */
+        stopPropagation (el, event='click') {
+            if (el) {
+                el.addEventListener(event,e => {
+                    e.stopPropagation();
+                });
+            }
+        }
+
+        /**
+         * 绑定事件处理函数
+         * @param {{target:Element}} param
+         */
+        imageClick ({ target }) {
+            if (!canSelect) return;
+            if (target.classList.contains(imageClass)) {
+                target = target.parentElement;
+            }
+            settingBackground({
+                code: this.getCodeValue(target),
+                index: this.getElementIndex(target)
+            });
+        }
+
+        /**
+         * 图片选中后的显示状态处理
+         * @param {number} number 
+         */
+        imageClickHandle (number) {
+            const { select, index } = this.hasSelect();
+            if (select) this.cancelSelect(index);
+            if (index === number) return;
+            let target = this.getChild()[number];
+            target?.classList.add(selectClass);
+        }
+
+        /**
+         * 获取编码属性值
+         * @param {HTMLElement} el 
+         */
+        getCodeValue (el) {
+            if (el && el.dataset.hasOwnProperty(imageContainerCode)) {
+                return el.dataset[imageContainerCode];
+            }
+            return undefined;
+        }
+
+        /**
+         * 获取当前元素相对于父元素的位置
+         * @param {Element} el 
+         * @returns 
+         */
+        getElementIndex (el) {
+            const { parentElement: { children } } = el;
+            let i = -1;
+            while (i < children.length) {
+                i++;
+                if (children[i] === el) {
+                    break;
+                }
+            }
+            return i;
+        }
+
+        /**
          * 删除按钮事件绑定
          * @param {Element} el 
          */
@@ -294,39 +361,6 @@ function createInstance () {
         */
         imageElementEventUnbind (el) {
             if (el) el.removeEventListener('click', this.imageClick.bind(this));
-        }
-
-        /**
-         * 取消冒泡
-         * @param {Element} el 
-         */
-        stopPropagation (el, event='click') {
-            if (el) {
-                el.addEventListener(event,e => {
-                    e.stopPropagation();
-                });
-            }
-        }
-
-        /**
-         * 绑定事件处理函数
-         * @param {{target:Element}} param
-         */
-        imageClick ({ target }) {
-            if (!canSelect) return;
-            settingBackground({
-                code: '',
-                target
-            });
-        }
-
-        imageClickHandle (target) {
-            if (target.classList.contains(imageClass)) {
-                target = target.parentElement;
-            }
-            const { select, index } = this.hasSelect();
-            if (select) this.cancelSelect(index);
-            target.classList.add(selectClass);
         }
     }
 

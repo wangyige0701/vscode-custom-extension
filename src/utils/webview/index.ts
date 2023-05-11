@@ -4,7 +4,7 @@ import { getNonce } from "..";
 import { errHandle } from "../../error";
 import { MessageData } from "./main";
 import { backgroundExecute } from "../../backgroundImage/execute";
-import { backgroundMessageData } from "src/backgroundImage/data";
+import { backgroundMessageData } from "../../backgroundImage/data";
 
 interface options {
     readonly webviewOptions?: {
@@ -210,8 +210,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                 .replace(/(#css)/, this.newCssUri?
                     `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:
                     '')
-                .replace(/(#js)/, this.jsUri?
-                    `<script nonce="${nonce}" src="${webview.asWebviewUri(this.jsUri)}"></script>`:
+                .replace(/(#js)/, this.newJsUri?
+                    `<script nonce="${nonce}" src="${webview.asWebviewUri(this.newJsUri)}"></script>`:
                     '');
         });
         return Promise.resolve(this.htmlContent);
@@ -229,7 +229,7 @@ function messageHandle (webview: Webview) {
                 backgroundExecute({ 
                     name: message.name, 
                     value: message.value 
-                } as backgroundMessageData, messageSend, webview);
+                } as backgroundMessageData, webview);
                 break;
             default:
                 break;
@@ -240,7 +240,7 @@ function messageHandle (webview: Webview) {
 /**
  * webview端发送通信信息
 */
-function messageSend (webview: Webview, options: MessageData): void {
+export function messageSend (webview: Webview, options: MessageData): void {
     if (webview) {
         try {
             webview.postMessage(options);

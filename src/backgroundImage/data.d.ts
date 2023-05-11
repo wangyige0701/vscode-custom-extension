@@ -1,27 +1,59 @@
-
-
-export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType;
-
 interface dataType {
+    group?:string;
     name: string;
     value: any;
 }
 
+/**
+ * 接收通信数据类型
+ */
+
+export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType;
+
 interface backgroundInitType extends dataType {
-    backgroundInit: boolean
+    name: 'backgroundInit';
+    value: boolean;
 }
 
 interface selectImageType extends dataType {
-    selectImage: boolean
+    name: 'selectImage';
+    value: boolean;
 }
 
 interface deleteImageType extends dataType {
-    deleteImage: string
+    name: 'deleteImage';
+    value: string;
 }
 
 interface settingBackgroundType extends dataType {
-    settingBackground: {
+    name: 'settingBackground';
+    value: {
         code: string,
-        target: HTMLLIElement
-    }
+        index: number
+    };
+}
+
+/**
+ * 发送通信信息类型
+*/
+export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | settingBackgroundSuccessType;
+
+interface backgroundInitDataType extends dataType {
+    name: 'backgroundInitData';
+    value: string[][];
+}
+
+interface newImageType extends dataType {
+    name: 'newImage';
+    value: [string, string]
+}
+
+interface deleteImageSuccessType extends dataType {
+    name: 'deleteImageSuccess';
+    value: string;
+}
+
+interface settingBackgroundSuccessType extends dataType {
+    name: 'settingBackgroundSuccess';
+    value: HTMLLIElement
 }

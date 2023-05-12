@@ -7,6 +7,7 @@ import { backgroundImageConfiguration } from "../workspace/background";
 import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./execute";
 import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
+import { bufferAndCode } from "./data";
 
 // 图片类型过滤
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -144,11 +145,6 @@ export function backgroundImageDataInit () {
     }).catch(err => {
         errHandle(err as Error);
     });
-}
-
-interface bufferAndCode {
-    buffer:Uint8Array;
-    code:string;
 }
 
 /**

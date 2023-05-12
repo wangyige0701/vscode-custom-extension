@@ -57,3 +57,11 @@ interface settingBackgroundSuccessType extends dataType {
     name: 'settingBackgroundSuccess';
     value: number | string
 }
+
+/**
+ * 读取.wyg文件时返回的格式类型
+ */
+export interface bufferAndCode {
+    buffer:Uint8Array;
+    code:string;
+}

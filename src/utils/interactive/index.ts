@@ -1,7 +1,7 @@
-import { Uri, window } from 'vscode';
-import { check, isString } from '../index';
+import { MessageItem, Uri, window } from 'vscode';
+import { check, isString, isUndefined } from '../index';
 import { dirname } from 'path';
-import { SelectFileParams } from './main';
+import { MessageBoxType, SelectFileParams } from './main';
 
 /**
  * 调用输入框api获取输入内容
@@ -86,4 +86,52 @@ export function selectFile ({
     });
 }
 
-export function setMessage () {}
+/**
+ * 设置消息弹框
+ * @param param
+ * @returns 
+ */
+export function setMessage ({
+    type = 'information',
+    message,
+    modal = false,
+    detail,
+    items
+}: MessageBoxType) {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!type) type = 'information';
+            if (!message) {
+                throw new Error('Null message for MessageBox');
+            }
+            isUndefined(items) ? 
+                // items是undefinded不传
+                getMessageBoxAllData()[type](message, {
+                    modal,
+                    detail
+                }).then(res => {
+                    resolve(res);
+                }) : 
+                getMessageBoxAllData()[type](message, {
+                    modal,
+                    detail
+                }, ...(items as MessageItem[])).then(res => {
+                    resolve(res);
+                });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 获取消息弹框所有方法
+ * @returns 
+ */
+function getMessageBoxAllData () {
+    return {
+        information: window.showInformationMessage,
+        warning: window.showWarningMessage,
+        error: window.showErrorMessage
+    }
+}

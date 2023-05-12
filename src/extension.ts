@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { webviewCreateByHtml, contextContainer as webviewContextContainer, registWebview } from './utils/webview';
+import { setMessage } from './utils/interactive';
 
 export function activate(context: vscode.ExtensionContext) {
 	webviewContextContainer.instance = context;
@@ -9,13 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	context.subscriptions.push(backgroundWebview);
 
-	// vscode.window.showInformationMessage('错误测试', {
-	// 	modal: true,
-	// 	detail: 'detail'
-	// }, {
-	// 	title: '确认',
-	// 	isCloseAffordance: true
-	// })
 	// vscode.window.setStatusBarMessage('aaaaa')
 }
 

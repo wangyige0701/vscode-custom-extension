@@ -1,6 +1,7 @@
 import { Uri, window } from 'vscode';
 import { check, isString } from '../index';
 import { dirname } from 'path';
+import { SelectFileParams } from './main';
 
 /**
  * 调用输入框api获取输入内容
@@ -31,16 +32,6 @@ export function getInputInfo (title: string, placeHolder: string, reg: RegExp = 
             reject(error);
         }
     });
-}
-
-interface SelectFileParams {
-    files?: boolean;
-    folders?: boolean;
-    many?: boolean; // 允许选择多个文件
-    filters?: { [name: string]: string[] };
-    title?: string;
-    openLabel?: string;
-    defaultUri?: Uri | string;
 }
 
 /**
@@ -94,3 +85,5 @@ export function selectFile ({
         }
     });
 }
+
+export function setMessage () {}

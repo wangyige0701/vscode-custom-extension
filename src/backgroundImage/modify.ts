@@ -198,11 +198,14 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                     }* date [ ${date} ]${'\n'
                     }* imageCode [ ${codeValue} ]${'\n'
                     }*/${'\n'
+                    }@keyframes vscode-body-hide{from{background-size:0;}to{background-size:0;}}${'\n'
+                    }@keyframes vscode-body-opacity{from{opacity:1;}to{opacity:${opacity};}}${'\n'
                     }body {${'\n'
                     }   opacity: ${opacity};${'\n'
                     }   background-repeat: no-repeat;${'\n'
                     }   background-size: cover;${'\n'
                     }   background-position: center;${'\n'
+                    }   animation: vscode-body-hide 1s,vscode-body-opacity 1s ease 1s;${'\n'
                     }   background-image: url('${image}');${'\n'
                     }}${
                     '\n'+importEnd}`,

@@ -32,14 +32,13 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             break;
         case 'settingBackground':
             // 设置背景图 value: { code, index }
-            if (value) {
+            if (value) 
                 modifyCssFileForBackground(value.code).then(() => {
                     backgroundSendMessage({
                         name: 'settingBackgroundSuccess',
                         value: value.index
                     });
                 });
-            }
             break;
         default:
             break;

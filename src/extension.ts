@@ -8,6 +8,15 @@ export function activate(context: vscode.ExtensionContext) {
 	const backgroundWebview = registWebview('wangyige.custom.backgroundimage', new webviewCreateByHtml('src/webview/barview', '背景图片'));
 
 	context.subscriptions.push(backgroundWebview);
+
+	// vscode.window.showInformationMessage('错误测试', {
+	// 	modal: true,
+	// 	detail: 'detail'
+	// }, {
+	// 	title: '确认',
+	// 	isCloseAffordance: true
+	// })
+	// vscode.window.setStatusBarMessage('aaaaa')
 }
 
 // This method is called when your extension is deactivated

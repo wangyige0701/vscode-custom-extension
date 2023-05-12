@@ -234,10 +234,10 @@ function messageHandle (webview: Webview) {
         switch (message.group) {
             case 'background':
                 // 背景图数据处理
-                backgroundExecute({ 
+                backgroundExecute(<backgroundMessageData>{ 
                     name: message.name, 
                     value: message.value 
-                } as backgroundMessageData, webview);
+                }, webview);
                 break;
             default:
                 break;

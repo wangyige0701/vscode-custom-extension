@@ -1,7 +1,7 @@
-import { MessageItem, Uri, window } from 'vscode';
-import { check, isString, isUndefined } from '../index';
+import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window } from 'vscode';
+import { check, isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
-import { MessageBoxType, SelectFileParams } from './main';
+import { MessageBoxType, ProgressLocationData, ProgressOptionsNew, ProgressTaskType, SelectFileParams, StatusBarCallback, StatusBarIconMessage, StatusBarParam } from './main';
 
 /**
  * 调用输入框api获取输入内容
@@ -91,31 +91,32 @@ export function selectFile ({
  * @param param
  * @returns 
  */
-export function setMessage ({
+export function setMessage<T extends MessageItem> ({
     type = 'information',
     message,
     modal = false,
     detail,
     items
-}: MessageBoxType) {
+}: MessageBoxType<T>): Promise<T | undefined> {
     return new Promise((resolve, reject) => {
         try {
             if (!type) type = 'information';
             if (!message) {
                 throw new Error('Null message for MessageBox');
             }
+            if (!modal) detail = undefined;
             isUndefined(items) ? 
                 // items是undefinded不传
                 getMessageBoxAllData()[type](message, {
                     modal,
                     detail
                 }).then(res => {
-                    resolve(res);
+                    resolve(res as undefined);
                 }) : 
                 getMessageBoxAllData()[type](message, {
                     modal,
                     detail
-                }, ...(items as MessageItem[])).then(res => {
+                }, ...(items as T[])).then(res => {
                     resolve(res);
                 });
         } catch (error) {
@@ -134,4 +135,57 @@ function getMessageBoxAllData () {
         warning: window.showWarningMessage,
         error: window.showErrorMessage
     }
+}
+
+/**
+ * 设置底部状态栏文字内容
+ * @param message 
+ * @param option 
+ * @param callback 
+ * @param callbackParam 
+ * @returns 
+ */
+export function setStatusBar (message: string | StatusBarIconMessage, option?:StatusBarParam, callback?: StatusBarCallback, ...callbackParam: any[]): Disposable {
+    if (isObject(message)) {
+        message = `$(${(message as StatusBarIconMessage).icon})${(message as StatusBarIconMessage).message}`;
+    }
+    if (isUndefined(option)) 
+        return window.setStatusBarMessage(message as string);
+    let thenable: Thenable<any>;
+    if (isNumber(option)) {
+        thenable = <Promise<void>>new Promise((resolve, reject) => {
+            try {
+                setTimeout(() => {
+                    callback?.(...callbackParam);
+                    resolve();
+                }, option as number);
+            } catch (error) {
+                reject(error);
+            }
+        })
+    } else {
+        thenable = option as Thenable<any>;
+    }
+    return window.setStatusBarMessage(message as string, thenable);
+}
+
+/**
+ * 调用进度条api
+ * @param options 
+ * @param task 
+ * @returns 
+ */
+export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>) {
+    if (isString(options.location)) 
+        options.location = getProgressLocation(options.location as ProgressLocationData);
+    return window.withProgress(options as ProgressOptions, task);
+}
+
+/**
+ * 获取location的值
+ * @param name 
+ * @returns 
+ */
+function getProgressLocation (name: ProgressLocationData) {
+    return ProgressLocation[name];
 }

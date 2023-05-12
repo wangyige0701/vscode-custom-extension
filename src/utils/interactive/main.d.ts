@@ -1,4 +1,4 @@
-import { MessageItem, Uri } from "vscode";
+import { CancellationToken, Progress, ProgressLocation, ProgressOptions, Uri } from "vscode";
 
 /**
  * 选择文件方法参数
@@ -38,7 +38,7 @@ type MessageBoxMethodType = 'information' | 'error' | 'warning';
 /**
  * 消息框调用参数
 */
-interface MessageBoxType {
+interface MessageBoxType<T> {
     /**
      * 类型
     */
@@ -55,12 +55,44 @@ interface MessageBoxType {
     modal?: boolean;
 
     /**
-     * 详细描述
+     * 详细描述，只在modal下显示
     */
     detail?: string;
 
     /**
      * 弹框按钮
     */
-    items?: MessageItem[]
+    items?: T[]
 }
+
+/**
+ * 状态栏参数
+*/
+type StatusBarParam = number | Thenable<any>;
+
+type StatusBarCallback = (...data: any[]) => any;
+
+type StatusBarIconMessage = {
+    /**
+     * 字符串开头添加的图标
+     */
+    icon: string;
+
+    /**
+     * 消息字符串
+     */
+    message: string; 
+};
+
+/**
+ * 进度条数据类型
+*/
+interface ProgressOptionsNew {
+    location: ProgressLocationData | { viewId: string } | ProgressLocation;
+    title?: string;
+    cancellable?: boolean;
+}
+
+type ProgressLocationData = 'SourceControl' | 'Window' | 'Notification';
+
+type ProgressTaskType<R> = (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<R>

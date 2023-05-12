@@ -141,5 +141,22 @@ export const backgroundImageConfiguration = {
      */
     setBackgroundSelectDefaultPath (value: string): void {
         return backgroundImageConfiguration.setBackgroundConfiguration('defaultPath', value);
+    },
+
+    /**
+     * 获取背景图加载状态
+     * @returns 
+     */
+    getBackgroundLoad (): boolean {
+        return backgroundImageConfiguration.getBackgroundConfiguration().load;
+    },
+
+    /**
+     * 设置背景图加载状态
+     * @param value 
+     * @returns 
+     */
+    setBackgroundLoad (value: boolean): void {
+        return backgroundImageConfiguration.setBackgroundConfiguration('load', value);
     }
 }

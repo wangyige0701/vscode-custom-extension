@@ -51,6 +51,8 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boole
         try {
             workspace.fs.copy(source, target, options).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -72,6 +74,8 @@ export function uriDelete (uri: Uri, options?: {
         try {
             workspace.fs.delete(uri, options).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -89,6 +93,8 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
         try {
             workspace.fs.readDirectory(uri).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -106,6 +112,8 @@ export function readFileUri (uri: Uri): Promise<Uint8Array> {
         try {
             workspace.fs.readFile(uri).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -138,6 +146,8 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
         try {
             workspace.fs.writeFile(uri, content).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -155,6 +165,8 @@ export function uriStat (uri: Uri): Promise<FileStat> {
         try {
             workspace.fs.stat(uri).then(res => {
                 resolve(res);
+            }, err => {
+                throw err;
             });
         } catch (error) {
             reject(error);

@@ -1,7 +1,6 @@
 import { Webview } from "vscode";
-import { backgroundImageDataInit, deleteImage, selectImage } from ".";
+import { backgroundImageDataInit, deleteImage, selectImage, settingImage } from ".";
 import { MessageData } from "../utils/webview/main";
-import { modifyCssFileForBackground } from "./modify";
 import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
 import { messageSend } from "../utils/webview";
@@ -32,13 +31,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             break;
         case 'settingBackground':
             // 设置背景图 value: { code, index }
-            if (value) 
-                modifyCssFileForBackground(value.code).then(() => {
-                    backgroundSendMessage({
-                        name: 'settingBackgroundSuccess',
-                        value: value.index
-                    });
-                });
+            if (value) settingImage(value);
             break;
         default:
             break;

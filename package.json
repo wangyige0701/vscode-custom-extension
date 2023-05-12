@@ -46,6 +46,11 @@
       {
         "title": "custom background image",
         "properties": {
+          "wangyige.background.load": {
+            "type": "boolean",
+            "default": false,
+            "description": "软件启动后加载背景图的判断"
+          },
           "wangyige.background.opacity": {
             "type": "number",
             "maximum": 1,

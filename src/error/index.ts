@@ -7,14 +7,18 @@
  * URIError：uri地址错误
  */
 
+import { setMessage } from "../utils/interactive";
+
 
 /**
  * 错误统一处理
  * @param e 
  */
-export function errHandle (e: Error) {
-    console.error(
-        `name:${e.name}\n`,
-        `message:${e.message}`
-    );
+export function errHandle (e: Error | undefined | void) {
+    if (!e) return;
+    setMessage({
+        type: 'error',
+        message: `name:${e.name}\nmessage:${e.message}`,
+        modal: false
+    });
 }

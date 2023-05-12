@@ -4,11 +4,11 @@ const vscode = acquireVsCodeApi();
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
 const listId = 'list'; // 图片列表区域id
-const listImageClass = 'image-container';
+const listImageClass = 'image-container'; // 图片列表类名
 const imageContainerCode = 'code';
-const imageContainerCodeName = 'data-'+imageContainerCode;
-const imageClass = 'image';
-const selectClass = 'select';
+const imageContainerCodeName = 'data-'+imageContainerCode; // 图片中用于存放code哈希码的属性名
+const imageClass = 'image'; // 图片公用类名
+const selectClass = 'select'; // 图片选中的类名
 const imageButtonClass = 'image-operation'; // 图片操作按钮类名
 const imageSelectButtonClass = 'image-select'; // 图片选中按钮类名
 const imageDeleteButtonClass = 'image-delete'; // 图片删除按钮类名

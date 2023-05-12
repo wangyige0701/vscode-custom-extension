@@ -1,12 +1,12 @@
 import { Uri, FileType } from "vscode";
-import { getHashCode } from "../utils";
+import { delay, getHashCode } from "../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { selectFile } from "../utils/interactive";
+import { selectFile, showProgress } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { imageStoreUri } from "./utils";
+import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./execute";
-import { checkCurentImageIsSame } from "./modify";
+import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 
 // 图片类型过滤
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -16,6 +16,60 @@ const backgroundImageCodeList: string[] = [];
 
 // 选择文件默认路径
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
+
+/**
+ * 校验设置背景的css文件和源css文件是否删除相关内容
+ */
+export function checkImageCssDataIsRight (): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        let state = false;
+        setSourceCssImportInfo().then((res) => {
+            state = state || res.modify;
+            return checExternalDataIsRight();
+        }).then((res) => {
+            state = state || res.modify;
+            changeLoadState();
+            resolve(state);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}
+
+/**
+ * webview端点击设置背景图
+ * @param param
+ */
+export function settingImage ({ code, index }: {
+    code: string;
+    index: number;
+}) {
+    isChangeBackgroundImage().then(() => {
+        showProgress({
+            location: 'Notification',
+            title: '背景图设置中'
+        }, (progress) => {
+            return <Promise<void>>new Promise((resolve) => {
+                modifyCssFileForBackground(code).then(() => {
+                    backgroundSendMessage({
+                        name: 'settingBackgroundSuccess',
+                        value: index
+                    });
+                    progress.report({
+                        message: '设置成功',
+                        increment: 100
+                    });
+                    return delay(1000);
+                }).then(() => {
+                    isWindowReloadToLoadBackimage();
+                    resolve();
+                });
+            });
+        });
+    }).catch((err) => {
+        if (err) throw err;
+    });
+}
 
 /**
  * 删除一张图片
@@ -85,6 +139,7 @@ export function backgroundImageDataInit () {
                 name: 'settingBackgroundSuccess',
                 value: data.code as string
             });
+            setBackgroundImageSuccess();
         }
     }).catch(err => {
         errHandle(err as Error);
@@ -171,7 +226,7 @@ function compareCodeList (oldData: string[], newData: string[]): boolean {
 }
 
 /**
- * 校验文件并进行数据读取
+ * 校验储存图片base64数据的文件并进行读取
  * @param files 
  * @param uri 
  * @returns {Promise<bufferAndCode[]>}

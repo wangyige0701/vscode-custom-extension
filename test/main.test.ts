@@ -93,14 +93,56 @@ test("regexp", () => {
     // const reg = a.match(new RegExp('version\\s\*\\[\\s\*(\\S\*)\\s\*\\]'));
     // console.log(reg);
 
-    const b = '/* wangyige.background.start */\n/**\n* extensionVersion [ 0.0.1 ]\n* date [ 2023-0  5-11 23:34:21 ]\n* imageCode [ rru51wr92p668m8eehy83e1q ]\n*/\nbody {\n   opacity: 0.81;\n   background-repeat: no-repeat;\n   background-size: cover;\n   background-position: center;\n   background-image: \n}\n/* wangyige.background.end */'
-    // const reg = /\/\* wangyige.background.start \*\/[\s\S]*extensionVersion\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*date\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*imageCode\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*\/\* wangyige.background.end \*\//;
-    const reg = /\/\* wangyige.background.start \*\/[\s\S]*date\s*\[\s*(\S*.*\S{1,})\s*\][\s\S]*\/\* wangyige.background.end \*\//;
-    console.log(b.match(reg));
+    // const b = '/* wangyige.background.start */\n/**\n* extensionVersion [ 0.0.1 ]\n* date [ 2023-0  5-11 23:34:21 ]\n* imageCode [ rru51wr92p668m8eehy83e1q ]\n*/\nbody {\n   opacity: 0.81;\n   background-repeat: no-repeat;\n   background-size: cover;\n   background-position: center;\n   background-image: \n}\n/* wangyige.background.end */'
+    // // const reg = /\/\* wangyige.background.start \*\/[\s\S]*extensionVersion\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*date\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*imageCode\s*\[\s*(\S*[\s\S]*\S{1,})\s*\][\s\S]*\/\* wangyige.background.end \*\//;
+    // const reg = /\/\* wangyige.background.start \*\/[\s\S]*date\s*\[\s*(\S*.*\S{1,})\s*\][\s\S]*\/\* wangyige.background.end \*\//;
+    // console.log(b.match(reg));
 
     // const a = '[   a   cb    bbb   ]'
     // const reg = /\[\s*([\S\s]*\S{1,})\s*\]/
     // console.log(a.match(reg));
     
+    const tagName = 'wangyige.background';
+    const importStartMatch = `\\/\\* ${tagName}.start \\*\\/`;
+    const importEndMatch = `\\/\\* ${tagName}.end \\*\\/`;
+
+    const s = '\\s\*'; // 任意空格
+    const a = '\[\\s\\S\]\*'; // 任意字符
+    const ans = '\\S\*'; // 任意字符不包括空格
+    const ant = '\.\*'; // 任意字符不包括换行
+    const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
+    /**
+     * 匹配源css文件正则
+     */
+    const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
+    /**
+     * 匹配写入背景属性的css文件
+     */
+    const findImageCssPosition = 
+        `${importStartMatch}${a}${
+            getReg('vsCodeVersion')
+        }${a}${
+            getReg('extensionVersion')
+        }${a}${
+            getReg('date')
+        }${a}${
+            getReg('imageCode')
+        }${a}${importEndMatch}`;
+
+    const findImageCssOpacityData = 
+        `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
+
+    function getReg (name: string, catchData: boolean = true): string {
+        if (catchData) return `${name}${s}\\[${s}(${asa})${s}\\]`;
+        return `${name}${s}\\[${s}${asa}${s}\\]`;
+    }
+
+    const content = `/* wangyige.background.start */
+    body {
+        opacity  :  10 ;
+        background::
+    }
+    /* wangyige.background.end */`
+    console.log(content.match(findImageCssOpacityData));
     
 })

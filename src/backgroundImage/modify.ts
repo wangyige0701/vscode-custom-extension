@@ -2,13 +2,13 @@
  * 修改css文件
 */
 
-import { dirname, join, resolve } from "path";
-import { getDate, isBoolean, isString } from "../utils";
+import { dirname, join } from "path";
+import { getDate } from "../utils";
 import { minmax } from "../utils";
 import { createBuffer, newUri, readFileUri, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
-import { imageStoreUri } from "./utils";
+import { changeLoadState, imageStoreUri, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 
 interface info {
@@ -29,7 +29,29 @@ const a = '\[\\s\\S\]\*'; // 任意字符
 const ans = '\\S\*'; // 任意字符不包括空格
 const ant = '\.\*'; // 任意字符不包括换行
 const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
-const findPosition = `${importStartMatch}(${a})${importEndMatch}`;
+/**
+ * 匹配源css文件正则
+ */
+const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
+/**
+ * 匹配写入背景属性的css文件信息正则
+ */
+const findImageCssPosition = 
+    `${importStartMatch}${a}${
+        getReg('vsCodeVersion')
+    }${a}${
+        getReg('extensionVersion')
+    }${a}${
+        getReg('date')
+    }${a}${
+        getReg('imageCode')
+    }${a}${importEndMatch}`;
+
+/**
+ * 获取背景样式文件中的透明度值正则
+ */
+const findImageCssOpacityData = 
+    `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
 
 // vscode的css文件
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';
@@ -62,10 +84,11 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
                     return;
                 }
                 settingConfiguration(res[1]);
-                return writeCssFile(res[0]);
+                return writeExternalCssFile(res[0]);
             }).then(() => {
                 return setSourceCssImportInfo();
             }).then(() => {
+                setBackgroundImageSuccess();
                 resolve();
             }).catch(err => {
                 throw err;
@@ -84,7 +107,7 @@ export function deletebackgroundCssFileModification () {}
 /**
  * 检查指定code是否是当前设置背景图的code
  * @param codeValue 
- * @returns 
+ * @returns 如果state为false时也传了code，则此code是最新需要被设置的图片code码
  */
 export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
     return new Promise((resolve, reject) => {
@@ -104,7 +127,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
                         return;
                     }
                 }
-                resolve({ state: false });
+                resolve({ state: false, code: codeValue });
             }).catch(err => {
                 throw err;
             });
@@ -130,7 +153,7 @@ function settingConfiguration (options: info) {
  * @param content 
  * @returns 
  */
-function writeCssFile (content: string): Promise<void> {
+function writeExternalCssFile (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             const fileUri = getCssUri(externalFileName) as Uri;
@@ -190,6 +213,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                 let opacity = backgroundImageConfiguration.getBackgroundOpacity();
                 opacity = minmax(0.1, 1, opacity);
                 opacity = +(0.95 + (-0.45 * opacity)).toFixed(2);
+                const delay = 2; // 动画延迟的时间
                 resolve([
                     `${importStart+'\n'
                     }/**${'\n'
@@ -205,7 +229,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                     }   background-repeat: no-repeat;${'\n'
                     }   background-size: cover;${'\n'
                     }   background-position: center;${'\n'
-                    }   animation: vscode-body-hide 1s,vscode-body-opacity 1s ease 1s;${'\n'
+                    }   animation: vscode-body-hide 1s,vscode-body-opacity ${delay}s ease ${delay}s;${'\n'
                     }   background-image: url('${image}');${'\n'
                     }}${
                     '\n'+importEnd}`,
@@ -222,6 +246,59 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
         } catch (error) {
             reject(error);
         }
+    });
+}
+
+/**
+ * 获取缓存中的当前背景图哈希码
+ * @returns 
+ */
+function getNowSettingCode (): Promise<string | false> {
+    return new Promise((resolve, reject) => {
+        try {
+            const storageCode = backgroundImageConfiguration.getBackgroundNowImagePath();
+            if (!storageCode) {
+                resolve(false);
+            } else {
+                resolve(storageCode);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码
+ * @returns 
+ */
+export function checExternalDataIsRight (): Promise<{modify:boolean}> {
+    return new Promise((resolve, reject) => {
+        getNowSettingCode().then(res => {
+            if (res) {
+                return checkCurentImageIsSame(res);
+            } else {
+                changeLoadState();
+                resolve({modify:false});
+                return;
+            }
+        }).then(data => {
+            const state = data!.state;
+            if (state === true) {
+                // 当前不需要更新背景图css数据设置文件
+                resolve({modify:false});
+                return;
+            }
+            if (data && data.code) {
+                // 编码校验失败或者没有css文件，重新写入
+                return modifyCssFileForBackground(data.code);
+            }
+            return;
+        }).then(() => {
+            resolve({modify:true});
+        }).catch(err => {
+            reject(err);
+        });
     });
 }
 
@@ -246,14 +323,14 @@ function getSourceCssFileContent (): Promise<[string, Uri]> {
  * 将导入语句写入主样式文件中
  * @returns 
  */
-function setSourceCssImportInfo () : Promise<void> {
+export function setSourceCssImportInfo () : Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
         try {
             getSourceCssFileContent().then(([content, uri]) => {
                 return isSourceCssFileModify(content, uri);
             }).then((data) => {
                 if (data === true) {
-                    resolve();
+                    resolve({modify:false});
                     return;
                 }
                 const { content, uri } = data;
@@ -264,7 +341,7 @@ function setSourceCssImportInfo () : Promise<void> {
                     '\n'+importEnd}`+content)
                 );
             }).then(() => {
-                resolve();
+                resolve({modify:true});
             }).catch(err => {
                 throw err;
             });
@@ -283,7 +360,7 @@ function setSourceCssImportInfo () : Promise<void> {
 function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:string, uri?:Uri } | true> {
     return new Promise((resolve, reject) => {
         try {
-            const reg = content.match(new RegExp(findPosition));
+            const reg = content.match(new RegExp(findSourceCssPosition));
             // 有匹配项返回去，不需要继续插入
             if (reg) {
                 resolve(true);
@@ -304,17 +381,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:s
 function findInfo (content: string): Promise<info | false> {
     return new Promise((resolve, reject) => {
         try {
-            const check = new RegExp(
-                `${importStartMatch}${a}${
-                    getReg('vsCodeVersion')
-                }${a}${
-                    getReg('extensionVersion')
-                }${a}${
-                    getReg('date')
-                }${a}${
-                    getReg('imageCode')
-                }${a}${importEndMatch}`
-            );
+            const check = new RegExp(findImageCssPosition);
             const reg = content.match(check);
             // 有匹配项返回信息
             if (reg) {
@@ -338,6 +405,7 @@ function findInfo (content: string): Promise<info | false> {
  * @param name 
  * @returns 
  */
-function getReg (name: string): string {
-    return `${name}${s}\\[${s}(${asa})${s}\\]`;
+function getReg (name: string, catchData: boolean = true): string {
+    if (catchData) return `${name}${s}\\[${s}(${asa})${s}\\]`;
+    return `${name}${s}\\[${s}${asa}${s}\\]`;
 }

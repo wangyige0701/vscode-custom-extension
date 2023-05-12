@@ -268,6 +268,7 @@ function createInstance () {
             if (target.classList.contains(imageClass)) {
                 target = target.parentElement;
             }
+            if (target.classList.contains(selectClass)) return;
             settingBackground({
                 code: this.getCodeValue(target),
                 index: this.getElementIndex(target)

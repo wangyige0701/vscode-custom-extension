@@ -70,7 +70,7 @@ export function getNonce() {
 
 /**
  * 生成一个指定长度的哈希序列，默认24位
- * @param {Number|String} length 生成哈希字符串的长度
+ * @param {number|string} length 生成哈希字符串的长度
  * @returns 返回一个哈希序列
  */
 export function getHashCode (length: number | string = 24): string {
@@ -186,4 +186,15 @@ export function newSwitch (name: switchData): void | newSwitchCase {
             }
         }
     }
+}
+
+/**
+ * 延迟指定时间
+ * @param time 
+ * @returns 
+ */
+export function delay (time: number = 0): Promise<void> {
+    return new Promise(resolve => {
+        setTimeout(resolve, time);
+    });
 }

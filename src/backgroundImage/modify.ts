@@ -13,7 +13,7 @@ import { getVersion } from "../version";
 
 interface info {
     vsCodeVersion: string; // vscode版本号
-    version: string; // 当前版本号
+    extensionVersion: string; // 当前版本号
     date: string; // 日期
     code: string; // 图片哈希码
 }
@@ -28,7 +28,7 @@ const s = '\\s\*'; // 任意空格
 const a = '\[\\s\\S\]\*'; // 任意字符
 const ans = '\\S\*'; // 任意字符不包括空格
 const ant = '\.\*'; // 任意字符不包括换行
-const asa = '\\S\*\\s\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
+const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
 const findPosition = `${importStartMatch}(${a})${importEndMatch}`;
 
 // vscode的css文件
@@ -178,9 +178,9 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                 return findInfo(content);
             }).then(data => {
                 if (data) {
-                    const { code } = data;
-                    // 如果和上一次是一个哈希值，不再更新数据
-                    if (code === codeValue) {
+                    const { code, vsCodeVersion, extensionVersion } = data;
+                    // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
+                    if (code === codeValue && vsCodeVersion === version && extensionVersion === extensionVer) {
                         resolve(false);
                         return;
                     }
@@ -194,7 +194,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                     `${importStart+'\n'
                     }/**${'\n'
                     }* vsCodeVersion [ ${version} ]${'\n'
-                    }* version [ ${extensionVer} ]${'\n'
+                    }* extensionVersion [ ${extensionVer} ]${'\n'
                     }* date [ ${date} ]${'\n'
                     }* imageCode [ ${codeValue} ]${'\n'
                     }*/${'\n'
@@ -208,7 +208,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                     '\n'+importEnd}`,
                     {
                         vsCodeVersion: version,
-                        version: extensionVer,
+                        extensionVersion: extensionVer,
                         date,
                         code: codeValue
                     }
@@ -305,7 +305,7 @@ function findInfo (content: string): Promise<info | false> {
                 `${importStartMatch}${a}${
                     getReg('vsCodeVersion')
                 }${a}${
-                    getReg('version')
+                    getReg('extensionVersion')
                 }${a}${
                     getReg('date')
                 }${a}${
@@ -317,7 +317,7 @@ function findInfo (content: string): Promise<info | false> {
             if (reg) {
                 resolve({
                     vsCodeVersion: reg[1],
-                    version: reg[2],
+                    extensionVersion: reg[2],
                     date: reg[3],
                     code: reg[4]
                 });

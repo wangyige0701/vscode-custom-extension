@@ -62,6 +62,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                     // 获取html文本内容
                     await readFileUri(searchUri!).then((res: Uint8Array) => {
                         this.htmlContent = res.toString();
+                    }).catch(err => {
+                        throw err;
                     });
                 } else if (name === 'css') {
                     this.cssUri = searchUri;
@@ -100,6 +102,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         if (item[1] === 1) list.push(newUri(uri, item[0]));
                     });
                     resolve(list);
+                }).catch(err => {
+                    throw err;
                 });
             } catch (error) {
                 reject(error);
@@ -182,7 +186,9 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         '\n' + vscodeCss.toString() + 
                         '\n' + str);
                     // 合并css文件
-                    writeFileUri(this.newCssUri!, css);
+                    writeFileUri(this.newCssUri!, css).catch(err => {
+                        throw err;
+                    });
                 }).catch(err => {
                     throw err;
                 });
@@ -196,7 +202,9 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                             '\n'+str+'\n'
                         }})();`
                     );
-                    writeFileUri(this.newJsUri!, js);
+                    writeFileUri(this.newJsUri!, js).catch(err => {
+                        throw err;
+                    });
                 }).catch(err => {
                     throw err;
                 });

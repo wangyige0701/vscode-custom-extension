@@ -133,20 +133,19 @@ function createInstance () {
             } else {
                 return;
             }
+            if (!thisEl) return;
+            // 添加删除类名动画
             thisEl.classList.add('image-delete');
-
             const selectBut = thisEl.querySelector(
                 `.${imageButtonClass}.${imageSelectButtonClass}`
             );
             const deleteBut = thisEl.querySelector(
                 `.${imageButtonClass}.${imageDeleteButtonClass}`
             );
-
             // 解除事件绑定
             this.imageSelectIconEventUnbind(selectBut);
             this.imageDeleteIconEventUnbind(deleteBut);
             this.imageElementEventUnbind(thisEl);
-
             setTimeout(() => {
                 thisEl.remove();
             }, 300);
@@ -277,13 +276,15 @@ function createInstance () {
 
         /**
          * 图片选中后的显示状态处理
-         * @param {number} number 
+         * @param {number|string} value 
          */
-        imageClickHandle (number) {
+        imageClickHandle (value) {
             const { select, index } = this.hasSelect();
             if (select) this.cancelSelect(index);
-            if (index === number) return;
-            let target = this.getChild()[number];
+            if (typeof value === 'string') 
+                value = this.isCodeContain(value);
+            if (index === value) return;
+            let target = this.getChild()[value];
             target?.classList.add(selectClass);
         }
 

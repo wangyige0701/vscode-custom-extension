@@ -95,7 +95,7 @@ function receiveMessage ({ data }) {
             deleteImageHandle(value);
             break;
         case 'settingBackgroundSuccess':
-            // value: number，点击图片处理完成，返回列表内对象，修改显示状态
+            // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
             listInstance.imageClickHandle(value);
             break;
         default:

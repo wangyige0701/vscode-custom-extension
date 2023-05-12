@@ -46,8 +46,16 @@ export function createBuffer (content: string): Buffer {
  * @param target 
  * @param options 
  */
-export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boolean | undefined } | undefined): Thenable<void> {
-    return workspace.fs.copy(source, target, options);
+export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boolean | undefined } | undefined): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.copy(source, target, options).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 /**
@@ -59,8 +67,16 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boole
 export function uriDelete (uri: Uri, options?: { 
     recursive?: boolean | undefined, 
     useTrash?: boolean | undefined 
-} | undefined): Thenable<void> {
-    return workspace.fs.delete(uri, options);
+} | undefined): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.delete(uri, options).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 /**
@@ -68,8 +84,16 @@ export function uriDelete (uri: Uri, options?: {
  * @param uri 
  * @returns 
  */
-export function readDirectoryUri (uri: Uri): Thenable<[string, FileType][]> {
-    return workspace.fs.readDirectory(uri);
+export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.readDirectory(uri).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 /**
@@ -77,13 +101,21 @@ export function readDirectoryUri (uri: Uri): Thenable<[string, FileType][]> {
  * @param uri 
  * @returns 
  */
-export function readFileUri (uri: Uri): Thenable<Uint8Array> {
-    return workspace.fs.readFile(uri);
+export function readFileUri (uri: Uri): Promise<Uint8Array> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.readFile(uri).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
     return new Promise((resolve, reject) => {
-        const list: Thenable<Uint8Array>[] = [];
+        const list: Promise<Uint8Array>[] = [];
         uri.forEach(item => {
             list.push(readFileUri(item));
         });
@@ -101,8 +133,16 @@ export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
  * @param content 
  * @returns 
  */
-export function writeFileUri (uri: Uri, content: Uint8Array): Thenable<void> {
-    return workspace.fs.writeFile(uri, content);
+export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.writeFile(uri, content).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 /**
@@ -110,8 +150,16 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Thenable<void> {
  * @param uri 
  * @returns 
  */
-export function uriStat (uri: Uri): Thenable<FileStat> {
-    return workspace.fs.stat(uri);
+export function uriStat (uri: Uri): Promise<FileStat> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.stat(uri).then(res => {
+                resolve(res);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 /**

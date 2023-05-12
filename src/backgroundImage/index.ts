@@ -6,6 +6,7 @@ import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { imageStoreUri } from "./utils";
 import { backgroundSendMessage } from "./execute";
+import { checkCurentImageIsSame } from "./modify";
 
 // 图片类型过滤
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -76,6 +77,15 @@ export function backgroundImageDataInit () {
             name: 'backgroundInitData',
             value: str
         });
+        // 判断已选中的图片
+        return checkCurentImageIsSame(backgroundImageConfiguration.getBackgroundNowImagePath());
+    }).then(data => {
+        if (data.state) {
+            backgroundSendMessage({
+                name: 'settingBackgroundSuccess',
+                value: data.code as string
+            });
+        }
     }).catch(err => {
         errHandle(err as Error);
     });
@@ -180,6 +190,8 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
             }
             Promise.all(fileRequest).then(res => {
                 resolve(res);
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -201,6 +213,8 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
                     buffer: res,
                     code
                 });
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -219,6 +233,8 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
             if (!uri) throw new Error('null uri');
             readDirectoryUri(uri).then(res => {
                 resolve({ files: res, uri });
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -251,6 +267,8 @@ function createFileStore (base64: string): Promise<{hashCode:string, base64:stri
                 // 新增一个哈希码数据
                 codeListRefresh(code);
                 resolve({ hashCode: code, base64: base64 });
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -273,6 +291,8 @@ function deleteFileStore (code: string): Promise<string> {
             uriDelete(uri).then(() => {
                 codeListRefresh(code, 'delete');
                 resolve(code);
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);

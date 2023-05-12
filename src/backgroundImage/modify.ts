@@ -12,6 +12,7 @@ import { imageStoreUri } from "./utils";
 import { getVersion } from "../version";
 
 interface info {
+    vsCodeVersion: string; // vscode版本号
     version: string; // 当前版本号
     date: string; // 日期
     code: string; // 图片哈希码
@@ -81,6 +82,39 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
 export function deletebackgroundCssFileModification () {}
 
 /**
+ * 检查指定code是否是当前设置背景图的code
+ * @param codeValue 
+ * @returns 
+ */
+export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!codeValue) {
+                resolve({ state: false });
+                return;
+            }
+            getExternalFileContent().then(content => {
+                return findInfo(content);
+            }).then(data => {
+                if (data) {
+                    const { code } = data;
+                    // 如果和上一次是一个哈希值，不再更新数据
+                    if (code === codeValue) {
+                        resolve({ state: true, code });
+                        return;
+                    }
+                }
+                resolve({ state: false });
+            }).catch(err => {
+                throw err;
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
  * 设置缓存数据
  * @param options 
  */
@@ -102,7 +136,27 @@ function writeCssFile (content: string): Promise<void> {
             const fileUri = getCssUri(externalFileName) as Uri;
             writeFileUri(fileUri, createBuffer(content)).then(() => {
                 resolve();
+            }).catch(err => {
+                throw err;
             });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 获取外部图片样式css文件内容
+ * @returns 
+ */
+function getExternalFileContent (): Promise<string> {
+    return new Promise((resolve, reject) => {
+        try {
+            readFileUri(getCssUri(externalFileName)!).then(content => {
+                resolve(content.toString());
+            }).catch(err => {
+                throw err;
+            })
         } catch (error) {
             reject(error);
         }
@@ -120,8 +174,8 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
             if (!imageUri) throw new Error('null uri');
             const extensionVer = getVersion();
             const date = getDate();
-            readFileUri(getCssUri(externalFileName)!).then(content => {
-                return findInfo(content.toString());
+            getExternalFileContent().then(content => {
+                return findInfo(content);
             }).then(data => {
                 if (data) {
                     const { code } = data;
@@ -139,6 +193,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                 resolve([
                     `${importStart+'\n'
                     }/**${'\n'
+                    }* vsCodeVersion [ ${version} ]${'\n'
                     }* version [ ${extensionVer} ]${'\n'
                     }* date [ ${date} ]${'\n'
                     }* imageCode [ ${codeValue} ]${'\n'
@@ -152,11 +207,14 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
                     }}${
                     '\n'+importEnd}`,
                     {
+                        vsCodeVersion: version,
                         version: extensionVer,
                         date,
                         code: codeValue
                     }
                 ]);
+            }).catch(err => {
+                throw err;
             });
         } catch (error) {
             reject(error);
@@ -245,6 +303,8 @@ function findInfo (content: string): Promise<info | false> {
         try {
             const check = new RegExp(
                 `${importStartMatch}${a}${
+                    getReg('vsCodeVersion')
+                }${a}${
                     getReg('version')
                 }${a}${
                     getReg('date')
@@ -256,9 +316,10 @@ function findInfo (content: string): Promise<info | false> {
             // 有匹配项返回信息
             if (reg) {
                 resolve({
-                    version: reg[1],
-                    date: reg[2],
-                    code: reg[3]
+                    vsCodeVersion: reg[1],
+                    version: reg[2],
+                    date: reg[3],
+                    code: reg[4]
                 });
             } else {
                 resolve(false);
@@ -270,7 +331,7 @@ function findInfo (content: string): Promise<info | false> {
 }
 
 /**
- * 生成正则字符串
+ * 生成获取注释信息的正则字符串
  * @param name 
  * @returns 
  */

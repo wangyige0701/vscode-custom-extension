@@ -55,5 +55,5 @@ interface deleteImageSuccessType extends dataType {
 
 interface settingBackgroundSuccessType extends dataType {
     name: 'settingBackgroundSuccess';
-    value: HTMLLIElement
+    value: number | string
 }

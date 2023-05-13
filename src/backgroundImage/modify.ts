@@ -5,49 +5,12 @@
 import { dirname, join } from "path";
 import { getDate } from "../utils";
 import { minmax } from "../utils";
-import { createBuffer, newUri, readFileUri, writeFileUri } from "../utils/file";
+import { createBuffer, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
-import { changeLoadState, imageStoreUri, setBackgroundImageSuccess } from "./utils";
+import { changeLoadState, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 import { info } from "./data";
-
-
-
-const tagName = 'wangyige.background';
-const importStart = `/* ${tagName}.start */`;
-const importEnd = `/* ${tagName}.end */`;
-const importStartMatch = `\\/\\* ${tagName}.start \\*\\/`;
-const importEndMatch = `\\/\\* ${tagName}.end \\*\\/`;
-
-const s = '\\s\*'; // 任意空格
-const a = '\[\\s\\S\]\*'; // 任意字符
-const ans = '\\S\*'; // 任意字符不包括空格
-const ant = '\.\*'; // 任意字符不包括换行
-const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
-/**
- * 匹配源css文件正则
- */
-const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
-/**
- * 匹配写入外部css文件信息正则
- */
-const findImageCssPosition = 
-    `${importStartMatch}${a}${
-        getReg('vsCodeVersion')
-    }${a}${
-        getReg('extensionVersion')
-    }${a}${
-        getReg('date')
-    }${a}${
-        getReg('imageCode')
-    }${a}${importEndMatch}`;
-
-/**
- * 获取外部css文件中的透明度值正则
- */
-const findImageCssOpacityData = 
-    `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
 
 /**
  * vscode的源css文件名
@@ -58,6 +21,46 @@ const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.ma
  * 写背景图样式的外部css文件名
  */
 const externalFileName = 'backgroundImageInfo.css';
+
+const tagName = 'wangyige.background'; // 标签名
+const importStart = `/* ${tagName}.start */`; // 开始标签
+const importEnd = `/* ${tagName}.end */`; // 结束标签
+const importStartMatch = `\\/\\* ${tagName}.start \\*\\/`; // 匹配开始标签正则
+const importEndMatch = `\\/\\* ${tagName}.end \\*\\/`; // 匹配结束标签正则
+
+const s = '\\s\*'; // 任意空格
+const a = '\[\\s\\S\]\*'; // 任意字符
+const ans = '\\S\*'; // 任意字符不包括空格
+const ant = '\.\*'; // 任意字符不包括换行
+const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
+
+/**
+ * 匹配源及外部css文件修改内容标签范围正则文本，捕获标签中的内容
+ */
+const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
+const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
+
+/**
+ * 匹配外部css文件并捕获注释信息正则文本
+ */
+const findExternalCssPosition = 
+    `${importStartMatch}${a}${
+        getReg('vsCodeVersion')
+    }${a}${
+        getReg('extensionVersion')
+    }${a}${
+        getReg('date')
+    }${a}${
+        getReg('imageCode')
+    }${a}${importEndMatch}`;
+const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
+
+/**
+ * 获取外部css文件中的透明度值正则
+ */
+const findImageCssOpacityData = 
+    `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
+const findImageCssOpacityDataRegexp = new RegExp(findImageCssOpacityData);
 
 /**
  * 获取vscode样式文件目录的Uri
@@ -100,9 +103,36 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
 }
 
 /**
- * 删除css文件中背景图的修改内容
+ * 删除外部和源css文件中背景图的相关设置内容
  */
-export function deletebackgroundCssFileModification () {}
+export function deletebackgroundCssFileModification (): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            getSourceCssFileContent().then(data => {
+                // 删除源css文件
+                return deleteContentByTagName(...data);
+            }).then(({ content, uri }) => {
+                return writeFileUri(uri, createBuffer(content));
+            }).then(() => {
+                // 删除外部css文件
+                return getExternalFileContent();
+            }).then(data => {
+                return deleteContentByTagName(...data);
+            }).then(({ content, uri }) => {
+                return uriDelete(uri);
+            }).then(() => {
+                deleteConfiguration();
+                setBackgroundImageSuccess("背景图配置删除成功");
+                isWindowReloadToLoadBackimage("背景图配置删除成功，是否重启窗口");
+                resolve();
+            }).catch(err => {
+                throw err;
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
 
 /**
  * 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码
@@ -183,7 +213,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
                 return;
             }
             getExternalFileContent().then(content => {
-                return findInfo(content);
+                return findInfo(content[0]);
             }).then(data => {
                 if (data) {
                     const { code } = data;
@@ -246,11 +276,13 @@ function writeExternalCssFile (content: string): Promise<void> {
  * 获取外部css文件内容
  * @returns 
  */
-function getExternalFileContent (): Promise<string> {
+function getExternalFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
         try {
-            readFileUri(getCssUri(externalFileName)!).then(content => {
-                resolve(content.toString());
+            const uri = getCssUri(externalFileName);
+            if (!uri) throw new Error('null uri');
+            readFileUri(uri).then(content => {
+                resolve([content.toString(), uri]);
             }).catch(err => {
                 throw err;
             })
@@ -273,7 +305,7 @@ function getCssContent (codeValue: string): Promise<[string, info] | false> {
             const extensionVer = getVersion();
             const date = getDate();
             getExternalFileContent().then(content => {
-                return findInfo(content);
+                return findInfo(content[0]);
             }).then(data => {
                 if (data) {
                     const { code, vsCodeVersion, extensionVersion } = data;
@@ -346,7 +378,7 @@ function getNowSettingCode (): Promise<string | false> {
 
 /**
  * 获取vscode源样式文件内容，返回内容文本和路径uri
- * @returns 
+ * @returns {[string, Uri]} 内容文本和路径uri
  */
 function getSourceCssFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
@@ -371,7 +403,7 @@ function getSourceCssFileContent (): Promise<[string, Uri]> {
 function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:string, uri?:Uri } | true> {
     return new Promise((resolve, reject) => {
         try {
-            const reg = content.match(new RegExp(findSourceCssPosition));
+            const reg = content.match(findSourceCssPositionRegexp);
             // 有匹配项返回去，不需要继续插入
             if (reg) {
                 resolve(true);
@@ -392,8 +424,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:s
 function findInfo (content: string): Promise<info | false> {
     return new Promise((resolve, reject) => {
         try {
-            const check = new RegExp(findImageCssPosition);
-            const reg = content.match(check);
+            const reg = content.match(findExternalCssPositionRegexp);
             // 有匹配项返回信息
             if (reg) {
                 resolve({
@@ -419,4 +450,23 @@ function findInfo (content: string): Promise<info | false> {
 function getReg (name: string, catchData: boolean = true): string {
     if (catchData) return `${name}${s}\\[${s}(${asa})${s}\\]`;
     return `${name}${s}\\[${s}${asa}${s}\\]`;
+}
+
+/**
+ * 通过标签名删除css文件的修改内容
+ * @param content 需要被处理的文本
+ */
+function deleteContentByTagName (content: string, uri: Uri): Promise<{content:string, uri:Uri}> {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!content) {
+                resolve({content:"", uri});
+                return;
+            }
+            content = content.replace(findSourceCssPositionRegexp, "");
+            resolve({content, uri});
+        } catch (error) {
+            reject(error);
+        }
+    });
 }

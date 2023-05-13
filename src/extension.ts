@@ -3,7 +3,6 @@ import { webviewCreateByHtml, contextContainer as webviewContextContainer, regis
 import { checkImageCssDataIsRight } from './backgroundImage';
 import { isWindowReloadToLoadBackimage } from './backgroundImage/utils';
 import { errHandle } from './error';
-import { deletebackgroundCssFileModification } from './backgroundImage/modify';
 
 export function activate(context: vscode.ExtensionContext) {
 	// 检查css文件是否正确
@@ -15,10 +14,6 @@ export function activate(context: vscode.ExtensionContext) {
 	}).catch(err => {
 		errHandle(err);
 	});
-
-	setTimeout(() => {
-		deletebackgroundCssFileModification();
-	}, 10000)
 	
 	webviewContextContainer.instance = context;
 

@@ -4,6 +4,7 @@ import { windowReload } from "../utils/system";
 import { contextContainer } from "../utils/webview";
 import { Uri } from "vscode";
 import { backgroundImageConfiguration } from "../workspace/background";
+import { errHandle } from "../error";
 
 /**
  * 获取储存背景图资源的uri
@@ -39,10 +40,13 @@ export function isChangeBackgroundImage (message: string = '是否设置此背�
                     resolve();
                     return;
                 }
+                // 选择取消返回reject
                 reject();
+            }).catch((err) => {
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -78,7 +82,7 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
             }
         });
     } catch (error) {
-        throw error;
+        errHandle(error);
     }
 }
 

@@ -3,8 +3,7 @@
 */
 
 import { dirname, join } from "path";
-import { getDate, voidFunc } from "../utils";
-import { minmax } from "../utils";
+import { getDate, minmax } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
@@ -87,11 +86,11 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
                 if (err.jump) {
                     resolve();
                 } else {
-                    throw err;
+                    reject(err);
                 }
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }

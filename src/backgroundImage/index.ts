@@ -89,7 +89,7 @@ export function settingImage ({ code, index }: {
             location: 'Notification',
             title: '背景图设置中'
         }, (progress) => {
-            return <Promise<void>>new Promise((resolve) => {
+            return <Promise<void>>new Promise((resolve, reject) => {
                 modifyCssFileForBackground(code).then(() => {
                     backgroundSendMessage({
                         name: 'settingBackgroundSuccess',
@@ -104,7 +104,7 @@ export function settingImage ({ code, index }: {
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
                 }).catch(err => {
-                    throw err;
+                    reject(err);
                 }).finally(() => {
                     resolve();
                 });
@@ -127,7 +127,7 @@ export function deleteImage (code: string) {
             location: 'Notification',
             title: '图片删除中'
         }, (progress) => {
-            return <Promise<void>>new Promise((resolve) => {
+            return <Promise<void>>new Promise((resolve, reject) => {
                 deleteFileStore(code).then(target => {
                     backgroundSendMessage({
                         name: 'deleteImageSuccess',
@@ -140,7 +140,7 @@ export function deleteImage (code: string) {
                     // 延迟1秒关闭进度条
                     return delay(1500);
                 }).catch(err => {
-                    throw err;
+                    reject(err);
                 }).finally(() => {
                     resolve();
                 });
@@ -346,10 +346,10 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
             readDirectoryUri(uri).then(res => {
                 resolve({ files: res, uri });
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -380,10 +380,10 @@ function createFileStore (base64: string): Promise<{hashCode:string, base64:stri
                 codeListRefresh(code);
                 resolve({ hashCode: code, base64: base64 });
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -404,10 +404,10 @@ function deleteFileStore (code: string): Promise<string> {
                 codeListRefresh(code, 'delete');
                 resolve(code);
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }

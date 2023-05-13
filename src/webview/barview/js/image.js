@@ -86,10 +86,12 @@ function createInstance () {
 
         /**
          * 插入一个img节点
-         * @param {*} src 图片路径
-         * @returns 当前图片对应的哈希值
+         * @param {string} src 图片路径
+         * @param {string} code 哈希码
+         * @param {number} index 元素索引，大于0需要添加一个动画延迟时间
+         * @returns 当前图片对应的哈希码
          */
-        addImageItem (src, code) {
+        addImageItem (src, code, index=0, delay=0.5) {
             if (src) {
                 // 外层容器
                 let el = createELement('div', { class: listImageClass, [imageContainerCodeName]: code });
@@ -107,13 +109,25 @@ function createInstance () {
                 this.imageDeleteIconEventBind(deleteBut);
                 this.imageElementEventBind(el);
 
-                if (this.element.childNodes.length === 0) {
-                    this.element.appendChild(el);
+                // 延迟插入时间
+                if (index > 0) {
+                    setTimeout(insert.bind(this), index * delay * 1000);
                 } else {
-                    // 在开头插入元素
-                    this.element.insertBefore(el, this.element.firstChild);
+                    insert.call(this);
                 }
-                el = null;
+
+                /**
+                 * 插入元素方法
+                 */
+                function insert () {
+                    if (this.element.childNodes.length === 0) {
+                        this.element.appendChild(el);
+                    } else {
+                        // 在开头插入元素
+                        this.element.insertBefore(el, this.element.firstChild);
+                    }
+                    el = null;
+                }
             }
         }
 
@@ -249,7 +263,7 @@ function createInstance () {
 
         /**
          * 取消冒泡
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          */
         stopPropagation (el, event='click') {
             if (el) {
@@ -261,7 +275,7 @@ function createInstance () {
 
         /**
          * 绑定事件处理函数
-         * @param {{target:Element}} param
+         * @param {{target:HTMLElement}} param
          */
         imageClick ({ target }) {
             if (!canSelect) return;
@@ -302,7 +316,7 @@ function createInstance () {
 
         /**
          * 获取当前元素相对于父元素的位置
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          * @returns 
          */
         getElementIndex (el) {
@@ -319,7 +333,7 @@ function createInstance () {
 
         /**
          * 删除按钮事件绑定
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          */
         imageDeleteIconEventBind(el) {
             if (el) el.addEventListener('click', this.deleteOneImageIcon.bind(this));
@@ -327,7 +341,7 @@ function createInstance () {
 
         /**
          * 删除按钮解除事件绑定
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          */
         imageDeleteIconEventUnbind(el) {
             if (el) el.removeEventListener('click', this.deleteOneImageIcon.bind(this));
@@ -335,7 +349,7 @@ function createInstance () {
         
         /**
          * 选择按钮事件绑定
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          */
         imageSelectIconEventBind(el) {
             if (el) el.addEventListener('click', this.selectOneImageIcon.bind(this));
@@ -343,7 +357,7 @@ function createInstance () {
 
         /**
          * 选择按钮解除事件绑定
-         * @param {Element} el 
+         * @param {HTMLElement} el 
          */
         imageSelectIconEventUnbind(el) {
             if (el) el.removeEventListener('click', this.selectOneImageIcon.bind(this));
@@ -351,7 +365,7 @@ function createInstance () {
 
         /**
          * 绑定图片点击事件
-         * @param {Element} el 
+         * @param {HTMLElement} el 
         */
         imageElementEventBind (el) {
             if (el) el.addEventListener('click', this.imageClick.bind(this));
@@ -359,7 +373,7 @@ function createInstance () {
 
         /**
          * 解除图片事件绑定
-         * @param {Element} el 
+         * @param {HTMLElement} el 
         */
         imageElementEventUnbind (el) {
             if (el) el.removeEventListener('click', this.imageClick.bind(this));

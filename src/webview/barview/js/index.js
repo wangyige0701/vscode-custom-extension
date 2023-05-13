@@ -109,8 +109,8 @@ function receiveMessage ({ data }) {
  */
 function initImageData (array) {
     if (array.length > 0) {
-        array.forEach(item => {
-            listInstance.addImageItem(...item);
+        array.forEach((item, index) => {
+            listInstance.addImageItem(...item.concat(index));
         });
     }
 }
@@ -144,7 +144,7 @@ function sendMessage (options={}) {
  * 创建标签元素
  * @param {string} name 标签名
  * @param {object} option 属性
- * @returns {Element}
+ * @returns {HTMLElement}
  */
 function createELement (name, option={}) {
     const el = document.createElement(name);

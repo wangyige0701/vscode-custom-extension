@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 	webviewContextContainer.instance = context;
 
 	// 设置背景图的侧栏webview注册
-	const backgroundWebview = registWebview('wangyige.custom.backgroundimage', new webviewCreateByHtml('src/webview/barview', '背景图片'));
+	const backgroundWebview = registWebview('wangyige.custom.backgroundimage', new webviewCreateByHtml('src/webview/background', '背景图片'));
 
 	context.subscriptions.push(backgroundWebview);
 }

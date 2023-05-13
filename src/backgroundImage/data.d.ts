@@ -65,3 +65,18 @@ export interface bufferAndCode {
     buffer:Uint8Array;
     code:string;
 }
+
+/**
+ * 修改css文件中需要的相关注释信息类型
+*/
+export interface info {
+    vsCodeVersion: string; // vscode版本号
+    extensionVersion: string; // 当前版本号
+    date: string; // 日期
+    code: string; // 图片哈希码
+}
+
+/**
+ * index.ts中对数组操作的参数
+ */
+export type codeChangeType = 'add' | 'delete';

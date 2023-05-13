@@ -7,19 +7,27 @@ import { backgroundImageConfiguration } from "../workspace/background";
 import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./execute";
 import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
-import { bufferAndCode } from "./data";
+import { bufferAndCode, codeChangeType } from "./data";
 
-// 图片类型过滤
+/**
+ *  图片类型过滤规则
+ */
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 
-// 背景图片哈希码列表
+/**
+ * 背景图片哈希码数据列表
+ */
 const backgroundImageCodeList: string[] = [];
 
-// 选择文件默认路径
+/**
+ * 选择文件的默认路径
+ */
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
 
 /**
- * 校验设置背景的css文件和源css文件是否删除相关内容
+ * vscode开始运行后插件启动时调用，
+ * 校验外部css文件和源css文件是否删除背景图相关配置内容，
+ * 返回true代表其中一个文件被修改或删除，需要重启窗口应用样式
  */
 export function checkImageCssDataIsRight (): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -38,8 +46,8 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
 }
 
 /**
- * webview端点击设置背景图
- * @param param
+ * webview端点击图片设置背景图处理方法
+ * @param param 传入点击图片的哈希码和在webview列表中的索引位置
  */
 export function settingImage ({ code, index }: {
     code: string;
@@ -60,6 +68,7 @@ export function settingImage ({ code, index }: {
                         message: '设置成功',
                         increment: 100
                     });
+                    // 延迟1秒关闭进度条
                     return delay(1000);
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
@@ -73,7 +82,7 @@ export function settingImage ({ code, index }: {
 }
 
 /**
- * 删除一张图片
+ * 删除一张图片，不需要判断是否被设置了背景图，图片被删除后背景图样式保持，直到下一次重新设置
  * @param messageSend 
  * @param webview 
  * @param code 
@@ -90,7 +99,7 @@ export function deleteImage (code: string) {
 }
 
 /**
- * 侧栏选择背景图
+ * 侧栏webview页面从本地文件选择背景图
  * @param messageSend 
  * @param webview 
  */
@@ -101,7 +110,7 @@ export function selectImage () {
         filters: imageFilters,
         defaultUri: selectFileDefaultPath
     }).then(({ uri, dirName }) => {
-        // 保存默认选择路径
+        // 选择一次文件后保存默认选择路径
         backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName);
         return imageToBase64(uri[0].fsPath);
     }).then(base64 => {
@@ -117,7 +126,7 @@ export function selectImage () {
 }
 
 /**
- * 首次加载获取储存背景图片数据
+ * webview首次加载时获取储存背景图片数据，获取当前设置的背景图哈希码并将其发送给webview页面
  * @param messageSend 
  * @param webview 
  */
@@ -148,7 +157,7 @@ export function backgroundImageDataInit () {
 }
 
 /**
- * 将读取的图片数据和哈希码一起返回
+ * 将读取的图片字符串数据和对应哈希码一起返回
  * @param buffers 
  * @returns {Promise<string[][]>}
  */
@@ -166,10 +175,8 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
     });
 }
 
-type codeChangeType = 'add' | 'delete';
-
 /**
- * 对编码数据缓存数组进行操作
+ * 对哈希码数据缓存数组进行更新操作
  * @param code 
  * @param state 
  */
@@ -187,7 +194,7 @@ function codeListRefresh (code: string, state: codeChangeType='add') {
 }
 
 /**
- * 判断列表中是否含有此哈希码
+ * 判断列表中是否含有此图片哈希码
  * @param code 
  * @returns {boolean}
  */
@@ -203,11 +210,12 @@ function refreshGlobalBackgroundImageList () {
         backgroundImageConfiguration.getBackgroundAllImagePath(), 
         backgroundImageCodeList
     )) return;
+    // 如果不相同，将缓存数据更新为当前数组数据
     backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
 }
 
 /**
- * 和传入的列表进行比较
+ * 新旧数组进行比较，因为是比较哈希码，不存在数组元素重复的问题
  */
 function compareCodeList (oldData: string[], newData: string[]): boolean {
     if (oldData.length !== newData.length) return false;
@@ -223,7 +231,7 @@ function compareCodeList (oldData: string[], newData: string[]): boolean {
 
 /**
  * 校验储存图片base64数据的文件并进行读取
- * @param files 
+ * @param files 指定目录下的所有文件列表
  * @param uri 
  * @returns {Promise<bufferAndCode[]>}
  */
@@ -251,7 +259,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
 }
 
 /**
- * 返回图片文件的base64数据和哈希码
+ * 返回.wyg图片文件的base64数据和对应哈希码
  * @param uri 
  * @param code 
  * @returns {Promise<bufferAndCode>}
@@ -304,7 +312,7 @@ function newHashCode (): string {
 }
 
 /**
- * 创建文件储存图片文件
+ * 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg)
  * @returns {Promise<{hashCode:string, base64:string}>}
  */
 function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
@@ -328,7 +336,7 @@ function createFileStore (base64: string): Promise<{hashCode:string, base64:stri
 }
 
 /**
- * 根据哈希码删除文件
+ * 根据哈希码删除.wyg图片文件
  * @param code 
  * @returns {Promise<string>}
  */

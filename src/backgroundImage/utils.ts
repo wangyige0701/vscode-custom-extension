@@ -52,6 +52,21 @@ export function isChangeBackgroundImage (message: string = '是否设置此背�
 }
 
 /**
+ * 允许传入回调函数的状态栏信息展示方法
+ * @param message 
+ * @param icon 
+ * @param time 
+ * @param callback 
+ */
+export function setBackgroundInfoOnStatusBar (message: string = '', icon: string = 'check', time: number = 3000, callback: () => any) {
+    setStatusBar({
+        icon,
+        message
+    }, time);
+    setTimeout(callback, time);
+}
+
+/**
  * 背景图设置成功，状态栏提示
  */
 export function setBackgroundImageSuccess (message: string = '背景图设置成功', time: number = 3000) {

@@ -4,7 +4,7 @@ import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uri
 import { selectFile, showProgress } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
+import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
 import { backgroundSendMessage } from "./execute";
 import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
@@ -184,6 +184,7 @@ export function selectImage () {
  * @param webview 
  */
 export function backgroundImageDataInit () {
+    let length: number = 0;
     selectAllImage().then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
@@ -194,6 +195,7 @@ export function backgroundImageDataInit () {
             name: 'backgroundInitData',
             value: str
         });
+        length = str.length;
         // 判断已选中的图片
         return checkCurentImageIsSame(backgroundImageConfiguration.getBackgroundNowImagePath());
     }).then(data => {
@@ -202,7 +204,10 @@ export function backgroundImageDataInit () {
                 name: 'settingBackgroundSuccess',
                 value: data.code as string
             });
-            setBackgroundImageSuccess('侧栏图片列表初始化成功');
+            // 延迟指定时间后修改状态栏信息
+            setBackgroundInfoOnStatusBar('侧栏列表初始化中', 'loading~spin', length * 500, () => {
+                setBackgroundImageSuccess('侧栏列表初始化成功');
+            });
         }
     }).catch(err => {
         errHandle(err);

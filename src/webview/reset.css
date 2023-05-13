@@ -47,6 +47,12 @@ img {
 	-moz-osx-font-smoothing: grayscale;
     vertical-align: bottom;
     display: inline-block;
+	text-transform: none;
+	text-rendering: auto;
+	text-align: center;
+	text-decoration: none;
+	user-select: none;
+	-webkit-user-select: none;
 }
 
 /* 删除 &#xe8e1; */
@@ -65,4 +71,24 @@ img {
 .icon-delete::after,
 .icon-select::after {
 	content: "\ec44";
+}
+
+/* 透明度 &#xe60d; */
+.icon-opacity::before {
+	content: "\e60d";
+}
+
+/* 图片 &#xe645; */
+.icon-picture::before {
+	content: "\e645";
+}
+
+/* 确认对勾 &#xe616; */
+.icon-confirm::before {
+	content: "\e616";
+}
+
+/* 删除叉号 &#xe600; */
+.icon-delete-cross::before {
+	content: "\e600";
 }

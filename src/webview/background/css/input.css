@@ -1,0 +1,100 @@
+/* index(2) */
+
+#inputArea {
+    margin-bottom: 10px;
+}
+
+/* 输入框上方按钮样式 */
+div.input-change-icon {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: scroll;
+    font-size: 1.8rem;
+    color: var(--vscode-icon-foreground);
+}
+
+div.icon-container > span.iconfont {
+    cursor: pointer;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    border-radius: 3px;
+    overflow: hidden;
+    font-size: inherit;
+    color: inherit;
+    margin-right: 2px;
+    border: 1px solid transparent;
+}
+
+div.icon-container > span.iconfont:hover {
+    background-color: var(--vscode-inputOption-hoverBackground);
+}
+
+div.icon-container > span.iconfont.select {
+    color: var(--vscode-inputOption-activeForeground);
+    border-color: var(--vscode-inputOption-activeBorder);
+    background-color: var(--vscode-inputOption-activeBackground);
+}
+
+/* 输入框外层 */
+div.info-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    width: 100%;
+    font-size: 1.4rem;
+	border: 1px solid transparent;
+	color: var(--vscode-input-foreground);
+	background-color: var(--vscode-input-background);
+}
+
+div.info-input.focus {
+    outline: var(--vscode-focusBorder) solid 1px;
+    outline-offset: -1px;
+}
+
+div.info-input.error {
+    border-color: var(--vscode-inputValidation-errorBorder);
+}
+
+div.info-input input {
+    flex: 1;
+    height: 24px;
+    padding: 3px 0 3px 6px;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    font-size: inherit;
+    white-space: nowrap;
+}
+
+div.info-input input::placeholder {
+    font-size: inherit;
+}
+
+div.input-button {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: nowrap;
+    height: 100%;
+}
+
+div.icon-container.input-button > span.iconfont {
+    margin-right: 0;
+    margin-left: 2px;
+}
+
+div.input-button > span.iconfont#confirm:hover {
+    color: var(--vscode-inputValidation-warningBorder);
+}
+
+div.input-button > span.iconfont#clear:hover {
+    color: var(--vscode-inputValidation-errorBorder);
+}
+
+div.input-button > span.iconfont:active {
+    background-color: var(--vscode-inputOption-activeBackground);
+}

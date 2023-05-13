@@ -181,3 +181,14 @@ function createELement (name, option={}) {
     });
     return el;
 }
+
+/**
+ * 通过id获取元素
+ * @param {string} id 
+ * @returns {HTMLElement}
+ */
+function getId (id) {
+    if (id) {
+        return document.getElementById(id);
+    }
+}

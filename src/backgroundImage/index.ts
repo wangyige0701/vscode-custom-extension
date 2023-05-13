@@ -25,6 +25,21 @@ const backgroundImageCodeList: string[] = [];
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
 
 /**
+ * vscode初始化后检测背景配置是否完整
+ */
+export function WindowInitCheckCssModifyCompleteness () {
+    // 检查css文件是否正确
+	checkImageCssDataIsRight().then(state => {
+		if (state) {
+			// 需要重启应用背景
+			isWindowReloadToLoadBackimage('背景图设置文件被修改或删除，需要重启窗口以应用背景');
+		}
+	}).catch(err => {
+		errHandle(err);
+	});
+}
+
+/**
  * vscode开始运行后插件启动时调用，
  * 校验外部css文件和源css文件是否删除背景图相关配置内容，
  * 返回true代表其中一个文件被修改或删除，需要重启窗口应用样式

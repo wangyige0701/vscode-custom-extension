@@ -71,8 +71,8 @@ export function settingImage ({ code, index }: {
                         message: '设置成功',
                         increment: 100
                     });
-                    // 延迟1秒关闭进度条
-                    return delay(1500);
+                    // 延迟500毫秒关闭进度条
+                    return delay(500);
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
                 }).catch(err => {

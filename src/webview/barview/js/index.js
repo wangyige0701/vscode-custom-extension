@@ -109,9 +109,10 @@ function receiveMessage ({ data }) {
  */
 function initImageData (array) {
     if (array.length > 0) {
-        array.forEach((item, index) => {
-            listInstance.addImageItem(...item.concat(index));
-        });
+        let length = array.length;
+        for (let i = length-1; i >= 0; i--) {
+            listInstance.addImageItem(...array[i].concat(length - i - 1));
+        }
     }
 }
 

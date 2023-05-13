@@ -1,6 +1,5 @@
 import { FileStat, FileType, Uri, workspace } from 'vscode';
 import { posix, extname, resolve as pathResolve } from 'path';
-import { readFileSync } from 'fs';
 
 /**
  * 生成新uri
@@ -33,10 +32,10 @@ export function pathToVscode (path: string): string {
 
 /**
  * 生成unit8数据
- * @param content 输入的文本内容
+ * @param content
  * @returns buffer流
  */
-export function createBuffer (content: string): Buffer {
+export function createBuffer (content: string | Uint8Array | readonly number[]): Buffer {
     return Buffer.from(content);
 }
 
@@ -175,16 +174,20 @@ export function uriStat (uri: Uri): Promise<FileStat> {
 }
 
 /**
- * 将图片转为base64编码
+ * 将本地图片转为base64编码
  * @param path 
  * @returns 
  */
 export function imageToBase64 (path: string): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
-            const fileType = extname(path).substring(1);
-            path = readFileSync(pathResolve(path)).toString('base64');
-            resolve(`data:image/${fileType};base64,${path}`);
+            readFileUri(Uri.file(pathResolve(path))).then(content => {
+                const fileType = extname(path).substring(1);
+                path = createBuffer(content).toString('base64');
+                resolve(`data:image/${fileType};base64,${path}`);
+            }).catch(err => {
+                throw err;
+            });
         } catch (error) {
             reject(error);
         }

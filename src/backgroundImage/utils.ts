@@ -22,13 +22,13 @@ export function imageStoreUri (): Uri | undefined {
  * 是否设置背景图弹框
  * @returns 
  */
-export function isChangeBackgroundImage (): Promise<void> {
+export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             setMessage({
                 message: '提示',
                 modal: true,
-                detail: '是否设置此背景图',
+                detail: message,
                 items: [{
                     id: 0,
                     title: '确认'
@@ -50,10 +50,10 @@ export function isChangeBackgroundImage (): Promise<void> {
 /**
  * 背景图设置成功，状态栏提示
  */
-export function setBackgroundImageSuccess (time: number = 3000) {
+export function setBackgroundImageSuccess (message: string = '背景图设置成功', time: number = 3000) {
     setStatusBar({
         icon: 'check',
-        message: '背景图设置成功'
+        message
     }, time);
 }
 

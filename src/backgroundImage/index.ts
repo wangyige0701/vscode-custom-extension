@@ -37,7 +37,10 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             return checExternalDataIsRight();
         }).then((res) => {
             state = state || res.modify;
-            changeLoadState();
+            // 状态栏提示信息
+            setBackgroundImageSuccess('背景图文件校验完成');
+            // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
+            if (!state) changeLoadState();
             resolve(state);
         }).catch(err => {
             reject(err);
@@ -69,15 +72,18 @@ export function settingImage ({ code, index }: {
                         increment: 100
                     });
                     // 延迟1秒关闭进度条
-                    return delay(1000);
+                    return delay(1500);
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
+                }).catch(err => {
+                    throw err;
+                }).finally(() => {
                     resolve();
                 });
             });
         });
-    }).catch((err) => {
-        if (err) throw err;
+    }).catch((error) => {
+        errHandle(error);
     });
 }
 
@@ -88,13 +94,32 @@ export function settingImage ({ code, index }: {
  * @param code 
  */
 export function deleteImage (code: string) {
-    deleteFileStore(code).then(target => {
-        backgroundSendMessage({
-            name: 'deleteImageSuccess',
-            value: target
+    isChangeBackgroundImage('是否删除当前图片').then(() => {
+        showProgress({
+            location: 'Notification',
+            title: '图片删除中'
+        }, (progress) => {
+            return <Promise<void>>new Promise((resolve) => {
+                deleteFileStore(code).then(target => {
+                    backgroundSendMessage({
+                        name: 'deleteImageSuccess',
+                        value: target
+                    });
+                    progress.report({
+                        message: '删除成功',
+                        increment: 100
+                    });
+                    // 延迟1秒关闭进度条
+                    return delay(1500);
+                }).catch(err => {
+                    throw err;
+                }).finally(() => {
+                    resolve();
+                });
+            });
         });
-    }).catch(err => {
-        errHandle(err as Error);
+    }).catch(error => {
+        errHandle(error);
     });
 }
 
@@ -149,7 +174,7 @@ export function backgroundImageDataInit () {
                 name: 'settingBackgroundSuccess',
                 value: data.code as string
             });
-            setBackgroundImageSuccess();
+            setBackgroundImageSuccess('侧栏图片列表初始化成功');
         }
     }).catch(err => {
         errHandle(err as Error);

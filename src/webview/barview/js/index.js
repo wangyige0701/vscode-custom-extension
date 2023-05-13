@@ -21,6 +21,9 @@ var canSelect = false; // 在首次加载完图片之前不允许点击
 // 列表操作实例
 const listInstance = createInstance();
 
+// 操作队列
+const operationQueue = [];
+
 // 添加图片按钮点击事件绑定
 document.getElementById(selectButtonId).addEventListener('click', buttonClickSelectImage);
 // 脚本侧通信接收事件
@@ -37,6 +40,25 @@ function onload () {
         name: 'backgroundInit',
         value: true
     });
+}
+
+/**
+ * 队列插入数据
+ * @param {Function} func 
+ */
+function queueSet (func) {
+    if (typeof func !== 'function') return;
+    operationQueue.push(func);
+}
+
+/**
+ * 队列顶端取出函数执行
+ */
+function queueExecute (start=false) {
+    canSelect = start;
+    if (operationQueue.length > 0 && start) {
+        operationQueue.shift()?.();
+    }
 }
 
 /**
@@ -83,24 +105,25 @@ function receiveMessage ({ data }) {
     const value = data.value;
     switch (data.name) {
         case 'backgroundInitData':
-            canSelect = true;
             initImageData(value);
             break;
         case 'newImage':
             // value: string[]，添加的新图片路径和对应hashCode
-            listInstance.addImageItem(...value);
+            queueSet(listInstance.addImageItem.bind(listInstance, ...value));
             break;
         case 'deleteImageSuccess':
             // value: number | array，确定删除图片
-            deleteImageHandle(value);
+            queueSet(deleteImageHandle.bind(listInstance, value));
             break;
         case 'settingBackgroundSuccess':
             // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
-            listInstance.imageClickHandle(value);
+            queueSet(listInstance.imageClickHandle.bind(listInstance, value));
             break;
         default:
             break;
     }
+    // 将对应函数插入队列后，根据canSelect的值判断是否可以执行
+    queueExecute(canSelect);
 }
 
 /**
@@ -111,8 +134,12 @@ function initImageData (array) {
     if (array.length > 0) {
         let length = array.length;
         for (let i = length-1; i >= 0; i--) {
-            listInstance.addImageItem(...array[i].concat(length - i - 1));
+            // 最后一个元素传入queueExecute函数，在元素插入后开始执行队列中的方法
+            listInstance.addImageItem(...array[i].concat(length - i - 1, i === 0 ? queueExecute : undefined));
         }
+    } else {
+        // 如果初始没有图片，则直接执行队列
+        queueExecute(true);
     }
 }
 

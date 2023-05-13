@@ -91,7 +91,7 @@ function createInstance () {
          * @param {number} index 元素索引，大于0需要添加一个动画延迟时间
          * @returns 当前图片对应的哈希码
          */
-        addImageItem (src, code, index=0, delay=0.5) {
+        addImageItem (src, code, index=0, callback = undefined, delay=0.5) {
             if (src) {
                 // 外层容器
                 let el = createELement('div', { class: listImageClass, [imageContainerCodeName]: code });
@@ -111,7 +111,11 @@ function createInstance () {
 
                 // 延迟插入时间
                 if (index > 0) {
-                    setTimeout(insert.bind(this), index * delay * 1000);
+                    setTimeout(() => {
+                        insert.call(this)
+                        // 执行回调
+                        callback?.(true);
+                    }, index * delay * 1000);
                 } else {
                     insert.call(this);
                 }

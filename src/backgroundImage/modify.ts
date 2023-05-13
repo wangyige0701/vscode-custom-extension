@@ -402,7 +402,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                     }   background-repeat: no-repeat;${'\n'
                     }   background-size: cover;${'\n'
                     }   background-position: center;${'\n'
-                    }   animation: vscode-body-hide 1s,vscode-body-opacity ${delay}s ease ${delay}s;${'\n'
+                    }   animation: vscode-body-hide ${delay}s,vscode-body-opacity 2s ease ${delay}s;${'\n'
                     }   background-image: url('${image}');${'\n'
                     }}${
                     '\n'+importEnd}`,

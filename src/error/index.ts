@@ -7,6 +7,7 @@
  * URIError：uri地址错误
  */
 
+import { isNumber, isString } from "../utils";
 import { setMessage } from "../utils/interactive";
 
 
@@ -14,11 +15,21 @@ import { setMessage } from "../utils/interactive";
  * 错误统一处理
  * @param e 
  */
-export function errHandle (e: Error | undefined | void) {
+export function errHandle (e: any) {
     if (!e) return;
-    setMessage({
-        type: 'error',
-        message: `name:${e.name}\nmessage:${e.message}`,
-        modal: false
-    });
+    if (isString(e) || isNumber(e)) {
+        setMessage({
+            type: 'error',
+            message: (e as string | number).toString(),
+            modal: false
+        });
+        return;
+    }
+    if (e instanceof Error) {
+        setMessage({
+            type: 'error',
+            message: `name:${e.name}\nmessage:${e.message}`,
+            modal: false
+        });
+    }
 }

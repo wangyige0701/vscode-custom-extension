@@ -1,3 +1,5 @@
+import { Uri } from "vscode";
+
 interface dataType {
     group?:string;
     name: string;
@@ -80,3 +82,11 @@ export interface info {
  * index.ts中对数组操作的参数
  */
 export type codeChangeType = 'add' | 'delete';
+
+/**
+ * 文本和uri类型
+*/
+export interface ContentAndUri {
+    content: string;
+    uri: Uri;
+}

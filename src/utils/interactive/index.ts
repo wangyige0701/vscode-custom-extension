@@ -77,7 +77,7 @@ export function selectFile ({
                     }
                     resolve({ uri: res, file: files, dirName });
                 } else {
-                    throw new Error('undefinded select data');
+                    reject('undefinded select data');
                 }
             });
         } catch (error) {
@@ -102,7 +102,8 @@ export function setMessage<T extends MessageItem> ({
         try {
             if (!type) type = 'information';
             if (!message) {
-                throw new Error('Null message for MessageBox');
+                reject('Null message for MessageBox');
+                return;
             }
             if (!modal) detail = undefined;
             isUndefined(items) ? 
@@ -112,12 +113,16 @@ export function setMessage<T extends MessageItem> ({
                     detail
                 }).then(res => {
                     resolve(res as undefined);
+                }, err => {
+                    reject(err);
                 }) : 
                 getMessageBoxAllData()[type](message, {
                     modal,
                     detail
                 }, ...(items as T[])).then(res => {
                     resolve(res);
+                }, err => {
+                    reject(err);
                 });
         } catch (error) {
             reject(error);

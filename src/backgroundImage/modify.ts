@@ -3,14 +3,15 @@
 */
 
 import { dirname, join } from "path";
-import { getDate } from "../utils";
+import { getDate, voidFunc } from "../utils";
 import { minmax } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
 import { changeLoadState, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
-import { info } from "./data";
+import { ContentAndUri, info } from "./data";
+import { errHandle } from "../error";
 
 /**
  * vscode的源css文件名
@@ -63,18 +64,6 @@ const findImageCssOpacityData =
 const findImageCssOpacityDataRegexp = new RegExp(findImageCssOpacityData);
 
 /**
- * 获取vscode样式文件目录的Uri
- * @param name 
- * @returns 
- */
-function getCssUri (name: string): Uri | undefined {
-    if (name) {
-        return Uri.file(join(dirname((require.main as NodeModule).filename), 'vs', 'workbench', name));
-    }
-    return;
-}
-
-/**
  * 修改外部css文件的背景图属性
  */
 export function modifyCssFileForBackground (codeValue: string): Promise<void> {
@@ -83,8 +72,8 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
             if (!codeValue) throw new Error('null code');
             getExternalCssContent(codeValue).then(res => {
                 if (res === false) {
-                    resolve();
-                    return;
+                    // 不需要更新，直接跳出
+                    throw { jump: true };
                 }
                 settingConfiguration(res[1]);
                 return writeExternalCssFile(res[0]);
@@ -94,7 +83,12 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
                 setBackgroundImageSuccess();
                 resolve();
             }).catch(err => {
-                throw err;
+                // 传递了jump属性就resolve
+                if (err.jump) {
+                    resolve();
+                } else {
+                    throw err;
+                }
             });
         } catch (error) {
             reject(error);
@@ -109,10 +103,15 @@ export function deletebackgroundCssFileModification (): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             getSourceCssFileContent().then(data => {
-                // 删除源css文件
-                return deleteContentByTagName(...data);
-            }).then(({ content, uri }) => {
-                return writeFileUri(uri, createBuffer(content));
+                if (data) {
+                    // 删除源css文件
+                    return deleteContentByTagName(...data);
+                }
+            }).then(data => {
+                if (data) {
+                    const { content, uri } = data!;
+                    return writeFileUri(uri, createBuffer(content));
+                }
             }).then(() => {
                 // 删除外部css文件
                 return getExternalFileContent();
@@ -126,10 +125,10 @@ export function deletebackgroundCssFileModification (): Promise<void> {
                 isWindowReloadToLoadBackimage("背景图配置删除成功，是否重启窗口");
                 resolve();
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -140,31 +139,38 @@ export function deletebackgroundCssFileModification (): Promise<void> {
  */
 export function checExternalDataIsRight (): Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
-        getNowSettingCode().then(res => {
-            if (res) {
-                return checkCurentImageIsSame(res);
-            } else {
-                changeLoadState();
-                resolve({modify:false});
-                return;
-            }
-        }).then(data => {
-            const state = data!.state;
-            if (state === true) {
-                // 当前不需要更新背景图css数据设置文件
-                resolve({modify:false});
-                return;
-            }
-            if (data && data.code) {
-                // 编码校验失败或者没有css文件，重新写入
-                return modifyCssFileForBackground(data.code);
-            }
-            return;
-        }).then(() => {
-            resolve({modify:true});
-        }).catch(err => {
-            reject(err);
-        });
+        try {
+            getNowSettingCode().then(res => {
+                if (res) {
+                    return checkCurentImageIsSame(res);
+                } else {
+                    changeLoadState();
+                    throw { jump: true, modify: false };
+                }
+            }).then(data => {
+                const state = data!.state;
+                if (state === true) {
+                    // 当前不需要更新背景图css数据设置文件
+                    throw { jump: true, modify: false };
+                }
+                if (data && data.code) {
+                    // 编码校验失败或者没有css文件，重新写入
+                    return modifyCssFileForBackground(data.code);
+                } else {
+                    throw { jump: true, modify: true };
+                }
+            }).then(() => {
+                resolve({ modify:true });
+            }).catch(err => {
+                if (err.jump) {
+                    resolve({ modify: err.modify });
+                } else {
+                    reject(err);
+                }
+            });
+        } catch (error) {
+            errHandle(error);
+        }
     });
 }
 
@@ -175,14 +181,19 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
 export function setSourceCssImportInfo () : Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
         try {
-            getSourceCssFileContent().then(([content, uri]) => {
-                return isSourceCssFileModify(content, uri);
+            getSourceCssFileContent().then(data => {
+                if (data) {
+                    // 有数据，进行修改
+                    return isSourceCssFileModify(...data);
+                } else {
+                    // 没有数据返回false
+                    throw { jump: true, modify: false };
+                }
             }).then((data) => {
                 if (data === true) {
-                    resolve({modify:false});
-                    return;
+                    throw { jump: true, modify: false };
                 }
-                const { content, uri } = data;
+                const { content, uri } = data!;
                 return writeFileUri(
                     uri!,
                     createBuffer(`${importStart+'\n'
@@ -190,12 +201,16 @@ export function setSourceCssImportInfo () : Promise<{modify:boolean}> {
                     '\n'+importEnd}`+content)
                 );
             }).then(() => {
-                resolve({modify:true});
+                resolve({ modify: true });
             }).catch(err => {
-                throw err;
+                if (err.jump) {
+                    resolve({ modify: err.modify });
+                } else {
+                    reject(err);
+                }
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -209,8 +224,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
     return new Promise((resolve, reject) => {
         try {
             if (!codeValue) {
-                resolve({ state: false });
-                return;
+                throw { jump: true, state: false };
             }
             getExternalFileContent().then(content => {
                 return findInfo(content[0]);
@@ -219,16 +233,19 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
                     const { code } = data;
                     // 如果和上一次是一个哈希值，不再更新数据
                     if (code === codeValue) {
-                        resolve({ state: true, code });
-                        return;
+                        throw { jump: true, state: true, code };
                     }
                 }
                 resolve({ state: false, code: codeValue });
             }).catch(err => {
-                throw err;
+                if (err.jump) {
+                    resolve({ state: err.state, code: err.code??undefined });
+                } else {
+                    reject(err);
+                }
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -253,6 +270,49 @@ function deleteConfiguration () {
 }
 
 /**
+ * 获取vscode样式文件目录的Uri，没有指定name的文件就进行创建
+ * @param name 指定文件名
+ * @param create 没有文件是否创建
+ * @returns 
+ */
+function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
+    return new Promise((resolve, reject) => {
+        try {
+            if (name) {
+                const uri = Uri.file(join(dirname((require.main as NodeModule).filename), 'vs', 'workbench', name));
+                isFileExits(uri).then(res => {
+                    if (res) {
+                        // 有指定路径
+                        throw { jump: true, uri };
+                    } else {
+                        if (!create) {
+                            // 不创建文件，直接返回
+                            throw { jump: true };
+                        } else {
+                            return writeFileUri(uri, createBuffer(""));
+                        }
+                    }
+                }).then(() => {
+                    resolve(uri);
+                }).catch(err => {
+                    if (err.jump) {
+                        if (err.uri) {
+                            resolve(err.uri);
+                        } else {
+                            resolve();
+                        }
+                    } else {
+                        reject(err);
+                    }
+                });
+            }
+        } catch (error) {
+            errHandle(error);
+        }
+    });
+}
+
+/**
  * 将背景样式写入外部样式文件
  * @param content 
  * @returns 
@@ -260,14 +320,18 @@ function deleteConfiguration () {
 function writeExternalCssFile (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
-            const fileUri = getCssUri(externalFileName) as Uri;
-            writeFileUri(fileUri, createBuffer(content)).then(() => {
+            // const fileUri = getCssUri(externalFileName) as Uri;
+            getCssUri(externalFileName).then(uri => {
+                if (uri) {
+                    return writeFileUri(uri, createBuffer(content));
+                }
+            }).then(() => {
                 resolve();
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -279,24 +343,18 @@ function writeExternalCssFile (content: string): Promise<void> {
 function getExternalFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
         try {
-            const uri = getCssUri(externalFileName);
-            if (!uri) throw new Error('null uri');
-            // 判断文件是否存在
-            isFileExits(uri).then(async res => {
-                if (!res) {
-                    // 不存在则创建文件
-                    await writeFileUri(uri, createBuffer("")).catch(err => {
-                        throw err;
-                    });
-                }
-                return readFileUri(uri);
+            let uriValue: Uri;
+            // 获取指定路径uri，没有文件则创建
+            getCssUri(externalFileName).then(uri => {
+                uriValue = uri!;
+                return readFileUri(uri!);
             }).then(content => {
-                resolve([content.toString(), uri]);
+                resolve([content.toString(), uriValue]);
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -320,8 +378,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                     const { code, vsCodeVersion, extensionVersion } = data;
                     // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
                     if (code === codeValue && vsCodeVersion === version && extensionVersion === extensionVer) {
-                        resolve(false);
-                        return;
+                        throw { jump: true, data: false };
                     }
                 }
                 return readFileUri(newUri(imageUri, `${codeValue}.back.wyg`));
@@ -357,10 +414,14 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                     }
                 ]);
             }).catch(err => {
-                throw err;
+                if (err.jump) {
+                    resolve(err.data);
+                } else {
+                    reject(err);
+                }
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -371,7 +432,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
  * @returns 
  */
 function getNowSettingCode (): Promise<string | false> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         try {
             const storageCode = backgroundImageConfiguration.getBackgroundNowImagePath();
             if (!storageCode) {
@@ -380,7 +441,7 @@ function getNowSettingCode (): Promise<string | false> {
                 resolve(storageCode);
             }
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -389,15 +450,28 @@ function getNowSettingCode (): Promise<string | false> {
  * 获取vscode源样式文件内容，返回内容文本和路径uri
  * @returns {[string, Uri]} 内容文本和路径uri
  */
-function getSourceCssFileContent (): Promise<[string, Uri]> {
+function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
         try {
-            const fileUri = getCssUri(cssName) as Uri;
-            readFileUri(fileUri).then(res => {
-                resolve([res.toString(), fileUri]);
+            let uriValue: Uri;
+            getCssUri(cssName, false).then(uri => {
+                if (uri) {
+                    uriValue = uri;
+                    return readFileUri(uri);
+                } else {
+                    throw { jump: true };
+                }
+            }).then(res => {
+                resolve([res!.toString(), uriValue]);
+            }).catch(err => {
+                if (err.jump) {
+                    resolve();
+                } else {
+                    reject(err);
+                }
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -410,7 +484,7 @@ function getSourceCssFileContent (): Promise<[string, Uri]> {
  * @returns 
  */
 function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:string, uri?:Uri } | true> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         try {
             const reg = content.match(findSourceCssPositionRegexp);
             // 有匹配项返回去，不需要继续插入
@@ -420,7 +494,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:s
                 resolve({ content, uri })
             }
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -431,7 +505,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:s
  * @returns 
  */
 function findInfo (content: string): Promise<info | false> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         try {
             const reg = content.match(findExternalCssPositionRegexp);
             // 有匹配项返回信息
@@ -446,7 +520,7 @@ function findInfo (content: string): Promise<info | false> {
                 resolve(false);
             }
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -465,7 +539,7 @@ function getReg (name: string, catchData: boolean = true): string {
  * 通过标签名删除css文件的修改内容
  * @param content 需要被处理的文本
  */
-function deleteContentByTagName (content: string, uri: Uri): Promise<{content:string, uri:Uri}> {
+function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndUri> {
     return new Promise((resolve, reject) => {
         try {
             if (!content) {

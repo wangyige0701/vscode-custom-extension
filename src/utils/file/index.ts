@@ -53,7 +53,7 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boole
             workspace.fs.copy(source, target, options).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -76,7 +76,7 @@ export function uriDelete (uri: Uri, options?: {
             workspace.fs.delete(uri, options).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -95,7 +95,7 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
             workspace.fs.readDirectory(uri).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -114,7 +114,7 @@ export function readFileUri (uri: Uri): Promise<Uint8Array> {
             workspace.fs.readFile(uri).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -148,7 +148,7 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
             workspace.fs.writeFile(uri, content).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -167,7 +167,7 @@ export function uriStat (uri: Uri): Promise<FileStat> {
             workspace.fs.stat(uri).then(res => {
                 resolve(res);
             }, err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);
@@ -206,7 +206,7 @@ export function imageToBase64 (path: string): Promise<string> {
                 path = createBuffer(content).toString('base64');
                 resolve(`data:image/${fileType};base64,${path}`);
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
             reject(error);

@@ -31,26 +31,33 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
  */
 export function checkImageCssDataIsRight (): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        const isBack = backgroundImageConfiguration.getBackgroundIsSetBackground();
-        if (!isBack) {
-            // 当前没有设置背景图，则直接跳出检测
-            resolve(false);
-            return;
+        try {
+            const isBack = backgroundImageConfiguration.getBackgroundIsSetBackground();
+            if (!isBack) {
+                // 当前没有设置背景图，则直接跳出检测
+                throw { jump: true, data: false };
+            }
+            let state = false;
+            setSourceCssImportInfo().then((res) => {
+                state = state || res.modify;
+                return checExternalDataIsRight();
+            }).then((res) => {
+                state = state || res.modify;
+                // 状态栏提示信息
+                setBackgroundImageSuccess('背景图文件校验完成');
+                // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
+                if (!state) changeLoadState();
+                resolve(state);
+            }).catch(err => {
+                if (err.jump) {
+                    resolve(err.data);
+                } else {
+                    reject(err);
+                }
+            });
+        } catch (error) {
+            errHandle(error);
         }
-        let state = false;
-        setSourceCssImportInfo().then((res) => {
-            state = state || res.modify;
-            return checExternalDataIsRight();
-        }).then((res) => {
-            state = state || res.modify;
-            // 状态栏提示信息
-            setBackgroundImageSuccess('背景图文件校验完成');
-            // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
-            if (!state) changeLoadState();
-            resolve(state);
-        }).catch(err => {
-            reject(err);
-        });
     });
 }
 
@@ -152,7 +159,7 @@ export function selectImage () {
             value: [base64, hashCode]
         });
     }).catch(err => {
-        errHandle(err as Error);
+        errHandle(err);
     });
 }
 
@@ -183,7 +190,7 @@ export function backgroundImageDataInit () {
             setBackgroundImageSuccess('侧栏图片列表初始化成功');
         }
     }).catch(err => {
-        errHandle(err as Error);
+        errHandle(err);
     });
 }
 
@@ -193,7 +200,7 @@ export function backgroundImageDataInit () {
  * @returns {Promise<string[][]>}
  */
 function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         try {
             const result: string[][] = buffers.map(buff => {
                 codeListRefresh(buff.code);
@@ -201,7 +208,7 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
             });
             resolve(result);
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -281,10 +288,10 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
             Promise.all(fileRequest).then(res => {
                 resolve(res);
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }
@@ -304,10 +311,10 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
                     code
                 });
             }).catch(err => {
-                throw err;
+                reject(err);
             });
         } catch (error) {
-            reject(error);
+            errHandle(error);
         }
     });
 }

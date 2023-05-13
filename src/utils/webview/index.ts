@@ -89,7 +89,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
             });
             messageHandle(webviewView.webview);
         } catch (error) {
-            errHandle(error as Error);
+            errHandle(error);
         }
     }
 
@@ -253,7 +253,7 @@ export function messageSend (webview: Webview, options: MessageData): void {
         try {
             webview.postMessage(options);
         } catch (error) {
-            errHandle(error as Error);
+            errHandle(error);
         }
     }
 }

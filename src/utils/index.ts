@@ -198,3 +198,13 @@ export function delay (time: number = 0): Promise<void> {
         setTimeout(resolve, time);
     });
 }
+
+/**
+ * 返回一个空的Promise函数
+ * @returns 
+ */
+export function voidFunc (): Promise<void> {
+    return new Promise(resolve => {
+        resolve();
+    });
+}

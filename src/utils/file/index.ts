@@ -1,5 +1,7 @@
 import { FileStat, FileType, Uri, workspace } from 'vscode';
 import { posix, extname, resolve as pathResolve } from 'path';
+import { isString } from '..';
+import { existsSync } from 'fs';
 
 /**
  * 生成新uri
@@ -167,6 +169,24 @@ export function uriStat (uri: Uri): Promise<FileStat> {
             }, err => {
                 throw err;
             });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 判断指定路径是否存在
+ * @param data 路径uri或者字符串
+ * @returns 
+ */
+export function isFileExits (data: Uri | string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        try {
+            if (!isString(data)) {
+                data = (data as Uri).fsPath;
+            }
+            resolve(existsSync(data as string));
         } catch (error) {
             reject(error);
         }

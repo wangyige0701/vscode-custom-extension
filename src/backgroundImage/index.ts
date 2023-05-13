@@ -31,6 +31,12 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
  */
 export function checkImageCssDataIsRight (): Promise<boolean> {
     return new Promise((resolve, reject) => {
+        const isBack = backgroundImageConfiguration.getBackgroundIsSetBackground();
+        if (!isBack) {
+            // 当前没有设置背景图，则直接跳出检测
+            resolve(false);
+            return;
+        }
         let state = false;
         setSourceCssImportInfo().then((res) => {
             state = state || res.modify;

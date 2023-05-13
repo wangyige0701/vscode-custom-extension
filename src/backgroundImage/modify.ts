@@ -5,7 +5,7 @@
 import { dirname, join } from "path";
 import { getDate } from "../utils";
 import { minmax } from "../utils";
-import { createBuffer, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
+import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
 import { changeLoadState, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
@@ -81,7 +81,7 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             if (!codeValue) throw new Error('null code');
-            getCssContent(codeValue).then(res => {
+            getExternalCssContent(codeValue).then(res => {
                 if (res === false) {
                     resolve();
                     return;
@@ -234,7 +234,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
 }
 
 /**
- * 设置当前背景哈希码的和是否设置背景的缓存数据
+ * 设置当前背景哈希码缓存，将是否设置背景状态值改为true
  * @param options 
  */
 function settingConfiguration (options: info) {
@@ -245,7 +245,7 @@ function settingConfiguration (options: info) {
 }
 
 /**
- * 删除背景的缓存数据
+ * 删除背景的缓存数据，将是否设置背景状态值改为false
 */
 function deleteConfiguration () {
     backgroundImageConfiguration.setBackgroundNowImagePath("");
@@ -281,11 +281,20 @@ function getExternalFileContent (): Promise<[string, Uri]> {
         try {
             const uri = getCssUri(externalFileName);
             if (!uri) throw new Error('null uri');
-            readFileUri(uri).then(content => {
+            // 判断文件是否存在
+            isFileExits(uri).then(async res => {
+                if (!res) {
+                    // 不存在则创建文件
+                    await writeFileUri(uri, createBuffer("")).catch(err => {
+                        throw err;
+                    });
+                }
+                return readFileUri(uri);
+            }).then(content => {
                 resolve([content.toString(), uri]);
             }).catch(err => {
                 throw err;
-            })
+            });
         } catch (error) {
             reject(error);
         }
@@ -297,7 +306,7 @@ function getExternalFileContent (): Promise<[string, Uri]> {
  * 如果不需要更新数据即当前文件内的哈希码和需要设置的相同，则返回false
  * @param codeValue 
  */
-function getCssContent (codeValue: string): Promise<[string, info] | false> {
+function getExternalCssContent (codeValue: string): Promise<[string, info] | false> {
     return new Promise((resolve, reject) => {
         try {
             const imageUri = imageStoreUri();

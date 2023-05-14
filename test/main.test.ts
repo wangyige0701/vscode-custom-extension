@@ -145,4 +145,18 @@ test("regexp", () => {
     /* wangyige.background.end */`
     console.log(content.match(findImageCssOpacityData));
     
+});
+
+test("number", () => {
+    // let reg = /^([0-9]*)(\.[0-9]*[1-9])?$/;
+    let reg = /^(1)$|^(0\.[1-9]+([0-9]*[1-9])?)$/;
+    console.log(reg.test('1.2'), reg.test('1'), reg.test('0.5'), reg.test('0'), reg.test('1.2323232'), reg.test('0.0006'));
+    
+});
+
+test("image", () => {
+    let reg = /^https|http\:\/\/[.]+\.gif|png|jpg|jpeg|webp(\?(([.]+)=([.]+))?){0,1}$/;
+    let image = 'https://abcsdfdfdfd.png';
+    console.log(reg.test(image));
+    
 })

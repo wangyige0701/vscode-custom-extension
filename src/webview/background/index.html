@@ -14,16 +14,16 @@
         <header class="top" id="top">
             <div id="inputArea">
                 <div class="icon-container input-change-icon">
-                    <span class="iconfont" title="上传外部图片" id="externalImage">&#xe645;</span>
-                    <span class="iconfont" title="设置透明度" id="setOpacity">&#xe60d;</span>
+                    <!-- 选项图标按钮插入容器 -->
                 </div>
-                <div class="info-input">
+                <div class="info-input" id="infoInput">
                     <!-- 输入外部图片地址 -->
                     <input id="inputValue" type="text" placeholder="" />
                     <div class="icon-container input-button">
                         <span class="iconfont" title="确认" id="confirm">&#xe616;</span>
                         <span class="iconfont" title="清空" id="clear">&#xe600;</span>
                     </div>
+                    <span class="warning-info" id="inputWarning"></span>
                 </div>
             </div>
             <button class="button" id="selectImage">上传本地图片</button>

@@ -77,7 +77,7 @@ export function selectFile ({
                     }
                     resolve({ uri: res, file: files, dirName });
                 } else {
-                    reject('undefinded select data');
+                    reject(new Error('undefinded select data'));
                 }
             });
         } catch (error) {

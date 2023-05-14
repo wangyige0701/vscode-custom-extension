@@ -14,8 +14,13 @@ import { setMessage } from "../utils/interactive";
 /**
  * 错误统一处理
  * @param e 
+ * @param isThrow 是否抛出错误不进行弹框打印
  */
-export function errHandle (e: any) {
+export function errHandle (e: any, isThrow: boolean = false) {
+    if (isThrow) {
+        console.log(e);
+        return;
+    }
     if (!e) return;
     if (isString(e) || isNumber(e)) {
         setMessage({
@@ -28,7 +33,7 @@ export function errHandle (e: any) {
     if (e instanceof Error) {
         setMessage({
             type: 'error',
-            message: `name:${e.name}\nmessage:${e.message}`,
+            message: e.stack??`${e.name??'Error'}:${e.message}`,
             modal: false
         });
     }

@@ -49,26 +49,32 @@ div.info-input {
 	border: 1px solid transparent;
 	color: var(--vscode-input-foreground);
 	background-color: var(--vscode-input-background);
+    outline-offset: -1px;
+    outline-style: solid;
+    outline-width: 1px;
+    outline-color: transparent;
+    position: relative;
 }
 
 div.info-input.focus {
-    outline: var(--vscode-focusBorder) solid 1px;
-    outline-offset: -1px;
+    outline-color: var(--vscode-focusBorder);    
 }
 
-div.info-input.error {
-    border-color: var(--vscode-inputValidation-errorBorder);
+div.info-input.warning#infoInput {
+    outline-color: var(--vscode-inputValidation-warningBorder);
 }
 
 div.info-input input {
     flex: 1;
-    height: 24px;
+    height: 26px;
     padding: 3px 0 3px 6px;
     background-color: transparent;
     outline: none;
     border: none;
     font-size: inherit;
     white-space: nowrap;
+    appearance: none!important;
+    -webkit-appearance: none!important;
 }
 
 div.info-input input::placeholder {
@@ -88,13 +94,33 @@ div.icon-container.input-button > span.iconfont {
 }
 
 div.input-button > span.iconfont#confirm:hover {
-    color: var(--vscode-inputValidation-warningBorder);
+    color: var(--vscode-editorMarkerNavigationWarning-background);
 }
 
 div.input-button > span.iconfont#clear:hover {
-    color: var(--vscode-inputValidation-errorBorder);
+    color: var(--vscode-editorMarkerNavigationError-background);
 }
 
 div.input-button > span.iconfont:active {
     background-color: var(--vscode-inputOption-activeBackground);
+}
+
+div.info-input.focus.warning span.warning-info {
+    display: inline-block;
+}
+
+span.warning-info {
+    display: none;
+    width: 100%;
+    min-height: 24px;
+    padding: 6px;
+    word-break: break-all;
+    font-size: 1.4rem;
+    color: var(--vscode-input-foreground);
+    background-color: var(--vscode-inputValidation-warningBackground);
+    outline: var(--vscode-inputValidation-warningBorder) solid 1px;
+    outline-offset: -1px;
+    position: absolute;
+    top: calc(100% + 1px);
+    left: 0;
 }

@@ -174,7 +174,7 @@ export function selectImage () {
             value: [base64, hashCode]
         });
     }).catch(err => {
-        errHandle(err);
+        errHandle(err, true);
     });
 }
 

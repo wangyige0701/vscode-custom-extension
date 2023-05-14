@@ -16,7 +16,10 @@ const circleBackIconClass = 'icon-circle-background'; // 圆形背景填充图�
 const deleteIconClass = 'icon-delete'; // 删除图标类名
 const ImageSelectStateClass = 'select'; // 图片选中类名
 
-var canSelect = false; // 在首次加载完图片之前不允许点击
+/**
+ * 在首次加载完图片之前不允许点击
+ */
+var canSelect = false;
 
 // 列表操作实例
 const listInstance = createInstance();
@@ -174,12 +177,21 @@ function sendMessage (options={}) {
  * @param {object} option 属性
  * @returns {HTMLElement}
  */
-function createELement (name, option={}) {
+function createELement (name, options={}) {
     const el = document.createElement(name);
-    Object.keys(option).forEach(item => {
-        el.setAttribute(item, option[item]);
-    });
+    setAllAttribute(el, options);
     return el;
+}
+
+/**
+ * 批量设置元素属性
+ * @param {HTMLElement} el 
+ * @param {Object} options 
+ */
+function setAllAttribute (el, options={}) {
+    Object.keys(options).forEach(item => {
+        el.setAttribute(item, options[item]);
+    });
 }
 
 /**
@@ -191,4 +203,15 @@ function getId (id) {
     if (id) {
         return document.getElementById(id);
     }
+}
+
+/**
+ * 输出在一个最小最大范围内的值
+ * @param {number} min 
+ * @param {number} max 
+ * @param {number} value 
+ * @returns {number}
+ */
+function minmax (min, max, value) {
+    return value <= min ? min : value >= max ? max : value;
 }

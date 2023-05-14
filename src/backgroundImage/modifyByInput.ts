@@ -1,9 +1,8 @@
 import { createFileStore } from ".";
 import { errHandle } from "../error";
-import { voidFunc } from "../utils";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../utils/file";
 import { imageUrl } from "../utils/regexp";
-import { GetImage } from "../utils/request/utiils";
+import { GetImage } from "../utils/request/utils";
 import { backgroundSendMessage } from "./execute";
 
 /**

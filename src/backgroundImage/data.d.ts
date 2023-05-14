@@ -10,7 +10,7 @@ interface dataType {
  * 接收通信数据类型
  */
 
-export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType;
+export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType | externalImageType | backgroundOpacityType;
 
 interface backgroundInitType extends dataType {
     name: 'backgroundInit';
@@ -35,10 +35,20 @@ interface settingBackgroundType extends dataType {
     };
 }
 
+interface externalImageType extends dataType {
+    name: 'externalImage';
+    value: string;
+}
+
+interface backgroundOpacityType extends dataType {
+    name: 'backgroundOpacity';
+    value: number;
+}
+
 /**
  * 发送通信信息类型
 */
-export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | settingBackgroundSuccessType;
+export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | settingBackgroundSuccessType | newImageNetworkType;
 
 interface backgroundInitDataType extends dataType {
     name: 'backgroundInitData';
@@ -47,7 +57,7 @@ interface backgroundInitDataType extends dataType {
 
 interface newImageType extends dataType {
     name: 'newImage';
-    value: [string, string]
+    value: [string, string] | undefined;
 }
 
 interface deleteImageSuccessType extends dataType {
@@ -57,7 +67,12 @@ interface deleteImageSuccessType extends dataType {
 
 interface settingBackgroundSuccessType extends dataType {
     name: 'settingBackgroundSuccess';
-    value: number | string
+    value: number | string;
+}
+
+interface newImageNetworkType extends dataType {
+    name: 'newImageNetwork';
+    value: [string, string] | undefined;
 }
 
 /**

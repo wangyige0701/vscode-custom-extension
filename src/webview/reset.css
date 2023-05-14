@@ -92,3 +92,8 @@ img {
 .icon-delete-cross::before {
 	content: "\e600";
 }
+
+/* 加载单边 &#xe8fd; */
+.icon-loading-single::before {
+	content: "\e8fd";
+}

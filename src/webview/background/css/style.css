@@ -23,6 +23,20 @@ button.button {
     margin: 0 auto;
 }
 
+button.button > span.iconfont {
+	margin-right: 2px;
+	font-size: inherit;
+	color: inherit;
+}
+
+button.button.isloading:hover {
+	background: var(--vscode-button-background);
+}
+
+button.button:not(.isloading) > span.iconfont {
+	display: none;
+}
+
 nav.list {
 	flex: 1;
 }

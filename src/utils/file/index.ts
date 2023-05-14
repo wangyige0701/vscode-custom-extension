@@ -203,11 +203,29 @@ export function imageToBase64 (path: string): Promise<string> {
         try {
             readFileUri(Uri.file(pathResolve(path))).then(content => {
                 const fileType = extname(path).substring(1);
-                path = createBuffer(content).toString('base64');
-                resolve(`data:image/${fileType};base64,${path}`);
+                return base64ByFiletypeAndData('image', fileType, content);
+            }).then(data => {
+                resolve(data);
             }).catch(err => {
                 reject(err);
             });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 根据类型、文件类型、数据合成base64
+ * @param type 
+ * @param fileType 
+ * @param data 
+ * @returns 
+ */
+export function base64ByFiletypeAndData (type: string, fileType: string, data: string | Uint8Array | readonly number[]): Promise<string> {
+    return new Promise((resolve, reject) => {
+        try {
+            resolve(`data:${type}/${fileType};base64,${createBuffer(data).toString('base64')}`);
         } catch (error) {
             reject(error);
         }

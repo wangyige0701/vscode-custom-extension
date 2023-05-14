@@ -174,6 +174,10 @@ export function selectImage () {
             value: [base64, hashCode]
         });
     }).catch(err => {
+        backgroundSendMessage({
+            name: 'newImage',
+            value: undefined
+        });
         errHandle(err, true);
     });
 }
@@ -373,7 +377,7 @@ function newHashCode (): string {
  * 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg)
  * @returns {Promise<{hashCode:string, base64:string}>}
  */
-function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
+export function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
     return new Promise((resolve, reject) => {
         try {
             let uri = imageStoreUri();

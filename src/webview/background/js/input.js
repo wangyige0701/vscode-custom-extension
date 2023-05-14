@@ -7,6 +7,7 @@ const inputInfo = {
     selection: '.icon-container.input-change-icon>.iconfont',
     operation: '.icon-container.input-button>.iconfont',
     confirm: 'confirm', // 确认按钮id
+    confirmLock: 'lock',
     clear: 'clear', // 清除按钮id
     select: 'select', // 输入框选项选中样式类名
     focus: 'focus', // 输入框聚焦容器样式类名
@@ -15,10 +16,10 @@ const inputInfo = {
     inputPlaceholder: ['外部图片地址（https/http）', '透明度（输入0.1~1的任意数字）'], // 占位符内容
     inputType: ['text', 'number'],
     selectionIcon: [{
-        icon: '&#xe645;',
+        icon: iconCode.image,
         title: '上传外部图片'
     }, {
-        icon: '&#xe60d;',
+        icon: iconCode.opacity,
         title: '设置透明度' 
     }],
     match: [{
@@ -30,7 +31,11 @@ const inputInfo = {
     }],
 }
 
-createInputEvent();
+// 输入框事件绑定
+const inputDataWatcher = createInputEvent();
+
+// 注册输入框确认按钮锁
+registLock('inputConfirm', inputConfirmButtonLock);
 
 function createInputEvent () {
     createInputSelection(document.querySelector(inputInfo.selectionContainer));
@@ -129,11 +134,14 @@ function createInputEvent () {
         // 统一阻止冒泡
         item.addEventListener('click', (e) => {
             e.stopPropagation();
+            if (lockSet.inputConfirm) return;
             inputTarget.focus();
         });
     });
     // 内存占用释放
     operation = null;confirm = null;clear = null;
+
+    return inputDataWatcher;
 }
 
 /**
@@ -161,12 +169,14 @@ function createInputSelection (target) {
 function inputStartCheck (index, value, empty=false) {
     let box = getId(inputInfo.box);
     let reg = inputInfo.match[index];
+    let state;
     if (reg && (value || (!value && empty))) {
-        inputWarnignState(box, reg.message, !getRegExpContent(reg.regexp).test(value));
+        state = inputWarnignState(box, reg.message, !getRegExpContent(reg.regexp).test(value));
     } else {
-        inputWarnignState(box, '', false);
+        state = inputWarnignState(box, '', false);
     }
     reg = null;box = null;
+    return state;
 }
 
 /**
@@ -186,6 +196,7 @@ function inputWarnignState (target, message, state = false) {
         warn.innerText = "";
     }
     warn = null;
+    return state;
 }
 
 /**
@@ -206,11 +217,12 @@ function getRegExpContent (data) {
 function inputSendInfo () {
     if (this.type === 1) backOpacityRange(this);
     if (!canSelect) return;
-    inputStartCheck(this.type, this.value, true);
+    if (inputStartCheck(this.type, this.value, true)) return;
+    lockSet.inputConfirm = true;
     switch (this.type) {
         case 0:
             // 上传外部图片
-            setExternalImage(this.value);
+            setExternalImage(this.value?.trim());
             break;
         case 1:
             // 设置透明度
@@ -269,4 +281,32 @@ function inputSelectionClass (ellist, index) {
             }
         });
     }
+}
+
+/**
+ * 确认加载状态处理
+ * @param {boolean} value 
+ * @returns 
+ */
+function inputConfirmButtonLock (value) {
+    const icon = getId(inputInfo.confirm);
+    if (!icon) return;
+    if (value) {
+        // 为true上锁，添加加载图标
+        icon.innerHTML = iconCode.loadingSingle;
+        icon.classList.add(loadingClass, inputInfo.confirmLock);
+        getId(inputInfo.clear)?.classList.add(loadingClass, inputInfo.confirmLock);
+    } else {
+        // 删除加载图标
+        icon.innerHTML = iconCode.confirm;
+        icon.classList.remove(loadingClass, inputInfo.confirmLock);
+        getId(inputInfo.clear)?.classList.remove(loadingClass, inputInfo.confirmLock);
+    }
+}
+
+/**
+ * 清空输入框内容
+ */
+function inputImageDownloadComplete () {
+    inputDataWatcher.value = "";
 }

@@ -4,6 +4,7 @@ import { MessageData } from "../utils/webview/main";
 import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
 import { messageSend } from "../utils/webview";
+import { requestImageToBackground } from "./modifyByInput";
 
 var webviewInstance: Webview;
 
@@ -32,6 +33,13 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
         case 'settingBackground':
             // 设置背景图 value: { code, index }
             if (value) settingImage(value);
+            break;
+        case 'externalImage':
+            if (value) requestImageToBackground(value);
+            break;
+        case 'backgroundOpacity':
+            console.log(value);
+            
             break;
         default:
             break;

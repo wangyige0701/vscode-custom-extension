@@ -14,7 +14,7 @@ div.input-change-icon {
     color: var(--vscode-icon-foreground);
 }
 
-div.icon-container > span.iconfont {
+div.icon-container > span.iconfont:not(.lock) {
     cursor: pointer;
     display: inline-block;
     width: 20px;
@@ -28,11 +28,11 @@ div.icon-container > span.iconfont {
     border: 1px solid transparent;
 }
 
-div.icon-container > span.iconfont:hover {
+div.icon-container > span.iconfont:not(.lock):hover {
     background-color: var(--vscode-inputOption-hoverBackground);
 }
 
-div.icon-container > span.iconfont.select {
+div.icon-container > span.iconfont:not(.lock).select {
     color: var(--vscode-inputOption-activeForeground);
     border-color: var(--vscode-inputOption-activeBorder);
     background-color: var(--vscode-inputOption-activeBackground);
@@ -93,7 +93,7 @@ div.icon-container.input-button > span.iconfont {
     margin-left: 2px;
 }
 
-div.input-button > span.iconfont#confirm:hover {
+div.input-button > span.iconfont#confirm:not(.lock):hover {
     color: var(--vscode-editorMarkerNavigationWarning-background);
 }
 
@@ -101,7 +101,7 @@ div.input-button > span.iconfont#clear:hover {
     color: var(--vscode-editorMarkerNavigationError-background);
 }
 
-div.input-button > span.iconfont:active {
+div.input-button > span.iconfont:not(.lock):active {
     background-color: var(--vscode-inputOption-activeBackground);
 }
 

@@ -59,6 +59,10 @@ export function *range (end: number, start: number = 0, step: number = 1) {
     }
 }
 
+/**
+ * 生成一个唯一标识
+ * @returns 
+ */
 export function getNonce() {
 	let text = '';
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

@@ -3,6 +3,9 @@
 const vscode = acquireVsCodeApi();
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
+const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片容器
+const judgeLoading = 'isloading';
+const loadingClass = 'loading-rotate';
 const listId = 'list'; // 图片列表区域id
 const listImageClass = 'image-container'; // 图片列表类名
 const imageContainerCode = 'code';
@@ -15,6 +18,30 @@ const imageDeleteButtonClass = 'image-delete'; // 图片删除按钮类名
 const circleBackIconClass = 'icon-circle-background'; // 圆形背景填充图标类名
 const deleteIconClass = 'icon-delete'; // 删除图标类名
 const ImageSelectStateClass = 'select'; // 图片选中类名
+
+/**
+ * 图标编码
+ */
+const iconCode = {
+    loadingSingle: '&#xe8fd;',
+    image: '&#xe645;',
+    opacity: '&#xe60d;',
+    confirm: '&#xe616;'
+}
+
+/**
+ * 按钮锁集合
+ */
+const lockSet = {
+    /**
+     * 输入框确认按钮
+    */
+    inputConfirm: false,
+    /**
+     * 上传图片按钮
+    */
+    selectFile: false
+};
 
 /**
  * 在首次加载完图片之前不允许点击
@@ -35,6 +62,9 @@ window.addEventListener('message', receiveMessage);
 // 初始加载所有图片
 onload();
 
+// 注册上传按钮锁
+registLock('selectFile', selectFileButtonLock);
+
 /**
  * 加载时初始化图片数据
  */
@@ -47,11 +77,14 @@ function onload () {
 
 /**
  * 队列插入数据
- * @param {Function} func 
+ * @param {Function[]} func 
  */
-function queueSet (func) {
-    if (typeof func !== 'function') return;
-    operationQueue.push(func);
+function queueSet (...func) {
+    for (let i = 0; i < func.length; i++) {
+        const item = func[i];
+        if (typeof item !== 'function') break;
+        operationQueue.push(item);
+    }
 }
 
 /**
@@ -61,6 +94,7 @@ function queueExecute (start=false) {
     canSelect = start;
     if (operationQueue.length > 0 && start) {
         operationQueue.shift()?.();
+        queueExecute(canSelect);
     }
 }
 
@@ -68,7 +102,8 @@ function queueExecute (start=false) {
  * 选择图片按钮点击
  */
 function buttonClickSelectImage () {
-    if (!canSelect) return;
+    if (!canSelect || lockSet.selectFile) return;
+    lockSet.selectFile = true;
     sendMessage({
         name: 'selectImage',
         value: true
@@ -112,7 +147,8 @@ function receiveMessage ({ data }) {
             break;
         case 'newImage':
             // value: string[]，添加的新图片路径和对应hashCode
-            queueSet(listInstance.addImageItem.bind(listInstance, ...value));
+            lockSet.selectFile = false;
+            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value));
             break;
         case 'deleteImageSuccess':
             // value: number | array，确定删除图片
@@ -121,6 +157,11 @@ function receiveMessage ({ data }) {
         case 'settingBackgroundSuccess':
             // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
             queueSet(listInstance.imageClickHandle.bind(listInstance, value));
+            break;
+        case 'newImageNetwork':
+            // 通过网络地址下载图片
+            lockSet.inputConfirm = false;
+            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputImageDownloadComplete);
             break;
         default:
             break;
@@ -214,4 +255,46 @@ function getId (id) {
  */
 function minmax (min, max, value) {
     return value <= min ? min : value >= max ? max : value;
+}
+
+/**
+ * 注册按钮锁
+ */
+function registLock (property, setback) {
+    if (lockSet.hasOwnProperty(property)) {
+        let value = lockSet[property];
+        Object.defineProperty(lockSet, property, {
+            set (newValue) {
+                if (newValue !== value) {
+                    value = newValue;
+                    setback(value);
+                }
+            },
+            get () {
+                return value;
+            }
+        });
+    }
+}
+
+/**
+ * 图标按钮加载状态处理
+ * @param {boolean} value 
+ * @returns 
+ */
+function selectFileButtonLock (value) {
+    const button = getId(selectButtonId);
+    const icon = button.querySelector('.'+selectButtonLoadingCLass);
+    if (!icon) return;
+    if (value) {
+        // 为true上锁，添加加载图标
+        button.classList.add(judgeLoading);
+        icon.innerHTML = iconCode.loadingSingle;
+        icon.classList.add(loadingClass);
+    } else {
+        // 删除加载图标
+        button.classList.remove(judgeLoading);
+        icon.innerHTML = null;
+        icon.classList.remove(loadingClass);
+    }
 }

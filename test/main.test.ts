@@ -154,9 +154,25 @@ test("number", () => {
     
 });
 
-test("image", () => {
-    let reg = /^https|http\:\/\/[.]+\.gif|png|jpg|jpeg|webp(\?(([.]+)=([.]+))?){0,1}$/;
+test("image", async () => {
+    /* let reg = /^https|http\:\/\/[.]+\.gif|png|jpg|jpeg|webp(\?(([.]+)=([.]+))?){0,1}$/;
     let image = 'https://abcsdfdfdfd.png';
-    console.log(reg.test(image));
+    console.log(reg.test(image)); */
+    const { imageUrl } = await import('../src/utils/regexp');
+    const image = 'https://raw.githubusercontent.com/gitkraken/vscode-gitlens/main/images/docs/current-line-blame.png';
+    console.log(image.match(imageUrl));
     
 })
+
+test("requestImage", async () => {
+    const { GetImage } = await import('../src/utils/request/utiils');
+    GetImage('https://raw.githubusercontent.com/gitkraken/vscode-gitlens/main/images/docs/current-line-blame.png').then(res => {
+        console.log(1);
+        
+        console.log(res);
+        
+    }).catch(err => {
+        console.log(err);
+        
+    });
+});

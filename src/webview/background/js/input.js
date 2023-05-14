@@ -5,7 +5,9 @@ const inputInfo = {
     id: 'inputValue', // 输入框id
     selectionContainer: '.icon-container.input-change-icon',
     selection: '.icon-container.input-change-icon>.iconfont',
+    operationContainer: '.icon-container.input-button',
     operation: '.icon-container.input-button>.iconfont',
+    operationHideClass: 'hide', // 操作区域隐藏样式类名
     confirm: 'confirm', // 确认按钮id
     confirmLock: 'lock',
     clear: 'clear', // 清除按钮id
@@ -43,6 +45,8 @@ function createInputEvent () {
     const selection = document.querySelectorAll(inputInfo.selection);
     // 输入框操作按钮
     let operation = document.querySelectorAll(inputInfo.operation);
+    // 输入框操作按钮容器
+    let operationContainer = document.querySelector(inputInfo.operationContainer);
     // 输入框的外层盒子
     const box = getId(inputInfo.box);
     // 输入框对象
@@ -91,6 +95,11 @@ function createInputEvent () {
                     }
                     inputStartCheck(this.type, value);
                     inputTarget.value = value;
+                }
+                if (!value) {
+                    classListOperation(operationContainer, 'add', inputInfo.operationHideClass);
+                } else {
+                    classListOperation(operationContainer, 'remove', inputInfo.operationHideClass);
                 }
             },
             get () {

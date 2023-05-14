@@ -305,3 +305,21 @@ function selectFileButtonLock (value) {
         icon.classList.remove(loadingClass);
     }
 }
+
+/**
+ * 类名操作集中处理
+ * @param {HTMLElement} target 
+ * @param {'add'|'remove'|'toggle'} operation 
+ * @param  {string[]} name 
+ * @returns 
+ */
+function classListOperation (target, operation, ...name) {
+    if (!target) return;
+    const list = target?.classList;
+    if (list) {
+        name.forEach(item => {
+            list?.[operation]?.(item);
+        });
+    }
+    return list;
+}

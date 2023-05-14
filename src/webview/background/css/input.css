@@ -88,6 +88,11 @@ div.input-button {
     height: 100%;
 }
 
+div.icon-container.input-button.hide {
+    overflow: hidden;
+    width: 0;
+}
+
 div.icon-container.input-button > span.iconfont {
     margin-right: 0;
     margin-left: 2px;

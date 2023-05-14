@@ -5,6 +5,7 @@
  * @returns 
  */
 function createInstance () {
+    const imageDeleteCLass = 'image-delete';
     class ImageList {
         selectImageList = [];
 
@@ -80,7 +81,7 @@ function createInstance () {
          */
         cancelSelect (index) {
             if (index >= 0) {
-                this.getChild()[index].classList.remove(selectClass);
+                classListOperation(this.getChild()[index], 'remove', selectClass);
             }
         }
 
@@ -101,8 +102,8 @@ function createInstance () {
                 let selectBut, deleteBut;
                 el.appendChild(selectBut = createELement('span', { class: imageButtonClass }));
                 el.appendChild(deleteBut = createELement('span', { class: imageButtonClass }));
-                selectBut.classList.add(imageSelectButtonClass, circleBackIconClass);
-                deleteBut.classList.add(imageDeleteButtonClass, deleteIconClass);
+                classListOperation(selectBut, 'add', imageSelectButtonClass, circleBackIconClass);
+                classListOperation(deleteBut, 'add', imageDeleteButtonClass, deleteIconClass);
 
                 // 事件绑定
                 this.imageSelectIconEventBind(selectBut);
@@ -153,7 +154,7 @@ function createInstance () {
             }
             if (!thisEl) return;
             // 添加删除类名动画
-            thisEl.classList.add('image-delete');
+            classListOperation(thisEl, 'add', imageDeleteCLass);
             const selectBut = thisEl.querySelector(
                 `.${imageButtonClass}.${imageSelectButtonClass}`
             );
@@ -261,7 +262,7 @@ function createInstance () {
             }
             if (!child) child = this.getChild();
             child.forEach(item => {
-                item.classList.remove(ImageSelectStateClass);
+                classListOperation(item, 'remove', ImageSelectStateClass);
             });
         }
 
@@ -304,7 +305,7 @@ function createInstance () {
                 value = this.isCodeContain(value);
             if (index === value) return;
             let target = this.getChild()[value];
-            target?.classList.add(selectClass);
+            classListOperation(target, 'add', selectClass);
         }
 
         /**

@@ -13,7 +13,7 @@ const inputInfo = {
     focus: 'focus', // 输入框聚焦容器样式类名
     warn: 'warning', // 输入框警告样式类名
     warnInfo: 'inputWarning', // 警告信息容器id
-    inputPlaceholder: ['外部图片地址（https/http）', '透明度（输入0.1~1的任意数字）'], // 占位符内容
+    inputPlaceholder: ['外部图片地址（https/http）', '透明度（0.1~1）当前为'], // 占位符内容
     inputType: ['text', 'number'],
     selectionIcon: [{
         icon: iconCode.image,
@@ -63,7 +63,7 @@ function createInputEvent () {
                     type = newValue;
                     this.value = "";
                     setAllAttribute(inputTarget, {
-                        placeholder: inputInfo.inputPlaceholder[type],
+                        placeholder: inputInfo.inputPlaceholder[type] + (type === 1 ? publicData.backgroundOpacity : ''),
                         'data-type': inputInfo.inputType[type]
                     });
                     inputSelectionClass(selection, type);

@@ -208,6 +208,11 @@ export function backgroundImageDataInit () {
                 name: 'settingBackgroundSuccess',
                 value: data.code as string
             });
+            // 发送当前透明度
+            backgroundSendMessage({
+                name: 'nowBackgroundOpacity',
+                value: backgroundImageConfiguration.getBackgroundOpacity()
+            });
             // 延迟指定时间后修改状态栏信息
             setBackgroundInfoOnStatusBar('侧栏列表初始化中', 'loading~spin', length * 500, () => {
                 setBackgroundImageSuccess('侧栏列表初始化成功');

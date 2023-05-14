@@ -48,7 +48,8 @@ interface backgroundOpacityType extends dataType {
 /**
  * 发送通信信息类型
 */
-export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | settingBackgroundSuccessType | newImageNetworkType;
+export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | 
+settingBackgroundSuccessType | newImageNetworkType | nowBackgroundOpacityType;
 
 interface backgroundInitDataType extends dataType {
     name: 'backgroundInitData';
@@ -73,6 +74,11 @@ interface settingBackgroundSuccessType extends dataType {
 interface newImageNetworkType extends dataType {
     name: 'newImageNetwork';
     value: [string, string] | undefined;
+}
+
+interface nowBackgroundOpacityType extends dataType {
+    name: 'nowBackgroundOpacity';
+    value: number
 }
 
 /**

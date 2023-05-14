@@ -19,6 +19,10 @@ const circleBackIconClass = 'icon-circle-background'; // 圆形背景填充图�
 const deleteIconClass = 'icon-delete'; // 删除图标类名
 const ImageSelectStateClass = 'select'; // 图片选中类名
 
+const publicData = {
+    backgroundOpacity: 0
+}
+
 /**
  * 图标编码
  */
@@ -94,7 +98,7 @@ function queueExecute (start=false) {
     canSelect = start;
     if (operationQueue.length > 0 && start) {
         operationQueue.shift()?.();
-        queueExecute(canSelect);
+        queueExecute(start);
     }
 }
 
@@ -162,6 +166,9 @@ function receiveMessage ({ data }) {
             // 通过网络地址下载图片
             lockSet.inputConfirm = false;
             if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputImageDownloadComplete);
+            break;
+        case 'nowBackgroundOpacity':
+            publicData.backgroundOpacity = value;
             break;
         default:
             break;

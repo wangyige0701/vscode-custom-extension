@@ -1,33 +1,18 @@
-import * as httpsRequest from "./https";
-import * as httpRequest from "./http";
-import { RequestUrl } from "./main";
+import request from ".";
 
 /**
- * 请求http图片资源
+ * 请求图片资源
  * @param url 
  * @returns 
  */
-export function GetImageHttp (url: RequestUrl): Promise<Uint8Array> {
+export function GetImage (url: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-        httpRequest.default.get(url).then(res => {
-            resolve(res as Uint8Array);
+        request.get(url, {
+            responseType: 'arraybuffer'
+        }).then(res => {
+            resolve(res.data);
         }).catch(err => {
-            reject(err);
-        });
-    });
-}
-
-/**
- * 请求https图片资源
- * @param url 
- * @returns 
- */
-export function GetImageHttps (url: RequestUrl): Promise<Uint8Array> {
-    return new Promise((resolve, reject) => {
-        httpsRequest.default.get(url).then(res => {
-            resolve(res as Uint8Array);
-        }).catch(err => {
-            reject(err);
+            reject(err.data || err);
         });
     });
 }

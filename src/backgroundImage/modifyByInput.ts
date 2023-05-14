@@ -1,9 +1,9 @@
 import { createFileStore } from ".";
 import { errHandle } from "../error";
 import { voidFunc } from "../utils";
-import { base64ByFiletypeAndData } from "../utils/file";
+import { base64ByFiletypeAndData, imageToBase64Type } from "../utils/file";
 import { imageUrl } from "../utils/regexp";
-import { GetImageHttp, GetImageHttps } from "../utils/request/utiils";
+import { GetImage } from "../utils/request/utiils";
 import { backgroundSendMessage } from "./execute";
 
 /**
@@ -40,10 +40,8 @@ function getImageBase64ByRequest (url: string): Promise<string> {
                 reject(new Error('Illegal Image URL'));
                 return;
             }
-            voidFunc().then(() => {
-                return reg[1] === 'http' ? GetImageHttp(url) : GetImageHttps(url);
-            }).then(res => {
-                return base64ByFiletypeAndData('image', reg[2], res);
+            GetImage(url).then(res => {
+                return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
             }).then(data => {
                 resolve(data);
             }).catch(err => {

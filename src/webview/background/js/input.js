@@ -295,12 +295,12 @@ function inputConfirmButtonLock (value) {
         // 为true上锁，添加加载图标
         icon.innerHTML = iconCode.loadingSingle;
         icon.classList.add(loadingClass, inputInfo.confirmLock);
-        getId(inputInfo.clear)?.classList.add(loadingClass, inputInfo.confirmLock);
+        getId(inputInfo.clear)?.classList.add(inputInfo.confirmLock);
     } else {
         // 删除加载图标
         icon.innerHTML = iconCode.confirm;
         icon.classList.remove(loadingClass, inputInfo.confirmLock);
-        getId(inputInfo.clear)?.classList.remove(loadingClass, inputInfo.confirmLock);
+        getId(inputInfo.clear)?.classList.remove(inputInfo.confirmLock);
     }
 }
 

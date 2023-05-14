@@ -202,7 +202,7 @@ export function imageToBase64 (path: string): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
             readFileUri(Uri.file(pathResolve(path))).then(content => {
-                const fileType = extname(path).substring(1);
+                const fileType = imageToBase64Type(extname(path).substring(1));
                 return base64ByFiletypeAndData('image', fileType, content);
             }).then(data => {
                 resolve(data);
@@ -230,4 +230,20 @@ export function base64ByFiletypeAndData (type: string, fileType: string, data: s
             reject(error);
         }
     });
+}
+
+/**
+ * 部分图片格式转换
+ * @param fileType 
+ * @returns 
+ */
+export function imageToBase64Type (fileType: string) {
+    if (fileType === 'jpg' || fileType === 'webp') {
+        fileType = 'jpeg';
+    } else if (fileType === 'ico') {
+        fileType = 'x-icon';
+    } else if (fileType === 'svg') {
+        fileType = 'svg+xml';
+    }
+    return fileType;
 }

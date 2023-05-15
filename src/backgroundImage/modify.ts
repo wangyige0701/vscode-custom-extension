@@ -3,11 +3,11 @@
 */
 
 import { dirname, join } from "path";
-import { getDate, minmax } from "../utils";
+import { getDate } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Uri, version } from "vscode";
-import { changeLoadState, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
+import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 import { ContentAndUri, info } from "./data";
 import { errHandle } from "../error";
@@ -58,9 +58,18 @@ const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
 /**
  * 获取外部css文件中的透明度值正则
  */
-const findImageCssOpacityData = 
+const findExternalCssOpacityData = 
     `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
-const findImageCssOpacityDataRegexp = new RegExp(findImageCssOpacityData);
+const findExternalCssOpacityDataRegexp = new RegExp(findExternalCssOpacityData);
+
+/**
+ * 对外部css文件的透明度进行修改的正则，包括动画样式内的透明度
+*/
+const externalCssOpacityModify = 
+    `(${importStartMatch}${a}vscode-body-opacity${s}\{${a}to${s}\{${a
+    }opacity${s}\:${s})(${ans})(${s};${a}\}${a}body${s}\{${a
+    }opacity${s}\:${s})(${ans})(${s};${a}\}${a}${importEndMatch})`;
+const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 
 /**
  * 修改外部css文件的背景图属性
@@ -316,7 +325,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
  * @param content 
  * @returns 
  */
-function writeExternalCssFile (content: string): Promise<void> {
+export function writeExternalCssFile (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             // const fileUri = getCssUri(externalFileName) as Uri;
@@ -339,7 +348,7 @@ function writeExternalCssFile (content: string): Promise<void> {
  * 获取外部css文件内容
  * @returns 
  */
-function getExternalFileContent (): Promise<[string, Uri]> {
+export function getExternalFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
         try {
             let uriValue: Uri;
@@ -382,9 +391,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                 }
                 return readFileUri(newUri(imageUri, `${codeValue}.back.wyg`));
             }).then(image => {
-                let opacity = backgroundImageConfiguration.getBackgroundOpacity();
-                opacity = minmax(0.1, 1, opacity);
-                opacity = +(0.95 + (-0.45 * opacity)).toFixed(2);
+                const opacity = getNewBackgroundOpacity(backgroundImageConfiguration.getBackgroundOpacity());
                 const delay = 2; // 动画延迟的时间
                 resolve([
                     `${importStart+'\n'
@@ -550,5 +557,16 @@ function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndU
         } catch (error) {
             reject(error);
         }
+    });
+}
+
+/**
+ * 获取外部css文件修改了透明度后的内容
+ * @param value 
+ * @returns 
+ */
+export function getExternalCssModifyOpacityContent (content: string, value: number): string {
+    return content.replace(externalCssOpacityModifyRegexp, (m, $1, $2, $3, $4, $5) => {
+        return $1 + value + $3 + value + $5;
     });
 }

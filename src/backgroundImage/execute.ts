@@ -4,7 +4,7 @@ import { MessageData } from "../utils/webview/main";
 import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
 import { messageSend } from "../utils/webview";
-import { requestImageToBackground } from "./modifyByInput";
+import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 
 var webviewInstance: Webview;
 
@@ -38,8 +38,8 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             if (value) requestImageToBackground(value);
             break;
         case 'backgroundOpacity':
-            console.log(value);
-            
+            // 设置背景透明度
+            if (value >= 0.1 && value <= 1) backgroundOpacityModify(value);
             break;
         default:
             break;

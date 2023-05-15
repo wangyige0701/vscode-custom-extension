@@ -5,6 +5,7 @@ import { contextContainer } from "../utils/webview";
 import { Uri } from "vscode";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { errHandle } from "../error";
+import { minmax } from "../utils";
 
 /**
  * 获取储存背景图资源的uri
@@ -106,4 +107,14 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
  */
 export function changeLoadState () {
     backgroundImageConfiguration.setBackgroundLoad(true);
+}
+
+/**
+ * 根据给定透明度计算需要设置的透明度
+ * @param opacity 
+ */
+export function getNewBackgroundOpacity (opacity: number): number {
+    opacity = minmax(0.1, 1, opacity);
+    opacity = +(0.95 + (-0.45 * opacity)).toFixed(2);
+    return opacity;
 }

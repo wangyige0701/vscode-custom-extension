@@ -157,6 +157,8 @@ export function deleteImage (code: string) {
  * @param webview 
  */
 export function selectImage () {
+    // 需要发送的数据
+    let sendMsg: [string, string] | undefined = undefined;
     selectFile({
         many: true,
         files: true,
@@ -169,16 +171,14 @@ export function selectImage () {
     }).then(base64 => {
         return createFileStore(base64);
     }).then(({ hashCode, base64 }) => {
-        backgroundSendMessage({
-            name: 'newImage',
-            value: [base64, hashCode]
-        });
+        sendMsg = [base64, hashCode];
     }).catch(err => {
+        errHandle(err, true);
+    }).finally(() => {
         backgroundSendMessage({
             name: 'newImage',
-            value: undefined
+            value: sendMsg
         });
-        errHandle(err, true);
     });
 }
 

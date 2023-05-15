@@ -165,10 +165,12 @@ function receiveMessage ({ data }) {
         case 'newImageNetwork':
             // 通过网络地址下载图片
             lockSet.inputConfirm = false;
-            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputImageDownloadComplete);
+            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputSendDataComplete);
             break;
         case 'nowBackgroundOpacity':
-            publicData.backgroundOpacity = value;
+            // 初始化和设置透明度后返回
+            lockSet.inputConfirm = false;
+            queueSet(opacityMessageGetHandle(value));
             break;
         default:
             break;

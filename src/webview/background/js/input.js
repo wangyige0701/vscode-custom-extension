@@ -314,8 +314,23 @@ function inputConfirmButtonLock (value) {
 }
 
 /**
- * 清空输入框内容
+ * 输入框内容发送处理完成后清空输入框内容
  */
-function inputImageDownloadComplete () {
+function inputSendDataComplete () {
     inputDataWatcher.value = "";
+}
+
+/**
+ * 接收到透明度设置成功或初始获取透明度数据时调用方法
+ * @param {number} opacity
+ */
+function opacityMessageGetHandle (opacity) {
+    publicData.backgroundOpacity = opacity;
+    inputSendDataComplete();
+    if (inputDataWatcher.type === 1) {
+        // 修改输入框占位字符内容
+        setAllAttribute(getId(inputInfo.id), {
+            placeholder: inputInfo.inputPlaceholder[inputDataWatcher.type] + publicData.backgroundOpacity
+        });
+    }
 }

@@ -1,115 +1,151 @@
 {
-  "name": "wangyige",
-  "displayName": "WangYige",
-  "description": "My custom extension",
-  "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.78.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./out/extension.js",
-  "icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png",
-  "contributes": {
-    "commands": [],
-    "iconThemes": [
-      {
-        "id": "wyg",
-        "label": "WYG",
-        "path": "./fileicons/wyg-icon-theme.json"
-      }
-    ],
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "custom-function",
-          "title": "自定义功能列表",
-          "icon": "resources/svg/custom.svg"
-        }
-      ]
-    },
-    "views": {
-      "custom-function": [
-        {
-          "id": "wangyige.custom.backgroundimage",
-          "name": "背景图片",
-          "type": "webview",
-          "visibility": "visible"
-        }
-      ]
-    },
-    "configuration": [
-      {
-        "title": "custom background image",
-        "properties": {
-          "wangyige.background.load": {
-            "type": "boolean",
-            "default": false,
-            "description": "软件启动后加载背景图的判断"
-          },
-          "wangyige.background.opacity": {
-            "type": "number",
-            "maximum": 1,
-            "minimum": 0,
-            "default": 0.3,
-            "description": "背景透明度(0-1)"
-          },
-          "wangyige.background.nowImagePath": {
-            "type": "string",
-            "default": "",
-            "description": "当前选中图片路径哈希值"
-          },
-          "wangyige.background.allImagePath": {
-            "type": "array",
-            "default": [],
-            "description": "所有选择的背景图路径哈希值数组"
-          },
-          "wangyige.background.hasImage": {
-            "type": "boolean",
-            "default": false,
-            "description": "当前是否选择了背景图文件"
-          },
-          "wangyige.background.isSetBackground": {
-            "type": "boolean",
-            "default": false,
-            "description": "当前是否设置了背景图"
-          },
-          "wangyige.background.defaultPath": {
-            "type": "string",
-            "default": "",
-            "description": "选择文件默认打开的路径"
-          }
-        }
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vitest --run"
-  },
-  "devDependencies": {
-    "@types/glob": "^8.0.1",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "16.x",
-    "@types/vscode": "^1.78.0",
-    "@typescript-eslint/eslint-plugin": "^5.49.0",
-    "@typescript-eslint/parser": "^5.49.0",
-    "@vscode/test-electron": "^2.2.2",
-    "eslint": "^8.33.0",
-    "glob": "^8.1.0",
-    "mocha": "^10.1.0",
-    "typescript": "^4.9.4",
-    "vitest": "^0.29.8"
-  },
-  "dependencies": {
-    "axios": "^1.4.0"
-  }
+	"name": "wangyige",
+	"displayName": "WangYige",
+	"description": "My custom extension",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.78.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./out/extension.js",
+	"icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png",
+	"contributes": {
+		"commands": [
+			{
+				"command": "wangyige.background.selectStore",
+				"title": "选择图片储存路径",
+				"icon": {
+					"light": "resources/svg/light/folder-library.svg",
+					"dark": "resources/svg/dark/folder-library.svg"
+				}
+			},
+			{
+				"command": "wangyige.background.resetStore",
+				"title": "重置图片储存路径",
+				"icon": {
+					"light": "resources/svg/light/refresh.svg",
+					"dark": "resources/svg/dark/refresh.svg"
+				}
+			}
+		],
+		"iconThemes": [
+			{
+				"id": "wyg",
+				"label": "WYG",
+				"path": "./fileicons/wyg-icon-theme.json"
+			}
+		],
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "custom-function",
+					"title": "自定义功能列表",
+					"icon": "resources/svg/custom.svg"
+				}
+			]
+		},
+		"views": {
+			"custom-function": [
+				{
+					"id": "wangyige.custom.backgroundimage",
+					"name": "背景图片",
+					"type": "webview",
+					"visibility": "visible"
+				}
+			]
+		},
+		"configuration": [
+			{
+				"title": "custom background image",
+				"properties": {
+					"wangyige.background.load": {
+						"type": "boolean",
+						"default": false,
+						"description": "软件启动后加载背景图的判断"
+					},
+					"wangyige.background.opacity": {
+						"type": "number",
+						"maximum": 1,
+						"minimum": 0,
+						"default": 0.3,
+						"description": "背景透明度(0-1)"
+					},
+					"wangyige.background.nowImagePath": {
+						"type": "string",
+						"default": "",
+						"description": "当前选中图片路径哈希值"
+					},
+					"wangyige.background.allImagePath": {
+						"type": "array",
+						"default": [],
+						"description": "所有选择的背景图路径哈希值数组"
+					},
+					"wangyige.background.hasImage": {
+						"type": "boolean",
+						"default": false,
+						"description": "当前是否选择了背景图文件"
+					},
+					"wangyige.background.isSetBackground": {
+						"type": "boolean",
+						"default": false,
+						"description": "当前是否设置了背景图"
+					},
+					"wangyige.background.defaultPath": {
+						"type": "string",
+						"default": "",
+						"description": "选择文件默认打开的路径"
+					},
+					"wangyige.background.storePath": {
+						"type": "string",
+						"default": "",
+						"description": "储存图片数据的路径，为空则是默认的resources下的background路径"
+					}
+				}
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "wangyige.background.selectStore",
+					"when": "view == wangyige.custom.backgroundimage",
+					"group": "navigation"
+				},
+				{
+					"command": "wangyige.background.resetStore",
+					"when": "view == wangyige.custom.backgroundimage",
+					"group": "navigation"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "vitest --run"
+	},
+	"devDependencies": {
+		"@types/glob": "^8.0.1",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "16.x",
+		"@types/vscode": "^1.78.0",
+		"@typescript-eslint/eslint-plugin": "^5.49.0",
+		"@typescript-eslint/parser": "^5.49.0",
+		"@vscode/test-electron": "^2.2.2",
+		"eslint": "^8.33.0",
+		"glob": "^8.1.0",
+		"mocha": "^10.1.0",
+		"typescript": "^4.9.4",
+		"vitest": "^0.29.8"
+	},
+	"dependencies": {
+		"axios": "^1.4.0"
+	}
 }

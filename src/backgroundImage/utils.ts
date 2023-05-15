@@ -12,11 +12,45 @@ import { minmax } from "../utils";
  * @returns {Uri|undefined}
  */
 export function imageStoreUri (): Uri | undefined {
-    const uri = contextContainer.instance?.extensionUri;
+    let uri: string | Uri | undefined = backgroundImageConfiguration.getBackgroundStorePath();
+    if (uri) {
+        // 缓存内有路径数据，返回uri
+        return Uri.file(uri);
+    }
+    // 没有缓存数据则获取插件路径
+    uri = contextContainer.instance?.extensionUri;
     if (uri) {
         return joinPathUri(uri, 'resources', 'background');
     } else {
         return;
+    }
+}
+
+/**
+ * 重新设置背景图储存路径数据
+ * @param path 
+ */
+export function resetImageStorePath (path: string, reset: boolean = false) {
+    if (reset) {
+        if (!backgroundImageConfiguration.getBackgroundStorePath()) {
+            setMessage({
+                message: '当前储存路径已为默认路径'
+            });
+            return;
+        }
+        backgroundImageConfiguration.setBackgroundStorePath("");
+        setMessage({
+            message: '背景图储存路径已切换为默认路径'
+        });
+        return;
+    }
+    const uri = Uri.file(path);
+    if (path && uri) {
+        // 缓存数据
+        backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath);
+        setMessage({
+            message: '背景图储存路径已切换为：'+uri.fsPath
+        });
     }
 }
 

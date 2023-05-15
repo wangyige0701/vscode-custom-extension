@@ -1,17 +1,9 @@
 import * as vscode from 'vscode';
-import { webviewCreateByHtml, contextContainer as webviewContextContainer, registWebview } from './utils/webview';
-import { WindowInitCheckCssModifyCompleteness } from './backgroundImage';
+import { registBackground } from './backgroundImage/regist';
 
 export function activate(context: vscode.ExtensionContext) {
-	// 检测配置完整
-	WindowInitCheckCssModifyCompleteness();
-	
-	webviewContextContainer.instance = context;
-
-	// 设置背景图的侧栏webview注册
-	const backgroundWebview = registWebview('wangyige.custom.backgroundimage', new webviewCreateByHtml('src/webview/background', '背景图片'));
-
-	context.subscriptions.push(backgroundWebview);
+	// 注册背景图侧栏页面
+	registBackground(context);
 }
 
 // This method is called when your extension is deactivated

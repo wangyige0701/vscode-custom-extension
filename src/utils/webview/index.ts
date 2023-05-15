@@ -1,24 +1,17 @@
-import { window, WebviewViewProvider, Disposable, ExtensionContext, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
+/**
+ * 对html引用的css和js进行合并的操作，在正式环境需要进行判断，即vscode、插件版本号和缓存不同时进行处理，
+ * 如果路径下文件不存在，则直接合并
+ * 保存文件的路径需要添加自定义选项
+ * 修改自定义路径时提示是否删除旧路径下的数据
+ */
+
+import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";
 import { errHandle } from "../../error";
-import { MessageData } from "./main";
+import { MessageData, contextInter, options, webFileType } from "./main";
 import { backgroundExecute } from "../../backgroundImage/execute";
 import { backgroundMessageData } from "../../backgroundImage/data";
-
-interface options {
-    readonly webviewOptions?: {
-        readonly retainContextWhenHidden?: boolean;
-    } | undefined;
-}
-
-interface contextInter {
-    [instance: string]: ExtensionContext | undefined;
-}
-
-interface webFileType {
-    [key: string]: string;
-}
 
 const webFile: webFileType = {
     html: 'index.html',
@@ -34,12 +27,12 @@ export class webviewCreateByHtml implements WebviewViewProvider {
     private readonly title: string = '';
     private htmlContent: string = '';
     private cssUri?: Uri; // css文件夹
-    private newCssUri?: Uri;
+    private newCssUri?: Uri; // 合并后生成的css文件路径
     private jsUri?: Uri; // js文件夹
-    private newJsUri?: Uri;
-    private vscodeCssUri?: Uri;
-    private resetCssUri?: Uri;
-    private iconUri?: Uri;
+    private newJsUri?: Uri; // 合并后生成的js文件路径
+    private vscodeCssUri?: Uri; // vscode webview标签样式css文件路径
+    private resetCssUri?: Uri; // 重置样式文件路径
+    private iconUri?: Uri; // 图标资源路径
 
     constructor (path: string, title:string = '') {
         if (!contextContainer.instance) return;
@@ -53,6 +46,28 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         this.iconUri = publicFileUri;
     }
 
+    resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext<unknown>, token: CancellationToken): void | Thenable<void> {
+        try {
+            webviewView.webview.options = {
+                enableCommandUris: true,
+                enableScripts: true, // 允许加载js脚本
+                enableForms: true
+            }
+            webviewView.title = this.title;
+            this.setHtml(webviewView.webview).then(html => {
+                // html赋值
+                webviewView.webview.html = html;
+            });
+            messageHandle(webviewView.webview);
+        } catch (error) {
+            errHandle(error);
+        }
+    }
+
+    /**
+     * 读取html文本，获取css和js文件路径
+     * @returns 
+     */
     async start () {
         await readDirectoryUri(this.baseUri!).then(async (res) => {
             for (let name in webFile) {
@@ -73,24 +88,6 @@ export class webviewCreateByHtml implements WebviewViewProvider {
             }
         });
         return Promise.resolve();
-    }
-
-    resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext<unknown>, token: CancellationToken): void | Thenable<void> {
-        try {
-            webviewView.webview.options = {
-                enableCommandUris: true,
-                enableScripts: true, // 允许加载js脚本
-                enableForms: true
-            }
-            webviewView.title = this.title;
-            this.setHtml(webviewView.webview).then(html => {
-                // html赋值
-                webviewView.webview.html = html;
-            });
-            messageHandle(webviewView.webview);
-        } catch (error) {
-            errHandle(error);
-        }
     }
 
     private readDirectoryFile (uri: Uri): Promise<Uri[]> {
@@ -138,8 +135,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         function handle (length: number, array: number[], target: number, start: number = 0): number {
                             let l = length / 2;
                             if (length % 2 > 0) l--;
-                            let i = start + l;
-                            let n = array[i];
+                            let i = start + l, n = array[i];
                             if (length === 3 || length === 2) return n > target ? i : i+1;
                             if (target >= n) {
                                 return handle(array.length-i, array, target, i);

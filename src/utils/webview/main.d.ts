@@ -1,4 +1,4 @@
-import { Webview } from "vscode";
+import { ExtensionContext, Webview } from "vscode";
 
 export type MessageGroup = 'background';
 
@@ -13,4 +13,18 @@ export interface MessageData {
     group: MessageGroup;
     name: string;
     value: any;
+}
+
+interface options {
+    readonly webviewOptions?: {
+        readonly retainContextWhenHidden?: boolean;
+    } | undefined;
+}
+
+interface contextInter {
+    [instance: string]: ExtensionContext | undefined;
+}
+
+interface webFileType {
+    [key: string]: string;
 }

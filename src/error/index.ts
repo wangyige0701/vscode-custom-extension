@@ -9,6 +9,7 @@
 
 import { isNumber, isString } from "../utils";
 import { setMessage } from "../utils/interactive";
+import { isDev } from "../version";
 
 
 /**
@@ -16,7 +17,7 @@ import { setMessage } from "../utils/interactive";
  * @param e 
  * @param isThrow 是否抛出错误不进行弹框打印
  */
-export function errHandle (e: any, isThrow: boolean = false) {
+export function errHandle (e: any, isThrow: boolean = !isDev()) {
     if (isThrow) {
         console.log(e);
         return;

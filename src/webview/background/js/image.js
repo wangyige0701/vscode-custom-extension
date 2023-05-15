@@ -113,26 +113,28 @@ function createInstance () {
                 // 延迟插入时间
                 if (index > 0) {
                     setTimeout(() => {
-                        insert.call(this)
+                        this.insert.call(this, el);
                         // 执行回调
                         callback?.(true);
                     }, index * delay * 1000);
                 } else {
-                    insert.call(this);
+                    this.insert.call(this, el);
                 }
 
-                /**
-                 * 插入元素方法
-                 */
-                function insert () {
-                    if (this.element.childNodes.length === 0) {
-                        this.element.appendChild(el);
-                    } else {
-                        // 在开头插入元素
-                        this.element.insertBefore(el, this.element.firstChild);
-                    }
-                    el = null;
-                }
+                
+            }
+        }
+
+        /**
+         * 插入元素方法
+         * @param {HTMLElement} el
+         */
+        insert (el) {
+            if (this.element.childNodes.length === 0) {
+                this.element.appendChild(el);
+            } else {
+                // 在开头插入元素
+                this.element.insertBefore(el, this.element.firstChild);
             }
         }
 

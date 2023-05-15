@@ -158,5 +158,22 @@ export const backgroundImageConfiguration = {
      */
     setBackgroundLoad (value: boolean): void {
         return backgroundImageConfiguration.setBackgroundConfiguration('load', value);
+    },
+
+    /**
+     * 获取当前背景图储存路径
+     * @returns 
+     */
+    getBackgroundStorePath (): string {
+        return backgroundImageConfiguration.getBackgroundConfiguration().storePath;
+    },
+
+    /**
+     * 设置背景图储存路径
+     * @param value 
+     * @returns 
+     */
+    setBackgroundStorePath (value: string): void {
+        return backgroundImageConfiguration.setBackgroundConfiguration('storePath', value);
     }
 }

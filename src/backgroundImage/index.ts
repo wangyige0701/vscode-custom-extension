@@ -160,7 +160,7 @@ export function selectImage () {
     // 需要发送的数据
     let sendMsg: [string, string] | undefined = undefined;
     selectFile({
-        many: true,
+        many: false,
         files: true,
         filters: imageFilters,
         defaultUri: selectFileDefaultPath

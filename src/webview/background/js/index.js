@@ -1,5 +1,8 @@
 /* index(1) */
 
+/**
+ * vscode api
+ */
 const vscode = acquireVsCodeApi();
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
@@ -72,6 +75,47 @@ onload();
 registLock('selectFile', selectFileButtonLock);
 
 /**
+ * 注册通信数据接收事件
+ * @param {{data:{name:string,value:any,group:string}}} param 
+ */
+function receiveMessage ({ data }) {
+    if (data.group !== 'background') return;
+    const value = data.value;
+    switch (data.name) {
+        case 'backgroundInitData':
+            initImageData(value);
+            break;
+        case 'newImage':
+            // value: string[]，添加的新图片路径和对应hashCode
+            lockSet.selectFile = false;
+            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value));
+            break;
+        case 'deleteImageSuccess':
+            // value: number | array，确定删除图片
+            queueSet(deleteImageHandle.bind(listInstance, value));
+            break;
+        case 'settingBackgroundSuccess':
+            // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
+            queueSet(listInstance.imageClickHandle.bind(listInstance, value));
+            break;
+        case 'newImageNetwork':
+            // 通过网络地址下载图片
+            lockSet.inputConfirm = false;
+            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputSendDataComplete);
+            break;
+        case 'nowBackgroundOpacity':
+            // 初始化和设置透明度后返回
+            lockSet.inputConfirm = false;
+            queueSet(opacityMessageGetHandle(value));
+            break;
+        default:
+            break;
+    }
+    // 将对应函数插入队列后，根据canSelect的值判断是否可以执行
+    queueExecute(canSelect);
+}
+
+/**
  * 加载时初始化图片数据
  */
 function onload () {
@@ -138,47 +182,6 @@ function settingBackground (code) {
         name: 'settingBackground',
         value: code
     });
-}
-
-/**
- * 
- * @param {{data:{name:string,value:any,group:string}}} param 
- */
-function receiveMessage ({ data }) {
-    if (data.group !== 'background') return;
-    const value = data.value;
-    switch (data.name) {
-        case 'backgroundInitData':
-            initImageData(value);
-            break;
-        case 'newImage':
-            // value: string[]，添加的新图片路径和对应hashCode
-            lockSet.selectFile = false;
-            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value));
-            break;
-        case 'deleteImageSuccess':
-            // value: number | array，确定删除图片
-            queueSet(deleteImageHandle.bind(listInstance, value));
-            break;
-        case 'settingBackgroundSuccess':
-            // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
-            queueSet(listInstance.imageClickHandle.bind(listInstance, value));
-            break;
-        case 'newImageNetwork':
-            // 通过网络地址下载图片
-            lockSet.inputConfirm = false;
-            if (value) queueSet(listInstance.addImageItem.bind(listInstance, ...value), inputSendDataComplete);
-            break;
-        case 'nowBackgroundOpacity':
-            // 初始化和设置透明度后返回
-            lockSet.inputConfirm = false;
-            queueSet(opacityMessageGetHandle(value));
-            break;
-        default:
-            break;
-    }
-    // 将对应函数插入队列后，根据canSelect的值判断是否可以执行
-    queueExecute(canSelect);
 }
 
 /**

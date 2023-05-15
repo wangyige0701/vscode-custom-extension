@@ -8,6 +8,7 @@ import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReload
 import { backgroundSendMessage } from "./execute";
 import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
+import { bisectionAsce } from "../utils/algorithm";
 
 /**
  *  图片类型过滤规则
@@ -17,7 +18,7 @@ const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 /**
  * 背景图片哈希码数据列表
  */
-const backgroundImageCodeList: string[] = [];
+const backgroundImageCodeList: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
 
 /**
  * 选择文件的默认路径
@@ -194,7 +195,7 @@ export function backgroundImageDataInit () {
     }).then(buffers => {
         return changeToString(buffers);
     }).then(str => {
-        refreshGlobalBackgroundImageList();
+        refreshBackgroundImageList(str.map(item => item[1]));
         backgroundSendMessage({
             name: 'backgroundInitData',
             value: str
@@ -224,7 +225,7 @@ export function backgroundImageDataInit () {
 }
 
 /**
- * 将读取的图片字符串数据和对应哈希码一起返回
+ * 将从储存路径下读取的图片base64数据和对应哈希码一起返回
  * @param buffers 
  * @returns {Promise<string[][]>}
  */
@@ -232,7 +233,8 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
     return new Promise(resolve => {
         try {
             const result: string[][] = buffers.map(buff => {
-                codeListRefresh(buff.code);
+                // 校验当前哈希码是否存在于缓存列表中
+                codeListRefresh(buff.code, 'check');
                 return [buff.buffer.toString(), buff.code];
             });
             resolve(result);
@@ -248,16 +250,26 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
  * @param state 
  */
 function codeListRefresh (code: string, state: codeChangeType='add') {
-    const index = backgroundImageCodeList.findIndex(item => item === code);
-    if (state === 'add' && index < 0) {
-        // 新增判断是否有重复值
-        backgroundImageCodeList.push(code);
-        backgroundImageConfiguration.setBackgroundAllImagePath(code);
-    } else if (state === 'delete' && index >= 0) {
+    // 缓存数组是否需要被更改
+    let modify: boolean = false;
+    if (state === 'add') {
+        // 新增，创建code时进行检验，现在一定不会重复
+        backgroundImageCodeList.unshift(code);
+        modify = true;
+    } else if (state === 'delete') {
         // 删除判断是否存在索引
+        const index = backgroundImageCodeList.findIndex(item => item === code);
         backgroundImageCodeList.splice(index, 1);
-        backgroundImageConfiguration.setBackgroundAllImagePath(code, 'delete');
+        modify = true;
+    } else if (state === 'check') {
+        const index = backgroundImageCodeList.findIndex(item => item === code);
+        if (index < 0) {
+            // 缓存数组中不存在，需要添加
+            codeListRefresh(code, 'add');
+        }
     }
+    if (modify)
+        backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList);
 }
 
 /**
@@ -270,30 +282,39 @@ function hasHashCode (code: string): boolean {
 }
 
 /**
- * 比较缓存数据和新数据是否相同并更新
+ * 比较缓存数据和新数据是长度否相同，不相同则表明储存路径下可能有文件被删除，需要更新缓存数组。
+ * 在上一步操作中，对从目录下获取的数据进行map处理时有完成校验，
+ * 如果路径下有新数据是缓存数组中没有的则会往数组内push一个新的哈希码。
+ * 所以如果此时两个数组长度不同，则一定是缓存数组长于新数组，有数据被删除。
+ * 但在此方法中，对缓存数组长度大于和小于新数组长度都进行处理
  */
-function refreshGlobalBackgroundImageList () {
-    if (compareCodeList(
-        backgroundImageConfiguration.getBackgroundAllImagePath(), 
-        backgroundImageCodeList
-    )) return;
-    // 如果不相同，将缓存数据更新为当前数组数据
-    backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
+function refreshBackgroundImageList (data: string[]) {
+    let cacheData: string[] | null = backgroundImageConfiguration.getBackgroundAllImagePath();
+    // 新数组长度等于缓存数组长度，直接返回
+    if (data.length === cacheData.length) return;
+    if (data.length > cacheData.length) {
+        // 比缓存数组长则需要添加数据（一般不会出现）
+        compareCodeList(data, cacheData);
+    } else {
+        // 短则需要删除数据
+        compareCodeList(cacheData, data, 'delete');
+    }
+    cacheData = null;
 }
 
 /**
  * 新旧数组进行比较，因为是比较哈希码，不存在数组元素重复的问题
+ * @param long 长一点的数组，用于校验
+ * @param short 短一点的数组
  */
-function compareCodeList (oldData: string[], newData: string[]): boolean {
-    if (oldData.length !== newData.length) return false;
-    for (let i = 0; i < newData.length; i++) {
-        const code = newData[i];
-        const index = oldData.findIndex(item => item === code);
-        if (index === -1) {
-            return false;
+function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): void {
+    for (let i = 0; i < long.length; i++) {
+        const item = long[i], index = short.findIndex(i => i === item);
+        if (index < 0) {
+            // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
+            backgroundImageConfiguration.setBackgroundAllImagePath(item, type); 
         }
     }
-    return true;
 }
 
 /**
@@ -306,12 +327,16 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
     return new Promise((resolve, reject) => {
         try {
             const fileRequest: Array<Promise<{ buffer: Uint8Array, code: string }>> = [];
+            let checkArray: number[] = [];
             for (let i = 0; i < files.length; i++) {
                 const file = files[i][0];
                 // 对满足要求的文件进行文件数据读取
                 const reg = file.match(/(.*?).back.wyg$/);
                 if (reg) {
-                    fileRequest.push(getFileAndCode(newUri(uri, file), reg[1]));
+                    const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
+                    const posi = bisectionAsce(checkArray, index);
+                    checkArray.splice(posi, 0, index);
+                    fileRequest.splice(posi, 0, getFileAndCode(newUri(uri, file), reg[1]));
                 }
             }
             Promise.all(fileRequest).then(res => {

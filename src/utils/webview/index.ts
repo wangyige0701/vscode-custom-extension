@@ -3,6 +3,7 @@
  * 如果路径下文件不存在，则直接合并
  * 保存文件的路径需要添加自定义选项
  * 修改自定义路径时提示是否删除旧路径下的数据
+ * webview页面里需要重写图片插入方法，改为双向绑定
  */
 
 import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
@@ -12,6 +13,7 @@ import { errHandle } from "../../error";
 import { MessageData, contextInter, options, webFileType } from "./main";
 import { backgroundExecute } from "../../backgroundImage/execute";
 import { backgroundMessageData } from "../../backgroundImage/data";
+import { bisectionAsce } from "../algorithm";
 
 const webFile: webFileType = {
     html: 'index.html',
@@ -122,31 +124,10 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                     str = str.toString();
                     let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
                     index = index ? parseFloat(index[1]) : 0;
-
-                    // 二分法排序
-                    if (list.length === 0 || index >= position[position.length-1]) {
-                        list.push(str);
-                        position.push(index);
-                    } else if (index <=  position[0]) {
-                        list.unshift(str);
-                        position.unshift(index);
-                    } else {
-                        let length = position.length;
-                        function handle (length: number, array: number[], target: number, start: number = 0): number {
-                            let l = length / 2;
-                            if (length % 2 > 0) l--;
-                            let i = start + l, n = array[i];
-                            if (length === 3 || length === 2) return n > target ? i : i+1;
-                            if (target >= n) {
-                                return handle(array.length-i, array, target, i);
-                            } else {
-                                return handle(i+1, array, target, start);
-                            }
-                        }
-                        let res = handle(length, position, index);
-                        list.splice(res, 0, str);
-                        position.splice(res, 0, index);
-                    }
+                    // 二分插入定位
+                    const posi = bisectionAsce(position, index);
+                    position.splice(posi, 0, index);
+                    list.splice(posi, 0, str);
                 });
                 resolve(list.join('\n\n'));
             }).catch(err => {

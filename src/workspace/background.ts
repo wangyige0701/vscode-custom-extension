@@ -40,7 +40,7 @@ export const backgroundImageConfiguration = {
         const list: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
         if (state === 'add' && isString(value)) {
             // 添加一个图片数据
-            list.push(value as string);
+            list.unshift(value as string);
         } else if (state === 'delete') {
             if (isString(value)) 
                 value = list.findIndex(item => item === value);

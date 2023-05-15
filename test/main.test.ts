@@ -31,44 +31,49 @@ test("htmlReplace", () => {
     console.log(html);
 });
 
+import { bisectionAsce } from '../src/utils/algorithm';
 test("sort", () => {
+    const d = '/* index(9) */';
     const a = '/* index(1) */';
     const b = '/* index(2) */';
-    const c = '/* index(3) */';
+    const c = '/* index(5) */';
     const index = a.match(/\/\* index\((\d*)\) \*\//);
     
     let list: string[] = [];
     const position: number[] = [];
-    [c, b, a].forEach((str: string) => {
+    [c, b, a, d].forEach((str: string) => {
         str = str.toString();
         let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
         index = index ? parseFloat(index[1]) : 0;
         // (list as string[]).splice(index, 0, str);
+        const posi = bisectionAsce(position, index);
+        position.splice(posi, 0, index);
+        list.splice(posi, 0, str);
 
-        if (list.length === 0 || index >= position[position.length-1]) {
-            list.push(str);
-            position.push(index);
-        } else if (index <=  position[0]) {
-            list.unshift(str);
-            position.unshift(index);
-        } else {
-            let length = position.length;
-            function a (length: number, array: number[], target: number, start: number = 0) {
-                let l = length / 2;
-                if (length % 2 > 0) l--;
-                let i = start + l;
-                let n = array[i];
-                if (length === 3 || length === 2) return n > target ? i : i+1;
-                if (target >= n) {
-                    return a(array.length-i, array, target, i);
-                } else {
-                    return a(i+1, array, target, start);
-                }
-            }
-            let res = a(length, position, index);
-            list.splice(res, 0, str);
-            position.splice(res, 0, index);
-        }
+        // if (list.length === 0 || index >= position[position.length-1]) {
+        //     list.push(str);
+        //     position.push(index);
+        // } else if (index <=  position[0]) {
+        //     list.unshift(str);
+        //     position.unshift(index);
+        // } else {
+        //     let length = position.length;
+        //     function a (length: number, array: number[], target: number, start: number = 0) {
+        //         let l = parseInt((length / 2)+'');
+        //         if (length % 2 > 0) l--;
+        //         let i = start + l;
+        //         let n = array[i];
+        //         if (length === 3 || length === 2) return n > target ? i : i+1;
+        //         if (target >= n) {
+        //             return a(array.length-i, array, target, i);
+        //         } else {
+        //             return a(i+1, array, target, start);
+        //         }
+        //     }
+        //     let res = a(length, position, index);
+        //     list.splice(res, 0, str);
+        //     position.splice(res, 0, index);
+        // }
     });
     const str = list.join('\n\n');
     console.log(str);
@@ -163,16 +168,3 @@ test("image", async () => {
     console.log(image.match(imageUrl));
     
 })
-
-test("requestImage", async () => {
-    const { GetImage } = await import('../src/utils/request/utiils');
-    GetImage('https://raw.githubusercontent.com/gitkraken/vscode-gitlens/main/images/docs/current-line-blame.png').then(res => {
-        console.log(1);
-        
-        console.log(res);
-        
-    }).catch(err => {
-        console.log(err);
-        
-    });
-});

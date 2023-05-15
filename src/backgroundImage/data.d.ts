@@ -102,7 +102,7 @@ export interface info {
 /**
  * index.ts中对数组操作的参数
  */
-export type codeChangeType = 'add' | 'delete';
+export type codeChangeType = 'add' | 'delete' | 'check';
 
 /**
  * 文本和uri类型

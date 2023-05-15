@@ -74,7 +74,7 @@ div.image-container:not(.select):hover {
 }
 
 div.image-container.select {
-	border-color: var(--image-select);
+	border-color: var(--vscode-gitlens-graphLane4Color);
 }
 
 div.image-container:not(:last-child) {
@@ -135,7 +135,7 @@ div.image-container > span.image-select {
 
 /* 删除按钮 */
 div.image-container > span.image-delete {
-	color: var(--vscode-inputValidation-errorBorder);
+	color: var(--vscode-gitlens-graphLane7Color);
 	right: 0;
 }
 div.image-container > span.image-delete::after {
@@ -145,11 +145,11 @@ div.image-container > span.image-delete::after {
 /* 选中按钮 */
 div.image-container > span.image-select.select {
 	opacity: 1;
-	color: var(--vscode-editorWarning-foreground);
+	color: var(--vscode-gitlens-graphLane8Color);
 	right: 10px;
 }
 div.image-container > span.image-select.select::before {
-	content: "\e730";
+	content: "\e640";
 }
 div.image-container > span.image-select.select::after {
 	color: #fff;

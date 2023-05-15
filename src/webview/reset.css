@@ -55,17 +55,17 @@ img {
 	-webkit-user-select: none;
 }
 
-/* 删除 &#xe8e1; */
+/* 删除有底色 &#xe601; */
 .icon-delete::before {
-	content: "\e8e1";
+	content: "\e601";
 }
 
-/* 选中 &#xe730; */
+/* 选中有底色 &#xe640; */
 .icon-select::before {
-	content: "\e730";
+	content: "\e640";
 }
 
-/* 圆形背景 &#xec44; */
+/* 带有圆形底色背景 &#xec44; */
 .icon-circle-background::before,
 .icon-circle-background::after,
 .icon-delete::after,

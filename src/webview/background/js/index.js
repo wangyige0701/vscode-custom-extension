@@ -30,7 +30,9 @@ const iconCode = {
     loadingSingle: '&#xe8fd;',
     image: '&#xe645;',
     opacity: '&#xe60d;',
-    confirm: '&#xe616;'
+    confirm: '&#xe616;',
+    delete: '&#xe601;',
+    select: '&#xe640;'
 }
 
 /**

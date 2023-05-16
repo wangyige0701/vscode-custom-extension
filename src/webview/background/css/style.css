@@ -154,3 +154,27 @@ div.image-container > span.image-select.select::before {
 div.image-container > span.image-select.select::after {
 	color: #fff;
 }
+
+div.image-list-info {
+	line-height: 2rem;
+	font-size: 1.4rem;
+	color: var(--vscode-input-foreground);
+	text-align: center;
+}
+div.image-list-info:not(.show) {
+	display: none;
+}
+
+div.image-list-info > span.iconfont {
+	color: inherit;
+	font-size: inherit;
+	margin-right: 5px;
+}
+div.image-list-info > span.iconfont:not(.show) {
+	display: none;
+}
+
+div.image-list-info > span.info-content {
+	color: inherit;
+	font-size: inherit;
+}

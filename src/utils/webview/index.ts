@@ -133,7 +133,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
             }).catch(err => {
                 reject(err);
             });
-        })
+        });
     }
 
     /**
@@ -167,7 +167,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         throw err;
                     });
                 }).catch(err => {
-                    throw err;
+                    errHandle(err);
                 });
             }
             if (this.jsUri) {
@@ -183,7 +183,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         throw err;
                     });
                 }).catch(err => {
-                    throw err;
+                    errHandle(err);
                 });
             }
             // html文本处理

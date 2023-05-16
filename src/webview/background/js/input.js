@@ -225,7 +225,7 @@ function getRegExpContent (data) {
  */
 function inputSendInfo () {
     if (this.type === 1) backOpacityRange(this);
-    if (!canSelect) return;
+    if (!canChange()) return;
     if (inputStartCheck(this.type, this.value, true)) return;
     lockSet.inputConfirm = true;
     switch (this.type) {

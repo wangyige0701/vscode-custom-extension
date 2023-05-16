@@ -334,7 +334,8 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
                 const reg = file.match(/(.*?).back.wyg$/);
                 if (reg) {
                     const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
-                    const posi = bisectionAsce(checkArray, index);
+                    // 需要加一个index为-1的判断，防止递归死循环
+                    const posi = index >= 0 ? bisectionAsce(checkArray, index) : 0;
                     checkArray.splice(posi, 0, index);
                     fileRequest.splice(posi, 0, getFileAndCode(newUri(uri, file), reg[1]));
                 }

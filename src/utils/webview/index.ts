@@ -1,9 +1,6 @@
 /**
  * 对html引用的css和js进行合并的操作，在正式环境需要进行判断，即vscode、插件版本号和缓存不同时进行处理，
  * 如果路径下文件不存在，则直接合并
- * 保存文件的路径需要添加自定义选项
- * 修改自定义路径时提示是否删除旧路径下的数据
- * webview页面里需要重写图片插入方法，改为双向绑定
  */
 
 import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";

@@ -88,19 +88,23 @@ function resetMethods (data) {
     methods.forEach(method => {
         newMethods[method] = function (...args) {
             // console.log(args);
-            console.log('-----',this);
-            
             let insert;
             switch (method) {
                 case 'push':
                 case 'unshift':
                     insert = args;
                     break;
+                case 'shift':
+                    console.log(this[0]);
+                    break;
+                case 'pop':
+                    console.log(this[this.length-1]);
+                    break;
                 case 'splice':
                     insert = args.slice(2);
-                    console.log(this);
-                    console.log(args[0]);
-                    console.log(this[args[0]]);
+                    // console.log(this);
+                    // console.log(args[0]);
+                    // console.log(this[args[0]]);
                     // console.log(args);
                     break;
                 default:
@@ -116,8 +120,10 @@ test3.unshift(1);
 test3.unshift(2);
 test3.push(3);
 test3.push(4);
-test3.splice(1,1);
-console.log(test3);
-test3.splice(2,1)
+// test3.splice(1,1);
+test3.pop();
+test3.shift();
+// console.log(test3);
+// test3.splice(2,1)
 // test3.splice(0,1, 3,4,5);
 console.log(test3);

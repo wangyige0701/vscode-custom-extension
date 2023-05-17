@@ -8,7 +8,15 @@ function createInstance () {
     const imageDeleteCLass = 'image-delete';
     class ImageList {
         selectImageList = []; // 记录选中的元素
+        /**
+         * 校验是否不显示列表提示文字
+         * @type {boolean}
+        */
         imageInfoEmpty;
+        /**
+         * 校验是否不显示加载图标
+         * @type {boolean}
+        */
         imageInfoLoading;
 
         constructor() {
@@ -43,10 +51,10 @@ function createInstance () {
                             });
                             break;
                         case 'pop':
+                            _this.#deleteImageItem(this[this.length-1].target);
+                            break;
                         case 'shift':
-                            args.forEach(arg => {
-                                _this.#deleteImageItem(arg.target);
-                            });
+                            _this.#deleteImageItem(this[0].target);
                             break;
                         case 'splice':
                             if (args.slice(2).length === 0) 
@@ -150,7 +158,7 @@ function createInstance () {
             this.imageElementEventBind(target, true);
             setTimeout(() => {
                 target.remove();
-            }, 300);
+            }, imageAnimationTime);
         }
 
         /**

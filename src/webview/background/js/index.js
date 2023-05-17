@@ -27,6 +27,7 @@ const imageListInfoContent = '.image-list-info>.info-content';
 const imageListInfoShowClass = 'show';
 const imageListInfoEmpty = '暂无背景图数据，请上传';
 const imageListInfoEmptyLoading = '背景图数据加载中';
+const imageAnimationTime = 500; // 图片加载删除动画时间
 
 /**
  * 公共数据
@@ -79,14 +80,15 @@ const listInstance = createInstance();
 // 操作队列
 const operationQueue = [];
 
+// 初始加载所有图片
+window.addEventListener('load', onDataLoad.bind(this, false));
+
 // 添加图片按钮点击事件绑定
 document.getElementById(selectButtonId).addEventListener('click', buttonClickSelectImage);
 
 // 脚本侧通信接收事件
 window.addEventListener('message', receiveMessage);
 
-// 初始加载所有图片
-onload();
 
 // 注册上传按钮锁
 registLock('selectFile', selectFileButtonLock);
@@ -108,7 +110,7 @@ function changeState (state) {
         // 如果数组长度小于等于0，则展示空列表提示内容
         let length = publicData.imageRenderList?.length??0;
         if (length <= 0)
-            listInstance.changeImageListInfo(true);
+            listInstance.changeImageListInfo(true, false);
     }
 }
 
@@ -126,11 +128,11 @@ function receiveMessage ({ data }) {
         case 'newImage':
             // value: string[]，添加的新图片路径和对应hashCode
             lockSet.selectFile = false;
-            if (value) queueSet(addImage(...value));
+            if (value) queueSet(addImage.apply(this, value));
             break;
         case 'deleteImageSuccess':
             // value: string | array，确定删除图片
-            queueSet(deleteImageHandle(value));
+            queueSet(deleteImageHandle.bind(this, value));
             break;
         case 'settingBackgroundSuccess':
             // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
@@ -139,12 +141,15 @@ function receiveMessage ({ data }) {
         case 'newImageNetwork':
             // 通过网络地址下载图片
             lockSet.inputConfirm = false;
-            if (value) queueSet(addImage(...value), inputSendDataComplete);
+            if (value) queueSet(addImage.apply(this, value), inputSendDataComplete);
             break;
         case 'nowBackgroundOpacity':
             // 初始化和设置透明度后返回
             lockSet.inputConfirm = false;
-            queueSet(opacityMessageGetHandle(value));
+            queueSet(opacityMessageGetHandle.bind(this, value));
+            break;
+        case 'backgroundStorePathChange':
+            if (value) queueSet(onDataLoad.bind(this, true));
             break;
         default:
             break;
@@ -156,7 +161,12 @@ function receiveMessage ({ data }) {
 /**
  * 加载时初始化图片数据
  */
-function onload () {
+function onDataLoad (reload=false) {
+    if (reload === true) {
+        publicData.canSelect = false;
+        deleteAllImage();
+        listInstance.changeImageListInfo(true, true);
+    }
     sendMessage({
         name: 'backgroundInit',
         value: true
@@ -170,7 +180,8 @@ function onload () {
 function queueSet (...func) {
     for (let i = 0; i < func.length; i++) {
         const item = func[i];
-        if (typeof item !== 'function') break;
+        if (typeof item !== 'function') 
+            break;
         operationQueue.push(item);
     }
 }
@@ -179,10 +190,12 @@ function queueSet (...func) {
  * 队列顶端取出函数执行
  */
 function queueExecute (state=false) {
+    if (!state) return;
     changeState(state);
-    if (operationQueue.length > 0 && state) {
+    if (operationQueue.length > 0) {
         operationQueue.shift()?.();
-        queueExecute(state);
+        // 队列长度大于0继续执行
+        operationQueue.length > 0 ? queueExecute(state) : null;
     }
 }
 
@@ -239,7 +252,7 @@ function sendMessage (options={}) {
  */
 function initImageData (array) {
     if (array.length > 0) {
-        delayAddImage(array, queueExecute);
+        delayAddImage(array, queueExecute.bind(this, true));
     } else {
         // 如果初始没有图片，则直接执行队列
         queueExecute(true);
@@ -248,11 +261,11 @@ function initImageData (array) {
 
 /**
  * 延迟指定时间返回resolve的异步函数
- * @param {(data:any) => any)} callback 
+ * @param {(data:any) => any} callback 
  * @param {number} time 
  * @returns 
  */
-function voidDelay (callback, time=500) {
+function voidDelay (callback, time=imageAnimationTime) {
     return new Promise(resolve => {
         callback();
         setTimeout(resolve, time);
@@ -272,9 +285,21 @@ async function delayAddImage (array, callback=undefined) {
                 src: array[i][0],
                 code: array[i][1]
             });
-        })
+        });
     }
-    callback?.(true);
+    callback?.();
+}
+
+/**
+ * 删除所有图片
+ */
+function deleteAllImage () {
+    // 提前赋值，防止操作数组时长度实时改变
+    let i = 0, length = publicData.imageRenderList.length;
+    while(i < length) {
+        publicData.imageRenderList.shift();
+        i++;
+    }
 }
 
 /**

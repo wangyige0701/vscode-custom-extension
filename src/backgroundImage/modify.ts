@@ -78,13 +78,16 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             if (!codeValue) throw new Error('null code');
+            let infoContent: info | undefined;
             getExternalCssContent(codeValue).then(res => {
                 if (res === false) {
                     // 不需要更新，直接跳出
                     throw { jump: true };
                 }
-                settingConfiguration(res[1]);
+                infoContent = res[1];
                 return writeExternalCssFile(res[0]);
+            }).then(() => {
+                return settingConfiguration(infoContent!);
             }).then(() => {
                 return setSourceCssImportInfo();
             }).then(() => {
@@ -128,7 +131,8 @@ export function deletebackgroundCssFileModification (): Promise<void> {
             }).then(({ content, uri }) => {
                 return uriDelete(uri);
             }).then(() => {
-                deleteConfiguration();
+                return deleteConfiguration();
+            }).then(() => {
                 setBackgroundImageSuccess("背景图配置删除成功");
                 isWindowReloadToLoadBackimage("背景图配置删除成功，是否重启窗口");
                 resolve();
@@ -262,19 +266,39 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
  * 设置当前背景哈希码缓存，将是否设置背景状态值改为true
  * @param options 
  */
-function settingConfiguration (options: info) {
-    if (options) {
-        backgroundImageConfiguration.setBackgroundNowImagePath(options.code);
-        backgroundImageConfiguration.setBackgroundIsSetBackground(true);
-    }
+function settingConfiguration (options: info): Promise<void> {
+    return new Promise((resolve, reject) => {
+        if (options) {
+            backgroundImageConfiguration.setBackgroundNowImagePath(options.code).then(() => {
+                return backgroundImageConfiguration.setBackgroundIsSetBackground(true);
+            }, err => {
+                reject(err);
+            }).then(() => {
+                resolve();
+            }, err => {
+                reject(err);
+            });
+        } else {
+            resolve();
+        }
+    });
 }
 
 /**
  * 删除背景的缓存数据，将是否设置背景状态值改为false
 */
-function deleteConfiguration () {
-    backgroundImageConfiguration.setBackgroundNowImagePath("");
-    backgroundImageConfiguration.setBackgroundIsSetBackground(false);
+function deleteConfiguration (): Promise<void> {
+    return new Promise((resolve, reject) => {
+        backgroundImageConfiguration.setBackgroundNowImagePath("").then(() => {
+            return backgroundImageConfiguration.setBackgroundIsSetBackground(false);
+        }, err => {
+            reject(err);
+        }).then(() => {
+            resolve();
+        }, err => {
+            reject(err);
+        });
+    });
 }
 
 /**

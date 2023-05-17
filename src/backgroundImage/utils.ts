@@ -6,6 +6,7 @@ import { Uri } from "vscode";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { errHandle } from "../error";
 import { minmax } from "../utils";
+import { backgroundSendMessage } from "./execute";
 
 /**
  * 获取储存背景图资源的uri
@@ -30,28 +31,47 @@ export function imageStoreUri (): Uri | undefined {
  * 重新设置背景图储存路径数据
  * @param path 
  */
-export function resetImageStorePath (path: string, reset: boolean = false) {
+export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
     if (reset) {
         if (!backgroundImageConfiguration.getBackgroundStorePath()) {
             setMessage({
                 message: '当前储存路径已为默认路径'
             });
-            return;
+            return Promise.resolve();
         }
-        backgroundImageConfiguration.setBackgroundStorePath("");
+        await backgroundImageConfiguration.setBackgroundStorePath("")
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
         setMessage({
             message: '背景图储存路径已切换为默认路径'
         });
-        return;
+        sendStoreChangeMessage();
+        return Promise.resolve();
     }
     const uri = Uri.file(path);
     if (path && uri) {
         // 缓存数据
-        backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath);
+        await backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
         setMessage({
             message: '背景图储存路径已切换为：'+uri.fsPath
         });
+        sendStoreChangeMessage();
     }
+    return Promise.resolve();
+}
+
+/**
+ * 背景图储存路径修改通知
+ */
+function sendStoreChangeMessage () {
+    backgroundSendMessage({
+        name: 'backgroundStorePathChange',
+        value: true
+    });
 }
 
 /**

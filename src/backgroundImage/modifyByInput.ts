@@ -63,9 +63,9 @@ export function backgroundOpacityModify (opacity: number) {
     let sendOpacity: number = backgroundImageConfiguration.getBackgroundOpacity();
     changeBackgroundFileOpacity(opacity).then(state => {
         if (state) {
-            backgroundImageConfiguration.setBackgroundOpacity(opacity);
             sendOpacity = opacity;
             isWindowReloadToLoadBackimage('透明度设置完成，是否重启窗口应用');
+            return backgroundImageConfiguration.setBackgroundOpacity(opacity);
         } else {
             // state为false，和当前透明度相同，不进行修改
             setMessage({

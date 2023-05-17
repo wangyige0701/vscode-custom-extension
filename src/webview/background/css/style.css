@@ -1,6 +1,11 @@
 /* index(1) */
 
+html {
+	height: 100%;
+}
+
 body {
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 	flex-wrap: nowrap;
@@ -12,8 +17,7 @@ header.top {
 	min-height: 50px;
     margin-bottom: 10px;
 	padding-top: var(--input-padding-vertical);
-	position: sticky;
-	top: 0;
+	z-index: 100;
 }
 
 button.button {
@@ -39,6 +43,7 @@ button.button:not(.isloading) > span.iconfont {
 
 nav.list {
 	flex: 1;
+	overflow-y: scroll;
 }
 
 nav.list > img {
@@ -62,7 +67,7 @@ div.image-container {
 
 div.image-container.image-delete {
 	opacity: 0;
-	animation: image-delete .3s ease;
+	animation: image-delete .5s ease;
 }
 
 div.image-container:hover {

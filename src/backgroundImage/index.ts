@@ -31,10 +31,9 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
 export function WindowInitCheckCssModifyCompleteness () {
     // 检查css文件是否正确
 	checkImageCssDataIsRight().then(state => {
-		if (state) {
+		if (state) 
 			// 需要重启应用背景
 			isWindowReloadToLoadBackimage('背景图设置文件被修改或删除，需要重启窗口以应用背景');
-		}
 	}).catch(err => {
 		errHandle(err);
 	});
@@ -62,7 +61,8 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
                 // 状态栏提示信息
                 setBackgroundImageSuccess('背景图文件校验完成');
                 // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
-                if (!state) changeLoadState();
+                if (!state) 
+                    changeLoadState();
                 resolve(state);
             }).catch(err => {
                 if (err.jump) {
@@ -123,7 +123,7 @@ export function settingImage ({ code, index }: {
  * @param code 
  */
 export function deleteImage (code: string) {
-    isChangeBackgroundImage('是否删除当前图片').then(() => {
+    isChangeBackgroundImage('是否删除此图片').then(() => {
         showProgress({
             location: 'Notification',
             title: '图片删除中'
@@ -160,15 +160,18 @@ export function deleteImage (code: string) {
 export function selectImage () {
     // 需要发送的数据
     let sendMsg: [string, string] | undefined = undefined;
+    let uriValue: Uri[] | undefined;
     selectFile({
         many: false,
         files: true,
         filters: imageFilters,
         defaultUri: selectFileDefaultPath
     }).then(({ uri, dirName }) => {
+        uriValue = uri;
         // 选择一次文件后保存默认选择路径
-        backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName);
-        return imageToBase64(uri[0].fsPath);
+        return backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName);
+    }).then(() => {
+        return imageToBase64(uriValue![0].fsPath);
     }).then(base64 => {
         return createFileStore(base64);
     }).then(({ hashCode, base64 }) => {
@@ -176,6 +179,7 @@ export function selectImage () {
     }).catch(err => {
         errHandle(err, true);
     }).finally(() => {
+        uriValue = undefined;
         backgroundSendMessage({
             name: 'newImage',
             value: sendMsg
@@ -189,18 +193,20 @@ export function selectImage () {
  * @param webview 
  */
 export function backgroundImageDataInit () {
-    let length: number = 0;
+    let length: number = 0, stringContent: string[][] | undefined;
     selectAllImage().then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
         return changeToString(buffers);
     }).then(str => {
-        refreshBackgroundImageList(str.map(item => item[1]));
+        stringContent = str;
+        return refreshBackgroundImageList(str.map(item => item[1]));
+    }).then(() => {
         backgroundSendMessage({
             name: 'backgroundInitData',
-            value: str
+            value: stringContent!
         });
-        length = str.length;
+        length = stringContent!.length;
         // 判断已选中的图片
         return checkCurentImageIsSame(backgroundImageConfiguration.getBackgroundNowImagePath());
     }).then(data => {
@@ -221,6 +227,8 @@ export function backgroundImageDataInit () {
         }
     }).catch(err => {
         errHandle(err);
+    }).finally(() => {
+        stringContent = undefined;
     });
 }
 
@@ -232,10 +240,11 @@ export function backgroundImageDataInit () {
 function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
     return new Promise(resolve => {
         try {
-            const result: string[][] = buffers.map(buff => {
+            const result: string[][] = [];
+            buffers.forEach(async buff => {
                 // 校验当前哈希码是否存在于缓存列表中
-                codeListRefresh(buff.code, 'check');
-                return [buff.buffer.toString(), buff.code];
+                await codeListRefresh(buff.code, 'check');
+                result.push([buff.buffer.toString(), buff.code]);
             });
             resolve(result);
         } catch (error) {
@@ -249,7 +258,7 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
  * @param code 
  * @param state 
  */
-function codeListRefresh (code: string, state: codeChangeType='add') {
+async function codeListRefresh (code: string, state: codeChangeType='add'): Promise<void> {
     // 缓存数组是否需要被更改
     let modify: boolean = false;
     if (state === 'add') {
@@ -263,13 +272,16 @@ function codeListRefresh (code: string, state: codeChangeType='add') {
         modify = true;
     } else if (state === 'check') {
         const index = backgroundImageCodeList.findIndex(item => item === code);
-        if (index < 0) {
+        if (index < 0) 
             // 缓存数组中不存在，需要添加
-            codeListRefresh(code, 'add');
-        }
+            await codeListRefresh(code, 'add');
     }
     if (modify)
-        backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList);
+        await backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
+    return Promise.resolve();
 }
 
 /**
@@ -288,18 +300,23 @@ function hasHashCode (code: string): boolean {
  * 所以如果此时两个数组长度不同，则一定是缓存数组长于新数组，有数据被删除。
  * 但在此方法中，对缓存数组长度大于和小于新数组长度都进行处理
  */
-function refreshBackgroundImageList (data: string[]) {
+async function refreshBackgroundImageList (data: string[]): Promise<void> {
     let cacheData: string[] | null = backgroundImageConfiguration.getBackgroundAllImagePath();
     // 新数组长度等于缓存数组长度，直接返回
     if (data.length === cacheData.length) return;
     if (data.length > cacheData.length) {
         // 比缓存数组长则需要添加数据（一般不会出现）
-        compareCodeList(data, cacheData);
+        await compareCodeList(data, cacheData).catch(err => {
+            return Promise.reject(err);
+        });
     } else {
         // 短则需要删除数据
-        compareCodeList(cacheData, data, 'delete');
+        await compareCodeList(cacheData, data, 'delete').catch(err => {
+            return Promise.reject(err);
+        });
     }
     cacheData = null;
+    return Promise.resolve();
 }
 
 /**
@@ -307,14 +324,17 @@ function refreshBackgroundImageList (data: string[]) {
  * @param long 长一点的数组，用于校验
  * @param short 短一点的数组
  */
-function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): void {
+async function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): Promise<void> {
     for (let i = 0; i < long.length; i++) {
         const item = long[i], index = short.findIndex(i => i === item);
-        if (index < 0) {
+        if (index < 0) 
             // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
-            backgroundImageConfiguration.setBackgroundAllImagePath(item, type); 
-        }
+            await backgroundImageConfiguration.setBackgroundAllImagePath(item, type)
+                .catch(err => {
+                    return Promise.reject(err);
+                }); 
     }
+    return Promise.resolve();
 }
 
 /**
@@ -417,7 +437,8 @@ export function createFileStore (base64: string): Promise<{hashCode:string, base
             uri = newUri(uri, code+'.back.wyg');
             writeFileUri(uri, createBuffer(base64)).then(() => {
                 // 新增一个哈希码数据
-                codeListRefresh(code);
+                return codeListRefresh(code);
+            }).then(() => {
                 resolve({ hashCode: code, base64: base64 });
             }).catch(err => {
                 reject(err);
@@ -441,7 +462,8 @@ function deleteFileStore (code: string): Promise<string> {
             if (!uri) throw new Error('null uri');
             uri = newUri(uri, `${code}.back.wyg`);
             uriDelete(uri).then(() => {
-                codeListRefresh(code, 'delete');
+                return codeListRefresh(code, 'delete');
+            }).then(() => {
                 resolve(code);
             }).catch(err => {
                 reject(err);

@@ -1,4 +1,3 @@
-import { WorkspaceConfiguration } from "vscode";
 import { getWorkSpace, setWorkSpace } from ".";
 import { isNumber, isString } from "../utils";
 
@@ -9,8 +8,8 @@ export const backgroundImageConfiguration = {
      * 获取背景图配置信息
      * @returns 
      */
-    getBackgroundConfiguration (): WorkspaceConfiguration {
-        return getWorkSpace(namespace);
+    getBackgroundConfiguration (name: string): any {
+        return getWorkSpace(namespace).get<any>(name);
     },
 
     /**
@@ -18,8 +17,8 @@ export const backgroundImageConfiguration = {
      * @param name 
      * @param value 
      */
-    setBackgroundConfiguration (name: string, value: any): void {
-        setWorkSpace(namespace, name, value);
+    setBackgroundConfiguration (name: string, value: any): Thenable<void> {
+        return setWorkSpace(namespace, name, value);
     },
 
     /**
@@ -27,7 +26,7 @@ export const backgroundImageConfiguration = {
      * @returns {string[]}
      */
     getBackgroundAllImagePath (): string[] {
-        return backgroundImageConfiguration.getBackgroundConfiguration().allImagePath;
+        return backgroundImageConfiguration.getBackgroundConfiguration('allImagePath');
     },
 
     /**
@@ -36,7 +35,7 @@ export const backgroundImageConfiguration = {
      * @param state 添加：add, 删除：delete
      * @returns 
      */
-    setBackgroundAllImagePath (value: string | number, state: 'add' | 'delete' = 'add'): void {
+    async setBackgroundAllImagePath (value: string | number, state: 'add' | 'delete' = 'add'): Promise<void> {
         const list: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
         if (state === 'add' && isString(value)) {
             // 添加一个图片数据
@@ -47,15 +46,19 @@ export const backgroundImageConfiguration = {
             if (!(isNumber(value) && value as number >= 0)) return;
             list.splice(value as number, 1);
         }
-        backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', list);
+        await backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', list)
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
+        return Promise.resolve();
     },
 
     /**
      * 更新图片数组数据
      * @param value 
      */
-    refreshBackgroundImagePath (value: string[]): void {
-        backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', value);
+    refreshBackgroundImagePath (value: string[]): Thenable<void> {
+        return backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', value);
     },
 
     /**
@@ -63,7 +66,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundHasImage (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration().hasImage;
+        return backgroundImageConfiguration.getBackgroundConfiguration('hasImage');
     },
 
     /**
@@ -71,7 +74,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundHasImage (value: boolean): void {
+    setBackgroundHasImage (value: boolean): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('hasImage', value);
     },
 
@@ -80,7 +83,7 @@ export const backgroundImageConfiguration = {
      * @returns {boolean}
      */
     getBackgroundIsSetBackground (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration().isSetBackground;
+        return backgroundImageConfiguration.getBackgroundConfiguration('isSetBackground');
     },
 
     /**
@@ -88,7 +91,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundIsSetBackground (value: boolean): void {
+    setBackgroundIsSetBackground (value: boolean): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('isSetBackground', value);
     },
 
@@ -97,7 +100,7 @@ export const backgroundImageConfiguration = {
      * @returns {string}
      */
     getBackgroundNowImagePath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration().nowImagePath;
+        return backgroundImageConfiguration.getBackgroundConfiguration('nowImagePath');
     },
 
     /**
@@ -105,7 +108,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundNowImagePath (value: string): void {
+    setBackgroundNowImagePath (value: string): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('nowImagePath', value);
     },
 
@@ -114,7 +117,7 @@ export const backgroundImageConfiguration = {
      * @returns {number}
      */
     getBackgroundOpacity (): number {
-        return backgroundImageConfiguration.getBackgroundConfiguration().opacity;
+        return backgroundImageConfiguration.getBackgroundConfiguration('opacity');
     },
 
     /**
@@ -122,7 +125,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundOpacity (value: number): void {
+    setBackgroundOpacity (value: number): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('opacity', value);
     },
 
@@ -131,7 +134,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundSelectDefaultPath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration().defaultPath;
+        return backgroundImageConfiguration.getBackgroundConfiguration('defaultPath');
     },
 
     /**
@@ -139,7 +142,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundSelectDefaultPath (value: string): void {
+    setBackgroundSelectDefaultPath (value: string): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('defaultPath', value);
     },
 
@@ -148,7 +151,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundLoad (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration().load;
+        return backgroundImageConfiguration.getBackgroundConfiguration('load');
     },
 
     /**
@@ -156,7 +159,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundLoad (value: boolean): void {
+    setBackgroundLoad (value: boolean): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('load', value);
     },
 
@@ -165,7 +168,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundStorePath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration().storePath;
+        return backgroundImageConfiguration.getBackgroundConfiguration('storePath');
     },
 
     /**
@@ -173,7 +176,7 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundStorePath (value: string): void {
+    setBackgroundStorePath (value: string): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('storePath', value);
     }
 }

@@ -23,7 +23,7 @@ export function selectFolderForBackgroundStore (): void {
                 });
         }).then(data => {
             if (data) 
-                resetImageStorePath(data.dirName);
+                return resetImageStorePath(data.dirName);
         }).catch(err => {
             errHandle(err, true);
         });
@@ -47,7 +47,7 @@ export function resetBackgroundStorePath (): void {
             }]
         }).then(res => {
             if (res) 
-                resetImageStorePath('', true);
+                return resetImageStorePath('', true);
         }).catch(err => {
             errHandle(err, true);
         });

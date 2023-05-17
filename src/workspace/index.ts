@@ -16,6 +16,6 @@ export function getWorkSpace (name: string): WorkspaceConfiguration {
  * @param param 
  * @param value 
  */
-export function setWorkSpace (name: string, param: string, value: any) {
-    getWorkSpace(name).update(param, value, true);
+export function setWorkSpace (name: string, param: string, value: any): Thenable<void> {
+    return getWorkSpace(name).update(param, value, true, true);
 }

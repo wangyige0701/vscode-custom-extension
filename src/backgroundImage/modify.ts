@@ -45,13 +45,13 @@ const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
  */
 const findExternalCssPosition = 
     `${importStartMatch}${a}${
-        getReg('vsCodeVersion')
+        getReg('VSCodeVersion')
     }${a}${
-        getReg('extensionVersion')
+        getReg('ExtensionVersion')
     }${a}${
-        getReg('date')
+        getReg('Date')
     }${a}${
-        getReg('imageCode')
+        getReg('ImageCode')
     }${a}${importEndMatch}`;
 const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
 
@@ -242,10 +242,10 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
                 return findInfo(content[0]);
             }).then(data => {
                 if (data) {
-                    const { code } = data;
+                    const { ImageCode } = data;
                     // 如果和上一次是一个哈希值，不再更新数据
-                    if (code === codeValue) {
-                        throw { jump: true, state: true, code };
+                    if (ImageCode === codeValue) {
+                        throw { jump: true, state: true, code: ImageCode };
                     }
                 }
                 resolve({ state: false, code: codeValue });
@@ -269,7 +269,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
 function settingConfiguration (options: info): Promise<void> {
     return new Promise((resolve, reject) => {
         if (options) {
-            backgroundImageConfiguration.setBackgroundNowImagePath(options.code).then(() => {
+            backgroundImageConfiguration.setBackgroundNowImagePath(options.ImageCode).then(() => {
                 return backgroundImageConfiguration.setBackgroundIsSetBackground(true);
             }, err => {
                 reject(err);
@@ -407,9 +407,9 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                 return findInfo(content[0]);
             }).then(data => {
                 if (data) {
-                    const { code, vsCodeVersion, extensionVersion } = data;
+                    const { ImageCode, VSCodeVersion, ExtensionVersion } = data;
                     // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
-                    if (code === codeValue && vsCodeVersion === version && extensionVersion === extensionVer) {
+                    if (ImageCode === codeValue && VSCodeVersion === version && ExtensionVersion === extensionVer) {
                         throw { jump: true, data: false };
                     }
                 }
@@ -420,27 +420,27 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                 resolve([
                     `${importStart+'\n'
                     }/**${'\n'
-                    }* vsCodeVersion [ ${version} ]${'\n'
-                    }* extensionVersion [ ${extensionVer} ]${'\n'
-                    }* date [ ${date} ]${'\n'
-                    }* imageCode [ ${codeValue} ]${'\n'
+                    }* VSCodeVersion [ ${version} ]${'\n'
+                    }* ExtensionVersion [ ${extensionVer} ]${'\n'
+                    }* Date [ ${date} ]${'\n'
+                    }* ImageCode [ ${codeValue} ]${'\n'
                     }*/${'\n'
-                    }@keyframes vscode-body-hide{from{background-size:0;}to{background-size:0;}}${'\n'
-                    }@keyframes vscode-body-opacity{from{opacity:1;}to{opacity:${opacity};}}${'\n'
+                    }@keyframes vscode-body-hide-wyg{from{background-size:0;}to{background-size:0;}}${'\n'
+                    }@keyframes vscode-body-opacity-wyg{from{opacity:1;}to{opacity:${opacity};}}${'\n'
                     }body {${'\n'
                     }   opacity: ${opacity};${'\n'
                     }   background-repeat: no-repeat;${'\n'
                     }   background-size: cover;${'\n'
                     }   background-position: center;${'\n'
-                    }   animation: vscode-body-hide ${delay}s,vscode-body-opacity 2s ease ${delay}s;${'\n'
+                    }   animation: vscode-body-hide-wyg ${delay}s,vscode-body-opacity-wyg 2s ease ${delay}s;${'\n'
                     }   background-image: url('${image}');${'\n'
                     }}${
                     '\n'+importEnd}`,
                     {
-                        vsCodeVersion: version,
-                        extensionVersion: extensionVer,
-                        date,
-                        code: codeValue
+                        VSCodeVersion: version,
+                        ExtensionVersion: extensionVer,
+                        Date: date,
+                        ImageCode: codeValue
                     }
                 ]);
             }).catch(err => {
@@ -541,10 +541,10 @@ function findInfo (content: string): Promise<info | false> {
             // 有匹配项返回信息
             if (reg) {
                 resolve({
-                    vsCodeVersion: reg[1],
-                    extensionVersion: reg[2],
-                    date: reg[3],
-                    code: reg[4]
+                    VSCodeVersion: reg[1],
+                    ExtensionVersion: reg[2],
+                    Date: reg[3],
+                    ImageCode: reg[4]
                 });
             } else {
                 resolve(false);
@@ -590,7 +590,5 @@ function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndU
  * @returns 
  */
 export function getExternalCssModifyOpacityContent (content: string, value: number): string {
-    return content.replace(externalCssOpacityModifyRegexp, (m, $1, $2, $3, $4, $5) => {
-        return $1 + value + $3 + value + $5;
-    });
+    return content.replace(externalCssOpacityModifyRegexp, `$1${value}$3${value}$5`);
 }

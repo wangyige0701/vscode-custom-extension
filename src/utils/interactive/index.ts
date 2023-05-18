@@ -54,8 +54,8 @@ export function selectFile ({
             if (!files && !folders) files = true;
             if (folders && many) many = false;
             if (folders && filters) filters = undefined;
-            if (isString(defaultUri) && (defaultUri as string).length > 0) {
-                defaultUri = Uri.file(defaultUri as string);
+            if (isString(defaultUri) && defaultUri.length > 0) {
+                defaultUri = Uri.file(defaultUri);
             } else {
                 defaultUri = undefined;
             }
@@ -119,7 +119,7 @@ export function setMessage<T extends MessageItem> ({
                 getMessageBoxAllData()[type](message, {
                     modal,
                     detail
-                }, ...(items as T[])).then(res => {
+                }, ...items).then(res => {
                     resolve(res);
                 }, err => {
                     reject(err);
@@ -152,10 +152,10 @@ function getMessageBoxAllData () {
  */
 export function setStatusBar (message: string | StatusBarIconMessage, option?:StatusBarParam, callback?: StatusBarCallback, ...callbackParam: any[]): Disposable {
     if (isObject(message)) {
-        message = `$(${(message as StatusBarIconMessage).icon})${(message as StatusBarIconMessage).message}`;
+        message = `$(${message.icon})${message.message}`;
     }
     if (isUndefined(option)) 
-        return window.setStatusBarMessage(message as string);
+        return window.setStatusBarMessage(message);
     let thenable: Thenable<any>;
     if (isNumber(option)) {
         thenable = <Promise<void>>new Promise((resolve, reject) => {
@@ -163,15 +163,15 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
                 setTimeout(() => {
                     callback?.(...callbackParam);
                     resolve();
-                }, option as number);
+                }, option);
             } catch (error) {
                 reject(error);
             }
         })
     } else {
-        thenable = option as Thenable<any>;
+        thenable = option;
     }
-    return window.setStatusBarMessage(message as string, thenable);
+    return window.setStatusBarMessage(message, thenable);
 }
 
 /**

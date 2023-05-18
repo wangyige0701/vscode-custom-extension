@@ -91,7 +91,7 @@ export function getHashCode (length: number | string = 24): string {
  * @param value 
  * @returns {boolean}
  */
-export function isString (value: any): boolean {
+export function isString (value: any): value is string {
     return typeof value === 'string';
 }
 
@@ -100,7 +100,7 @@ export function isString (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isNumber (value: any): boolean {
+export function isNumber (value: any): value is number {
     return typeof value === 'number';
 }
 
@@ -109,7 +109,7 @@ export function isNumber (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isArray (value: any): boolean {
+export function isArray (value: any): value is any[] {
     return Array.isArray(value);
 }
 
@@ -118,7 +118,7 @@ export function isArray (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isNull (value: any): boolean {
+export function isNull (value: any): value is null {
     return value === null;
 }
 
@@ -127,7 +127,7 @@ export function isNull (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isObject (value: any):boolean {
+export function isObject (value: any): value is {[key:string|number]:any} {
     return typeof value === 'object' && !isArray(value) && !isNull(value);
 }
 
@@ -136,7 +136,7 @@ export function isObject (value: any):boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isUndefined (value: any): boolean {
+export function isUndefined (value: any): value is undefined {
     return typeof value === 'undefined';
 }
 
@@ -145,7 +145,7 @@ export function isUndefined (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isFunction (value: any): boolean {
+export function isFunction (value: any): value is Function {
     return typeof value === 'function';
 }
 
@@ -154,7 +154,7 @@ export function isFunction (value: any): boolean {
  * @param value 
  * @returns {boolean}
  */
-export function isBoolean (value: any): boolean {
+export function isBoolean (value: any): value is boolean {
     return typeof value === 'boolean';
 }
 

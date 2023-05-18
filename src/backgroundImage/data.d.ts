@@ -98,10 +98,10 @@ export interface bufferAndCode {
  * 修改css文件中需要的相关注释信息类型
 */
 export interface info {
-    vsCodeVersion: string; // vscode版本号
-    extensionVersion: string; // 当前版本号
-    date: string; // 日期
-    code: string; // 图片哈希码
+    VSCodeVersion: string; // vscode版本号
+    ExtensionVersion: string; // 当前版本号
+    Date: string; // 日期
+    ImageCode: string; // 图片哈希码
 }
 
 /**

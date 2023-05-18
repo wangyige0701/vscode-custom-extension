@@ -184,9 +184,9 @@ export function isFileExits (data: Uri | string): Promise<boolean> {
     return new Promise((resolve, reject) => {
         try {
             if (!isString(data)) {
-                data = (data as Uri).fsPath;
+                data = data.fsPath;
             }
-            resolve(existsSync(data as string));
+            resolve(existsSync(data));
         } catch (error) {
             reject(error);
         }

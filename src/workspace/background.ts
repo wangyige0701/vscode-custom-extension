@@ -1,5 +1,5 @@
 import { getWorkSpace, setWorkSpace } from ".";
-import { isNumber, isString } from "../utils";
+import { isString } from "../utils";
 
 const namespace = 'wangyige.background';
 
@@ -39,12 +39,13 @@ export const backgroundImageConfiguration = {
         const list: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
         if (state === 'add' && isString(value)) {
             // 添加一个图片数据
-            list.unshift(value as string);
+            list.unshift(value);
         } else if (state === 'delete') {
             if (isString(value)) 
                 value = list.findIndex(item => item === value);
-            if (!(isNumber(value) && value as number >= 0)) return;
-            list.splice(value as number, 1);
+            if (value < 0) 
+                return Promise.resolve();
+            list.splice(value, 1);
         }
         await backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', list)
             .then(() => {}, err => {

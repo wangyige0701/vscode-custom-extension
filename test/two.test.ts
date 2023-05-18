@@ -13,3 +13,15 @@ test("middle", () => {
     array2.splice(bisectionDesc(array2, test2), 0, test2);
     console.log(array2);
 })
+
+test('network', () => {
+    const networkUrl = /^(https|http)\:\/\/(\S+)\.([^\?\s]+)(?:\b\?(?!&)(([.]+)=([.]+))(?:&(\1))?)?$/;
+    const a = 'https://asdsdsdsds.com?a=1&b=2';
+
+    const test = /(?:\?(?:([^&\s\?]+)=([^&\s\?]+)&?)*)?/;
+    console.log('?a=1&b=2&c=3'.match(test));
+    
+
+    // console.log(a.match(networkUrl));
+    
+});

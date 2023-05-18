@@ -26,7 +26,7 @@ export function errHandle (e: any, isThrow: boolean = !isDev()) {
     if (isString(e) || isNumber(e)) {
         setMessage({
             type: 'error',
-            message: (e as string | number).toString(),
+            message: e.toString(),
             modal: false
         });
         return;

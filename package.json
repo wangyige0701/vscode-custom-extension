@@ -17,6 +17,14 @@
 	"contributes": {
 		"commands": [
 			{
+				"command": "wangyige.background.clear",
+				"title": "清除背景图配置",
+				"icon": {
+					"light": "resources/svg/light/circle-slash.svg",
+					"dark": "resources/svg/dark/circle-slash.svg"
+				}
+			},
+			{
 				"command": "wangyige.background.selectStore",
 				"title": "选择图片储存路径",
 				"icon": {
@@ -52,7 +60,7 @@
 		"views": {
 			"custom-function": [
 				{
-					"id": "wangyige.custom.backgroundimage",
+					"id": "wangyige.custom.backgroundImage",
 					"name": "背景图片",
 					"type": "webview",
 					"visibility": "visible"
@@ -88,7 +96,7 @@
 					"wangyige.background.hasImage": {
 						"type": "boolean",
 						"default": false,
-						"description": "当前是否选择了背景图文件"
+						"description": "当前是否选择了随机设置的背景图"
 					},
 					"wangyige.background.isSetBackground": {
 						"type": "boolean",
@@ -112,12 +120,17 @@
 			"view/title": [
 				{
 					"command": "wangyige.background.selectStore",
-					"when": "view == wangyige.custom.backgroundimage",
+					"when": "view == wangyige.custom.backgroundImage",
 					"group": "navigation"
 				},
 				{
 					"command": "wangyige.background.resetStore",
-					"when": "view == wangyige.custom.backgroundimage",
+					"when": "view == wangyige.custom.backgroundImage",
+					"group": "navigation"
+				},
+				{
+					"command": "wangyige.background.clear",
+					"when": "view == wangyige.custom.backgroundImage && config.wangyige.background.isSetBackground",
 					"group": "navigation"
 				}
 			]

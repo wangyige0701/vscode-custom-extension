@@ -6,7 +6,7 @@ import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
 import { backgroundSendMessage } from "./execute";
-import { checExternalDataIsRight, checkCurentImageIsSame, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
+import { checExternalDataIsRight, checkCurentImageIsSame, deletebackgroundCssFileModification, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
 import { bisectionAsce } from "../utils/algorithm";
 
@@ -90,7 +90,7 @@ export function settingImage ({ code, index }: {
             location: 'Notification',
             title: '背景图设置中'
         }, (progress) => {
-            return <Promise<void>>new Promise((resolve, reject) => {
+            return <Promise<void>>new Promise(resolve => {
                 modifyCssFileForBackground(code).then(() => {
                     backgroundSendMessage({
                         name: 'settingBackgroundSuccess',
@@ -105,7 +105,7 @@ export function settingImage ({ code, index }: {
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
                 }).catch(err => {
-                    reject(err);
+                    errHandle(err);
                 }).finally(() => {
                     resolve();
                 });
@@ -128,7 +128,7 @@ export function deleteImage (code: string) {
             location: 'Notification',
             title: '图片删除中'
         }, (progress) => {
-            return <Promise<void>>new Promise((resolve, reject) => {
+            return <Promise<void>>new Promise(resolve => {
                 deleteFileStore(code).then(target => {
                     backgroundSendMessage({
                         name: 'deleteImageSuccess',
@@ -138,15 +138,43 @@ export function deleteImage (code: string) {
                         message: '删除成功',
                         increment: 100
                     });
-                    // 延迟1秒关闭进度条
+                    // 延迟1.5秒关闭进度条
                     return delay(1500);
                 }).catch(err => {
-                    reject(err);
+                    errHandle(err);
                 }).finally(() => {
                     resolve();
                 });
             });
         });
+    }).catch(error => {
+        errHandle(error);
+    });
+}
+
+/**
+ * 清除背景图相关设置
+ */
+export function clearBackgroundConfig () {
+    isChangeBackgroundImage('是否清除背景图配置').then(() => {
+        showProgress({
+            location: 'Notification',
+            title: '清除中'
+        }, (progress) => {
+            return <Promise<void>>new Promise(resolve => {
+                deletebackgroundCssFileModification().then(() => {
+                    progress.report({
+                        message: '清除成功',
+                        increment: 100
+                    });
+                    return delay(1500);
+                }).catch(err => {
+                    errHandle(err);
+                }).finally(() => {
+                    resolve();
+                });
+            });
+        })
     }).catch(error => {
         errHandle(error);
     });

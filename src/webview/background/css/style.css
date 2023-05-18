@@ -12,6 +12,7 @@ body {
 	position: relative;
 }
 
+/* 顶部操作区域 */
 header.top {
 	margin: 0;
 	min-height: 50px;
@@ -41,6 +42,43 @@ button.button:not(.isloading) > span.iconfont {
 	display: none;
 }
 
+/* 多选时的切换按钮 */
+div.batch-operation {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	margin-top: 10px;
+	--vscode-button-warnBackground: #9c0e0e;
+	--vscode-button-warnHoverBackground: #bb1111;
+	--vscode-warnFocusBorder: #d40000;
+}
+
+div.batch-operation > button.button {
+	flex: 1;
+	width: 100%;
+}
+
+div.batch-operation:not(.container-icon-select) > button.button.batch {
+	display: none;
+}
+
+div.batch-operation > button.button:nth-child(2) {
+	margin-left: 5px;
+}
+
+div.batch-operation > button.button.delete {
+	background: var(--vscode-button-warnBackground);
+}
+
+div.batch-operation > button.button.delete:hover {
+	background: var(--vscode-button-warnHoverBackground);
+}
+
+div.batch-operation > button.button.delete:focus {
+	outline-color: var(--vscode-warnFocusBorder);
+}
+
+/* 列表区域 */
 nav.list {
 	flex: 1;
 	overflow-y: scroll;

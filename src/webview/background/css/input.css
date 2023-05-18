@@ -54,6 +54,7 @@ div.info-input {
     outline-width: 1px;
     outline-color: transparent;
     position: relative;
+    border-radius: 2px;
 }
 
 div.info-input.focus {

@@ -127,3 +127,5 @@ test3.shift();
 // test3.splice(2,1)
 // test3.splice(0,1, 3,4,5);
 console.log(test3);
+console.log(test3.findIndex(item => item == 3));
+console.log(test3.length);

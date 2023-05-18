@@ -93,11 +93,6 @@
 						"default": [],
 						"description": "所有选择的背景图路径哈希值数组"
 					},
-					"wangyige.background.hasImage": {
-						"type": "boolean",
-						"default": false,
-						"description": "当前是否选择了随机设置的背景图"
-					},
 					"wangyige.background.isSetBackground": {
 						"type": "boolean",
 						"default": false,
@@ -112,6 +107,16 @@
 						"type": "string",
 						"default": "",
 						"description": "储存图片数据的路径，为空则是默认的resources下的background路径"
+					},
+					"wangyige.background.isRandom": {
+						"type": "boolean",
+						"default": false,
+						"description": "是否开启了随机切换背景图"
+					},
+					"wangyige.background.randomList": {
+						"type": "array",
+						"default": [],
+						"description": "随机切换的背景图哈希码"
 					}
 				}
 			}

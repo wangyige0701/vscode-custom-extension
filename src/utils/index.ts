@@ -212,3 +212,13 @@ export function voidFunc (): Promise<void> {
         resolve();
     });
 }
+
+/**
+ * 生成一个指定范围的随机数
+ * @param start 
+ * @param end 
+ * @returns 
+ */
+export function getRandom (start: number, end: number): number {
+    return Math.floor(Math.random() * (end - start) + start);
+}

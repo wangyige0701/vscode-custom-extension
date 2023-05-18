@@ -7,7 +7,11 @@
 function createInstance () {
     const imageDeleteCLass = 'image-delete';
     class ImageList {
-        selectImageList = []; // 记录选中的元素
+        /**
+         * 记录选中的图片元素
+         * @type {string[]}
+        */
+        selectImageList;
         /**
          * 校验是否不显示列表提示文字
          * @type {boolean}
@@ -24,6 +28,8 @@ function createInstance () {
             this.changeImageListInfo(true, true);
             this.id = listId;
             this.element = getId(this.id);
+            // 劫持选择列表长度改变
+            this.#resetSelectImageList(this);
             // 代理数组双向绑定
             publicData.imageRenderList = new Proxy([], {
                 set: this.#set.bind(this),
@@ -37,9 +43,9 @@ function createInstance () {
          * @param {ImageList} _this
          */
         #resetMethods (_this) {
+            let methods = ['push', 'pop', 'shift', 'unshift', 'splice'];
             const oldMethods = Array.prototype;
             const newMethods = Object.create(oldMethods);
-            const methods = ['push', 'pop', 'shift', 'unshift', 'splice'];
             methods.forEach(method => {
                 newMethods[method] = function (...args) {
                     switch (method) {
@@ -69,6 +75,7 @@ function createInstance () {
                     return oldMethods[method].apply(this, args);
                 }
             });
+            methods = null;
             return newMethods;
         }
 
@@ -97,6 +104,85 @@ function createInstance () {
         }
 
         /**
+         * 获取选中列表长度改变，进行dom更新
+         * @param {ImageList} _this
+         */
+        #resetSelectImageList (_this) {
+            this.selectImageList = new Proxy([], {
+                set (target, property, value, receiver) {
+                    const hasPro = target.hasOwnProperty(property);
+                    const oldData = target[property];
+                    const res = Reflect.set(target, property, value, receiver);
+                    if (!hasPro) {
+                        _this.renderBySelectListLength(true);
+                    } else if (property === 'length' && oldData !== value) {
+                        _this.renderBySelectListLength(false);
+                    }
+                    if (property === 'length') {
+                        // 判断是否需要展示删除按钮
+                        const batchButton = $query(
+                            `.${batchButtonContainerClass}`
+                        );
+                        // 切换按钮内文字
+                        const buttonItem = batchButton.querySelector('#'+randomBackId);
+                        if (value > 0) {
+                            batchButton.classList.add(selectButtonToContainerClass);
+                            if (buttonItem) buttonItem.innerText = rendomSelectBack;
+                        } else {
+                            batchButton.classList.remove(selectButtonToContainerClass);
+                            if (buttonItem) buttonItem.innerText = rendomAllBack;
+                        }
+                    }
+                    return res;
+                },
+                get (target, property, receiver) {
+                    return Reflect.get(target, property, receiver);
+                }
+            });
+        }
+
+        /**
+         * 对图片选中数据进行遍历获取数组更新前后状态不同的元素
+         * @param {boolean} isAdd 
+         */
+        renderBySelectListLength (isAdd) {
+            const array = [];
+            this.getChild()?.forEach(child => {
+                if (child.classList.contains(selectButtonToContainerClass)) 
+                    array.push(child.dataset[imageContainerCode]);
+            });
+            let operation, codes = [];
+            if (isAdd) {
+                // 新增数据
+                this.selectImageList.forEach(n => {
+                    if (!array.includes(n))
+                        codes.push(n);
+                });
+                operation = 'add';
+            } else {
+                // 删减数据
+                array.forEach(o => {
+                    if (!this.selectImageList.includes(o))
+                        codes.push(o);
+                });
+                operation = 'remove';
+            }
+            this.changeSelectImageIcon(operation, ...codes);
+        }
+
+        /**
+         * 获取数组格式的选中列表数据
+         * @returns {string[]} 
+         */
+        getSelectListByArray () {
+            let array = [];
+            this.selectImageList.forEach(item => {
+                array.push(item);
+            });
+            return array;
+        }
+
+        /**
          * 插入一个img节点
          * @param {{code:string,src:string,index:number,target?:HTMLElement}} data 图片数据
          * @param {boolean} head 是否从头部插入，默认为true
@@ -107,7 +193,7 @@ function createInstance () {
             const { src, code } = data;
             if (!src) return;
             // 外层容器
-            let el = createELement('div', { class: listImageClass, [imageContainerCodeName]: code });
+            let el = createELement('div', { class: listImageClass, [imageContainerCodeName]: code, id: imageContainerCode+'-'+code });
             // 图片本体
             el.appendChild(createELement('img', { class: imageClass, loading: 'lazy', src }));
             // 操作按钮
@@ -223,72 +309,44 @@ function createInstance () {
         }
 
         /**
-         * 对点击的元素进行选中状态切换并更新状态数组
-         * @param {Number} index 索引
+         * 对点击的元素进行选中状态切换，可以传多个数据
+         * @param {'add'|'remove'} operation
+         * @param {string[]} code 哈希码
          * @returns 
          */
-        toggleSelectStateToImageIcon (index) {
-            if (index >= 0) {
-                const classList = this.getChild()[index].querySelector(
-                    `.${imageButtonClass}.${imageSelectButtonClass}`
+        changeSelectImageIcon (operation, ...codes) {
+            if (codes.length <= 0) 
+                return;
+            codes.forEach(code => {
+                const target = $query( 
+                    `.${listImageClass}#${imageContainerCode}-${code}`
+                );
+                const classList = $query( 
+                    `.${imageButtonClass}.${imageSelectButtonClass}`,
+                    target
                 )?.classList;
-                if (!classList) return;
-                classList.toggle(ImageSelectStateClass);
-                const select = this.selectImageList.findIndex(item => item === index);
-                if (classList.contains(ImageSelectStateClass)) {
-                    // 数组中没有对应索引则添加
-                    select > -1 ? null : this.selectImageList.push(index);
-                } else {
-                    // 数组中有对应索引并且索引对应元素不包含select类名，则删除
-                    select > -1 ? this.selectImageList.splice(select, 1) : null;
-                }
-            }
-        }
-
-        /**
-         * 对选中的列表按钮添加选中类名
-         */
-        selectedImageIcon () {
-            const child = this.getChild();
-            this.clearAllSelectImageIcon(child);
-            this.selectImageList.forEach(item => {
-                if (item >= 0 && child.length > item) {
-                    const classList = child[item].querySelector(
-                        `.${imageButtonClass}.${imageSelectButtonClass}`
-                    )?.classList;
-                    if (!classList) return;
-                    classList.contains(ImageSelectStateClass)?classList.add(ImageSelectStateClass):null;
+                if (!classList) 
+                    return;
+                if (operation === 'add' && !classList.contains(ImageSelectStateClass)) {
+                    classList.add(ImageSelectStateClass);
+                    target.classList.add(selectButtonToContainerClass);
+                } else if (operation === 'remove' && classList.contains(ImageSelectStateClass)) {
+                    classList.remove(ImageSelectStateClass);
+                    target.classList.remove(selectButtonToContainerClass);
                 }
             });
         }
 
         /**
-         * 删除图片节点内的选中图标类名
-         * @param {NodeList} child 子元素节点
-         * @param {Boolean} clear 是否清除记录数组
+         * 点击选中图标按钮触发方法
+         * @param {string} code 
          */
-        clearAllSelectImageIcon (child, clear=false) {
-            if (clear) {
-                // 是否删除数组
-                for (let i = this.selectImageList.length-1; i >= 0; i--) {
-                    this.selectImageList.splice(i, 1);
-                }
-            }
-            if (!child) child = this.getChild();
-            child.forEach(item => {
-                classListOperation(item, 'remove', ImageSelectStateClass);
-            });
-        }
-
-        /**
-         * 取消冒泡
-         * @param {HTMLElement} el 
-         */
-        stopPropagation (el, event='click') {
-            if (el) {
-                el.addEventListener(event,e => {
-                    e.stopPropagation();
-                });
+        clickToChangeSelectImageIcon (code) {
+            if (this.selectImageList.includes(code)) {
+                const index = this.selectImageList.findIndex(item => item === code);
+                this.selectImageList.splice(index, 1);
+            } else {
+                this.selectImageList.push(code);
             }
         }
 
@@ -392,8 +450,8 @@ function createInstance () {
             if (!canChange()) 
                 return;
             // 通过索引设置选中
-            if (objectHas(data, 'index') && data.index >= 0) 
-                this.toggleSelectStateToImageIcon(data.index);
+            if (objectHas(data, 'code')) 
+                this.clickToChangeSelectImageIcon(data.code);
         }
 
         /**

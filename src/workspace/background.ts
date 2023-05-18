@@ -63,23 +63,6 @@ export const backgroundImageConfiguration = {
     },
 
     /**
-     * 当前是否选择了图片，即侧栏中是否有图片数据
-     * @returns 
-     */
-    getBackgroundHasImage (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration('hasImage');
-    },
-
-    /**
-     * 是否选择图片状态修改
-     * @param value 
-     * @returns 
-     */
-    setBackgroundHasImage (value: boolean): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('hasImage', value);
-    },
-
-    /**
      * 是否设置了背景图
      * @returns {boolean}
      */
@@ -179,5 +162,39 @@ export const backgroundImageConfiguration = {
      */
     setBackgroundStorePath (value: string): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('storePath', value);
+    },
+
+    /**
+     * 获取是否开启了随机切换背景图状态
+     * @returns 
+     */
+    getBackgroundIsRandom (): boolean {
+        return backgroundImageConfiguration.getBackgroundConfiguration('isRandom');
+    },
+
+    /**
+     * 设置是否开启了随机切换背景图状态
+     * @param value 
+     * @returns 
+     */
+    setBackgroundIsRandom (value: boolean): Thenable<void> {
+        return backgroundImageConfiguration.setBackgroundConfiguration('isRandom', value);
+    },
+
+    /**
+     * 获取随机切换的背景图哈希码数组
+     * @returns 
+     */
+    getBackgroundRandomList (): string[] {
+        return backgroundImageConfiguration.getBackgroundConfiguration('randomList');
+    },
+
+    /**
+     * 设置随机切换的背景图哈希码数组
+     * @param value 
+     * @returns 
+     */
+    setBackgroundRandomList (value: string[]): Thenable<void> {
+        return backgroundImageConfiguration.setBackgroundConfiguration('randomList', value);
     }
 }

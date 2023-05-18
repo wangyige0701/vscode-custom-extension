@@ -5,6 +5,7 @@ import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
 import { messageSend } from "../utils/webview";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
+import { randomSettingBackground } from "./modifyRandom";
 
 var webviewInstance: Webview;
 
@@ -27,8 +28,8 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             if (value) selectImage();
             break;
         case 'deleteImage':
-            // 删除图片 value: string
-            if (value) deleteImage(value);
+            // 删除图片 value: string[] | string
+            if (value && value.length > 0) deleteImage(...value);
             break;
         case 'settingBackground':
             // 设置背景图 value: { code, index }
@@ -40,6 +41,10 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
         case 'backgroundOpacity':
             // 设置背景透明度
             if (value >= 0.1 && value <= 1) backgroundOpacityModify(value);
+            break;
+        case 'randomBackground':
+            // 设置随机背景图
+            if (value) randomSettingBackground(value);
             break;
         default:
             break;

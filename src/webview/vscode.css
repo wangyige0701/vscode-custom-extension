@@ -27,7 +27,7 @@ form > * {
 }
 
 *:focus {
-	outline-color: var(--vscode-focusBorder) !important;
+	outline-color: var(--vscode-focusBorder);
 }
 
 a {
@@ -54,6 +54,7 @@ button {
 	outline-offset: 2px !important;
 	color: var(--vscode-button-foreground);
 	background: var(--vscode-button-background);
+	border-radius: 2px;
 }
 
 button:hover {

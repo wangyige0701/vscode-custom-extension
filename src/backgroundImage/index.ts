@@ -1,7 +1,7 @@
 import { Uri, FileType } from "vscode";
 import { delay, getHashCode } from "../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { selectFile, showProgress } from "../utils/interactive";
+import { selectFile, setMessage, showProgress } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
@@ -79,41 +79,65 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
 
 /**
  * webview端点击图片设置背景图处理方法
- * @param param 传入点击图片的哈希码和在webview列表中的索引位置
+ * @param param 传入点击图片的哈希码和在webview列表中的索引位置，如果是随机设置背景图则不需要传index
  */
 export function settingImage ({ code, index }: {
     code: string;
-    index: number;
-}) {
-    isChangeBackgroundImage().then(() => {
-        showProgress({
-            location: 'Notification',
-            title: '背景图设置中'
-        }, (progress) => {
-            return <Promise<void>>new Promise(resolve => {
-                modifyCssFileForBackground(code).then(() => {
-                    backgroundSendMessage({
-                        name: 'settingBackgroundSuccess',
-                        value: index
+    index?: number;
+}, random: boolean = false): undefined | Promise<void> {
+    const setting = function (): Promise<void> {
+        return new Promise((resolve, reject) => {
+            modifyCssFileForBackground(code).then(() => {
+                if (!random && backgroundImageConfiguration.getBackgroundIsRandom()) {
+                    // 如果选中背景图设置则会关闭随机切换背景图
+                    setMessage({
+                        message: '已关闭随机设置背景图'
                     });
-                    progress.report({
-                        message: '设置成功',
-                        increment: 100
-                    });
-                    // 延迟500毫秒关闭进度条
-                    return delay(500);
-                }).then(() => {
-                    isWindowReloadToLoadBackimage();
-                }).catch(err => {
-                    errHandle(err);
-                }).finally(() => {
-                    resolve();
-                });
+                    return backgroundImageConfiguration.setBackgroundIsRandom(false);
+                } else {
+                    // 如果传入random参数为true，则不会关闭随机切换背景图状态
+                    return delay(0);
+                }
+            }).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(err);
             });
         });
-    }).catch((error) => {
-        errHandle(error);
-    });
+    }
+    if (!random) {
+        // 如果不是随机切换背景图，则表示当前需要弹出提示
+        isChangeBackgroundImage().then(() => {
+            showProgress({
+                location: 'Notification',
+                title: '背景图设置中'
+            }, (progress) => {
+                return <Promise<void>> new Promise(resolve => {
+                    setting().then(() => {
+                        backgroundSendMessage({
+                            name: 'settingBackgroundSuccess',
+                            value: index!
+                        });
+                        progress.report({
+                            message: '设置成功',
+                            increment: 100
+                        });
+                        // 延迟500毫秒关闭进度条
+                        return delay(500);
+                    }).then(() => {
+                        isWindowReloadToLoadBackimage();
+                    }).finally(() => {
+                        resolve();
+                    });
+                }); 
+            });
+        }).catch((error) => {
+            errHandle(error);
+        });
+    } else {
+        // 随机切换背景图在组件停止运行前进行，不进行弹框提示
+        return setting();
+    }
 }
 
 /**
@@ -122,14 +146,18 @@ export function settingImage ({ code, index }: {
  * @param webview 
  * @param code 
  */
-export function deleteImage (code: string) {
-    isChangeBackgroundImage('是否删除此图片').then(() => {
+export function deleteImage (...code: string[]) {
+    isChangeBackgroundImage(code.length > 0 ? '是否删除选中图片' : '是否删除此图片').then(() => {
         showProgress({
             location: 'Notification',
             title: '图片删除中'
         }, (progress) => {
             return <Promise<void>>new Promise(resolve => {
-                deleteFileStore(code).then(target => {
+                const array: Promise<string>[] = [];
+                code.forEach(item => {
+                    array.push(deleteFileStore(item));
+                })
+                Promise.all(array).then(target => {
                     backgroundSendMessage({
                         name: 'deleteImageSuccess',
                         value: target

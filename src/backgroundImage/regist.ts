@@ -2,6 +2,7 @@ import { ExtensionContext, commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
 import { contextContainer, registWebview, webviewCreateByHtml } from "../utils/webview";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
+import { setRandomBackground } from "./modifyRandom";
 
 /**
  * 注册背景图设置功能
@@ -19,5 +20,8 @@ export function registBackground (context: ExtensionContext) {
 	// 命令事件注册
 	commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);
 	commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
-	commands.registerCommand('wangyige.background.clear', clearBackgroundConfig)
+	commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
+
+	// 开启后判断是否随机修改背景
+	setRandomBackground();
 }

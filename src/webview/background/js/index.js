@@ -7,6 +7,11 @@ const vscode = acquireVsCodeApi();
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
 const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片容器
+const batchButtonContainerClass = 'batch-operation'; // 删除或批量设置按钮区域容器类名
+const batchDeleteId = 'batchDelete'; // 批量删除按钮
+const randomBackId = 'randomBack'; // 背景图随机设置按钮
+const rendomAllBack = '随机设置（全部）';
+const rendomSelectBack = '随机设置（选中）';
 const judgeLoading = 'isloading';
 const loadingClass = 'loading-rotate';
 const listId = 'list'; // 图片列表区域id
@@ -15,16 +20,17 @@ const imageContainerCode = 'code';
 const imageContainerCodeName = 'data-'+imageContainerCode; // 图片中用于存放code哈希码的属性名
 const imageClass = 'image'; // 图片公用类名
 const selectClass = 'select'; // 图片选中的类名
+const selectButtonToContainerClass = 'container-icon-select'; // 左上角图标选中时图片容器的类名
 const imageButtonClass = 'image-operation'; // 图片操作按钮类名
 const imageSelectButtonClass = 'image-select'; // 图片选中按钮类名
 const imageDeleteButtonClass = 'image-delete'; // 图片删除按钮类名
 const circleBackIconClass = 'icon-circle-background'; // 圆形背景填充图标类名
 const deleteIconClass = 'icon-delete'; // 删除图标类名
-const ImageSelectStateClass = 'select'; // 图片选中类名
+const ImageSelectStateClass = 'select'; // 图片左上角图标选中类名
 const imageListInfoId = 'imageListInfo'; // 图片列表展示文字提示区域容器
-const imageListInfoIcon = '.image-list-info>.iconfont';
-const imageListInfoContent = '.image-list-info>.info-content';
-const imageListInfoShowClass = 'show';
+const imageListInfoIcon = '.image-list-info>.iconfont'; // 图片列表文字提示区域图标
+const imageListInfoContent = '.image-list-info>.info-content'; // 图片列表提示区域文字容器
+const imageListInfoShowClass = 'show'; // 显示文字提示类名
 const imageListInfoEmpty = '暂无背景图数据，请上传';
 const imageListInfoEmptyLoading = '背景图数据加载中';
 const imageAnimationTime = 500; // 图片加载删除动画时间
@@ -86,9 +92,14 @@ window.addEventListener('load', onDataLoad.bind(this, false));
 // 添加图片按钮点击事件绑定
 document.getElementById(selectButtonId).addEventListener('click', buttonClickSelectImage);
 
+// 批量删除按钮绑定事件
+document.getElementById(batchDeleteId).addEventListener('click', buttonClickDeleteSelect);
+
+// 批量随机设置背景图事件
+document.getElementById(randomBackId).addEventListener('click', buttonClickRandomBackground);
+
 // 脚本侧通信接收事件
 window.addEventListener('message', receiveMessage);
-
 
 // 注册上传按钮锁
 registLock('selectFile', selectFileButtonLock);
@@ -212,6 +223,28 @@ function buttonClickSelectImage () {
 }
 
 /**
+ * 删除选中的图片
+ */
+function buttonClickDeleteSelect () {
+    if (listInstance.selectImageList.length > 0) {
+        sendMessage({
+            name: 'deleteImage',
+            value: listInstance.getSelectListByArray()
+        });
+    }
+}
+
+/**
+ * 设置随机背景图，空数组代表从所有图片中设置
+ */
+function buttonClickRandomBackground () {
+    sendMessage({
+        name: 'randomBackground',
+        value: listInstance.getSelectListByArray()
+    });
+}
+
+/**
  * 删除图标按钮点击
  * @param {string} code 
  * @returns 
@@ -314,6 +347,14 @@ function deleteImageHandle (value) {
     } else {
         deleteImage(value);
     }
+    // 清除选中数组的数据
+    for (let i = 0; i < listInstance.selectImageList.length; i++) {
+        let item = listInstance.selectImageList[i];
+        if (item === value || value.includes(item)) {
+            listInstance.selectImageList.splice(i, 1);
+            i--;
+        }
+    }
 }
 
 /**
@@ -373,9 +414,9 @@ function getId (id) {
  * @param {string} value 
  * @returns {HTMLElement}
  */
-function $query (value) {
-    if (value) {
-        return document.querySelector(value);
+function $query (value, target=document) {
+    if (value && target) {
+        return target.querySelector(value);
     }
 }
 

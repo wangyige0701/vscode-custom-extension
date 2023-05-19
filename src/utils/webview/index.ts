@@ -1,8 +1,3 @@
-/**
- * 对html引用的css和js进行合并的操作，在正式环境需要进行判断，即vscode、插件版本号和缓存不同时进行处理，
- * 如果路径下文件不存在，则直接合并
- */
-
 import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview, version } from "vscode";
 import { createBuffer, isFileExits, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";

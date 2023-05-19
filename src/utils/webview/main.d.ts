@@ -28,3 +28,5 @@ interface contextInter {
 interface webFileType {
     [key: string]: string;
 }
+
+type fb = Buffer | string | Uint8Array;

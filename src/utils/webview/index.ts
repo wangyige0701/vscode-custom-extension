@@ -3,19 +3,31 @@
  * 如果路径下文件不存在，则直接合并
  */
 
-import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview } from "vscode";
-import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
+import { window, WebviewViewProvider, Disposable, Uri, CancellationToken, WebviewView, WebviewViewResolveContext, Webview, version } from "vscode";
+import { createBuffer, isFileExits, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";
 import { errHandle } from "../../error";
-import { MessageData, contextInter, options, webFileType } from "./main";
+import { MessageData, contextInter, fb, options, webFileType } from "./main";
 import { backgroundExecute } from "../../backgroundImage/execute";
 import { backgroundMessageData } from "../../backgroundImage/data";
 import { bisectionAsce } from "../algorithm";
+import { getVersion, isDev } from "../../version";
+import { getWorkSpace, setWorkSpace } from "../../workspace";
 
 const webFile: webFileType = {
     html: 'index.html',
     css: 'css',
     js: 'js'
+}
+
+/**
+ * 当前版本号是否有变化，判断是否需要重新合并文件
+ */
+const isVersionSame = checkVersion();
+
+// 判断是否需要更新版本信息
+if (!isVersionSame) {
+    refreshVersion();
 }
 
 /**
@@ -56,6 +68,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
             this.setHtml(webviewView.webview).then(html => {
                 // html赋值
                 webviewView.webview.html = html;
+            }).catch(err => {
+                errHandle(err);
             });
             messageHandle(webviewView.webview);
         } catch (error) {
@@ -89,13 +103,20 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         return Promise.resolve();
     }
 
-    private readDirectoryFile (uri: Uri): Promise<Uri[]> {
+    /**
+     * 读取指定路径下的文件，需要限制文件类型
+     * @param uri
+     * @param fileType 文件类型 
+     * @returns 
+     */
+    private readDirectoryFile (uri: Uri, fileType: string): Promise<Uri[]> {
         return new Promise((resolve, reject) => {
             try {
                 readDirectoryUri(newUri(uri)).then(res => {
                     const list: Uri[] = [];
                     res.forEach(item => {
-                        if (item[1] === 1) list.push(newUri(uri, item[0]));
+                        if (item[1] === 1 && new RegExp(`\\.${fileType}$`).test(item[0])) 
+                            list.push(newUri(uri, item[0]));
                     });
                     resolve(list);
                 }).catch(err => {
@@ -112,7 +133,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
      * @param fileUri 
      * @returns 
      */
-    private concatAllFile (fileUri: Uri[]): Promise<string> {
+    private mergeAllFile (fileUri: Uri[]): Promise<string> {
         return new Promise((resolve, reject) => {
             readFileUriList(fileUri).then(res => {
                 let list: string[] = [];
@@ -134,25 +155,104 @@ export class webviewCreateByHtml implements WebviewViewProvider {
     }
 
     /**
+     * 检查是否需要重新合并文件
+     * @param type 
+     * @returns 
+     */
+    toReMergeFiles (type: 'css'|'js'): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            // 如果是开发环境直接返回true
+            if (isDev()) {
+                resolve(true);
+                return;
+            }
+            // 如果vscode或者插件号版本号不同，直接返回true，允许合并
+            if (!isVersionSame) {
+                resolve(true);
+                return;
+            }
+            // 如果对应uri为空，抛出错误
+            if ((type === 'css' && !this.newCssUri) || (type === 'js' && !this.newJsUri)) {
+                reject(new Error('File Uri undefinded'));
+                return;
+            }
+            isFileExits(type === 'css' ? this.newCssUri! : this.newJsUri!)
+                .then(res => {
+                    if (res) {
+                        // 文件存在，不需要合并
+                        resolve(false);
+                    } else {
+                        resolve(true);
+                    }
+                }).catch(err => {
+                    reject(err);
+                });
+        });
+    }
+
+    /**
      * 生成html字符串
      * @param webview 
      * @returns 
      */
-    private async setHtml (webview: Webview): Promise<string> {
-        const nonce = getNonce();
-        type fb = Buffer | string | Uint8Array;
-        // 查询指定html文件路径
-        await this.start().then(async () => {
-            // 将html文本内js和css替换为指定路径下的对应文件
+    private setHtml (webview: Webview): Promise<string> {
+        return new Promise((resolve, reject) => {
+            const nonce = getNonce();
+            // 查询指定html文件路径
+            this.start().then(() => {
+                // 将html文本内js和css替换为指定路径下的对应文件
+                return this.toReMergeFiles('css');
+            }).then(res => {
+                if (res) 
+                    return this.cssFileMerge(webview);
+            }).then(() => {
+                return this.toReMergeFiles('js');
+            }).then(res => {
+                if (res)
+                    return this.jsFileMerge();
+            }).then(() => {
+                // html文本处理
+                this.htmlContent = this.htmlContent
+                    .replace(/(#policy)/, 
+                        `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
+                        webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:;">`
+                    )
+                    .replace(/(#css)/, this.newCssUri?
+                        `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:
+                        ''
+                    )
+                    .replace(/(#js)/, this.newJsUri?
+                        `<script nonce="${nonce}" src="${webview.asWebviewUri(this.newJsUri)}"></script>`:
+                        ''
+                    );
+            }).then(() => {
+                resolve(this.htmlContent);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    /**
+     * 合并css文件
+     * @param webview 
+     * @returns 
+     */
+    cssFileMerge (webview: Webview): Promise<void> {
+        return new Promise((resolve, reject) => {
             if (this.cssUri) {
+                let resetCss: fb, vscodeCss: fb;
                 // 外部统一样式处理
-                let [resetCss, vscodeCss]: [fb, fb] = await Promise.all([
+                Promise.all([
                     readFileUri(this.resetCssUri!),
                     readFileUri(this.vscodeCssUri!)
-                ]);
-                // 只能引入一个css文件，需要将其余引用样式写入主css文件中
-                await this.readDirectoryFile(this.cssUri).then(res => {
-                    return this.concatAllFile(res);
+                ]).then(([a, b]: [fb, fb]) => {
+                    resetCss = a;
+                    vscodeCss = b;
+                    return this.readDirectoryFile(this.cssUri!, 'css');
+                }).then(res => {
+                    // 只能引入一个css文件，需要将其余引用样式写入主css文件中
+                    return this.mergeAllFile(res);
                 }).then(str => {
                     // css文件整合，icon引入路径修改
                     let css: Buffer = createBuffer(
@@ -160,43 +260,43 @@ export class webviewCreateByHtml implements WebviewViewProvider {
                         '\n' + vscodeCss.toString() + 
                         '\n' + str);
                     // 合并css文件
-                    writeFileUri(this.newCssUri!, css).catch(err => {
-                        throw err;
-                    });
+                    return writeFileUri(this.newCssUri!, css);
+                }).then(() => {
+                    resolve();
                 }).catch(err => {
-                    errHandle(err);
+                    reject(err);
                 });
+            } else {
+                resolve();
             }
+        });
+    }
+
+    /**
+     * 合并js文件
+     * @returns 
+     */
+    jsFileMerge (): Promise<void> {
+        return new Promise((resolve, reject) => {
             if (this.jsUri) {
-                await this.readDirectoryFile(this.jsUri).then(res => {
-                    return this.concatAllFile(res);
+                this.readDirectoryFile(this.jsUri, 'js').then(res => {
+                    return this.mergeAllFile(res);
                 }).then(str => {
                     let js: Buffer = createBuffer(
                         `(function () {${
                             '\n'+str+'\n'
                         }})();`
                     );
-                    writeFileUri(this.newJsUri!, js).catch(err => {
-                        throw err;
-                    });
+                    return writeFileUri(this.newJsUri!, js);
+                }).then(() => {
+                    resolve();
                 }).catch(err => {
-                    errHandle(err);
+                    reject(err);
                 });
+            } else {
+                resolve();
             }
-            // html文本处理
-            this.htmlContent = this.htmlContent
-                .replace(/(#policy)/, 
-                    `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
-                        webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:;">`
-                    )
-                .replace(/(#css)/, this.newCssUri?
-                    `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:
-                    '')
-                .replace(/(#js)/, this.newJsUri?
-                    `<script nonce="${nonce}" src="${webview.asWebviewUri(this.newJsUri)}"></script>`:
-                    '');
         });
-        return Promise.resolve(this.htmlContent);
     }
 }
 
@@ -242,4 +342,33 @@ export function registWebview (viewId: string, provider: WebviewViewProvider, op
 // 保存context数据
 export const contextContainer: contextInter = {
     instance: undefined
+}
+
+/**
+ * 获取当前版本状态
+ * @returns 
+ */
+function checkVersion (): boolean {
+    const config = getWorkSpace("wangyige.webview");
+    const vscode = config.get("VSCodeVersion");
+    const extension = config.get("ExtensionVersion");
+    if (!vscode || !extension) 
+        return false;
+    if (vscode !== version || extension !== getVersion()) 
+        return false;
+    return true;
+}
+
+/**
+ * 更新版本信息
+ */
+function refreshVersion () {
+    setWorkSpace("wangyige.webview", "VSCodeVersion", version)
+        .then(() => {
+            return setWorkSpace("wangyige.webview", "ExtensionVersion", getVersion());
+        }, err => {
+            errHandle(err);
+        }).then(() => {}, err => {
+            errHandle(err);
+        });
 }

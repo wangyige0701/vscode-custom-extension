@@ -35,8 +35,17 @@ function a (t) {
     })
 }
 
-a(2).then(res => {
+function time () {
+    return new Promise(resolve => {
+        setTimeout(resolve, 5000);
+    });
+}
+
+a(1).then(res => {
     console.log(res);
+    if (res) {
+        return time();
+    }
 }).then(() => {
     console.log('end');
 }).catch(err => {

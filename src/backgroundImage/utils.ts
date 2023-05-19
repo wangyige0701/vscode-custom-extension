@@ -174,7 +174,7 @@ export function getNewBackgroundOpacity (opacity: number): number {
 }
 
 /**
- * 关闭随即切换背景图后的消息提示
+ * 关闭随机切换背景图后的消息提示
  */
 export function closeRandomBackground () {
     setMessage({ message: '已关闭背景图随机切换。' });

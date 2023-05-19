@@ -117,6 +117,16 @@
 						"type": "array",
 						"default": [],
 						"description": "随机切换的背景图哈希码"
+					},
+					"wangyige.webview.VSCodeVersion": {
+						"type": "string",
+						"default": "",
+						"description": "记录上一次操作的vscode版本号"
+					},
+					"wangyige.webview.ExtensionVersion": {
+						"type": "string",
+						"default": "",
+						"description": "记录上一次操作的插件版本号"
 					}
 				}
 			}

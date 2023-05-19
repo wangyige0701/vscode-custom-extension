@@ -30,6 +30,7 @@ export function imageStoreUri (): Uri | undefined {
 /**
  * 重新设置背景图储存路径数据
  * @param path 
+ * @param reset 是否重置路径
  */
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
     if (reset) {

@@ -140,7 +140,7 @@
 				},
 				{
 					"command": "wangyige.background.resetStore",
-					"when": "view == wangyige.custom.backgroundImage",
+					"when": "view == wangyige.custom.backgroundImage && config.wangyige.background.storePath != ''",
 					"group": "navigation"
 				},
 				{

@@ -112,12 +112,16 @@ div.image-container:hover {
 	cursor: pointer;
 }
 
-div.image-container:not(.select):hover {
+nav.list div.image-container:not(.select):hover {
 	border-color: var(--vscode-imagePreview-border);
 }
 
-div.image-container.select {
+nav.list div.image-container.select {
 	border-color: var(--vscode-gitlens-graphLane4Color);
+}
+
+div.image-container.random {
+	border-color: var(--vscode-tab-unfocusedActiveModifiedBorder);
 }
 
 div.image-container:not(:last-child) {

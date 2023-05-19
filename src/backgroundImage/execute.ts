@@ -28,7 +28,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             if (value) selectImage();
             break;
         case 'deleteImage':
-            // 删除图片 value: string[] | string
+            // 删除图片 value: string[]
             if (value && value.length > 0) deleteImage(...value);
             break;
         case 'settingBackground':
@@ -44,7 +44,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             break;
         case 'randomBackground':
             // 设置随机背景图
-            if (value) randomSettingBackground(value);
+            randomSettingBackground(value);
             break;
         default:
             break;

@@ -77,7 +77,10 @@ const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 export function modifyCssFileForBackground (codeValue: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
-            if (!codeValue) throw new Error('null code');
+            if (!codeValue) {
+                reject(new Error('null code'));
+                return;
+            }
             let infoContent: info | undefined;
             getExternalCssContent(codeValue).then(res => {
                 if (res === false) {
@@ -352,7 +355,6 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
 export function writeExternalCssFile (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
-            // const fileUri = getCssUri(externalFileName) as Uri;
             getCssUri(externalFileName).then(uri => {
                 if (uri) {
                     return writeFileUri(uri, createBuffer(content));
@@ -400,7 +402,10 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
     return new Promise((resolve, reject) => {
         try {
             const imageUri = imageStoreUri();
-            if (!imageUri) throw new Error('null uri');
+            if (!imageUri) {
+                reject(new Error('null uri'));
+                return;
+            }
             const extensionVer = getVersion();
             const date = getDate();
             getExternalFileContent().then(content => {

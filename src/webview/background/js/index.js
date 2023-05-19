@@ -10,8 +10,9 @@ const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片�
 const batchButtonContainerClass = 'batch-operation'; // 删除或批量设置按钮区域容器类名
 const batchDeleteId = 'batchDelete'; // 批量删除按钮
 const randomBackId = 'randomBack'; // 背景图随机设置按钮
-const rendomAllBack = '随机设置（全部）';
-const rendomSelectBack = '随机设置（选中）';
+const rendomAllBack = '随机切换（全部）';
+const rendomSelectBack = '随机切换（选中）';
+const closeRandom = '关闭随机切换';
 const judgeLoading = 'isloading';
 const loadingClass = 'loading-rotate';
 const listId = 'list'; // 图片列表区域id
@@ -20,6 +21,7 @@ const imageContainerCode = 'code';
 const imageContainerCodeName = 'data-'+imageContainerCode; // 图片中用于存放code哈希码的属性名
 const imageClass = 'image'; // 图片公用类名
 const selectClass = 'select'; // 图片选中的类名
+const imageIsRandomClass = 'random'; // 图片被选为随机设置的类名
 const selectButtonToContainerClass = 'container-icon-select'; // 左上角图标选中时图片容器的类名
 const imageButtonClass = 'image-operation'; // 图片操作按钮类名
 const imageSelectButtonClass = 'image-select'; // 图片选中按钮类名
@@ -160,7 +162,12 @@ function receiveMessage ({ data }) {
             queueSet(opacityMessageGetHandle.bind(this, value));
             break;
         case 'backgroundStorePathChange':
+            // 图片储存路径更改，重新请求初始化
             if (value) queueSet(onDataLoad.bind(this, true));
+            break;
+        case 'backgroundRandomList':
+            // 随机设置背景图状态更改或这初始化获取状态
+            queueSet(changeRenderByRandomSetting.bind(this, value));
             break;
         default:
             break;
@@ -235,12 +242,17 @@ function buttonClickDeleteSelect () {
 }
 
 /**
- * 设置随机背景图，空数组代表从所有图片中设置
+ * 设置随机背景图，空数组代表从所有图片中设置，或者取消背景图的设置
  */
 function buttonClickRandomBackground () {
+    let value = false;
+    if (listInstance.settingRandomButtonTextState > 1) {
+        // 当前未随机设置背景图或者勾选的图片数量大于1，则进行随机背景图的设置，发送字符串数组
+        value = listInstance.getSelectListByArray();
+    }
     sendMessage({
         name: 'randomBackground',
-        value: listInstance.getSelectListByArray()
+        value
     });
 }
 
@@ -253,7 +265,7 @@ function iconClickDeleteImage (code) {
     if (!canChange()) return;
     sendMessage({
         name: 'deleteImage',
-        value: code
+        value: [code]
     });
 }
 
@@ -376,6 +388,22 @@ function deleteImage (value) {
 }
 
 /**
+ * 根据当前是否设置了随机切换背景图的状态更改渲染
+ * @param {string[]|false} data 
+ * @returns 
+ */
+function changeRenderByRandomSetting (data) {
+    if (data === false) {
+        listInstance.isRandomBackground = false;
+        listInstance.deleteAllRandomSelectClass();
+    } else if (Array.isArray(data)) {
+        listInstance.isRandomBackground = true;
+        listInstance.changeImageStyleToRandomSelect(data);
+    }
+    listInstance.settingRandomButtonText();
+}
+
+/**
  * 创建标签元素
  * @param {string} name 标签名
  * @param {object} option 属性
@@ -394,7 +422,10 @@ function createELement (name, options={}) {
  */
 function setAllAttribute (el, options={}) {
     Object.keys(options).forEach(item => {
-        el.setAttribute(item, options[item]);
+        let i = options[item];
+        Array.isArray(i) ? 
+            el.setAttribute(item, i.join(' ')) : 
+            el.setAttribute(item, i);
     });
 }
 

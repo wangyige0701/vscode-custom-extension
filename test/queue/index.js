@@ -1,4 +1,4 @@
-
+/* 
 const queue = [];
 
 function set (callback) {
@@ -22,4 +22,23 @@ function b () {
 
 set(a);
 set(b);
-excute();
+excute(); */
+
+function a (t) {
+    return new Promise((resolve, reject) => {
+        if (t === 2) {
+            resolve(false);
+            return
+        }
+        console.log(1111);
+        resolve(true);
+    })
+}
+
+a(2).then(res => {
+    console.log(res);
+}).then(() => {
+    console.log('end');
+}).catch(err => {
+    console.log(err);
+});

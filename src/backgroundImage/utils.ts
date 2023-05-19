@@ -75,7 +75,7 @@ function sendStoreChangeMessage () {
 }
 
 /**
- * 是否设置背景图弹框
+ * 打开系统弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
  * @returns 
  */
 export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
@@ -171,4 +171,15 @@ export function getNewBackgroundOpacity (opacity: number): number {
     opacity = minmax(0.1, 1, opacity);
     opacity = +(0.95 + (-0.45 * opacity)).toFixed(2);
     return opacity;
+}
+
+/**
+ * 关闭随即切换背景图后的消息提示
+ */
+export function closeRandomBackground () {
+    setMessage({ message: '已关闭背景图随机切换。' });
+    backgroundSendMessage({
+        name: 'backgroundRandomList',
+        value: false
+    });
 }

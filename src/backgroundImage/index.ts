@@ -1,10 +1,10 @@
 import { Uri, FileType } from "vscode";
 import { delay, getHashCode } from "../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { selectFile, setMessage, showProgress } from "../utils/interactive";
+import { selectFile, showProgress } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
+import { changeLoadState, closeRandomBackground, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
 import { backgroundSendMessage } from "./execute";
 import { checExternalDataIsRight, checkCurentImageIsSame, deletebackgroundCssFileModification, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
@@ -85,26 +85,6 @@ export function settingImage ({ code, index }: {
     code: string;
     index?: number;
 }, random: boolean = false): undefined | Promise<void> {
-    const setting = function (): Promise<void> {
-        return new Promise((resolve, reject) => {
-            modifyCssFileForBackground(code).then(() => {
-                if (!random && backgroundImageConfiguration.getBackgroundIsRandom()) {
-                    // 如果选中背景图设置则会关闭随机切换背景图
-                    setMessage({
-                        message: '已关闭随机设置背景图'
-                    });
-                    return backgroundImageConfiguration.setBackgroundIsRandom(false);
-                } else {
-                    // 如果传入random参数为true，则不会关闭随机切换背景图状态
-                    return delay(0);
-                }
-            }).then(() => {
-                resolve();
-            }).catch(err => {
-                reject(err);
-            });
-        });
-    }
     if (!random) {
         // 如果不是随机切换背景图，则表示当前需要弹出提示
         isChangeBackgroundImage().then(() => {
@@ -113,7 +93,7 @@ export function settingImage ({ code, index }: {
                 title: '背景图设置中'
             }, (progress) => {
                 return <Promise<void>> new Promise(resolve => {
-                    setting().then(() => {
+                    setting(code, random).then(() => {
                         backgroundSendMessage({
                             name: 'settingBackgroundSuccess',
                             value: index!
@@ -136,8 +116,37 @@ export function settingImage ({ code, index }: {
         });
     } else {
         // 随机切换背景图在组件停止运行前进行，不进行弹框提示
-        return setting();
+        return setting(code, random);
     }
+}
+
+/**
+ * 不同情况的判断
+ * @param code 
+ * @param random 
+ * @returns 
+ */
+function setting(code: string, random: boolean): Promise<void> {
+    return new Promise((resolve, reject) => {
+        let close = false;
+        modifyCssFileForBackground(code).then(() => {
+            if (!random && backgroundImageConfiguration.getBackgroundIsRandom()) {
+                // 如果选中背景图设置则会关闭随机切换背景图
+                close = true;
+                return backgroundImageConfiguration.setBackgroundIsRandom(false);
+            } else {
+                // 如果传入random参数为true，则不会关闭随机切换背景图状态
+                return delay(0);
+            }
+        }).then(() => {
+            if (close) {
+                closeRandomBackground();
+            }
+            resolve();
+        }).catch(err => {
+            reject(err);
+        });
+    });
 }
 
 /**
@@ -285,6 +294,13 @@ export function backgroundImageDataInit () {
         errHandle(err);
     }).finally(() => {
         stringContent = undefined;
+        // 获取当前随机设置背景图的状态，发送响应消息
+        backgroundSendMessage({
+            name: 'backgroundRandomList',
+            value: backgroundImageConfiguration.getBackgroundIsRandom() ? 
+                backgroundImageConfiguration.getBackgroundRandomList() : 
+                false
+        });
     });
 }
 
@@ -458,7 +474,10 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
         try {
             const uri = imageStoreUri();
-            if (!uri) throw new Error('null uri');
+            if (!uri) {
+                reject(new Error('null uri'))
+                return;
+            };
             readDirectoryUri(uri).then(res => {
                 resolve({ files: res, uri });
             }).catch(err => {
@@ -488,7 +507,10 @@ export function createFileStore (base64: string): Promise<{hashCode:string, base
     return new Promise((resolve, reject) => {
         try {
             let uri = imageStoreUri();
-            if (!uri) throw new Error('null uri');
+            if (!uri) {
+                reject(new Error('null uri'));
+                return;
+            }
             const code = newHashCode();
             uri = newUri(uri, code+'.back.wyg');
             writeFileUri(uri, createBuffer(base64)).then(() => {
@@ -513,9 +535,15 @@ export function createFileStore (base64: string): Promise<{hashCode:string, base
 function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
-            if (!hasHashCode(code)) throw new Error('null hash code');
+            if (!hasHashCode(code)) {
+                reject(new Error('null hash code'));
+                return;
+            }
             let uri = imageStoreUri();
-            if (!uri) throw new Error('null uri');
+            if (!uri) {
+                reject(new Error('null uri'));
+                return;
+            }
             uri = newUri(uri, `${code}.back.wyg`);
             uriDelete(uri).then(() => {
                 return codeListRefresh(code, 'delete');

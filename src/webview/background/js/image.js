@@ -22,6 +22,19 @@ function createInstance () {
          * @type {boolean}
         */
         imageInfoLoading;
+        /**
+         * 当前是否设置了随机切换背景图
+        */
+        isRandomBackground = false;
+        /**
+         * 当前设置的随机切换列表
+        */
+        randomList = [];
+        /**
+         * 当前设置随机背景按钮的文字内容。
+         * 1为取消随机；2为设置勾选的图片，3为设置全部图片
+        */
+        settingRandomButtonTextState = 3;
 
         constructor() {
             // 初始化时更新加载状态
@@ -123,15 +136,12 @@ function createInstance () {
                         const batchButton = $query(
                             `.${batchButtonContainerClass}`
                         );
-                        // 切换按钮内文字
-                        const buttonItem = batchButton.querySelector('#'+randomBackId);
                         if (value > 0) {
                             batchButton.classList.add(selectButtonToContainerClass);
-                            if (buttonItem) buttonItem.innerText = rendomSelectBack;
                         } else {
                             batchButton.classList.remove(selectButtonToContainerClass);
-                            if (buttonItem) buttonItem.innerText = rendomAllBack;
                         }
+                        _this.settingRandomButtonText();
                     }
                     return res;
                 },
@@ -183,6 +193,40 @@ function createInstance () {
         }
 
         /**
+         * 根据当前是否已经设置随机切换和勾选的图片数量进行按钮内文字的替换
+         * @returns 
+         */
+        settingRandomButtonText () {
+            // 切换按钮内文字
+            const buttonItem = $query(
+                `.${batchButtonContainerClass} #${randomBackId}`
+            );
+            if (!buttonItem) 
+                return;
+            const length = this.selectImageList.length;
+            if (length > 0) {
+                // 勾选图片长度大于0，按钮点击设置随机背景图
+                if (this.settingRandomButtonTextState === 2)
+                    return;
+                buttonItem.innerText = rendomSelectBack;
+                this.settingRandomButtonTextState = 2;
+            } else {
+                // 未勾选则根据当前是否是随机切换背景图的状态显示文字
+                if (this.isRandomBackground) {
+                    if (this.settingRandomButtonTextState === 1)
+                        return;
+                    buttonItem.innerText = closeRandom;
+                    this.settingRandomButtonTextState = 1;
+                } else {
+                    if (this.settingRandomButtonTextState === 3)
+                        return;
+                    buttonItem.innerText = rendomAllBack;
+                    this.settingRandomButtonTextState = 3;
+                }
+            }
+        }
+
+        /**
          * 插入一个img节点
          * @param {{code:string,src:string,index:number,target?:HTMLElement}} data 图片数据
          * @param {boolean} head 是否从头部插入，默认为true
@@ -193,7 +237,11 @@ function createInstance () {
             const { src, code } = data;
             if (!src) return;
             // 外层容器
-            let el = createELement('div', { class: listImageClass, [imageContainerCodeName]: code, id: imageContainerCode+'-'+code });
+            let el = createELement('div', { 
+                class: `${listImageClass} ${this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''}`, 
+                [imageContainerCodeName]: code, 
+                id: imageContainerCode+'-'+code 
+            });
             // 图片本体
             el.appendChild(createELement('img', { class: imageClass, loading: 'lazy', src }));
             // 操作按钮
@@ -245,6 +293,38 @@ function createInstance () {
             setTimeout(() => {
                 target.remove();
             }, imageAnimationTime);
+        }
+
+        /**
+         * 根据传入的数组为被选为随机切换的图片添加随机状态类名
+         * @param {string[]} array 
+         * @returns 
+         */
+        changeImageStyleToRandomSelect (array) {
+            if (!this.isRandomBackground || !array) return;
+            if (array.length <= 0) {
+                // 小于等于0，所有图片全部设置被选中为随机设置
+                this.getChild()?.forEach(child => {
+                    if (!child.classList.contains(imageIsRandomClass))
+                        child.classList.add(imageIsRandomClass);
+                });
+            } else {
+                // 设置传入的数据
+                this.deleteAllRandomSelectClass();
+                array.forEach(item => {
+                    $query(`.${listImageClass}#${imageContainerCode}-${item}`)?.classList.add(imageIsRandomClass);
+                });
+            }
+        }
+        
+        /**
+         * 清除所有图片的随机设置状态类名
+         */
+        deleteAllRandomSelectClass () {
+            this.getChild()?.forEach(child => {
+                if (child.classList.contains(imageIsRandomClass))
+                    child.classList.remove(imageIsRandomClass);
+            });
         }
 
         /**

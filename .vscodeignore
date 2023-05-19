@@ -12,3 +12,4 @@ resources/background
 src/webview/*/index.css
 src/webview/*/index.js
 test/**
+resources/extension

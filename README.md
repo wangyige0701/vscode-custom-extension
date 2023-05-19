@@ -1,71 +1,22 @@
-# wangyige README
+# Wang Yige 定制扩展
 
-This is the README for your extension "wangyige". After writing up a brief description, we recommend including the following sections.
+为自己定制的vscode扩展，记录并实现一些想法，丰富vscode的使用体验。
 
-## Features
+## 功能
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 自定义vscode软件背景图 [#](#自定义背景图- '自定义背景图详细介绍')
 
-For example if there is an image subfolder under your extension project workspace:
 
-\!\[feature X\]\(images/feature-x.png\)
+### 自定义背景图
+<p align="center">
+    <img src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/extension/background/background-main.png" />
+</p>
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+> 灵感来源于另一个设置背景图的扩展（[background-cover](https://github.com/AShujiao/vscode-background-cover)）
 
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
-
-## Extension Settings
-
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
-This extension contributes the following settings:
-
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
-
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+工作流程
+- 选择背景图，从本地选择或者网络下载图片，将图片转为base64的图片数据并保存于指定路径下。
+- 储存背景图，图片的base64数据在保存时会生成一个哈希码，这个哈希码就是文件名，后面的设置删除等操作都依靠哈希码进行。
+- 设置背景图，通过侧栏打开webview页面后会加载所有保存的背景图，点击后会将对应的哈希码通过通信传递给扩展进行设置。
+  - 设置第一步通过哈希码查找文件，获取储存的base64数据。
+  - 第二步对设置css样式的文件进行修改，一共有两处需要操作。第一个是vscode css样式的源文件，需要在首行添加(`@import url("")`)引入设置背景样式的css文件；设置背景图样式的文件由扩展进行创建，放置于源文件同一个目录下，其中设置了背景图的各个样式和相关动画，并保存有操作时间、版本等信息。

@@ -25,3 +25,21 @@ test('network', () => {
     // console.log(a.match(networkUrl));
     
 });
+
+test('~', () => {
+    function getRandom (start: number, end: number): number {
+        return ~~(Math.random() * (end - start) + start);
+    }
+
+    let a = getRandom(0, 4);
+    console.log(a);
+    
+})
+
+import { toHex } from "../src/utils/hash";
+
+test("hash", () => {
+    let a = toHex(String(203909090));
+    console.log(a);
+    
+})

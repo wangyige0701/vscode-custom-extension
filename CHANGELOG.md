@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.4] - 2023-5-20
+
+- bug修复：切换图片后通过修改引用路径后缀清除缓存
+
 ## [0.0.3] - 2023-5-20
 
 - bug修复：图片储存路径不存在时自动创建对应文件夹

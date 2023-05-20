@@ -1,3 +1,5 @@
+import { toHex } from "./hash";
+
 /**
  * 对字符串进行正则校验
  * @param str {String} 验证字符串
@@ -73,17 +75,25 @@ export function getNonce() {
 }
 
 /**
- * 生成一个指定长度的哈希序列，默认24位
- * @param {number|string} length 生成哈希字符串的长度
- * @returns 返回一个哈希序列
+ * 生成一个指定长度的随机序列，默认24位
+ * @param {number|string} length 生成随机字符串的长度
+ * @returns 返回一个随机序列
  */
-export function getHashCode (length: number | string = 24): string {
+export function getRandomCode (length: number | string = 24): string {
     let str: string = '';
     length = Number(length) || 24 as number;
     for (let i: number = 0; i < length; i++) {
         str += Math.floor(Math.random() * 36).toString(36);
     }
     return str;
+}
+
+/**
+ * 根据时间戳生成一个16进制哈希码
+ * @returns 
+ */
+export function getHashCode (): string {
+    return toHex(String(new Date().getTime()));
 }
 
 /**
@@ -214,11 +224,11 @@ export function voidFunc (): Promise<void> {
 }
 
 /**
- * 生成一个指定范围的随机数
- * @param start 
- * @param end 
+ * 生成一个指定范围的随机整数 [start, end)
+ * @param start 起始位置，闭区间
+ * @param end 结束位置，开区间
  * @returns 
  */
 export function getRandom (start: number, end: number): number {
-    return Math.floor(Math.random() * (end - start) + start);
+    return ~~(Math.random() * (end - start) + start);
 }

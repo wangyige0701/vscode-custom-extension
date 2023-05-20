@@ -44,7 +44,7 @@ export class webviewCreateByHtml implements WebviewViewProvider {
         if (!contextContainer.instance) return;
         this.baseUri = Uri.joinPath(contextContainer.instance.extensionUri, path);
         this.title = title;
-        const publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'src', 'webview');
+        const publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'webview');
         this.vscodeCssUri = newUri(publicFileUri, 'vscode.css');
         this.resetCssUri = newUri(publicFileUri, 'reset.css');
         this.newCssUri = newUri(this.baseUri!, 'index.css');

@@ -14,7 +14,7 @@ export function registBackground (context: ExtensionContext) {
 	contextContainer.instance = context;
 
 	// 设置背景图的侧栏webview注册
-	const backgroundWebview = registWebview('wangyige.custom.backgroundImage', new webviewCreateByHtml('src/webview/background', '背景图片'));
+	const backgroundWebview = registWebview('wangyige.custom.backgroundImage', new webviewCreateByHtml('webview/background', '背景图片'));
 	context.subscriptions.push(backgroundWebview);
 
 	// 命令事件注册

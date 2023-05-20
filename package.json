@@ -2,7 +2,11 @@
 	"name": "wangyige",
 	"displayName": "WangYige",
 	"description": "My custom extension",
-	"version": "0.0.1",
+	"version": "0.0.2",
+	"publisher": "wangyige",
+	"repository": {
+		"url": "https://github.com/wangyige0701/vscodeCustomExtension"
+	},
 	"engines": {
 		"vscode": "^1.78.0"
 	},
@@ -13,7 +17,7 @@
 		"onStartupFinished"
 	],
 	"main": "./out/extension.js",
-	"icon": "https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/image/title.128.png",
+	"icon": "/resources/image/title.128.png",
 	"contributes": {
 		"commands": [
 			{

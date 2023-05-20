@@ -21,6 +21,7 @@
         "dist",
         "**/*.d.ts",
         "resources/background",
+        "resource/extension",
         "test"
     ]
 }

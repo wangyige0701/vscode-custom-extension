@@ -107,15 +107,18 @@ test("regexp", () => {
     // const reg = /\[\s*([\S\s]*\S{1,})\s*\]/
     // console.log(a.match(reg));
     
-    const tagName = 'wangyige.background';
-    const importStartMatch = `\\/\\* ${tagName}.start \\*\\/`;
-    const importEndMatch = `\\/\\* ${tagName}.end \\*\\/`;
+    const tagNameReg = 'wangyige\\.background'; // 标签名正则
+    const importStartMatch = `\\/\\*\\s\*${tagNameReg}\\.start\\s\*\\*\\/`; // 匹配开始标签正则
+    const importEndMatch = `\\/\\*\\s\*${tagNameReg}\\.end\\s\*\\*\\/`; // 匹配结束标签正则
 
     const s = '\\s\*'; // 任意空格
     const a = '\[\\s\\S\]\*'; // 任意字符
     const ans = '\\S\*'; // 任意字符不包括空格
     const ant = '\.\*'; // 任意字符不包括换行
     const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
+    const n = '\\d\*'; // 任意数字
+    const w = '\\w\*'; // 任意单词
+    const nw = '[\\d\\w]\*'; // 任意单词和数字
     /**
      * 匹配源css文件正则
      */
@@ -142,13 +145,34 @@ test("regexp", () => {
         return `${name}${s}\\[${s}${asa}${s}\\]`;
     }
 
+    /**
+     * 捕获源css文件引用文本中的问号后接内容
+    */
+    const findSourceCssVersionContent = 
+        `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
+    const findSourceCssVersionContentRegexp = new RegExp(findSourceCssVersionContent);
+
     const content = `/* wangyige.background.start */
     body {
         opacity  :  10 ;
         background::
     }
     /* wangyige.background.end */`
-    console.log(content.match(findImageCssOpacityData));
+    // console.log(content.match(findImageCssOpacityData));
+
+    const test11 = `/* wangyige.background.start */
+    @import url("./backgroundImageInfo.css?1684558218053");
+    /* wangyige.background.end */`;
+    // console.log(findSourceCssVersionContentRegexp);    
+    console.log(test11.match(findSourceCssVersionContentRegexp));
+    // console.log(test11.match(new RegExp(`${importEndMatch}`)));
+    
+    
+    // console.log(importStartMatch);
+    // console.log('/*  wangyige.background.start   */'.match(importStartMatch));
+    
+    
+
     
 });
 

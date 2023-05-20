@@ -9,9 +9,12 @@ import { setRandomBackground } from "./modifyRandom";
  * @param context 
  */
 export function registBackground (context: ExtensionContext) {
-    // 检测配置完整
-	WindowInitCheckCssModifyCompleteness();
 	contextContainer.instance = context;
+    // 检测配置完整
+	WindowInitCheckCssModifyCompleteness().then(() => {
+		// 开启后判断是否随机修改背景
+		setRandomBackground();
+	});
 
 	// 设置背景图的侧栏webview注册
 	const backgroundWebview = registWebview('wangyige.custom.backgroundImage', new webviewCreateByHtml('webview/background', '背景图片'));
@@ -21,7 +24,4 @@ export function registBackground (context: ExtensionContext) {
 	commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);
 	commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
 	commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
-
-	// 开启后判断是否随机修改背景
-	setRandomBackground();
 }

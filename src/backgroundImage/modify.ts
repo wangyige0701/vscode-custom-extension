@@ -23,22 +23,33 @@ const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.ma
 const externalFileName = 'backgroundImageInfo.css';
 
 const tagName = 'wangyige.background'; // 标签名
+const tagNameReg = 'wangyige\\.background'; // 标签名正则
 const importStart = `/* ${tagName}.start */`; // 开始标签
 const importEnd = `/* ${tagName}.end */`; // 结束标签
-const importStartMatch = `\\/\\* ${tagName}.start \\*\\/`; // 匹配开始标签正则
-const importEndMatch = `\\/\\* ${tagName}.end \\*\\/`; // 匹配结束标签正则
+const importStartMatch = `\\/\\*\\s\*${tagNameReg}\\.start\\s\*\\*\\/`; // 匹配开始标签正则
+const importEndMatch = `\\/\\*\\s\*${tagNameReg}\\.end\\s\*\\*\\/`; // 匹配结束标签正则
 
 const s = '\\s\*'; // 任意空格
 const a = '\[\\s\\S\]\*'; // 任意字符
 const ans = '\\S\*'; // 任意字符不包括空格
 const ant = '\.\*'; // 任意字符不包括换行
 const asa = '\\S\*\.\*\\S\{1\,\}';// 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾
+const n = '\\d\*'; // 任意数字
+const w = '\\w\*'; // 任意单词
+const nw = '[\\d\\w]\*'; // 任意单词和数字
 
 /**
  * 匹配源及外部css文件修改内容标签范围正则文本，捕获标签中的内容
  */
 const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
 const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
+
+/**
+ * 捕获源css文件引用文本中的问号后接内容
+*/
+const findSourceCssVersionContent = 
+    `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
+const findSourceCssVersionContentRegexp = new RegExp(findSourceCssVersionContent);
 
 /**
  * 匹配外部css文件并捕获注释信息正则文本
@@ -191,9 +202,10 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
 
 /**
  * 将导入语句写入主样式文件中
+ * @param init 是否是初始化调用，初始化调用此方法为校验，不需要进行文件修改
  * @returns 
  */
-export function setSourceCssImportInfo () : Promise<{modify:boolean}> {
+export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
         try {
             getSourceCssFileContent().then(data => {
@@ -204,17 +216,24 @@ export function setSourceCssImportInfo () : Promise<{modify:boolean}> {
                     // 没有数据返回false
                     throw { jump: true, modify: false };
                 }
-            }).then((data) => {
-                if (data === true) {
-                    throw { jump: true, modify: false };
+            }).then(({ content, uri, exits }) => {
+                const nowDate = new Date().getTime();
+                let resContent: Buffer;
+                if (exits === true) {
+                    // 修改过源文件需要更换路径后的时间戳，去除缓存
+                    if (!init) {
+                        resContent = createBuffer(content.replace(findSourceCssVersionContentRegexp, `$1${nowDate}$3`));
+                    } else {
+                        // 源文件满足修改格式并且当前是初始化校验调用，则不进行文件改写并且通知外部函数当前未修改
+                        throw { jump: true, modify: false };
+                    }
+                } else {
+                    // 没有修改过源文件直接修改
+                    resContent = createBuffer(`${importStart+'\n'
+                        }@import url("./${externalFileName}?${nowDate}");${
+                        '\n'+importEnd}`+content);
                 }
-                const { content, uri } = data!;
-                return writeFileUri(
-                    uri!,
-                    createBuffer(`${importStart+'\n'
-                    }@import url("./${externalFileName}");${
-                    '\n'+importEnd}`+content)
-                );
+                return writeFileUri(uri, resContent);
             }).then(() => {
                 resolve({ modify: true });
             }).catch(err => {
@@ -520,15 +539,15 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
  * @param uri 
  * @returns 
  */
-function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content?:string, uri?:Uri } | true> {
+function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:string, uri:Uri, exits:boolean }> {
     return new Promise(resolve => {
         try {
             const reg = content.match(findSourceCssPositionRegexp);
-            // 有匹配项返回去，不需要继续插入
+            // 有匹配项返回，exits字段为true
             if (reg) {
-                resolve(true);
+                resolve({ content, uri, exits: true });
             } else {
-                resolve({ content, uri })
+                resolve({ content, uri, exits: false })
             }
         } catch (error) {
             errHandle(error);

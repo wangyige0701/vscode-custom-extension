@@ -28,15 +28,16 @@ var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefa
 /**
  * vscode初始化后检测背景配置是否完整
  */
-export function WindowInitCheckCssModifyCompleteness () {
+export async function WindowInitCheckCssModifyCompleteness () {
     // 检查css文件是否正确
-	checkImageCssDataIsRight().then(state => {
+	await checkImageCssDataIsRight().then(state => {
 		if (state) 
 			// 需要重启应用背景
 			isWindowReloadToLoadBackimage('背景图设置文件被修改或删除，需要重启窗口以应用背景');
 	}).catch(err => {
 		errHandle(err);
 	});
+    return Promise.resolve();
 }
 
 /**
@@ -53,7 +54,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
                 throw { jump: true, data: false };
             }
             let state = false;
-            setSourceCssImportInfo().then((res) => {
+            setSourceCssImportInfo(true).then((res) => {
                 state = state || res.modify;
                 return checExternalDataIsRight();
             }).then((res) => {

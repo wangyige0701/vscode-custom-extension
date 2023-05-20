@@ -401,14 +401,16 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
 function getExternalCssContent (codeValue: string): Promise<[string, info] | false> {
     return new Promise((resolve, reject) => {
         try {
-            const imageUri = imageStoreUri();
-            if (!imageUri) {
-                reject(new Error('null uri'));
-                return;
-            }
+            let imageUri: Uri;
             const extensionVer = getVersion();
             const date = getDate();
-            getExternalFileContent().then(content => {
+            imageStoreUri().then(uri => {
+                if (!uri) {
+                    throw new Error('null uri');
+                }
+                imageUri = uri;
+                return getExternalFileContent();
+            }).then(content => {
                 return findInfo(content[0]);
             }).then(data => {
                 if (data) {

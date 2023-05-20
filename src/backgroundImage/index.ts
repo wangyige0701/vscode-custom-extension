@@ -257,6 +257,7 @@ export function selectImage () {
  */
 export function backgroundImageDataInit () {
     let length: number = 0, stringContent: string[][] | undefined;
+    let success: boolean = false;
     selectAllImage().then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
@@ -269,6 +270,7 @@ export function backgroundImageDataInit () {
             name: 'backgroundInitData',
             value: stringContent!
         });
+        success = true;
         length = stringContent!.length;
         // 判断已选中的图片
         return checkCurentImageIsSame(backgroundImageConfiguration.getBackgroundNowImagePath());
@@ -290,6 +292,13 @@ export function backgroundImageDataInit () {
         }
     }).catch(err => {
         errHandle(err);
+        if (!success) {
+            // 出错判断初始化数据有没有发送
+            backgroundSendMessage({
+                name: 'backgroundInitData',
+                value: []
+            });
+        }
     }).finally(() => {
         stringContent = undefined;
         // 获取当前随机设置背景图的状态，发送响应消息
@@ -465,19 +474,21 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
 }
 
 /**
- * 获取背景图目录下的所有文件
+ * 获取背景图目录下的所有文件，并校验路径下的文件夹是否存在
  * @returns {Promise<{ files: [string, FileType][], uri: Uri }>}
  */
 function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
         try {
-            const uri = imageStoreUri();
-            if (!uri) {
-                reject(new Error('null uri'))
-                return;
-            };
-            readDirectoryUri(uri).then(res => {
-                resolve({ files: res, uri });
+            let _uri: Uri;
+            imageStoreUri().then(uri => {
+                if (!uri) {
+                    throw new Error('null uri');
+                }
+                _uri = uri;
+                return readDirectoryUri(uri);
+            }).then(res => {
+                resolve({ files: res, uri: _uri });
             }).catch(err => {
                 reject(err);
             });
@@ -504,14 +515,14 @@ function newHashCode (): string {
 export function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
     return new Promise((resolve, reject) => {
         try {
-            let uri = imageStoreUri();
-            if (!uri) {
-                reject(new Error('null uri'));
-                return;
-            }
-            const code = newHashCode();
-            uri = newUri(uri, code+'.back.wyg');
-            writeFileUri(uri, createBuffer(base64)).then(() => {
+            const code: string = newHashCode();
+            imageStoreUri().then(uri => {
+                if (!uri) {
+                    throw new Error('null uri');
+                }
+                uri = newUri(uri, code+'.back.wyg');
+                return writeFileUri(uri, createBuffer(base64));
+            }).then(() => {
                 // 新增一个哈希码数据
                 return codeListRefresh(code);
             }).then(() => {
@@ -537,13 +548,13 @@ function deleteFileStore (code: string): Promise<string> {
                 reject(new Error('null hash code'));
                 return;
             }
-            let uri = imageStoreUri();
-            if (!uri) {
-                reject(new Error('null uri'));
-                return;
-            }
-            uri = newUri(uri, `${code}.back.wyg`);
-            uriDelete(uri).then(() => {
+            imageStoreUri().then(uri => {
+                if (!uri) {
+                    throw new Error('null uri');
+                }
+                uri = newUri(uri, `${code}.back.wyg`);
+                return uriDelete(uri);
+            }).then(() => {
                 return codeListRefresh(code, 'delete');
             }).then(() => {
                 resolve(code);

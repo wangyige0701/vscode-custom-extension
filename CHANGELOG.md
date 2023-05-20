@@ -6,4 +6,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.3] - 2023-5-20
+
+- 修复图片储存路径不存在时自动创建对应文件夹
+
+## [0.0.2] - 2023-5-20
+
+- webview页面未显示，相关文件未进行打包修复
+
+## [0.0.1] - 2023-5-20
+
+- 添加背景图功能实现
+
 - Initial release
+
+[0.0.2]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.2
+[0.0.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.1

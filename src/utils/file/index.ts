@@ -104,6 +104,25 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
 }
 
 /**
+ * 创建文件夹
+ * @param uri 
+ * @returns 
+ */
+export function createDirectoryUri (uri: Uri): Promise<Uri> {
+    return new Promise((resolve, reject) => {
+        try {
+            workspace.fs.createDirectory(uri).then(() => {
+                resolve(uri);
+            }, err => {
+                reject(err);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
  * 查看文件内容
  * @param uri 
  * @returns 

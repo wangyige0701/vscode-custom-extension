@@ -1,4 +1,4 @@
-import { joinPathUri } from "../utils/file";
+import { createDirectoryUri, isFileExits, joinPathUri } from "../utils/file";
 import { setMessage, setStatusBar } from "../utils/interactive";
 import { windowReload } from "../utils/system";
 import { contextContainer } from "../utils/webview";
@@ -9,22 +9,62 @@ import { minmax } from "../utils";
 import { backgroundSendMessage } from "./execute";
 
 /**
- * 获取储存背景图资源的uri
+ * 获取储存背景图资源的uri，指定路径不存在则会进行创建
  * @returns {Uri|undefined}
  */
-export function imageStoreUri (): Uri | undefined {
-    let uri: string | Uri | undefined = backgroundImageConfiguration.getBackgroundStorePath();
-    if (uri) {
-        // 缓存内有路径数据，返回uri
-        return Uri.file(uri);
-    }
-    // 没有缓存数据则获取插件路径
-    uri = contextContainer.instance?.extensionUri;
-    if (uri) {
-        return joinPathUri(uri, 'resources', 'background');
-    } else {
-        return;
-    }
+export function imageStoreUri (): Promise<Uri | void> {
+    return new Promise((resolve, reject) => {
+        try {
+            let uri: string | Uri | undefined = backgroundImageConfiguration.getBackgroundStorePath();
+            if (uri) {
+                // 缓存内有路径数据
+                uri = Uri.file(uri);
+            } else {
+                // 没有缓存数据则获取插件路径
+                uri = contextContainer.instance?.extensionUri;
+                if (uri) {
+                    uri = joinPathUri(uri, 'resources', 'background');
+                } else {
+                    uri = undefined;
+                }
+            }
+            if (!uri) {
+                resolve();
+            } else {
+                imageStoreUriExits(uri).then(uri => {
+                    resolve(uri);
+                }).catch(err => {
+                    reject(err);
+                });
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
+ * 校验指定路径是否存在，不存在进行创建
+ * @param uri 
+ * @returns 
+ */
+export function imageStoreUriExits (uri: Uri): Promise<Uri> {
+    return new Promise((resolve, reject) => {
+        if (uri) {
+            isFileExits(uri).then(res => {
+                if (!res) {
+                    // 文件夹不存在进行创建
+                    return createDirectoryUri(uri);
+                }
+            }).then(() => {
+                resolve(uri);
+            }).catch(err => {
+                reject(err);
+            });
+        } else {
+            reject(new Error('Uri undefindef'));
+        }
+    });
 }
 
 /**

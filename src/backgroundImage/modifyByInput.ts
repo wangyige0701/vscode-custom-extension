@@ -6,7 +6,7 @@ import { imageUrl } from "../utils/regexp";
 import { GetImage } from "../utils/request/utils";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute";
-import { getExternalCssModifyOpacityContent, getExternalFileContent, writeExternalCssFile } from "./modify";
+import { getExternalCssModifyOpacityContent, getExternalFileContent, setSourceCssImportInfo, writeExternalCssFile } from "./modify";
 import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils";
 
 /**
@@ -98,6 +98,8 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
             getExternalFileContent().then(data => {
                 const content = getExternalCssModifyOpacityContent(data[0], getNewBackgroundOpacity(opacity));
                 return writeExternalCssFile(content);
+            }).then(() => {
+                return setSourceCssImportInfo();
             }).then(() => {
                 resolve(true);
             }).catch(err => {

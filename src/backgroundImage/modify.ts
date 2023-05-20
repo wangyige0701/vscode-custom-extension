@@ -77,7 +77,7 @@ const findExternalCssOpacityDataRegexp = new RegExp(findExternalCssOpacityData);
  * 对外部css文件的透明度进行修改的正则，包括动画样式内的透明度
 */
 const externalCssOpacityModify = 
-    `(${importStartMatch}${a}vscode-body-opacity${s}\{${a}to${s}\{${a
+    `(${importStartMatch}${a}vscode-body-opacity-wyg${s}\{${a}to${s}\{${a
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}body${s}\{${a
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}${importEndMatch})`;
 const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);

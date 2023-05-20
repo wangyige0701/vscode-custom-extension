@@ -504,8 +504,9 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
  * @returns 
  */
 function newHashCode (): string {
-    let code = getHashCode();
-    if (hasHashCode(code)) code = newHashCode();
+    let code: string = getHashCode();
+    if (hasHashCode(code)) 
+        code = newHashCode();
     return code;
 }
 

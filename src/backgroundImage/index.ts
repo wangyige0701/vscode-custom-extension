@@ -6,9 +6,10 @@ import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { changeLoadState, closeRandomBackground, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess, setBackgroundInfoOnStatusBar } from "./utils";
 import { backgroundSendMessage } from "./execute";
-import { checExternalDataIsRight, checkCurentImageIsSame, deletebackgroundCssFileModification, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
+import { checExternalDataIsRight, deletebackgroundCssFileModification, modifyCssFileForBackground, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
 import { bisectionAsce } from "../utils/algorithm";
+import { randomSettingBackground } from "./modifyRandom";
 
 /**
  *  图片类型过滤规则
@@ -204,6 +205,11 @@ export function clearBackgroundConfig () {
                         increment: 100
                     });
                     return delay(1500);
+                }).then(() => {
+                    if (backgroundImageConfiguration.getBackgroundIsRandom()) {
+                        // 如果当前设置了随机切换，需要关闭
+                        randomSettingBackground(false, false);
+                    }
                 }).catch(err => {
                     errHandle(err);
                 }).finally(() => {
@@ -273,24 +279,26 @@ export function backgroundImageDataInit () {
         });
         success = true;
         length = stringContent!.length;
-        // 判断已选中的图片
-        return checkCurentImageIsSame(backgroundImageConfiguration.getBackgroundNowImagePath());
-    }).then(data => {
-        if (data.state) {
+    }).then(() => {
+        // 通过缓存获取图片哈希码发送
+        const state = backgroundImageConfiguration.getBackgroundIsSetBackground();
+        if (state) {
             backgroundSendMessage({
                 name: 'settingBackgroundSuccess',
-                value: data.code as string
+                value: backgroundImageConfiguration.getBackgroundNowImagePath()
             });
-            // 发送当前透明度
-            backgroundSendMessage({
-                name: 'nowBackgroundOpacity',
-                value: backgroundImageConfiguration.getBackgroundOpacity()
-            });
-            // 延迟指定时间后修改状态栏信息
+        }
+    }).then(() => {
+        // 发送当前透明度
+        backgroundSendMessage({
+            name: 'nowBackgroundOpacity',
+            value: backgroundImageConfiguration.getBackgroundOpacity()
+        });
+        // 延迟指定时间后修改状态栏信息，仅当图片数量大于0时显示
+        if (length > 0)
             setBackgroundInfoOnStatusBar('侧栏列表初始化中', 'loading~spin', length * 500, () => {
                 setBackgroundImageSuccess('侧栏列表初始化成功');
             });
-        }
     }).catch(err => {
         errHandle(err);
         if (!success) {

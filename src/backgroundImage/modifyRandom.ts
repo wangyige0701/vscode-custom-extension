@@ -1,6 +1,6 @@
 import { settingImage } from ".";
 import { errHandle } from "../error";
-import { getRandom } from "../utils";
+import { delay, getRandom } from "../utils";
 import { setMessage } from "../utils/interactive";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute";
@@ -9,10 +9,15 @@ import { closeRandomBackground, isChangeBackgroundImage } from "./utils";
 /**
  * 记录随机设置背景图的相关数据，并更新状态
  * @param value 
+ * @param tip 是否弹出提示
  */
-export function randomSettingBackground (value: string[] | false) {
+export function randomSettingBackground (value: string[] | false, tip: boolean = true) {
     if (value === false) {
-        isChangeBackgroundImage('是否关闭背景图随机切换？').then(() => {
+        // 根据tip参数判断是否需要显示弹框提示
+        delay(0).then(() => {
+            if (tip) 
+                return isChangeBackgroundImage('是否关闭背景图随机切换？');
+        }).then(() => {
              return backgroundImageConfiguration.setBackgroundIsRandom(false);
         }).then(() => {
             closeRandomBackground();

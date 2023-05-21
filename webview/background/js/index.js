@@ -318,21 +318,76 @@ function voidDelay (callback, time=imageAnimationTime) {
 }
 
 /**
+ * 接收加载完成的图片插入方法数据，倒序遍历执行并且对每一个函数进行阻塞
+ * @param {(() => Promise<void>)[]} promise 
+ * @returns 
+ */
+function delayHandle (promise) {
+    return new Promise(async (resolve) => {
+        let length = promise.length;
+        for (let i = length-1; i >= 0; i--) {
+            let item = promise[i];
+            if (!item) continue;
+            await item();
+        }
+        resolve();
+    }); 
+}
+
+/**
  * 延迟加载所有图片
  * @param {string[][]} array 
  * @param {() => any} callback 
  */
-async function delayAddImage (array, callback=undefined) {
-    const length = array.length;
-    for (let i = length - 1; i >= 0; i--) {
-        await voidDelay(() => {
-            publicData.imageRenderList?.unshift({
-                src: array[i][0],
-                code: array[i][1]
-            });
+function delayAddImage (array, callback=undefined) {
+    let imageArray = [];
+    array.forEach((item, index) => {
+        // 执行图片加载方法
+        imageArray.push(loadImage(item[0], index));
+    });
+    Promise.allSettled(imageArray).then(res => {
+        imageArray.splice(0, imageArray.length);
+        res.forEach(({ status, value }) => {
+            if (status === 'fulfilled') {
+                // 加载成功的图片数据传参给延迟执行的函数并且插入数组执行
+                imageArray.push(voidDelay.bind(null, () => {
+                    publicData.imageRenderList?.unshift({
+                        src: array[value][0],
+                        code: array[value][1]
+                    });
+                }));
+            }
         });
-    }
-    callback?.();
+        // 执行完成后调用回调函数
+        delayHandle(imageArray).then(() => {
+            callback?.();
+        });
+        imageArray = null;
+    });
+}
+
+/**
+ * 通过Image方法进行图片初始化加载，加载成功或者缓存内有数据就resolve
+ * @param {string} src 
+ * @param {number} index 
+ * @returns 
+ */
+function loadImage (src, index) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        if (img.complete) {
+            resolve(index);
+        } else {
+            img.onload = function () {
+                resolve(index);
+            }
+            img.onerror = function (e) {
+                console.log(e);
+                reject(e);
+            }
+        }
+        img.src = src;
+    });
 }
 
 /**

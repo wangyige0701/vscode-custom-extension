@@ -252,7 +252,7 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
 /**
  * 检查指定code是否是当前设置背景图的code
  * @param codeValue 
- * @returns 如果state为false时也传了code，则此code是最新需要被设置的图片code码
+ * @returns 如果state为false时也传了code，则此code是最新需要被设置的图片哈希码
  */
 export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
     return new Promise((resolve, reject) => {

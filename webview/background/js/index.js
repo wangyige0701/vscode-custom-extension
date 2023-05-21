@@ -382,7 +382,6 @@ function loadImage (src, index) {
                 resolve(index);
             }
             img.onerror = function (e) {
-                console.log(e);
                 reject(e);
             }
         }

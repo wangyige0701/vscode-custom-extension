@@ -85,7 +85,7 @@ const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 /**
  * 修改外部css文件的背景图属性
  */
-export function modifyCssFileForBackground (codeValue: string): Promise<void> {
+export function modifyCssFileForBackground (codeValue: string, random: boolean = false): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             if (!codeValue) {
@@ -101,7 +101,7 @@ export function modifyCssFileForBackground (codeValue: string): Promise<void> {
                 infoContent = res[1];
                 return writeExternalCssFile(res[0]);
             }).then(() => {
-                return settingConfiguration(infoContent!);
+                return settingConfiguration(infoContent!, random);
             }).then(() => {
                 return setSourceCssImportInfo();
             }).then(() => {
@@ -288,11 +288,16 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
  * 设置当前背景哈希码缓存，将是否设置背景状态值改为true
  * @param options 
  */
-function settingConfiguration (options: info): Promise<void> {
+function settingConfiguration (options: info, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
         if (options) {
-            backgroundImageConfiguration.setBackgroundNowImagePath(options.ImageCode).then(() => {
-                return backgroundImageConfiguration.setBackgroundIsSetBackground(true);
+            backgroundImageConfiguration.setBackgroundIsSetBackground(true).then(() => {
+                // 当不是随机切换时，将code存入当前图片缓存，否则存入随机切换图片缓存
+                if (!random) {
+                    return backgroundImageConfiguration.setBackgroundNowImagePath(options.ImageCode);
+                } else  {
+                    return backgroundImageConfiguration.setBackgroundRandomCode(options.ImageCode);
+                }
             }, err => {
                 reject(err);
             }).then(() => {

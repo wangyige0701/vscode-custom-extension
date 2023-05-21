@@ -196,5 +196,22 @@ export const backgroundImageConfiguration = {
      */
     setBackgroundRandomList (value: string[]): Thenable<void> {
         return backgroundImageConfiguration.setBackgroundConfiguration('randomList', value);
+    },
+
+    /**
+     * 获取下一次启动时随机切换的图片哈希码
+     * @returns 
+     */
+    getBackgroundRandomCode (): string {
+        return backgroundImageConfiguration.getBackgroundConfiguration('randomCode');
+    },
+
+    /**
+     * 设置下一次启动时随机切换的图片哈希码
+     * @param value 
+     * @returns 
+     */
+    setBackgroundRandomCode (value: string): Thenable<void> {
+        return backgroundImageConfiguration.setBackgroundConfiguration('randomCode', value);
     }
 }

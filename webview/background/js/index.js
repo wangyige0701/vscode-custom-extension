@@ -363,8 +363,7 @@ function deleteImageHandle (value) {
     for (let i = 0; i < listInstance.selectImageList.length; i++) {
         let item = listInstance.selectImageList[i];
         if (item === value || value.includes(item)) {
-            listInstance.selectImageList.splice(i, 1);
-            i--;
+            listInstance.selectImageList.splice(i--, 1);
         }
     }
 }

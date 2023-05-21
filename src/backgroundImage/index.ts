@@ -130,7 +130,7 @@ export function settingImage ({ code, index }: {
 function setting(code: string, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
         let close = false;
-        modifyCssFileForBackground(code).then(() => {
+        modifyCssFileForBackground(code, random).then(() => {
             // 如果传入random参数为true，则不会关闭随机切换背景图状态
             if (!random && backgroundImageConfiguration.getBackgroundIsRandom()) {
                 // 如果选中背景图设置则会关闭随机切换背景图

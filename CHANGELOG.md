@@ -6,6 +6,14 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.6] - 2023-5-21
+
+- 优化：webview页面图片加载优化
+
+## [0.0.5] - 2023-5-21
+
+- bug修复：透明度修改失败修复
+
 ## [0.0.4] - 2023-5-20
 
 - bug修复：切换图片后通过修改引用路径后缀清除缓存
@@ -21,9 +29,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 ## [0.0.1] - 2023-5-20
 
 - 发布：添加背景图功能实现
-
+> end
 - Initial release
 
+[0.0.6]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.6
+[0.0.5]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.5
+[0.0.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.4
 [0.0.3]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.3
 [0.0.2]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.2
 [0.0.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.1

@@ -91,8 +91,26 @@ async function testb (array) {
     }
 }
 
-testb([
+/* testb([
     time.bind(2000),
     time.bind(3000),
     time.bind(5000)
-])
+]) */
+
+function loop (t) {
+    return new Promise((resolve) => {
+        time(0).then(() => {
+            if (t > 1) {
+                return loop(--t);
+            }
+        }).then(() => {
+            console.log('result');
+            resolve(t);
+        });
+    })
+}
+
+loop(10).then(res => {
+    console.log(res);
+    console.log('end');
+})

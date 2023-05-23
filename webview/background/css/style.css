@@ -45,37 +45,66 @@ button.button:not(.isloading) > span.iconfont {
 /* 多选时的切换按钮 */
 div.batch-operation {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
 	flex-wrap: nowrap;
 	margin-top: 10px;
 	--vscode-button-warnBackground: #9c0e0e;
 	--vscode-button-warnHoverBackground: #bb1111;
 	--vscode-warnFocusBorder: #d40000;
+	--vscode-button-cancelBackground: #9c860e;
+	--vscode-button-cancelHoverBackground: #bb8911;
+	--vscode-cancelFocusBorder: #d47800;
 }
 
-div.batch-operation > button.button {
+div.batch-operation > div[class^=batch-operation-index-] {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+}
+
+div.batch-operation > div[class^=batch-operation-index-]:not(:last-child) {
+	margin-bottom: 10px;
+}
+
+div.batch-operation button.button {
 	flex: 1;
 	width: 100%;
 }
 
-div.batch-operation:not(.container-icon-select) > button.button.batch {
+div.batch-operation:not(.container-icon-select) button.button.batch {
 	display: none;
 }
 
-div.batch-operation > button.button:nth-child(2) {
+div.batch-operation > div[class^=batch-operation-index-] > button.button:not(:first-child) {
 	margin-left: 5px;
 }
 
-div.batch-operation > button.button.delete {
+div.batch-operation button.button.delete {
 	background: var(--vscode-button-warnBackground);
 }
 
-div.batch-operation > button.button.delete:hover {
+div.batch-operation button.button.delete:hover {
 	background: var(--vscode-button-warnHoverBackground);
 }
 
-div.batch-operation > button.button.delete:focus {
+div.batch-operation button.button.delete:focus {
 	outline-color: var(--vscode-warnFocusBorder);
+}
+
+div.batch-operation button.button.cancel {
+	background: var(--vscode-button-cancelBackground);
+}
+
+div.batch-operation button.button.cancel:hover {
+	background: var(--vscode-button-cancelHoverBackground);
+}
+
+div.batch-operation button.button.cancel:focus {
+	outline-color: var(--vscode-cancelFocusBorder);
+}
+
+div.batch-operation:not(.container-icon-select) div.batch-operation-index-two {
+	display: none;
 }
 
 /* 列表区域 */

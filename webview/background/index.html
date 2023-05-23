@@ -30,8 +30,14 @@
                 <span class="iconfont"></span>上传本地图片
             </button>
             <div class="batch-operation">
-                <button class="button single" id="randomBack">随机设置（全部）</button>
-                <button class="button delete batch" id="batchDelete">删除选中图片</button>
+                <div class="batch-operation-index-one">
+                    <button class="button single" id="randomBack">随机设置（全部）</button>
+                    <button class="button delete batch" id="batchDelete">删除选中图片</button>
+                </div>
+                <div class="batch-operation-index-two">
+                    <button class="button" id="selectAll">全选</button>
+                    <button class="button cancel" id="selectCancel">取消选中</button>
+                </div>
             </div>
         </header>
         <nav class="list" id="list">

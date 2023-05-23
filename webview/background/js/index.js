@@ -10,6 +10,8 @@ const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片�
 const batchButtonContainerClass = 'batch-operation'; // 删除或批量设置按钮区域容器类名
 const batchDeleteId = 'batchDelete'; // 批量删除按钮
 const randomBackId = 'randomBack'; // 背景图随机设置按钮
+const selectAllId = 'selectAll'; // 全部选中按钮
+const selectCancelId = 'selectCancel'; // 取消选中按钮
 const rendomAllBack = '随机切换（全部）';
 const rendomSelectBack = '随机切换（选中）';
 const closeRandom = '关闭随机切换';
@@ -92,13 +94,19 @@ const operationQueue = [];
 window.addEventListener('load', onDataLoad.bind(this, false));
 
 // 添加图片按钮点击事件绑定
-document.getElementById(selectButtonId).addEventListener('click', buttonClickSelectImage);
+getId(selectButtonId)?.addEventListener('click', buttonClickSelectImage);
 
 // 批量删除按钮绑定事件
-document.getElementById(batchDeleteId).addEventListener('click', buttonClickDeleteSelect);
+getId(batchDeleteId)?.addEventListener('click', buttonClickDeleteSelect);
 
 // 批量随机设置背景图事件
-document.getElementById(randomBackId).addEventListener('click', buttonClickRandomBackground);
+getId(randomBackId)?.addEventListener('click', buttonClickRandomBackground);
+
+// 全选按钮点击事件
+getId(selectAllId)?.addEventListener('click', buttonClickSelectAll);
+
+// 取消全选按钮点击事件
+getId(selectCancelId)?.addEventListener('click', buttonClickSelectCancel);
 
 // 脚本侧通信接收事件
 window.addEventListener('message', receiveMessage);
@@ -254,6 +262,32 @@ function buttonClickRandomBackground () {
         name: 'randomBackground',
         value
     });
+}
+
+/**
+ * 选中列表所有图片
+ */
+function buttonClickSelectAll () {
+    listInstance.getChild()?.forEach(child => {
+        let code;
+        if ((code = listInstance.getCodeValue(child)) && !listInstance.selectImageList.includes(code)) {
+            listInstance.selectImageList.push(code);
+        }
+    });
+}
+
+/**
+ * 取消列表所有图片的选中
+ */
+function buttonClickSelectCancel () {
+    let length = listInstance.selectImageList.length;
+    if (length > 0) {
+        let i = 0;
+        while (i < length) {
+            listInstance.selectImageList.splice(i, 1);
+            length--;
+        }
+    }
 }
 
 /**

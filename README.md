@@ -49,6 +49,10 @@
     <p align="center">
       <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/docs/background/checkbox.png" />
     </p>
+    选中了一张图片后，可以进行全选和取消全选的操作
+    <p align="center">
+      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscodeCustomExtension/master/resources/docs/background/select-all.png" />
+    </p>
   - 随机切换：
     除了可以设置某张图片为背景，还可以设置多张图片在每次打开软件时切换背景。方式有两种：
     1、随机切换所有图片，不选中任意图片，点击`随机切换（全部）`按钮可以切换所有图片的任意一张，设置完成后上传的图片也在切换对象中。

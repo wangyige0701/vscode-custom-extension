@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.7] - 2023-5-23
+
+- 优化：删除图片同时删除随机切换数据列表内的对应数据
+- 优化：选中一张图片后显示全选和取消选中的操作按钮
+
 ## [0.0.6] - 2023-5-21
 
 - 优化：webview页面图片加载优化
@@ -32,6 +37,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.0.7]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.7
 [0.0.6]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.6
 [0.0.5]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.5
 [0.0.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.4

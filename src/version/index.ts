@@ -1,6 +1,6 @@
 
 
-const PROJECT_ENV: "development" | "production" = "production";
+const PROJECT_ENV: "development" | "production" = "development";
 
 /**
  * 是否是开发环境

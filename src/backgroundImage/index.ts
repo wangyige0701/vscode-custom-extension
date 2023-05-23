@@ -358,6 +358,16 @@ async function codeListRefresh (code: string, state: codeChangeType='add'): Prom
         const index = backgroundImageCodeList.findIndex(item => item === code);
         backgroundImageCodeList.splice(index, 1);
         modify = true;
+        // 判断删除图片是否在随机切换数组中
+        const rendomList = backgroundImageConfiguration.getBackgroundRandomList();
+        if (rendomList.length > 0 && rendomList.includes(code)) {
+            // 如果在，则更新随机数组
+            await backgroundImageConfiguration.setBackgroundRandomList(
+                rendomList.splice(rendomList.findIndex(item => item === code, 1))
+            ).then(() => {}, err => {
+                errHandle(err);
+            });
+        }
     } else if (state === 'check') {
         const index = backgroundImageCodeList.findIndex(item => item === code);
         if (index < 0) 

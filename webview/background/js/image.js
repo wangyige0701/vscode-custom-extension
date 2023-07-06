@@ -103,8 +103,14 @@ function createInstance () {
                 });
                 // 长度大于0，关闭文字区域
                 value > 0 ? 
-                    this.changeImageListInfo(false) : 
-                    this.changeImageListInfo(true);
+                    (
+                        this.changeImageListInfo(false),
+                        getId(selectButtonId)?.setAttribute('title', `上传本地图片（已上传${value}张）`)
+                    ) : 
+                    (
+                        this.changeImageListInfo(true),
+                        getId(selectButtonId)?.setAttribute('title', `上传本地图片`)
+                    );
             }
             return Reflect.set(target, property, value, receiver);
         }
@@ -224,6 +230,8 @@ function createInstance () {
                     this.settingRandomButtonTextState = 3;
                 }
             }
+            // 设置按钮标题
+            getId(randomBackId)?.setAttribute('title', buttonItem.innerText);
         }
 
         /**

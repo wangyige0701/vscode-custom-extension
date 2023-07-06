@@ -55,6 +55,9 @@ button {
 	color: var(--vscode-button-foreground);
 	background: var(--vscode-button-background);
 	border-radius: 2px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 button:hover {

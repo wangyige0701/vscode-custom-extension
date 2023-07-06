@@ -428,9 +428,9 @@ function loadImage (src, index) {
  */
 function deleteAllImage () {
     // 提前赋值，防止操作数组时长度实时改变
-    let i = 0, length = publicData.imageRenderList.length;
+    let i = 0, length = publicData.imageRenderList?.length??0;
     while(i < length) {
-        publicData.imageRenderList.shift();
+        publicData.imageRenderList?.shift();
         i++;
     }
 }

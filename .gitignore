@@ -6,3 +6,4 @@ node_modules
 webview/*/index.css
 webview/*/index.js
 resources/background/*.wyg
+package-lock.json

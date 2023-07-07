@@ -1,0 +1,46 @@
+import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
+import { errHandle } from "../../error";
+import { options } from "./main";
+import { messageHandle } from "./message";
+import { FileMerge } from './index'
+
+/**
+ * 通过html文件插入webview
+ */
+export class webviewCreateByHtml implements WebviewViewProvider {
+    private newFile: FileMerge | null;
+
+    constructor (path: string, title:string = '') {
+        // 获取合并文件的实例
+        this.newFile = new FileMerge(path, title);
+    }
+
+    resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext<unknown>, token: CancellationToken): void | Thenable<void> {
+        try {
+            webviewView.webview.options = {
+                enableCommandUris: true,
+                enableScripts: true, // 允许加载js脚本
+                enableForms: true
+            }
+            webviewView.title = this.newFile!.title;
+            this.newFile!.setHtml(webviewView.webview).then(html => {
+                // html赋值
+                webviewView.webview.html = html;
+            }).catch(err => {
+                errHandle(err);
+            }).finally(() => {
+                this.newFile = null;
+            });
+            messageHandle(webviewView.webview);
+        } catch (error) {
+            errHandle(error);
+        }
+    }
+}
+
+/**
+ * 注册webview
+ */
+export function registWebviewProvider (viewId: string, provider: WebviewViewProvider, options?: options | undefined): Disposable {
+    return window.registerWebviewViewProvider(viewId, provider, options);
+}

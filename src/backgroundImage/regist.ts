@@ -1,6 +1,6 @@
 import { ExtensionContext, commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
-import { contextContainer, registWebview, webviewCreateByHtml } from "../utils/webview";
+import { registWebviewProvider, webviewCreateByHtml } from "../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { setRandomBackground } from "./modifyRandom";
 import { backgroundImageConfiguration } from "../workspace/background";
@@ -10,7 +10,6 @@ import { backgroundImageConfiguration } from "../workspace/background";
  * @param context 
  */
 export function registBackground (context: ExtensionContext) {
-	contextContainer.instance = context;
 	// 检测是否需要更新缓存图片码
 	checkRandomCode().then(() => {
 		// 检测配置完整
@@ -19,7 +18,7 @@ export function registBackground (context: ExtensionContext) {
 		// 开启后判断是否随机修改背景
 		setRandomBackground();
 		// 设置背景图的侧栏webview注册
-		const backgroundWebview = registWebview('wangyige.custom.backgroundImage', new webviewCreateByHtml('webview/background', '背景图片'));
+		const backgroundWebview = registWebviewProvider('wangyige.custom.backgroundImage', new webviewCreateByHtml('webview/src/background', '背景图片'));
 		context.subscriptions.push(backgroundWebview);
 		// 命令事件注册
 		commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);

@@ -21,6 +21,12 @@
 			}
 		},
 		{
+			"name": "Run Pre",
+			"type": "node",
+			"request": "launch",
+			"preLaunchTask": "pre"
+		},
+		{
 			"name": "Extension Tests",
 			"type": "extensionHost",
 			"request": "launch",

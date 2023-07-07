@@ -45,13 +45,6 @@
 				}
 			}
 		],
-		"iconThemes": [
-			{
-				"id": "wyg",
-				"label": "WYG",
-				"path": "./fileicons/wyg-icon-theme.json"
-			}
-		],
 		"viewsContainers": {
 			"activitybar": [
 				{
@@ -127,12 +120,12 @@
 						"default": "",
 						"description": "下一次启动时随机切换的图片哈希码"
 					},
-					"wangyige.webview.VSCodeVersion": {
+					"wangyige.global.VSCodeVersion": {
 						"type": "string",
 						"default": "",
 						"description": "记录上一次操作的vscode版本号"
 					},
-					"wangyige.webview.ExtensionVersion": {
+					"wangyige.global.ExtensionVersion": {
 						"type": "string",
 						"default": "",
 						"description": "记录上一次操作的插件版本号"
@@ -161,8 +154,9 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
+		"vscode:prepublish": "ts-node src/filePackage/check.ts && npm run compile",
 		"compile": "tsc -p ./",
+		"pre": "ts-node src/filePackage/production.ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
@@ -176,9 +170,12 @@
 		"@typescript-eslint/eslint-plugin": "^5.49.0",
 		"@typescript-eslint/parser": "^5.49.0",
 		"@vscode/test-electron": "^2.2.2",
+		"cssnano": "^6.0.1",
 		"eslint": "^8.33.0",
 		"glob": "^8.1.0",
 		"mocha": "^10.1.0",
+		"terser": "^5.18.2",
+		"ts-node": "^10.9.1",
 		"typescript": "^4.9.4",
 		"vitest": "^0.29.8"
 	},

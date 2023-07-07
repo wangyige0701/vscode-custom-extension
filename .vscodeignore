@@ -11,7 +11,9 @@ vsc-extension-quickstart.md
 resources/background/**
 resources/extension/**
 resources/docs/**
-webview/*/index.css
-webview/*/index.js
+webview/src/*/css
+webview/src/*/js
+webview/src/*/*.development.*
 test/**
-production/**
+filePackage/**
+!filePackage/index.ts

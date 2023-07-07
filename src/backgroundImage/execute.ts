@@ -3,7 +3,7 @@ import { backgroundImageDataInit, deleteImage, selectImage, settingImage } from 
 import { MessageData } from "../utils/webview/main";
 import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
-import { messageSend } from "../utils/webview";
+import { messageSend } from "../utils/webview/message";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
 

@@ -1,7 +1,7 @@
 import { createDirectoryUri, isFileExits, joinPathUri } from "../utils/file";
 import { setMessage, setStatusBar } from "../utils/interactive";
 import { windowReload } from "../utils/system";
-import { contextContainer } from "../utils/webview";
+import { contextContainer } from "../utils/webview/index";
 import { Uri } from "vscode";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { errHandle } from "../error";

@@ -3,8 +3,7 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-webview/*/index.css
-webview/*/index.js
+webview/src/*/index.*.css
+webview/src/*/index.*.js
 resources/background/
 package-lock.json
-production/

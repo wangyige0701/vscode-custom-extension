@@ -8,8 +8,10 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
-resources/background
+resources/background/**
+resources/extension/**
+resources/docs/**
 webview/*/index.css
 webview/*/index.js
 test/**
-resources/extension
+production/**

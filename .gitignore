@@ -5,5 +5,6 @@ node_modules
 *.vsix
 webview/*/index.css
 webview/*/index.js
-resources/background/*.wyg
+resources/background/
 package-lock.json
+production/

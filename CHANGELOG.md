@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.0.8]
+ - 优化：按钮文本取消换行，添加title用于显示具体内容；显示当前保存背景数
+
 ## [0.0.7] - 2023-5-23
 
 - 优化：删除图片同时删除随机切换数据列表内的对应数据

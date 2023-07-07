@@ -6,6 +6,7 @@
 const vscode = acquireVsCodeApi();
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
+const selectButtonText = '选择本地图片';
 const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片容器
 const batchButtonContainerClass = 'batch-operation'; // 删除或批量设置按钮区域容器类名
 const batchDeleteId = 'batchDelete'; // 批量删除按钮

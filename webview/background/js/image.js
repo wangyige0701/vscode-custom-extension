@@ -105,11 +105,11 @@ function createInstance () {
                 value > 0 ? 
                     (
                         this.changeImageListInfo(false),
-                        getId(selectButtonId)?.setAttribute('title', `上传本地图片（已上传${value}张）`)
+                        getId(selectButtonId)?.setAttribute('title', `${selectButtonText}（已上传${value}张）`)
                     ) : 
                     (
                         this.changeImageListInfo(true),
-                        getId(selectButtonId)?.setAttribute('title', `上传本地图片`)
+                        getId(selectButtonId)?.setAttribute('title', selectButtonText)
                     );
             }
             return Reflect.set(target, property, value, receiver);

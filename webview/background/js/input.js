@@ -15,11 +15,11 @@ const inputInfo = {
     focus: 'focus', // 输入框聚焦容器样式类名
     warn: 'warning', // 输入框警告样式类名
     warnInfo: 'inputWarning', // 警告信息容器id
-    inputPlaceholder: ['外部图片地址（https/http）', '透明度（0.1~1）当前为'], // 占位符内容
+    inputPlaceholder: ['外部图片下载地址（https/http）', '透明度（0.1~1）当前为'], // 占位符内容
     inputType: ['text', 'number'],
     selectionIcon: [{
         icon: iconCode.image,
-        title: '上传外部图片'
+        title: '下载外部图片'
     }, {
         icon: iconCode.opacity,
         title: '设置透明度' 
@@ -55,11 +55,10 @@ function createInputEvent () {
     let confirm = getId(inputInfo.confirm);
     // 清除按钮
     let clear = getId(inputInfo.clear);
-
     let type = undefined, value = '';
     let inputDataWatcher = Object.defineProperties({}, {
         type: {
-            // 0是上传外部图片；1是修改透明度
+            // 0是下载外部图片；1是修改透明度
             enumerable: true,
             configurable: true,
             set (newValue) {
@@ -149,7 +148,6 @@ function createInputEvent () {
     });
     // 内存占用释放
     operation = null;confirm = null;clear = null;
-
     return inputDataWatcher;
 }
 
@@ -230,7 +228,7 @@ function inputSendInfo () {
     lockSet.inputConfirm = true;
     switch (this.type) {
         case 0:
-            // 上传外部图片
+            // 下载外部图片
             setExternalImage(this.value?.trim());
             break;
         case 1:

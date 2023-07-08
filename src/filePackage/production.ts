@@ -1,6 +1,6 @@
-import { existsSync, readFile, readdir, writeFile } from "fs";
-import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit } from ".";
-import { mergeWebviewFile } from '../utils/webview';
+import { existsSync, readdir } from "fs";
+import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent } from ".";
+import { bisectionAsce } from '../utils/algorithm';
 import path from "path";
 
 type file_suffix = 'css' | 'js';
@@ -15,6 +15,7 @@ if (!process.env.NODE_ENV) {
     let file_param: file_suffix[] = ['css', 'js'];
     let root = getRoot();
     var external = global_css.map(item => path.join(root, item));
+    var ver_text = `/* version: ${now_ver()} */`;
     toPackage(file_param);
 }
 
@@ -106,7 +107,7 @@ function mergeFile (list: string[], path: string, type: file_suffix): Promise<st
         }).then(res => {
             // 文件内容不为空则写入
             if (res)
-                return writeContent(path, res);
+                return writeContent(path, ver_text+res);
         }).then(() => {
             resolve(type);
         }).catch(err => {
@@ -130,32 +131,23 @@ function external_css (css: string): Promise<string> {
     });
 }
 
-/** 写文件 */
-function writeContent (path: string, content: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        writeFile(path, content, err => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
-        });
+/**
+ * 将不同文件下的Uint8Array数据转为字符串，按序合并返回
+ * @param data 
+ * @returns 
+ */
+function mergeWebviewFile (data: string[] | Uint8Array[]): string {
+    let list: string[] = [];
+    const position: number[] = [];
+    data.forEach((str: Uint8Array | string) => {
+        if (str instanceof Uint8Array) 
+            str = str.toString();
+        let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
+        index = index ? parseFloat(index[1]) : 0;
+        // 二分插入定位
+        const posi = bisectionAsce(position, index);
+        position.splice(posi, 0, index);
+        list.splice(posi, 0, str);
     });
-}
-
-/** 读文件 */
-function getContent (path: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        if (!path) {
-            reject('Undeinded Path');
-            return;
-        }
-        readFile(path, 'utf-8', (err, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
-            }
-        });
-    })
+    return list.join('\n\n');
 }

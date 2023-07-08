@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "fs";
+import { existsSync, readdirSync, readFile, writeFile } from "fs";
 import path from "path";
 
 // 打包文件
@@ -68,9 +68,10 @@ export function readFileDir (): {list:string[], root:string} | undefined {
 /**
  * 判断生产环境压缩包是否存在
  */
-export function packageFileExits () {
+export function packageFileExits (): string[] | false {
     let file_param: file_suffix[] = ['css', 'js'];
     try {
+        let result: string[] = [];
         readFileDir()?.list.forEach(file => {
             for (let i = 0; i < file_param.length; i++) {
                 let name = file_param[i], folder_path = path.join(file, name);
@@ -78,17 +79,27 @@ export function packageFileExits () {
                     continue;
                 }
                 // 对应目录下的文件存在，进行打包文件检测
-                if (!existsSync(path.join(file, `index.production.${name}`))) {
+                let file_path = path.join(file, `index.production.${name}`);
+                if (!existsSync(file_path)) {
                     throw new Error(`${file}路径下文件未打包`);
                 }
+                result.push(file_path);
             }
         });
-        return true;
+        return result;
     } catch (error: any) {
         if (!process.env.NODE_ENV)
             console.error(error.message);
         return false;
     }
+}
+
+/**
+ * 获取预发布版本号
+ */
+export function now_ver () {
+    const json = require('../../package.json');
+    return json.version as string;
 }
 
 /** 退出终端 */
@@ -97,4 +108,34 @@ export function ProcessExit (content: string, code: number) {
         ? console.error(content)
         : console.log(content);
     process.exit(code);
+}
+
+/** 写文件 */
+export function writeContent (path: string, content: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        writeFile(path, content, err => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve();
+        });
+    });
+}
+
+/** 读文件 */
+export function getContent (path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (!path) {
+            reject('Undeinded Path');
+            return;
+        }
+        readFile(path, 'utf-8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        });
+    })
 }

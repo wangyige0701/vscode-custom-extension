@@ -25,7 +25,7 @@ const inputInfo = {
         title: '设置透明度' 
     }],
     match: [{
-        regexp: /^https|http\:\/\/[.]+\.gif|png|jpg|jpeg|webp(\?(([.]+)=([.]+))?){0,1}$/,
+        regexp: /^https?\:\/\/[.]+\.gif|png|jpg|jpeg|webp(\?(([.]+)=([.]+))?){0,1}$/,
         message: '网络图片路径格式不正确'
     }, {
         regexp: /^(1)$|^(0\.[1-9]+([0-9]*[1-9])?)$/,

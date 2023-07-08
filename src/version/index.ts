@@ -23,8 +23,8 @@ export function getVersion (): string {
  * 获取当前版本状态
  * @returns 
  */
-export function checkVersion (): boolean {
-    const config = getWorkSpace("wangyige.global");
+export function checkVersion (id: string): boolean {
+    const config = getWorkSpace("wangyige."+id);
     const vscode = config.get("VSCodeVersion");
     const extension = config.get("ExtensionVersion");
     if (!vscode || !extension) 
@@ -37,10 +37,10 @@ export function checkVersion (): boolean {
 /**
  * 更新版本信息
  */
-export function refreshVersion () {
-    setWorkSpace("wangyige.global", "VSCodeVersion", version)
+export function refreshVersion (id: string) {
+    setWorkSpace("wangyige."+id, "VSCodeVersion", version)
         .then(() => {
-            return setWorkSpace("wangyige.global", "ExtensionVersion", getVersion());
+            return setWorkSpace("wangyige."+id, "ExtensionVersion", getVersion());
         }, err => {
             errHandle(err);
         }).then(() => {}, err => {

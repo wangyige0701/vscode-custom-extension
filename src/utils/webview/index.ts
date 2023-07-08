@@ -15,11 +15,11 @@ const webFile: webFileType = {
 /**
  * 当前版本号是否有变化，判断是否需要重新合并文件
  */
-const isVersionSame = checkVersion();
+const isVersionSame = checkVersion('webview');
 
 // 判断是否需要更新版本信息
 if (!isVersionSame) {
-    refreshVersion();
+    refreshVersion('webview');
 }
 
 /** webview文件合并类 */

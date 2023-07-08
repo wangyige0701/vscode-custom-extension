@@ -120,15 +120,15 @@
 						"default": "",
 						"description": "下一次启动时随机切换的图片哈希码"
 					},
-					"wangyige.global.VSCodeVersion": {
+					"wangyige.webview.VSCodeVersion": {
 						"type": "string",
 						"default": "",
-						"description": "记录上一次操作的vscode版本号"
+						"description": "记录上一次操作的vscode版本号，用于判断webview引用更新"
 					},
-					"wangyige.global.ExtensionVersion": {
+					"wangyige.webview.ExtensionVersion": {
 						"type": "string",
 						"default": "",
-						"description": "记录上一次操作的插件版本号"
+						"description": "记录上一次操作的插件版本号，用于判断下次webview引用更新"
 					}
 				}
 			}

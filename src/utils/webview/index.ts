@@ -3,7 +3,7 @@ import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, w
 import { getNonce } from "..";
 import { contextInter, webFileType, fb } from "./main";
 import { isDev } from "../../version";
-import { mergeWebviewFile, packageFileExits } from '../../filePackage'
+import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version";
 
 const webFile: webFileType = {
@@ -90,8 +90,8 @@ export class FileMerge {
      * 根据环境执行不同html文本获取函数
      */
     private envHandle (webview: Webview, dev: boolean): Promise<void> {
-        if (this.env === 'development' || !packageFileExits()) {
-            // 开发环境或者生产环境下压缩包不存在
+        if (this.env === 'development') {
+            // 开发环境
             return this.development(webview, dev);
         } else {
             return this.production(webview, dev);
@@ -297,4 +297,25 @@ export class FileMerge {
 /** 保存context数据 */
 export const contextContainer: contextInter = {
     instance: undefined
+}
+
+/**
+ * 将不同文件下的Uint8Array数据转为字符串，按序合并返回
+ * @param data 
+ * @returns 
+ */
+export function mergeWebviewFile (data: string[] | Uint8Array[]): string {
+    let list: string[] = [];
+    const position: number[] = [];
+    data.forEach((str: Uint8Array | string) => {
+        if (str instanceof Uint8Array) 
+            str = str.toString();
+        let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
+        index = index ? parseFloat(index[1]) : 0;
+        // 二分插入定位
+        const posi = bisectionAsce(position, index);
+        position.splice(posi, 0, index);
+        list.splice(posi, 0, str);
+    });
+    return list.join('\n\n');
 }

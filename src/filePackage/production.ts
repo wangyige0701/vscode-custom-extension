@@ -1,5 +1,6 @@
 import { existsSync, readFile, readdir, writeFile } from "fs";
-import { minifyJs, minifyCss, readFileDir, mergeWebviewFile, getRoot, ProcessExit } from ".";
+import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit } from ".";
+import { mergeWebviewFile } from '../utils/webview';
 import path from "path";
 
 type file_suffix = 'css' | 'js';

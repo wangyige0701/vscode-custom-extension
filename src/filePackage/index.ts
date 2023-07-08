@@ -1,6 +1,5 @@
 import { existsSync, readdirSync } from "fs";
 import path from "path";
-import { bisectionAsce } from '../utils/algorithm';
 
 // 打包文件
 import postcss from 'postcss';
@@ -90,27 +89,6 @@ export function packageFileExits () {
             console.error(error.message);
         return false;
     }
-}
-
-/**
- * 将不同文件下的Uint8Array数据转为字符串，按序合并返回
- * @param data 
- * @returns 
- */
-export function mergeWebviewFile (data: string[] | Uint8Array[]): string {
-    let list: string[] = [];
-    const position: number[] = [];
-    data.forEach((str: Uint8Array | string) => {
-        if (str instanceof Uint8Array) 
-            str = str.toString();
-        let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
-        index = index ? parseFloat(index[1]) : 0;
-        // 二分插入定位
-        const posi = bisectionAsce(position, index);
-        position.splice(posi, 0, index);
-        list.splice(posi, 0, str);
-    });
-    return list.join('\n\n');
 }
 
 /** 退出终端 */

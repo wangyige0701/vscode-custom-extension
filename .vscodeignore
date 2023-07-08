@@ -16,4 +16,3 @@ webview/src/*/js
 webview/src/*/*.development.*
 test/**
 filePackage/**
-!filePackage/index.ts

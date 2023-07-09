@@ -7,3 +7,4 @@ webview/src/*/index.*.css
 webview/src/*/index.*.js
 resources/background/
 package-lock.json
+test/

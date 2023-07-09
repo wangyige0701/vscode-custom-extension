@@ -1,0 +1,41 @@
+/* index(1) */
+
+body {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+.container {
+    position: absolute;
+    inset: 0;
+}
+
+#image {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#image.loading {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 50px;
+    font-weight: bold;
+    color: var(--vscode-icon-foreground);
+    animation: loading-rotate 1.5s ease infinite;
+}
+
+.loading::before {
+    content: "\e8fd";
+}
+
+@keyframes loading-rotate {
+	from {
+		transform: translate(-50%, -50%) rotate(0);
+	}
+	to {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
+}

@@ -1,5 +1,17 @@
 /* index(3) */
 
+// 监听右键点击，点击图片发送数据查看大图
+document.getElementById(listId).addEventListener('contextmenu', (e) => {
+    let { target } = e;
+    if (!target.classList.contains('image-container') && !target.parentElement.classList.contains('image-container')) return;
+    e.preventDefault();
+    if (target.parentElement.classList.contains('image-container')) target = target.parentElement;
+    sendMessage({
+        name: 'viewBigImage',
+        value: { code: target.dataset?.code??'', src: target.querySelector('.image')?.getAttribute('src')??'' }
+    });
+});
+
 /**
  * 创建图片列表操作方法实例
  * @returns 

@@ -6,6 +6,7 @@ import { isObject } from "../utils";
 import { messageSend } from "../utils/webview/message";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
+import { toViewImage } from "../utils/viewImage";
 
 var webviewInstance: Webview;
 
@@ -45,6 +46,10 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
         case 'randomBackground':
             // 设置随机背景图
             randomSettingBackground(value);
+            break;
+        case 'viewBigImage':
+            // 标题发送哈希码前七位
+            toViewImage(value.src, `${value.code.slice(0, 7)}...`);
             break;
         default:
             break;

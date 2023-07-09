@@ -2,12 +2,12 @@ import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView
 import { errHandle } from "../../error";
 import { options } from "./main";
 import { messageHandle } from "./message";
-import { FileMerge } from './index'
+import { FileMerge, contextContainer } from './index'
 
 /**
  * 通过html文件插入webview
  */
-export class webviewCreateByHtml implements WebviewViewProvider {
+export class webviewCreateProvider implements WebviewViewProvider {
     private newFile: FileMerge | null;
 
     constructor (path: string, title:string = '') {
@@ -41,6 +41,8 @@ export class webviewCreateByHtml implements WebviewViewProvider {
 /**
  * 注册webview
  */
-export function registWebviewProvider (viewId: string, provider: WebviewViewProvider, options?: options | undefined): Disposable {
-    return window.registerWebviewViewProvider(viewId, provider, options);
+export function registWebviewProvider (viewId: string, provider: { path: string, title: string }, options?: options | undefined): Disposable {
+    const dispose = window.registerWebviewViewProvider(viewId, new webviewCreateProvider(provider.path, provider.title), options);
+    contextContainer.instance!.subscriptions.push(dispose);
+    return dispose;
 }

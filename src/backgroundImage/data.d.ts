@@ -3,7 +3,7 @@ import { Uri } from "vscode";
 interface dataType {
     group?:string;
     name: string;
-    value: any;
+    value?: any;
 }
 
 /**
@@ -11,7 +11,7 @@ interface dataType {
  */
 
 export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType | 
-    externalImageType | backgroundOpacityType | randomBackgroundType;
+    externalImageType | backgroundOpacityType | randomBackgroundType | viewBigImageType;
 
 /**
  * 脚本侧通知初始化背景图信息
@@ -71,6 +71,14 @@ interface backgroundOpacityType extends dataType {
 interface randomBackgroundType extends dataType {
     name: 'randomBackground';
     value: string[] | false;
+}
+
+/**
+ * 查看大图发送图片数据和编码
+*/
+interface viewBigImageType extends dataType {
+    name: 'viewBigImage',
+    value: { code: string, src: string }
 }
 
 /**

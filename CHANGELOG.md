@@ -6,10 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-## [0.1.0]
+## [0.1.0] - 2023-7-10
  - 升级：webview引用js、css文件打包逻辑修改，在开发环境下实时合并；生产环境预发布时需要执行pre命令将js、css文件合并压缩，生产环境中可以直接引用。（但是css的图标引用还需要在版本更新后进行更新）
+ - 新增：webview查看大图功能
  - 优化：按钮文本取消换行，添加title用于显示具体内容；显示当前保存背景数
- - 新增：webview查看大图页面
 
 ## [0.0.7] - 2023-5-23
 
@@ -42,6 +42,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.1.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.0
 [0.0.7]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.7
 [0.0.6]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.6
 [0.0.5]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.5

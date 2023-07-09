@@ -16,3 +16,4 @@ webview/src/*/js
 webview/src/*/*.development.*
 test/**
 filePackage/**
+fileicons/**

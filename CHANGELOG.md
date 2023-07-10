@@ -6,8 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.1.1] - 2023-7-10
+ - 优化：大图查看添加缩放和拖拽功能
+ - 修复：大图查看webview页面在关闭后，再次打开失败bug修复
+
 ## [0.1.0] - 2023-7-10
- - 升级：webview引用js、css文件打包逻辑修改，在开发环境下实时合并；生产环境预发布时需要执行pre命令将js、css文件合并压缩，生产环境中可以直接引用。（但是css的图标引用还需要在版本更新后进行更新）
+ - 升级：webview引用js、css文件打包逻辑修改，在开发环境下实时合并；生产环境预发布时需要执行pre命令将js、css文件合并压缩，生产环境中可以直接引用（但是css的图标引用还需要在版本更新后进行更新）
  - 新增：webview查看大图功能
  - 优化：按钮文本取消换行，添加title用于显示具体内容；显示当前保存背景数
 
@@ -22,19 +26,19 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [0.0.5] - 2023-5-21
 
-- bug修复：透明度修改失败修复
+- 修复：透明度修改失败修复
 
 ## [0.0.4] - 2023-5-20
 
-- bug修复：切换图片后通过修改引用路径后缀清除缓存
+- 修复：切换图片后通过修改引用路径后缀清除缓存
 
 ## [0.0.3] - 2023-5-20
 
-- bug修复：图片储存路径不存在时自动创建对应文件夹
+- 修复：图片储存路径不存在时自动创建对应文件夹
 
 ## [0.0.2] - 2023-5-20
 
-- bug修复：webview页面未显示，相关文件未进行打包修复
+- 修复：webview页面未显示，相关文件未进行打包修复
 
 ## [0.0.1] - 2023-5-20
 
@@ -42,6 +46,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.1.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.1
 [0.1.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.0
 [0.0.7]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.7
 [0.0.6]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.6

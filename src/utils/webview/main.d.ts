@@ -1,6 +1,16 @@
 import { ExtensionContext, Webview } from "vscode";
 
-export type MessageGroup = 'background';
+/* 扩展侧和webview侧通信的类型 */
+
+/** 所有的通信组 */
+export type MessageGroup = 'background' | 'viewImage';
+
+/** webview侧发送至扩展侧通信数据接收的回调函数 */
+export type MessageGroupCallbackName = `on${Capitalize<MessageGroup>}`
+
+export type callbackType = (({ name, value }: any, webview: Webview) => any) | null;
+
+export type MessageGroupCallback = Record<MessageGroupCallbackName, callbackType>;
 
 /**
  * webview端发送通信信息方法
@@ -10,9 +20,9 @@ export interface MessageSend {
 }
 
 export interface MessageData {
-    group: MessageGroup;
+    group: MessageGroup | 'viewImageDestroy';
     name: string;
-    value: any;
+    value?: any;
 }
 
 interface options {

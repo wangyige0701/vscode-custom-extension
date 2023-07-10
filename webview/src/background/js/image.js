@@ -6,10 +6,14 @@ document.getElementById(listId).addEventListener('contextmenu', (e) => {
     if (!target.classList.contains('image-container') && !target.parentElement.classList.contains('image-container')) return;
     e.preventDefault();
     if (target.parentElement.classList.contains('image-container')) target = target.parentElement;
+    // 判断点击的图片是否已经显示大图
+    let code = target.dataset?.code??'';
+    if (code === nowSelectViewImage) return;
     sendMessage({
         name: 'viewBigImage',
-        value: { code: target.dataset?.code??'', src: target.querySelector('.image')?.getAttribute('src')??'' }
+        value: { code, src: target.querySelector('.image')?.getAttribute('src')??'' }
     });
+    nowSelectViewImage = code;
 });
 
 /**
@@ -51,7 +55,9 @@ function createInstance () {
         constructor() {
             // 初始化时更新加载状态
             this.changeImageListInfo(true, true);
+            /** @type {string} */
             this.id = listId;
+            /** @type {HTMLElement} */
             this.element = getId(this.id);
             // 劫持选择列表长度改变
             this.#resetSelectImageList(this);
@@ -212,7 +218,6 @@ function createInstance () {
 
         /**
          * 根据当前是否已经设置随机切换和勾选的图片数量进行按钮内文字的替换
-         * @returns 
          */
         settingRandomButtonText () {
             // 切换按钮内文字
@@ -250,20 +255,19 @@ function createInstance () {
          * 插入一个img节点
          * @param {{code:string,src:string,index:number,target?:HTMLElement}} data 图片数据
          * @param {boolean} head 是否从头部插入，默认为true
-         * @returns 当前图片对应的哈希码
          */
         #addImageItem (data, head=true) {
             if (!data) return;
             const { src, code } = data;
             if (!src) return;
-            // 外层容器
+            /** 外层容器 @type {HTMLElement} */
             let el = createELement('div', { 
                 class: `${listImageClass} ${this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''}`, 
                 [imageContainerCodeName]: code, 
                 id: imageContainerCode+'-'+code 
             });
             // 图片本体
-            el.appendChild(createELement('img', { class: imageClass, loading: 'lazy', src }));
+            el.appendChild(createELement('img', { class: imageClass, loading: 'lazy', title: '右键查看大图', src }));
             // 操作按钮
             let selectBut, deleteBut;
             el.appendChild(selectBut = createELement('span', { class: imageButtonClass }));
@@ -274,6 +278,7 @@ function createInstance () {
             this.imageSelectIconEventBind(selectBut, false, data);
             this.imageDeleteIconEventBind(deleteBut, false, data);
             this.imageElementEventBind(el, false, data);
+            selectBut = null, deleteBut = null;
             // 插入元素
             this.insert.call(this, el, head);
             return el;
@@ -282,6 +287,7 @@ function createInstance () {
         /**
          * 插入元素方法
          * @param {HTMLElement} el
+         * @param {boolean} head
          */
         insert (el, head) {
             if (this.element.childNodes.length === 0 || !head) {
@@ -318,7 +324,6 @@ function createInstance () {
         /**
          * 根据传入的数组为被选为随机切换的图片添加随机状态类名
          * @param {string[]} array 
-         * @returns 
          */
         changeImageStyleToRandomSelect (array) {
             if (!this.isRandomBackground || !array) return;
@@ -349,8 +354,8 @@ function createInstance () {
 
         /**
          * 对图片列表提示信息进行设置
-         * @param {boolean} empty 
-         * @param {boolean} loading 
+         * @param {boolean} empty 是否为空
+         * @param {boolean} loading 加载状态
          */
         changeImageListInfo (empty=true, loading=false) {
             if (loading !== this.imageInfoLoading) {
@@ -468,7 +473,7 @@ function createInstance () {
 
         /**
          * 删除指定位置的select类名
-         * @param {Number} index 索引
+         * @param {number} index 索引
          */
         cancelSelect (index) {
             if (index >= 0) {
@@ -478,8 +483,7 @@ function createInstance () {
 
         /**
          * 根据哈希码查找元素位置
-         * @param {String} code 
-         * @returns 
+         * @param {string} code 
          */
         isCodeContain (code) {
             this.check();

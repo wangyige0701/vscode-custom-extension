@@ -1,6 +1,7 @@
 import { ViewColumn, WebviewOptions, WebviewPanel, WebviewPanelOptions, window } from 'vscode';
 import { FileMerge } from ".";
 import { errHandle } from '../../error';
+import { messageHandle } from './message';
 
 /** 注册panel类型webview页面 */
 export function registerWebviewPanel (
@@ -19,5 +20,7 @@ export function registerWebviewPanel (
     }).finally(() => {
         newFile = null;
     });
+    // 通信数据接收处理
+    messageHandle(panel.webview);
     return panel;
 }

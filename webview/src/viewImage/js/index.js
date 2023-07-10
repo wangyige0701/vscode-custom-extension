@@ -1,5 +1,7 @@
 /* index(1) */
 
+const vscode = acquireVsCodeApi();
+
 const imageContainerId = 'image';
 /** 图片标签实例 @type {HTMLImageElement} */
 var imageInstance = null,
@@ -11,6 +13,56 @@ var imageInstance = null,
     re_image_height = 0;
 
 const imageSetStack = [];
+
+/** 图片操作属性 */
+const operationTarge = {
+    /** 是否可以对图片开始操作 */
+    can: false,
+    /** 实际缩放属性值 */
+    scale: 1,
+    /** 滚轮缩放因子 */
+    scaleFactor: 0.1,
+    /** 最大缩放 */
+    maxScale: 3,
+    /** 最小缩放 */
+    minScale: 0.5,
+    left: 0,
+    minLeft: 0,
+    maxLeft: 0,
+    top: 0,
+    minTop: 0,
+    maxTop: 0,
+    /** 位移极限的最大比率 */
+    translateRate: 0.3
+}
+
+Object.defineProperty(operationTarge, 'scale', {
+    set (newValue) {
+        // 缩放时防止超出边界
+        this.value = newValue;
+        let rate = (newValue - 1) / 2,
+           change = true;
+        if (this.top < (this.minTop - (rate * image_height))) {
+            this.top = this.minTop - (rate * image_height);
+        } else if (this.top > (this.maxTop + (rate * image_height))) {
+            this.top = this.maxTop + (rate * image_height);
+        } else {
+            change = false;
+        }
+        if (this.left < (this.minLeft - (rate * image_width))) {
+            this.left = this.minLeft - (rate * image_width);
+        } else if (this.left > (this.maxLeft + (rate * image_width))) {
+            this.left = this.maxLeft + (rate * image_width);
+        } else {
+            change = false;
+        }
+        if (!change) return;
+        changeCss(document.getElementById(imageContainerId));
+    },
+    get () {
+        return this.value;
+    }
+});
 
 var size_debounce = debounce(window_size, true);
 
@@ -25,6 +77,9 @@ window.addEventListener('load', createImage);
 
 // 监听消息发送
 window.addEventListener('message', receiveMessage);
+
+// 双击复原图片
+document.body.addEventListener('dblclick', image_transform_reset);
 
 function debounce (callback, param) {
     let timeout;
@@ -55,6 +110,7 @@ function receiveMessage ({ data }) {
 
 /** 刷新图片样式 */
 async function changeImageStyle (src) {
+    operationTarge.can = false;
     if (!imageInstance || !src) return;
     let target = document.getElementById(imageContainerId);
     if (target.childElementCount > 0) {
@@ -70,6 +126,7 @@ async function changeImageStyle (src) {
         target.append(imageInstance);
         // 修改图片位置
         image_position();
+        operationTarge.can = true;
         return Promise.resolve();
     });
 }
@@ -122,6 +179,7 @@ function setStack (src) {
 /** 创建新的image实例 */
 function createImage () {
     window_size();
+    bindMouseOperation(document.getElementById(imageContainerId));
     if (!imageInstance) {
         imageInstance = new Image();
         executeStack();
@@ -130,10 +188,11 @@ function createImage () {
 
 /** 销毁image实例 */
 function destroyImage () {
-    console.log(1);
+    unbindMouseOperation(document.getElementById(imageContainerId));
     window.removeEventListener('resize', size_debounce);
     window.removeEventListener('load', createImage);
     window.removeEventListener('message', receiveMessage);
+    document.body.removeEventListener('dblclick', image_transform_reset);
     size_debounce = null;
     imageInstance = null;
 }
@@ -153,9 +212,40 @@ function image_position () {
     if (!imageInstance || image_width <= 0 || image_height <= 0) return;
     let left = decimal((window_width - image_width) / 2), top = decimal((window_heigth - image_height) / 2);
     document.getElementById(imageContainerId).style.cssText = `left: ${left}px; top: ${top}px; width: ${image_width}px; heigth: ${image_height}px;`;
+    // 数据设置
+    operationTarge.scale = 1;
+    operationTarge.left = 0;
+    operationTarge.top = 0;
+    // 最小范围
+    operationTarge.minLeft = -1 * ((image_width * (1 - operationTarge.translateRate)) + left);
+    operationTarge.minTop = -1 * ((image_height * (1 - operationTarge.translateRate)) + top);
+    // 最大范围
+    operationTarge.maxLeft = (image_width * (1 - operationTarge.translateRate)) + left;
+    operationTarge.maxTop = (image_height * (1 - operationTarge.translateRate)) + top;
 }
 
 /** 保留指定小数 */
 function decimal (number, t = 3) {
     return +number.toFixed(t);
+}
+
+/**
+ * 发送消息
+ * @param {{name:string,value?:any}} options
+ */
+function sendMessage (options={}) {
+    if (options && typeof options === 'object') {
+        options.group = 'viewImage';
+        vscode.postMessage(options);
+    }
+}
+
+/**
+ * 重置图片操作
+ */
+function image_transform_reset () {
+    operationTarge.scale = 1;
+    operationTarge.left = 0;
+    operationTarge.top = 0;
+    document.getElementById(imageContainerId).style.transform = '';
 }

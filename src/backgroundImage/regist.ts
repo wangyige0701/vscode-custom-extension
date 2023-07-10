@@ -7,9 +7,8 @@ import { backgroundImageConfiguration } from "../workspace/background";
 
 /**
  * 注册背景图设置功能
- * @param context 
  */
-export function registBackground (context: ExtensionContext) {
+export function registBackground () {
 	// 检测是否需要更新缓存图片码
 	checkRandomCode().then(() => {
 		// 检测配置完整

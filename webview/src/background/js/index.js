@@ -5,6 +5,9 @@
  */
 const vscode = acquireVsCodeApi();
 
+/** 当前选择查看的图片 @type {string|null} */
+var nowSelectViewImage = null;
+
 const selectButtonId = 'selectImage'; // 选择图片的按钮
 const selectButtonText = '选择本地图片';
 const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片容器
@@ -141,6 +144,11 @@ function changeState (state) {
  * @param {{data:{name:string,value:any,group:string}}} param 
  */
 function receiveMessage ({ data }) {
+    if (data.group === 'viewImageDestroy' && data.name === 'viewImageDestroyToBackground') {
+        // 查看大图实例销毁
+        nowSelectViewImage = null;
+        return;
+    }
     if (data.group !== 'background') return;
     const value = data.value;
     switch (data.name) {

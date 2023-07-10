@@ -5,13 +5,13 @@ interface dataType {
     value?: any;
 }
 
-export type viewImageSendMessage = changeImageType | destroyType;
+// 发送数据类型
+export type viewImageSendMessage = changeImageType;
 
 interface changeImageType extends dataType {
-    name: 'changeImage',
-    value: string
+    name: 'changeImage';
+    value: string;
 }
 
-interface destroyType extends dataType {
-    name: 'destroy'
-}
+// 接收数据类型
+export type viewImageMessageData = dataType;

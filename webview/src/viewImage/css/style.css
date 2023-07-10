@@ -7,11 +7,14 @@ body {
 }
 
 .container {
+    user-select: none;
     position: absolute;
-    inset: 0;
+    inset: 5px 10px 5px 0;
+    overflow: hidden;
 }
 
 #image {
+    cursor: pointer;
     position: absolute;
     top: 0;
     left: 0;
@@ -38,4 +41,8 @@ body {
 	to {
 		transform: translate(-50%, -50%) rotate(360deg);
 	}
+}
+
+#image img {
+    pointer-events: none;
 }

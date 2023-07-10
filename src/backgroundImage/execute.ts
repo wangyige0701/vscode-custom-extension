@@ -3,12 +3,14 @@ import { backgroundImageDataInit, deleteImage, selectImage, settingImage } from 
 import { MessageData } from "../utils/webview/main";
 import { backgroundMessageData, backgroundSendMessageData } from "./data";
 import { isObject } from "../utils";
-import { messageSend } from "../utils/webview/message";
+import { bindMessageCallback, messageSend } from "../utils/webview/message";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../utils/viewImage";
 
 var webviewInstance: Webview;
+
+bindMessageCallback('onBackground', backgroundExecute);
 
 /**
  * 背景图通信数据处理
@@ -17,7 +19,7 @@ var webviewInstance: Webview;
  * @param messageSend 
  * @param webview 
  */
-export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
+function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
     if (!webviewInstance) webviewInstance = webview;
     switch (name) {
         case 'backgroundInit':
@@ -49,7 +51,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             break;
         case 'viewBigImage':
             // 标题发送哈希码前七位
-            toViewImage(value.src, `${value.code.slice(0, 7)}...`);
+            toViewImage(value.src, `${value.code.slice(0, 7)}...`, webview);
             break;
         default:
             break;

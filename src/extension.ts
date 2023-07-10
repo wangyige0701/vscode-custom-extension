@@ -6,7 +6,7 @@ export function activate(context: vscode.ExtensionContext) {
 	contextContainer.instance = context;
 
 	// 注册背景图侧栏页面
-	registBackground(context);
+	registBackground();
 }
 
 // This method is called when your extension is deactivated

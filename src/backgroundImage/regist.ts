@@ -4,6 +4,8 @@ import { registWebviewProvider } from "../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
+import { bindMessageCallback } from "../utils/webview/message";
+import { backgroundExecute } from "./execute";
 
 /**
  * 注册背景图设置功能
@@ -22,6 +24,9 @@ export function registBackground () {
 		commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);
 		commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
 		commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
+
+		// 绑定事件通信回调
+		bindMessageCallback('onBackground', backgroundExecute);
 	});
 }
 

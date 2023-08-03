@@ -17,3 +17,5 @@ webview/src/*/*.development.*
 test/**
 filePackage/**
 fileicons/**
+out/**
+!out/extension.js

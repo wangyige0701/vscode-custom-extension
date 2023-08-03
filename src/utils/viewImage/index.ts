@@ -10,8 +10,6 @@ var viewImageWebviewInstance: WebviewPanel | null = null;
 // 调用方法的webview对象
 var webviewTarget: Webview | null = null;
 
-bindMessageCallback('onViewImage', getMessage);
-
 /**
  * 调用查看大图
  * @param path 图片路径或base64编码
@@ -22,6 +20,8 @@ export function toViewImage (path: string, title: string, useWebView: Webview) {
         viewImageWebviewInstance = registerWebviewPanel('ViewImage', { path: 'webview/src/viewImage', title: 'image:'+title });
         viewImageWebviewInstance.onDidDispose(destroyInstance);
         webviewTarget = useWebView;
+        // 绑定事件监听
+        bindMessageCallback('onViewImage', getMessage);
     } else {
         // 已经创建实例则发送改变数据
         viewImageWebviewInstance.title = 'image:'+title;

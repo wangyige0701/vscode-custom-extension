@@ -1,15 +1,11 @@
 import { Webview } from "vscode";
 import { backgroundImageDataInit, deleteImage, selectImage } from ".";
 import { backgroundMessageData } from "./data";
-import { bindMessageCallback } from "../utils/webview/message";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../utils/viewImage";
 import { webviewInstance } from './execute_webview';
 import { settingImage } from './execute_setting';
-
-// 绑定事件通信回调
-bindMessageCallback('onBackground', backgroundExecute);
 
 /**
  * 背景图通信数据处理
@@ -18,7 +14,7 @@ bindMessageCallback('onBackground', backgroundExecute);
  * @param messageSend 
  * @param webview 
  */
-function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
+export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
     if (!webviewInstance.value) webviewInstance.value = webview;
     switch (name) {
         case 'backgroundInit':

@@ -12,7 +12,13 @@ module.exports = {
     },
     plugins: [
         typescript({ 
-            tsconfig: './tsconfig.json'
+            tsconfig: './tsconfig.json',
+            tsconfigOverride: {
+                compilerOptions: {
+                    module: "ESNext",
+		            moduleResolution: "Node"
+                }
+            }
         }),
         resolve(),
         json(),

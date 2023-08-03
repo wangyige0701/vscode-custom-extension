@@ -1,15 +1,14 @@
 import { Webview } from "vscode";
-import { backgroundImageDataInit, deleteImage, selectImage, settingImage } from ".";
-import { MessageData } from "../utils/webview/main";
-import { backgroundMessageData, backgroundSendMessageData } from "./data";
-import { isObject } from "../utils";
-import { bindMessageCallback, messageSend } from "../utils/webview/message";
+import { backgroundImageDataInit, deleteImage, selectImage } from ".";
+import { backgroundMessageData } from "./data";
+import { bindMessageCallback } from "../utils/webview/message";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../utils/viewImage";
+import { webviewInstance } from './execute_webview';
+import { settingImage } from './execute_setting';
 
-var webviewInstance: Webview;
-
+// 绑定事件通信回调
 bindMessageCallback('onBackground', backgroundExecute);
 
 /**
@@ -20,7 +19,7 @@ bindMessageCallback('onBackground', backgroundExecute);
  * @param webview 
  */
 function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
-    if (!webviewInstance) webviewInstance = webview;
+    if (!webviewInstance.value) webviewInstance.value = webview;
     switch (name) {
         case 'backgroundInit':
             // 初始化背景图数据 value: false | true
@@ -55,16 +54,5 @@ function backgroundExecute ({ name, value }: backgroundMessageData, webview: Web
             break;
         default:
             break;
-    }
-}
-
-/**
- * 背景图设置webview端发送通信统一处理
- * @param options 
- */
-export function backgroundSendMessage (options: backgroundSendMessageData): void {
-    if (webviewInstance && options && isObject(options)) {
-        options.group = 'background';
-        messageSend(webviewInstance, options as MessageData);
     }
 }

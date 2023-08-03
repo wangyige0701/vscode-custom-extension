@@ -5,7 +5,7 @@ import { setMessage } from "../utils/interactive";
 import { imageUrl } from "../utils/regexp";
 import { GetImage } from "../utils/request/utils";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { backgroundSendMessage } from "./execute";
+import { backgroundSendMessage } from "./execute_webview";
 import { getExternalCssModifyOpacityContent, getExternalFileContent, setSourceCssImportInfo, writeExternalCssFile } from "./modify";
 import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils";
 

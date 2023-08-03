@@ -1,9 +1,9 @@
-import { ExtensionContext, commands } from "vscode";
+import { commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
 import { registWebviewProvider } from "../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
-import { setRandomBackground } from "./modifyRandom";
 import { backgroundImageConfiguration } from "../workspace/background";
+import { setRandomBackground } from "./modifyRandom";
 
 /**
  * 注册背景图设置功能

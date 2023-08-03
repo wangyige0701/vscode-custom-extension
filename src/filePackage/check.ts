@@ -10,7 +10,9 @@ if (!process.env.NODE_ENV) {
         check_res.forEach(item => {
             exu.push(check_ver(item, n_v));
         });
-        Promise.all(exu).catch(err => {
+        Promise.all(exu).then(() => {
+            console.log('\x1B[32m%s\x1B[0m', '\n打包状态及版本校验完成\n');
+        }).catch(err => {
             ProcessExit(err + '\n请执行npm run pre或者通过调试启动Run Pre', 1);
         });
     }

@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.2.1] - 2023-8-4
+ - 升级：使用rollup辅助压缩生产环境项目
+ - 优化：修改当前所有循环引用
+
 ## [0.1.1] - 2023-7-10
  - 优化：大图查看添加缩放和拖拽功能
  - 修复：大图查看webview页面在关闭后，再次打开失败bug修复
@@ -46,6 +50,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.2.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.1
 [0.1.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.1
 [0.1.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.0
 [0.0.7]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.7

@@ -4,7 +4,7 @@ import { getNonce } from "..";
 import { contextInter, webFileType, fb } from "./main";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
-import { checkVersion, refreshVersion } from "../../version";
+import { checkVersion, refreshVersion } from "../../version/utils";
 
 const webFile: webFileType = {
     html: 'index.html',

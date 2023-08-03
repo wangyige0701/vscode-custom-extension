@@ -1,10 +1,10 @@
-import { settingImage } from ".";
 import { errHandle } from "../error";
 import { delay, getRandom } from "../utils";
 import { setMessage } from "../utils/interactive";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { backgroundSendMessage } from "./execute";
+import { backgroundSendMessage } from "./execute_webview";
 import { closeRandomBackground, isChangeBackgroundImage } from "./utils";
+import { settingImage } from "./execute_setting";
 
 /**
  * 记录随机设置背景图的相关数据，并更新状态

@@ -6,7 +6,7 @@ import { Uri } from "vscode";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { errHandle } from "../error";
 import { minmax } from "../utils";
-import { backgroundSendMessage } from "./execute";
+import { backgroundSendMessage } from "./execute_webview";
 
 /**
  * 获取储存背景图资源的uri，指定路径不存在则会进行创建

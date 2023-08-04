@@ -19,6 +19,7 @@ test/**
 filePackage/**
 fileicons/**
 out/**
-!out/extension.js
+dist/**
+!dist/extension.js
 rollup.config.js
 node_modules/**

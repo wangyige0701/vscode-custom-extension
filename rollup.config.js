@@ -7,7 +7,7 @@ const json = require('@rollup/plugin-json');
 module.exports = {
     input: 'src/extension.ts',
     output: {
-        file: 'out/extension.js',
+        file: 'dist/extension.js',
         format: 'cjs'
     },
     plugins: [

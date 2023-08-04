@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.2.5 - 2023-8-4
+ - 修复：生产环境对package.json文件的引用路径错误修改
+ - 调整：输出目录改为dist
+
 ## [0.2.4] - 2023-8-4
  - 修复：打包格式改为commonJs
  - 优化：删除生产环境部分不需要的打包文件

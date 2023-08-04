@@ -1,5 +1,5 @@
 import { existsSync, readdir } from "fs";
-import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent } from ".";
+import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent, consoleByColor } from ".";
 import { bisectionAsce } from '../utils/algorithm';
 import path from "path";
 
@@ -11,7 +11,7 @@ const global_css = ['reset.css', 'vscode.css'];
  * 在生产环境发布前，需要对所有webview的js、css文件进行压缩合并，
 */
 if (!process.env.NODE_ENV) {
-    console.log('开始预发布webview相关文件打包...');
+    console.log(consoleByColor('blue', '开始预发布webview相关文件打包...'));
     let file_param: file_suffix[] = ['css', 'js'];
     let root = getRoot();
     var external = global_css.map(item => path.join(root, item));
@@ -39,9 +39,9 @@ function toPackage (file_param: file_suffix[]) {
         return Promise.all(execute);
     }).then(() => {
         execute = null;
-        ProcessExit('打包完成\n', 0);
+        ProcessExit(consoleByColor('green', '打包完成\n'), 0);
     }).catch(err => {
-        ProcessExit(err, 1);
+        ProcessExit(consoleByColor('red', err), 1);
     });
 }
 

@@ -1,19 +1,19 @@
-import { ProcessExit, packageFileExits, now_ver, getContent } from '.';
+import { ProcessExit, packageFileExits, now_ver, getContent, consoleByColor } from '.';
 
 /** 生产环境发布前进行webview打包确认 */
 if (!process.env.NODE_ENV) {
     let check_res = packageFileExits();
     if (check_res === false) {
-        ProcessExit('请执行npm run pre或者通过调试启动Run Pre', 1);
+        ProcessExit(consoleByColor('yellow', '请执行npm run pre或者通过调试启动Run Pre'), 1);
     } else {
         let exu: Promise<string>[] = [], n_v = now_ver();
         check_res.forEach(item => {
             exu.push(check_ver(item, n_v));
         });
         Promise.all(exu).then(() => {
-            console.log('\x1B[32m%s\x1B[0m', '\n打包状态及版本校验完成\n');
+            console.log(consoleByColor('green', '\n打包状态及版本校验完成\n'));
         }).catch(err => {
-            ProcessExit(err + '\n请执行npm run pre或者通过调试启动Run Pre', 1);
+            ProcessExit(consoleByColor('red', err) + consoleByColor('yellow', '\n请执行npm run pre或者通过调试启动Run Pre'), 1);
         });
     }
 }

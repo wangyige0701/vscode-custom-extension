@@ -20,3 +20,4 @@ fileicons/**
 out/**
 !out/extension.js
 rollup.config.js
+node_modules/**

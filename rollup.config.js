@@ -1,8 +1,9 @@
 const terser = require('@rollup/plugin-terser');
 const commonjs = require('@rollup/plugin-commonjs');
-const typescript = require('rollup-plugin-typescript2');
+const typescript = require('@rollup/plugin-typescript');
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
+const path = require('path');
 
 module.exports = {
     input: 'src/extension.ts',
@@ -13,11 +14,10 @@ module.exports = {
     plugins: [
         typescript({ 
             tsconfig: './tsconfig.json',
-            tsconfigOverride: {
-                compilerOptions: {
-                    module: "ESNext",
-		            moduleResolution: "Node"
-                }
+            compilerOptions: {
+                module: "ESNext",
+                moduleResolution: "Node",
+                sourceMap: false
             }
         }),
         resolve(),
@@ -44,8 +44,8 @@ function changeRequire (root = '.') {
                     let repRegexp = new RegExp(regexp, 'g');
                     return code.replace(repRegexp, (s, start, $1, $2, end) => {
                         // $1是匹配单引号，$2是匹配双引号
-                        let res = checkPosition($1??$2??'');
-                        return `${start}"${root}/${res}"${end}`;
+                        let res = checkPosition($1??$2??'', id);
+                        return `${start}"${res.root?root+'/'+res.path:res.path}"${end}`;
                     });
                 }
             } catch (error) {
@@ -56,14 +56,24 @@ function changeRequire (root = '.') {
     }
 }
 
-/** @param {string} path */
-function checkPosition (path) {
-    if (!path) return '';
-    let parent = 0, paths = [];
-    path.split('/').forEach((item, index) => {
+/** 
+ * @param {string} requirePath 
+ * @param {string} filePath
+ * */
+function checkPosition (requirePath, filePath) {
+    if (!requirePath) return '';
+    filePath = path.resolve(filePath, '..');
+    let paths = [];
+    requirePath.split('/').forEach((item, index) => {
         if (item === '.' && index > 0) throw new Error('Illegal Path');
-        else if (item === '..') parent++;
+        else if (item === '..') filePath = path.resolve(filePath, '..');
         else paths.push(item);
     });
-    return paths.join('/');
+    return filePath === __dirname ? {
+        path: paths.join('/'),
+        root: true
+    } : {
+        path: requirePath,
+        root: false
+    };
 }

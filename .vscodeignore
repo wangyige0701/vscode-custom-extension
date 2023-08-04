@@ -19,3 +19,4 @@ filePackage/**
 fileicons/**
 out/**
 !out/extension.js
+rollup.config.js

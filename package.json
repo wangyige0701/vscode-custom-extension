@@ -2,7 +2,7 @@
 	"name": "wangyige",
 	"displayName": "WangYige",
 	"description": "My custom extension",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"publisher": "wangyige",
 	"repository": {
 		"url": "https://github.com/wangyige0701/vscodeCustomExtension"

@@ -130,7 +130,7 @@ export class FileMerge {
                     resolve();
                 }).catch(err => {
                     reject(err);
-                })
+                });
             }
         });
     }
@@ -264,8 +264,8 @@ export class FileMerge {
     /**
      * 将css文件中的iconfont引入路径进行替换
      */
-    private cssIconfontPath (css: string, webview: Webview) {
-        return css.replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`)
+    private cssIconfontPath (css: string, webview: Webview): string {
+        return css.replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`);
     }
 
     /**

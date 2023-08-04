@@ -8,7 +8,7 @@ module.exports = {
     input: 'src/extension.ts',
     output: {
         file: 'out/extension.js',
-        format: 'esm'
+        format: 'cjs'
     },
     plugins: [
         typescript({ 

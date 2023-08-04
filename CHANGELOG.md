@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.2.4] - 2023-8-4
+ - 修复：打包格式改为commonJs
+ - 优化：删除生产环境部分不需要的打包文件
+
 ## [0.2.1] - 2023-8-4
  - 升级：使用rollup辅助压缩生产环境项目
  - 优化：修改当前所有循环引用
@@ -50,6 +54,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.2.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.4
 [0.2.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.1
 [0.1.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.1
 [0.1.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.0

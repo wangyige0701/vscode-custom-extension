@@ -39,36 +39,43 @@ if (!process.env.NODE_ENV) {
                 ext_css.push(path.join(root, item));
             }
         });
-        toPackage(file_param, { css: ext_css, js: ext_js });
+        return toPackage(file_param, { css: ext_css, js: ext_js });
+    }).then(() => {
+        ProcessExit(consoleByColor('green', '\n打包完成\n'), 0);
+    }).catch(err => {
+        ProcessExit(consoleByColor('red', err), 1);
     });
 }
 
 /** 预发布webview相关css、js文件整合打包 */
-function toPackage (file_param: file_suffix[], external_files: external_file) {
-    let execute: Promise<any>[] | null = [];
-    readFileDir()!.list.forEach(file => {
-        file_param.forEach((name: file_suffix) => {
-            let file_path = path.join(file, name), exits = existsSync(file_path);
-            // 获取对应css、js文件夹目录
-            if (exits) {
-                execute!.push(right_dir(name, file_path, file));
-            }
+function toPackage (file_param: file_suffix[], external_files: external_file): Promise<void> {
+    return new Promise((resolve, reject) => {
+        let execute: Promise<any>[] | null = [];
+        readFileDir()!.list.forEach(file => {
+            file_param.forEach((name: file_suffix) => {
+                let file_path = path.join(file, name), exits = existsSync(file_path);
+                // 获取对应css、js文件夹目录
+                if (exits) {
+                    execute!.push(right_dir(name, file_path, file));
+                }
+            });
         });
-    });
-    Promise.all(execute).then(res => {
-        // 首先合并外部公共文件
-        return external_merge(external_files, res);
-    }).then(res => {
-        execute = [];
-        res[1].forEach((item: {list: string[], root: string, name: file_suffix}) => {
-            execute!.push(mergeFile(item.list, path.join(item.root, `index.production.${item.name}`), item.name, res[0][item.name]));
+        Promise.all(execute).then(res => {
+            // 首先合并外部公共文件
+            return external_merge(external_files, res);
+        }).then(res => {
+            execute = [];
+            res[1].forEach((item: {list: string[], root: string, name: file_suffix}) => {
+                execute!.push(mergeFile(item.list, path.join(item.root, `index.production.${item.name}`), item.name, res[0][item.name]));
+            });
+            return Promise.all(execute);
+        }).then(() => {
+            resolve();
+        }).catch(err => {
+            reject(err);
+        }).finally(() => {
+            execute = null;
         });
-        return Promise.all(execute);
-    }).then(() => {
-        execute = null;
-        ProcessExit(consoleByColor('green', '打包完成\n'), 0);
-    }).catch(err => {
-        ProcessExit(consoleByColor('red', err), 1);
     });
 }
 

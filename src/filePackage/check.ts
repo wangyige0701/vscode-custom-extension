@@ -11,7 +11,7 @@ if (!process.env.NODE_ENV) {
             exu.push(check_ver(item, n_v));
         });
         Promise.all(exu).then(() => {
-            console.log(consoleByColor('green', '\n打包状态及版本校验完成\n'));
+            console.log(consoleByColor('green', `\n打包状态及版本校验完成  （当前版本：v${n_v}）\n`));
         }).catch(err => {
             ProcessExit(consoleByColor('red', err) + consoleByColor('yellow', '\n请执行npm run pre或者通过调试启动Run Pre'), 1);
         });
@@ -26,7 +26,7 @@ function check_ver (file_path: string, n_v: string): Promise<string> {
         getContent(file_path).then(res => {
             let l_v = latest_ver(res);
             if (!l_v || l_v !== n_v) {
-                reject(file_path + ' ---> 版本错误');
+                reject(file_path + ' ---> 版本错误    ' + `预发布版本：v${n_v}；文件打包版本：${l_v?'v'+l_v:'不存在'}`);
             } else {
                 resolve(file_path);
             }

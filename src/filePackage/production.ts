@@ -5,7 +5,20 @@ import path from "path";
 
 type file_suffix = 'css' | 'js';
 
-const global_css = ['reset.css', 'vscode.css'];
+interface glo<T> {
+    [key: string]: T;
+}
+
+interface external extends glo<string[]> {
+    css: string[];
+    js: string[];
+}
+
+type external_file = {
+    [prop in keyof external]: string[];
+};
+
+type dir_check = {list:string[],root:string,name:file_suffix};
 
 /**
  * 在生产环境发布前，需要对所有webview的js、css文件进行压缩合并，
@@ -14,13 +27,24 @@ if (!process.env.NODE_ENV) {
     console.log(consoleByColor('blue', '开始预发布webview相关文件打包...'));
     let file_param: file_suffix[] = ['css', 'js'];
     let root = getRoot();
-    var external = global_css.map(item => path.join(root, item));
+    const ext_css: string[] = [], ext_js: string[] = [];
     var ver_text = `/* version: ${now_ver()} */`;
-    toPackage(file_param);
+    // 获取公共css、js文件
+    dir_content(root).then(res => {
+        res.forEach(item => {
+            const type = path.extname(item);
+            if (type === '.js') {
+                ext_js.push(path.join(root, item));
+            } else if (type === '.css') {
+                ext_css.push(path.join(root, item));
+            }
+        });
+        toPackage(file_param, { css: ext_css, js: ext_js });
+    });
 }
 
-/** 预发布打包打包 */
-function toPackage (file_param: file_suffix[]) {
+/** 预发布webview相关css、js文件整合打包 */
+function toPackage (file_param: file_suffix[], external_files: external_file) {
     let execute: Promise<any>[] | null = [];
     readFileDir()!.list.forEach(file => {
         file_param.forEach((name: file_suffix) => {
@@ -32,9 +56,12 @@ function toPackage (file_param: file_suffix[]) {
         });
     });
     Promise.all(execute).then(res => {
+        // 首先合并外部公共文件
+        return external_merge(external_files, res);
+    }).then(res => {
         execute = [];
-        res.forEach((item: {list: string[], root: string, name: file_suffix}) => {
-            execute!.push(mergeFile(item.list, path.join(item.root, `index.production.${item.name}`), item.name));
+        res[1].forEach((item: {list: string[], root: string, name: file_suffix}) => {
+            execute!.push(mergeFile(item.list, path.join(item.root, `index.production.${item.name}`), item.name, res[0][item.name]));
         });
         return Promise.all(execute);
     }).then(() => {
@@ -48,7 +75,7 @@ function toPackage (file_param: file_suffix[]) {
 /**
  * 判断目录下文件格式是否正确
  */
-function right_dir (name: file_suffix, file_path: string, root: string): Promise<{list:string[],root:string,name:file_suffix}> {
+function right_dir (name: file_suffix, file_path: string, root: string): Promise<dir_check> {
     return new Promise((resolve, reject) => {
         const checkReg = new RegExp(`\\.${name}$`), list: string[] = [];
         dir_content(file_path).then(res => {
@@ -65,13 +92,13 @@ function right_dir (name: file_suffix, file_path: string, root: string): Promise
 }
 
 /** 获取目录内容 */
-function dir_content (path: string): Promise<string[]> {
+function dir_content (pathName: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        if (!path) {
+        if (!pathName) {
             reject('Undefinded Path');
             return;
         }
-        readdir(path, 'utf-8', (err, files) => {
+        readdir(pathName, 'utf-8', (err, files) => {
             if (err) {
                 reject(err);
             } else {
@@ -82,7 +109,7 @@ function dir_content (path: string): Promise<string[]> {
 }
 
 /** 根据类型合并文件 */
-function mergeFile (list: string[], path: string, type: file_suffix): Promise<string> {
+function mergeFile (list: string[], pathName: string, type: file_suffix, external_content: string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (!list || list.length <= 0) {
             resolve(type);
@@ -95,10 +122,10 @@ function mergeFile (list: string[], path: string, type: file_suffix): Promise<st
         }).then(res => {
             if (type === 'css')
                 // css导入外部全局样式
-                return external_css(res);
+                return Promise.resolve(external_content + '\n' + res);
             else
                 // js文本写入局部作用域内
-                return Promise.resolve(`(function () {${res}})();`);
+                return Promise.resolve(`(function () {${external_content + '\n' + res}})();`);
         }).then(res => {
             if (type === 'css')
                 return minifyCss(res);
@@ -107,7 +134,7 @@ function mergeFile (list: string[], path: string, type: file_suffix): Promise<st
         }).then(res => {
             // 文件内容不为空则写入
             if (res)
-                return writeContent(path, ver_text+res);
+                return writeContent(pathName, ver_text+res);
         }).then(() => {
             resolve(type);
         }).catch(err => {
@@ -116,15 +143,52 @@ function mergeFile (list: string[], path: string, type: file_suffix): Promise<st
     });
 }
 
-/** 外部全局css文件合并 */
-function external_css (css: string): Promise<string> {
+/**
+ * 合并外部js、css文件
+ * @param file_path 
+ * @returns 
+ */
+function external_merge (file_path: external_file, returnValue: dir_check[]): Promise<[glo<string>, dir_check[]]> {
     return new Promise((resolve, reject) => {
-        let files: Promise<any>[] = [];
-        external.forEach(file => {
-            files.push(getContent(file));
+        const result: Promise<{type:string,content:string}>[] = [];
+        for (let name in file_path) {
+            result.push(new Promise(($resolve, $reject) => {
+                let paths: string[] = file_path[name];
+                external_merge_work(paths).then(res => {
+                    $resolve({ type: name, content: res });
+                }).catch(err => {
+                    $reject(err);
+                });
+            }));
+        }
+        Promise.all(result).then(res => {
+            resolve([res.reduce((pre, curr) => {
+                pre[curr.type] = curr.content;
+                return pre;
+            }, {} as glo<string>), returnValue]);
+        }).catch(err => {
+            reject(err);
         });
-        Promise.all(files).then(res => {
-            resolve(res.join('') + css);
+    });
+}
+
+/**
+ * 外部文件内容排序合并
+ * @param paths 
+ * @returns 
+ */
+function external_merge_work (paths: string[]): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (paths.length <= 0) {
+            resolve('');
+            return;
+        }
+        Promise.all(paths.map(item => {
+            return getContent(item);
+        })).then(res => {
+            return mergeWebviewFile(res);
+        }).then(res => {
+            resolve(res);
         }).catch(err => {
             reject(err);
         });

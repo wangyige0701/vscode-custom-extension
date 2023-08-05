@@ -1,8 +1,8 @@
-import * as vscode from 'vscode';
+import type { ExtensionContext } from 'vscode';
 import { registBackground } from './backgroundImage/regist';
 import { contextContainer } from './utils/webview/index';
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: ExtensionContext) {
 	contextContainer.instance = context;
 
 	// 注册背景图侧栏页面
@@ -10,4 +10,6 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+	contextContainer.instance = undefined;
+}

@@ -6,7 +6,7 @@
 const vscode = acquireVsCodeApi();
 
 /** 当前选择查看的图片 @type {string|null} */
-var nowSelectViewImage = null;
+let nowSelectViewImage = null;
 
 const selectButtonId = 'selectImage'; // 选择图片的按钮
 const selectButtonText = '选择本地图片';

@@ -154,9 +154,10 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "ts-node src/filePackage/check.ts && npm run compile",
+		"vscode:prepublish": "npm run check && npm run compile",
 		"compile": "rollup -c",
 		"pre": "ts-node src/filePackage/production.ts",
+		"check": "ts-node src/filePackage/check.ts",
 		"watch": "tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",

@@ -81,16 +81,6 @@ window.addEventListener('message', receiveMessage);
 // 双击复原图片
 document.body.addEventListener('dblclick', image_transform_reset);
 
-function debounce (callback, param) {
-    let timeout;
-    return function () {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-        timeout = setTimeout(callback.bind(null, param), 300);
-    }
-}
-
 /** 接收extensions侧发送的消息 */
 function receiveMessage ({ data }) {
     if (data.group !== 'viewImage') return;

@@ -1,7 +1,7 @@
 import { Uri, Webview} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";
-import { contextInter, webFileType, fb } from "./main";
+import { contextInter, webFileType } from "./main";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
@@ -24,16 +24,29 @@ if (!isVersionSame) {
 
 /** webview文件合并类 */
 export class FileMerge {
+    /** webview项目根路径 */
     public readonly baseUri?: Uri;
+    /** 标题 */
     public readonly title: string = '';
+    /** 最终生成的html文本 */
     private htmlContent: string = '';
-    private cssUri?: Uri; // css文件夹
-    private newCssUri?: Uri; // 合并后生成的css文件路径
-    private jsUri?: Uri; // js文件夹
-    private newJsUri?: Uri; // 合并后生成的js文件路径
-    private vscodeCssUri?: Uri; // vscode webview标签样式css文件路径
-    private resetCssUri?: Uri; // 重置样式文件路径
-    private iconUri?: Uri; // 图标资源路径
+    /** css文件夹 */
+    private cssUri?: Uri;
+    /** 合并后生成的css文件路径 */
+    private newCssUri?: Uri;
+    /** js文件夹 */
+    private jsUri?: Uri;
+    /** 合并后生成的js文件路径 */
+    private newJsUri?: Uri;
+    /** vscode webview外部公共css文件路径 */
+    private externalCssUri: Uri[] = [];
+    /** vscode webview外部公共js文件路径 */
+    private externalJsUri: Uri[] = [];
+    /** webview文件根路径，用于获取公共文件 */
+    private publicFileUri?:Uri;
+    /** 图标资源路径 */
+    private iconUri?: Uri;
+    /** 环境变量 */
     private env: 'development' | 'production' = 'development';
 
     constructor (path: string, title:string = '') {
@@ -46,13 +59,11 @@ export class FileMerge {
         } else {
             this.env = 'production';
         }
-        const publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'webview');
-        this.vscodeCssUri = newUri(publicFileUri, 'vscode.css');
-        this.resetCssUri = newUri(publicFileUri, 'reset.css');
+        this.publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'webview');
         // 生产环境合成index.production.js/css，开发环境合成index.development.js/css
         this.newCssUri = newUri(this.baseUri!, `index.${this.env}.css`);
         this.newJsUri = newUri(this.baseUri!, `index.${this.env}.js`);
-        this.iconUri = publicFileUri;
+        this.iconUri = this.publicFileUri;
     }
 
     /**
@@ -87,10 +98,50 @@ export class FileMerge {
     }
 
     /**
+     * 读取html文本，获取css和js文件路径
+     */
+    private async start (dev: boolean) {
+        await readDirectoryUri(this.publicFileUri!).then(res => {
+            // 整理所有外部公共文件的Uri，开发环境下需要整合公共文件
+            if (dev) res.filter(([name, type]) => type === 1).forEach(([fileName, fileType]) => {
+                if (fileName.endsWith('css')) {
+                    this.externalCssUri.push(newUri(this.publicFileUri!, fileName));
+                } else if (fileName.endsWith('js')) {
+                    this.externalJsUri.push(newUri(this.publicFileUri!, fileName));
+                }
+            });
+            return readDirectoryUri(this.baseUri!);
+        }).then(async (res) => {
+            for (let name in webFile) {
+                if (!res.find(item => item[0] === webFile[name])) continue;
+                const searchUri = newUri(this.baseUri!, webFile[name]);
+                if (name === 'html') {
+                    // 获取html文本内容
+                    await readFileUri(searchUri!).then((val: Uint8Array) => {
+                        this.htmlContent = val.toString();
+                    }).catch(err => {
+                        throw new Error(err);
+                    });
+                } else if (!dev) {
+                    // 生产环境只解析html
+                    continue;
+                } else if (name === 'css') {
+                    this.cssUri = searchUri;
+                } else if (name === 'js') {
+                    this.jsUri = searchUri;
+                }
+            }
+            return Promise.resolve();
+        }).catch(err => {
+            return Promise.reject(err);
+        });
+    }
+
+    /**
      * 根据环境执行不同html文本获取函数
      */
     private envHandle (webview: Webview, dev: boolean): Promise<void> {
-        if (this.env === 'development') {
+        if (dev) {
             // 开发环境
             return this.development(webview, dev);
         } else {
@@ -155,34 +206,6 @@ export class FileMerge {
     }
 
     /**
-     * 读取html文本，获取css和js文件路径
-     */
-    private async start (dev: boolean) {
-        await readDirectoryUri(this.baseUri!).then(async (res) => {
-            for (let name in webFile) {
-                if (!res.find(item => item[0] === webFile[name])) continue;
-                const searchUri = newUri(this.baseUri!, webFile[name]);
-                if (name === 'html') {
-                    // 获取html文本内容
-                    await readFileUri(searchUri!).then((res: Uint8Array) => {
-                        this.htmlContent = res.toString();
-                    }).catch(err => {
-                        return Promise.reject(err);
-                    });
-                } else if (!dev) {
-                    // 生产环境只解析html
-                    continue;
-                } else if (name === 'css') {
-                    this.cssUri = searchUri;
-                } else if (name === 'js') {
-                    this.jsUri = searchUri;
-                }
-            }
-        });
-        return Promise.resolve();
-    }
-
-    /**
      * 开发环境读取指定路径下的文件，需要限制文件类型
      * @param uri
      * @param fileType 文件类型 
@@ -214,6 +237,10 @@ export class FileMerge {
      */
     private mergeAllFile (fileUri: Uri[]): Promise<string> {
         return new Promise((resolve, reject) => {
+            if (fileUri.length <= 0) {
+                resolve('');
+                return;
+            }
             readFileUriList(fileUri).then(res => {
                 resolve(mergeWebviewFile(res));
             }).catch(err => {
@@ -228,23 +255,17 @@ export class FileMerge {
     private cssFileMerge (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
             if (this.cssUri) {
-                let resetCss: fb, vscodeCss: fb;
+                let external_css_content: string = '';
                 // 外部统一样式处理
-                Promise.all([
-                    readFileUri(this.resetCssUri!),
-                    readFileUri(this.vscodeCssUri!)
-                ]).then(([a, b]: [fb, fb]) => {
-                    resetCss = a;
-                    vscodeCss = b;
+                this.externalFileMerge('css').then(res => {
+                    external_css_content = res;
                     return this.readDirectoryFile(this.cssUri!, 'css');
                 }).then(res => {
                     // 只能引入一个css文件，需要将其余引用样式写入主css文件中
                     return this.mergeAllFile(res);
                 }).then(str => {
                     // css文件整合，icon引入路径修改
-                    let css: string = this.cssIconfontPath(resetCss.toString(), webview) + 
-                        '\n' + vscodeCss.toString() + 
-                        '\n' + str;
+                    let css: string = this.cssIconfontPath(external_css_content, webview) + '\n' + str;
                     return Promise.resolve(css);
                 }).then((css: string | Buffer) => {
                     css = createBuffer(css);
@@ -274,10 +295,14 @@ export class FileMerge {
     private jsFileMerge (): Promise<void> {
         return new Promise((resolve, reject) => {
             if (this.jsUri) {
-                this.readDirectoryFile(this.jsUri, 'js').then(res => {
+                let externale_js_content: string = '';
+                this.externalFileMerge('js').then(res => {
+                    externale_js_content = res;
+                    return this.readDirectoryFile(this.jsUri!, 'js');
+                }).then(res => {
                     return this.mergeAllFile(res);
                 }).then(str => {
-                    let js: string = `(function () {${'\n'+str+'\n'}})();`;
+                    let js: string = `(function () {${'\n'+externale_js_content + '\n' + str+'\n'}})();`;
                     return Promise.resolve(js);
                 }).then((js: string | Buffer) => {
                     js = createBuffer(js);
@@ -290,6 +315,19 @@ export class FileMerge {
             } else {
                 resolve();
             }
+        });
+    }
+
+    /**
+     * 合并外部文件内容
+    */
+    private externalFileMerge (type: 'css'|'js'): Promise<string> {
+        return new Promise((resolve, reject) => {
+            this.mergeAllFile(type === 'css' ? this.externalCssUri : this.externalJsUri).then(res => {
+                resolve(res);
+            }).catch(err => {
+                reject(err);
+            });
         });
     }
 }

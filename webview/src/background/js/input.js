@@ -65,7 +65,7 @@ function createInputEvent () {
                 if (newValue !== type && newValue < inputInfo.inputPlaceholder.length) {
                     type = newValue;
                     this.value = "";
-                    setAllAttribute(inputTarget, {
+                    complexSetAttr(inputTarget, {
                         placeholder: inputInfo.inputPlaceholder[type] + (type === 1 ? publicData.backgroundOpacity : ''),
                         'data-type': inputInfo.inputType[type]
                     });
@@ -83,10 +83,8 @@ function createInputEvent () {
             set (newValue) {
                 // 输入框只限制text类型，数字校验手动进行，数字类型输入框删除加减按钮失败
                 if (typeof newValue === 'string') {
-                    if (newValue && typeof this.type === 'number' && 
-                    inputInfo.inputType[this.type] === 'number' && 
-                    (!newValue.match(/^(?!\.)/) || 
-                    (newValue.match(/\./g) && newValue.match(/\./g).length > 1))) {
+                    if (newValue && isNumber(this.type) && inputInfo.inputType[this.type] === 'number' 
+                    && (!newValue.match(/^(?!\.)/) || (newValue.match(/\./g) && newValue.match(/\./g).length > 1))) {
                         // 数字校验，number类型转换float类型后不能为NaN，小数点不能出现在开头并且不能出现两个以上
                         value = isNaN(parseFloat(newValue)) ? value : String(parseFloat(newValue));
                     } else {
@@ -157,13 +155,20 @@ function createInputEvent () {
  */
 function createInputSelection (target) {
     inputInfo.selectionIcon.forEach(item => {
-        let element = createELement('span', {
-            title: item.title??'',
-            class: 'iconfont'
-        });
-        element.innerHTML = item.icon??'';
-        target.appendChild(element);
-        element = null;
+        // 插入元素
+        complexAppendChild(
+            target,
+            // 插入图标的innerHTML
+            complexSetAttr(
+                // 新创建元素并设置属性
+                complexSetAttr($create('span'), {
+                    title: item.title??'',
+                    class: 'iconfont'
+                }),
+                item.icon??'',
+                'html'
+            )
+        );
     });
 }
 
@@ -327,7 +332,7 @@ function opacityMessageGetHandle (opacity) {
     inputSendDataComplete();
     if (inputDataWatcher.type === 1) {
         // 修改输入框占位字符内容
-        setAllAttribute(getId(inputInfo.id), {
+        complexSetAttr(getId(inputInfo.id), {
             placeholder: inputInfo.inputPlaceholder[inputDataWatcher.type] + publicData.backgroundOpacity
         });
     }

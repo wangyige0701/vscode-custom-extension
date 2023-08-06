@@ -101,16 +101,16 @@ window.addEventListener('load', onDataLoad.bind(this, false));
 getId(selectButtonId)?.addEventListener('click', buttonClickSelectImage);
 
 // 批量删除按钮绑定事件
-getId(batchDeleteId)?.addEventListener('click', buttonClickDeleteSelect);
+getId(batchDeleteId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickDeleteSelect));
 
 // 批量随机设置背景图事件
-getId(randomBackId)?.addEventListener('click', buttonClickRandomBackground);
+getId(randomBackId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickRandomBackground));
 
 // 全选按钮点击事件
-getId(selectAllId)?.addEventListener('click', buttonClickSelectAll);
+getId(selectAllId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectAll));
 
 // 取消全选按钮点击事件
-getId(selectCancelId)?.addEventListener('click', buttonClickSelectCancel);
+getId(selectCancelId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectCancel));
 
 // 脚本侧通信接收事件
 window.addEventListener('message', receiveMessage);
@@ -244,6 +244,13 @@ function buttonClickSelectImage () {
         name: 'selectImage',
         value: true
     });
+}
+
+/**
+ * 根据能否点击变量判断是否触发函数
+ */
+function canChangeForButton (callback) {
+    if (canChange()) callback?.();
 }
 
 /**
@@ -500,32 +507,6 @@ function changeRenderByRandomSetting (data) {
 }
 
 /**
- * 创建标签元素
- * @param {string} name 标签名
- * @param {object} option 属性
- * @returns {HTMLElement}
- */
-function createELement (name, options={}) {
-    const el = document.createElement(name);
-    setAllAttribute(el, options);
-    return el;
-}
-
-/**
- * 批量设置元素属性
- * @param {HTMLElement} el 
- * @param {Object} options 
- */
-function setAllAttribute (el, options={}) {
-    Object.keys(options).forEach(item => {
-        let i = options[item];
-        Array.isArray(i) ? 
-            el.setAttribute(item, i.join(' ')) : 
-            el.setAttribute(item, i);
-    });
-}
-
-/**
  * 通过id获取元素
  * @param {string} id 
  * @returns {HTMLElement}
@@ -533,17 +514,6 @@ function setAllAttribute (el, options={}) {
 function getId (id) {
     if (id) {
         return document.getElementById(id);
-    }
-}
-
-/**
- * 通过querySelector获取元素
- * @param {string} value 
- * @returns {HTMLElement}
- */
-function $query (value, target=document) {
-    if (value && target) {
-        return target.querySelector(value);
     }
 }
 

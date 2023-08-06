@@ -362,10 +362,10 @@ function createInstance () {
                 if (loading) {
                     // 添加动画
                     classListOperation(loadingTarget, 'add', loadingClass, imageListInfoShowClass);
-                    setHtmlText(loadingTarget, 'html', iconCode.loadingSingle);
+                    complexSetAttr(loadingTarget, iconCode.loadingSingle, 'html');
                 } else {
                     classListOperation(loadingTarget, 'remove', loadingClass, imageListInfoShowClass);
-                    setHtmlText(loadingTarget, 'html', '');
+                    complexSetAttr(loadingTarget, '', 'html');
                 }
             }
             if (empty !== this.imageInfoEmpty) {
@@ -376,11 +376,11 @@ function createInstance () {
                 if (empty) {
                     // 数组为空，根据加载情况显示文字
                     classListOperation(containerTarget, 'add', imageListInfoShowClass)
-                    setHtmlText(infoTarget, 'text', loading ? imageListInfoEmptyLoading : imageListInfoEmpty);
+                    complexSetAttr(infoTarget, loading ? imageListInfoEmptyLoading : imageListInfoEmpty, 'text');
                 } else {
                     // 数组不为空，隐藏文字区域
                     classListOperation(containerTarget, 'remove', imageListInfoShowClass);
-                    setHtmlText(infoTarget, 'text', '');
+                    complexSetAttr(infoTarget, '', 'text');
                 }
             }
         }

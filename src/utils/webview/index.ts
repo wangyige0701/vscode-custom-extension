@@ -79,7 +79,7 @@ export class FileMerge {
                 this.htmlContent = this.htmlContent
                 .replace(/(#policy)/, 
                     `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
-                    webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data:;">`
+                    webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data: blob:;">`
                 )
                 .replace(/(#css)/, this.newCssUri?
                     `<link href="${webview.asWebviewUri(this.newCssUri)}" rel="stylesheet />`:

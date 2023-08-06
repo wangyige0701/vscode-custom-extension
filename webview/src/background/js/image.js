@@ -58,7 +58,7 @@ function createInstance () {
             /** @type {string} */
             this.id = listId;
             /** @type {HTMLElement} */
-            this.element = getId(this.id);
+            this.element = $query('#'+this.id);
             // 劫持选择列表长度改变
             this.#resetSelectImageList(this);
             // 代理数组双向绑定
@@ -156,10 +156,8 @@ function createInstance () {
                         _this.renderBySelectListLength(false);
                     }
                     if (property === 'length') {
-                        // 判断是否需要展示删除按钮
-                        const batchButton = $query(
-                            `.${batchButtonContainerClass}`
-                        );
+                        /** @type {HTMLElement} 判断是否需要展示删除按钮 */
+                        const batchButton = $query(`.${batchButtonContainerClass}`);
                         if (value > 0) {
                             batchButton.classList.add(selectButtonToContainerClass);
                         } else {
@@ -220,10 +218,8 @@ function createInstance () {
          * 根据当前是否已经设置随机切换和勾选的图片数量进行按钮内文字的替换
          */
         settingRandomButtonText () {
-            // 切换按钮内文字
-            const buttonItem = $query(
-                `.${batchButtonContainerClass} #${randomBackId}`
-            );
+            /** @type {HTMLElement|null} 切换按钮内文字 */
+            const buttonItem = $query(`.${batchButtonContainerClass} #${randomBackId}`);
             if (!buttonItem) 
                 return;
             const length = this.selectImageList.length;
@@ -261,17 +257,17 @@ function createInstance () {
             const { src, code } = data;
             if (!src) return;
             /** 外层容器 @type {HTMLElement} */
-            let el = createELement('div', { 
+            let el = complexSetAttr($create('div'), { 
                 class: `${listImageClass} ${this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''}`, 
                 [imageContainerCodeName]: code, 
                 id: imageContainerCode+'-'+code 
             });
             // 图片本体
-            el.appendChild(createELement('img', { class: imageClass, loading: 'lazy', title: '右键查看大图', src }));
+            el.appendChild(complexSetAttr($create('img'), { class: imageClass, loading: 'lazy', title: '右键查看大图', src }));
             // 操作按钮
             let selectBut, deleteBut;
-            el.appendChild(selectBut = createELement('span', { class: imageButtonClass }));
-            el.appendChild(deleteBut = createELement('span', { class: imageButtonClass }));
+            el.appendChild(selectBut = complexSetAttr($create('span'), { class: imageButtonClass }));
+            el.appendChild(deleteBut = complexSetAttr($create('span'), { class: imageButtonClass }));
             classListOperation(selectBut, 'add', imageSelectButtonClass, circleBackIconClass);
             classListOperation(deleteBut, 'add', imageDeleteButtonClass, deleteIconClass);
             // 事件绑定
@@ -306,16 +302,13 @@ function createInstance () {
             if (!target) return;
             // 添加删除类名动画
             classListOperation(target, 'add', imageDeleteCLass);
-            const selectBut = target.querySelector(
-                `.${imageButtonClass}.${imageSelectButtonClass}`
-            );
-            const deleteBut = target.querySelector(
-                `.${imageButtonClass}.${imageDeleteButtonClass}`
-            );
+            let selectBut = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
+                deleteBut = $query(`.${imageButtonClass}.${imageDeleteButtonClass}`, target);
             // 解除事件绑定
             this.imageSelectIconEventBind(selectBut, true);
             this.imageDeleteIconEventBind(deleteBut, true);
             this.imageElementEventBind(target, true);
+            selectBut = null, deleteBut = null;
             setTimeout(() => {
                 target.remove();
             }, imageAnimationTime);
@@ -337,7 +330,9 @@ function createInstance () {
                 // 设置传入的数据
                 this.deleteAllRandomSelectClass();
                 array.forEach(item => {
-                    $query(`.${listImageClass}#${imageContainerCode}-${item}`)?.classList.add(imageIsRandomClass);
+                    /** @type {HTMLElement} */
+                    const result = $query(`.${listImageClass}#${imageContainerCode}-${item}`);
+                    result?.classList.add(imageIsRandomClass);
                 });
             }
         }
@@ -362,6 +357,7 @@ function createInstance () {
                 this.imageInfoLoading = loading;
                 // 加载状态不同，empty属性相同也可能有不同语句，需要重置状态
                 this.imageInfoEmpty = undefined;
+                /** @type {HTMLElement} */
                 let loadingTarget = $query(imageListInfoIcon);
                 if (loading) {
                     // 添加动画
@@ -374,6 +370,7 @@ function createInstance () {
             }
             if (empty !== this.imageInfoEmpty) {
                 this.imageInfoEmpty = empty;
+                /** @type {HTMLElement} */
                 let infoTarget = $query(imageListInfoContent);
                 let containerTarget = getId(imageListInfoId);
                 if (empty) {
@@ -392,17 +389,16 @@ function createInstance () {
          * 检查是否有元素
          */
         check () {
-            if (!this.element) {
-                throw new Error('没有对应元素');
-            }
+            if (!this.element) throw new Error('没有对应元素');
         }
 
         /**
          * 获取子元素所有节点
+         * @returns {Element[]}
          */
         getChild () {
             this.check();
-            return this.element.querySelectorAll('.'+listImageClass);
+            return $query('.'+listImageClass, { all: true, element: this.element });
         }
 
         /**
@@ -423,13 +419,11 @@ function createInstance () {
             if (codes.length <= 0) 
                 return;
             codes.forEach(code => {
-                const target = $query( 
-                    `.${listImageClass}#${imageContainerCode}-${code}`
-                );
-                const classList = $query( 
-                    `.${imageButtonClass}.${imageSelectButtonClass}`,
-                    target
-                )?.classList;
+                /** @type {HTMLElement} */
+                const target = $query(`.${listImageClass}#${imageContainerCode}-${code}`),
+                /** @type {Element} */
+                childTarget = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
+                classList = childTarget?.classList;
                 if (!classList) 
                     return;
                 if (operation === 'add' && !classList.contains(ImageSelectStateClass)) {

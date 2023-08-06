@@ -605,18 +605,3 @@ function objectHas (object, ...property) {
     }
     return result;
 }
-
-/**
- * 设置innerHTML和innerText
- * @param {HTMLElement} target 
- * @param {'html'|'text'} type 
- * @param {string} content 
- */
-function setHtmlText (target, type, content) {
-    if (!target) return;
-    if (type === 'html') {
-        target.innerHTML = content;
-    } else if (type === 'text') {
-        target.innerText = content;
-    }
-}

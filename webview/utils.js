@@ -3,9 +3,63 @@
 /* 公共js工具 */
 
 /**
+ * 
+ * @param {string} type 
+ */
+function checkMediaType (type) {
+    const typeList = ['application', 'audio', 'font', 'example', 'image', 'message', 'model', 'multipart', 'text', 'video'];
+    for (let index in typeList) {
+        if (type.startsWith(typeList[index])) return true;
+    }
+    return false;
+}
+
+/**
  * 数据转换为blob
 */
-function dataToBlob (data, type) {}
+function dataToBlob (data, type) {
+    try {
+        if (!checkMediaType(type)) throw new Error('Illegal type');
+        return URL.createObjectURL(
+            new Blob(isArray(data)?data:[data], { type })
+        );
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+/**
+ * 释放创建的URL对象
+ * @param {string} data 
+ */
+function revokeBlobData (data) {
+    try {
+        if (data) URL.revokeObjectURL(data);
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+/**
+ * 获取base64数据的类型
+ * @param {string} data
+ */
+function getBase64Type (data) {
+    return data.match(/^data:(\w+)\/(\w+);base64,(.*?)$/);
+}
+
+function base64ToBlob (data) {
+    const result = getBase64Type(data);
+    const [n, dataName, fileName, fileData] = result;
+    console.log(fileData);
+    const butr = atob(fileData);
+    let length = butr.length;
+    const unit8 = new Uint8Array(length);
+    while (length--) {
+        unit8[length] = butr.charCodeAt(length);
+    }
+    return dataToBlob(unit8, `${dataName}/${fileName}`);
+}
 
 /**
  * 防抖函数

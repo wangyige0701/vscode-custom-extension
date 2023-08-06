@@ -401,8 +401,9 @@ function delayAddImage (array, callback=undefined) {
             if (status === 'fulfilled') {
                 // 加载成功的图片数据传参给延迟执行的函数并且插入数组执行
                 imageArray.push(voidDelay.bind(null, () => {
+                    let blobUrl = base64ToBlob(array[value][0]);
                     publicData.imageRenderList?.unshift({
-                        src: array[value][0],
+                        src: blobUrl,
                         code: array[value][1]
                     });
                 }));

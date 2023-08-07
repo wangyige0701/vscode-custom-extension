@@ -44,6 +44,26 @@
 	}
 }
 
+/* 线条过渡动画 */
+@keyframes loading-gradient {
+	from {
+		background-position: 100% 50%;
+	}
+	to {
+		background-position: 0 50%;
+	}
+}
+
+/* 模糊过渡动画 */
+@keyframes blur-transition {
+	from {
+		filter: blur(var(--blur-number));
+	}
+	to {
+		filter: blur(0);
+	}
+}
+
 .loading-rotate {
 	animation: loading-rotate 1.5s ease infinite;
 }

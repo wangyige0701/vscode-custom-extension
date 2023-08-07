@@ -1,16 +1,10 @@
-import { Uri, FileType } from "vscode";
+import { Uri, FileType, Disposable } from "vscode";
 import { delay, getHashCode } from "../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { selectFile, showProgress } from "../utils/interactive";
+import { selectFile, setStatusBarResolve, showProgress } from "../utils/interactive";
 import { errHandle } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { 
-    changeLoadState, 
-    imageStoreUri, 
-    isChangeBackgroundImage, 
-    isWindowReloadToLoadBackimage, 
-    setBackgroundImageSuccess, 
-    setBackgroundInfoOnStatusBar } from "./utils";
+import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./execute_webview";
 import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./data";
@@ -25,12 +19,34 @@ const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 /**
  * 背景图片哈希码数据列表
  */
-const backgroundImageCodeList: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
+const backgroundImageCodeList: string[] = [];
+
+// 更新数组数据
+refreshImageCodeList();
 
 /**
  * 选择文件的默认路径
  */
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
+
+/**
+ * 储存哈希码和图片base64数据的键值对
+ */
+const repositoryData: { [key: string]: string } = {};
+
+/**
+ * 从缓存中获取数据并更新
+ */
+function refreshImageCodeList () {
+    // 更新储存列表数据
+    let cache: string[] | null = backgroundImageConfiguration.getBackgroundAllImagePath();
+    backgroundImageCodeList.length = cache.length;
+    cache.forEach((item, index) => {
+        if (backgroundImageCodeList[index] !== item)
+            backgroundImageCodeList[index] = item;
+    });
+    cache = null;
+}
 
 /**
  * vscode初始化后检测背景配置是否完整
@@ -199,22 +215,32 @@ export function selectImage () {
  * @param webview 
  */
 export function backgroundImageDataInit () {
-    let length: number = 0, stringContent: string[][] | undefined;
+    let length: number = 0;
     let success: boolean = false;
+    // 状态栏显示提示
+    let statusBarTarget: Disposable|null = setStatusBarResolve({
+        icon: 'loading~spin',
+        message: '侧栏列表初始化中'
+    });
+    refreshImageCodeList();
+    // 重置repositoryData数据
+    for (let name in repositoryData) {
+        delete repositoryData[name];
+    }
+    // 检索数据
     selectAllImage().then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
         return changeToString(buffers);
     }).then(str => {
-        stringContent = str;
-        return refreshBackgroundImageList(str.map(item => item[1]));
+        return refreshBackgroundImageList(str);
     }).then(() => {
         backgroundSendMessage({
             name: 'backgroundInitData',
-            value: stringContent!
+            value: backgroundImageCodeList
         });
         success = true;
-        length = stringContent!.length;
+        length = backgroundImageCodeList.length;
     }).then(() => {
         // 通过缓存获取图片哈希码发送
         const state = backgroundImageConfiguration.getBackgroundIsSetBackground();
@@ -230,11 +256,6 @@ export function backgroundImageDataInit () {
             name: 'nowBackgroundOpacity',
             value: backgroundImageConfiguration.getBackgroundOpacity()
         });
-        // 延迟指定时间后修改状态栏信息，仅当图片数量大于0时显示
-        if (length > 0)
-            setBackgroundInfoOnStatusBar('侧栏列表初始化中', 'loading~spin', length * 500, () => {
-                setBackgroundImageSuccess('侧栏列表初始化成功');
-            });
     }).catch(err => {
         errHandle(err);
         if (!success) {
@@ -245,7 +266,6 @@ export function backgroundImageDataInit () {
             });
         }
     }).finally(() => {
-        stringContent = undefined;
         // 获取当前随机设置背景图的状态，发送响应消息
         backgroundSendMessage({
             name: 'backgroundRandomList',
@@ -253,7 +273,36 @@ export function backgroundImageDataInit () {
                 backgroundImageConfiguration.getBackgroundRandomList() : 
                 false
         });
+        statusBarTarget!.dispose();
+        statusBarTarget = null;
+        // 延迟指定时间后修改状态栏信息，仅当图片数量大于0时显示
+        if (length > 0) setBackgroundImageSuccess('背景图列表初始化成功');
     });
+}
+
+/**
+ * 根据传入的code发送对应base64数据
+ * @param code 
+ * @returns 
+ */
+export function getBase64DataByCode ({ code, type }: { code: string, type: string }): void {
+    if (repositoryData.hasOwnProperty(code)) {
+        backgroundSendMessage({
+            name: 'backgroundSendBase64Data',
+            value: { code, data: repositoryData[code], type }
+        });
+    }
+}
+
+/**
+ * 从储存对象中根据编码获取base64数据
+*/
+export function getBase64DataFromObject (code: string): string {
+    if (repositoryData.hasOwnProperty(code)) {
+        return repositoryData[code];
+    } else {
+        return '';
+    }
 }
 
 /**
@@ -261,14 +310,14 @@ export function backgroundImageDataInit () {
  * @param buffers 
  * @returns {Promise<string[][]>}
  */
-function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
+function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
     return new Promise(resolve => {
         try {
-            const result: string[][] = [];
+            const result: string[] = [];
             buffers.forEach(async buff => {
                 // 校验当前哈希码是否存在于缓存列表中
-                await codeListRefresh(buff.code, 'check');
-                result.push([buff.buffer.toString(), buff.code]);
+                await codeListRefresh(buff.code, 'check', buff.buffer.toString());
+                result.push(buff.code);
             });
             resolve(result);
         } catch (error) {
@@ -282,17 +331,21 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[][]> {
  * @param code 
  * @param state 
  */
-async function codeListRefresh (code: string, state: codeChangeType='add'): Promise<void> {
+async function codeListRefresh (code: string, state: codeChangeType='add', addData: string|undefined = undefined): Promise<void> {
     // 缓存数组是否需要被更改
     let modify: boolean = false;
     if (state === 'add') {
         // 新增，创建code时进行检验，现在一定不会重复
         backgroundImageCodeList.unshift(code);
+        // 储存对象添加一条数据
+        repositoryData[code] = addData??'';
         modify = true;
     } else if (state === 'delete') {
         // 删除判断是否存在索引
         const index = backgroundImageCodeList.findIndex(item => item === code);
         backgroundImageCodeList.splice(index, 1);
+        // 删除存储的base64数据
+        if (repositoryData.hasOwnProperty(code)) delete repositoryData[code];
         modify = true;
         // 判断删除图片是否在随机切换数组中
         const rendomList = backgroundImageConfiguration.getBackgroundRandomList();
@@ -308,11 +361,16 @@ async function codeListRefresh (code: string, state: codeChangeType='add'): Prom
         const index = backgroundImageCodeList.findIndex(item => item === code);
         if (index < 0) 
             // 缓存数组中不存在，需要添加
-            await codeListRefresh(code, 'add');
+            await codeListRefresh(code, 'add', addData);
+        else
+            // 否则直接在储存对象添加一条数据
+            repositoryData[code] = addData??'';
     }
     if (modify)
         await backgroundImageConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
-            .then(() => {}, err => {
+            .then(() => {
+                refreshImageCodeList();
+            }, err => {
                 return Promise.reject(err);
             });
     return Promise.resolve();
@@ -368,6 +426,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
                     return Promise.reject(err);
                 }); 
     }
+    refreshImageCodeList();
     return Promise.resolve();
 }
 
@@ -480,7 +539,7 @@ export function createFileStore (base64: string): Promise<{hashCode:string, base
                 return writeFileUri(uri, createBuffer(base64));
             }).then(() => {
                 // 新增一个哈希码数据
-                return codeListRefresh(code);
+                return codeListRefresh(code, 'add', base64.toString());
             }).then(() => {
                 resolve({ hashCode: code, base64: base64 });
             }).catch(err => {

@@ -40,22 +40,25 @@ const inputDataWatcher = createInputEvent();
 registLock('inputConfirm', inputConfirmButtonLock);
 
 function createInputEvent () {
-    createInputSelection(document.querySelector(inputInfo.selectionContainer));
-    // 输入框类型控制按钮列表
-    const selection = document.querySelectorAll(inputInfo.selection);
-    // 输入框操作按钮
-    let operation = document.querySelectorAll(inputInfo.operation);
-    // 输入框操作按钮容器
-    let operationContainer = document.querySelector(inputInfo.operationContainer);
-    // 输入框的外层盒子
+    createInputSelection($query(inputInfo.selectionContainer));
+    /** @type {HTMLElement[]} 输入框类型控制按钮列表 */
+    const selection = $query(inputInfo.selection, true);
+    /** @type {HTMLElement[]} 输入框操作按钮 */
+    let operation = $query(inputInfo.operation, true);
+    /** @type {HTMLElement} 输入框操作按钮容器 */
+    let operationContainer = $query(inputInfo.operationContainer);
+    /** @type {HTMLElement} 输入框的外层盒子 */
     const box = getId(inputInfo.box);
-    // 输入框对象
+    /** @type {HTMLInputElement} 输入框对象 */
     const inputTarget = getId(inputInfo.id);
-    // 确认按钮
+    /** @type {HTMLElement} 确认按钮 */
     let confirm = getId(inputInfo.confirm);
-    // 清除按钮
+    /** @type {HTMLElement} 清除按钮 */
     let clear = getId(inputInfo.clear);
     let type = undefined, value = '';
+    /**
+     * @type {{type:number,value:string}}
+     */
     let inputDataWatcher = Object.defineProperties({}, {
         type: {
             // 0是下载外部图片；1是修改透明度
@@ -90,6 +93,7 @@ function createInputEvent () {
                     } else {
                         value = newValue;
                     }
+                    value = String(value);
                     inputStartCheck(this.type, value);
                     inputTarget.value = value;
                 }
@@ -280,7 +284,7 @@ function setBackgroundOpacity (opacity) {
 
 /**
  * 修改元素列表的类名
- * @param {NodeListOf<Element>} ellist 
+ * @param {Element[]} ellist 
  * @param {number} index 
  */
 function inputSelectionClass (ellist, index) {

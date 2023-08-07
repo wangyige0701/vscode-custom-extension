@@ -12,7 +12,11 @@ var imageInstance = null,
     re_image_width = 0,
     re_image_height = 0;
 
+/** @type {string[]} 存放图片路径 */
 const imageSetStack = [];
+
+/** @type {string[]} 存放需要释放的blob路径 */
+const revokeStack = [];
 
 /** 图片操作属性 */
 const operationTarge = {
@@ -64,7 +68,7 @@ Object.defineProperty(operationTarge, 'scale', {
     }
 });
 
-var size_debounce = debounce(window_size, true);
+var size_debounce = debounce(window_size, 300, true);
 
 // 监听窗口尺寸改变
 window.addEventListener('resize', size_debounce);
@@ -98,27 +102,44 @@ function receiveMessage ({ data }) {
     }
 }
 
-/** 刷新图片样式 */
+/** 
+ * 刷新图片样式
+ * @param {string} src
+ *  */
 async function changeImageStyle (src) {
     operationTarge.can = false;
     if (!imageInstance || !src) return;
-    let target = document.getElementById(imageContainerId);
+    revokeStack.push(src);
+    /** @type {HTMLElement} */
+    let target = $query('#'+imageContainerId);
     if (target.childElementCount > 0) {
         target.removeChild(imageInstance);
     }
     target.style.cssText = '';
-    target.classList.add('loading', 'iconfont');
     loadImage(src, function () {
         re_image_width = imageInstance.width;
         re_image_height = imageInstance.height;
         complete_size();
-        target.classList.remove('loading', 'iconfont');
+        changeAnimation(false);
         target.append(imageInstance);
         // 修改图片位置
         image_position();
         operationTarge.can = true;
         return Promise.resolve();
     });
+}
+
+/**
+ * 切换动画
+ * @param {boolean} state 
+ */
+function changeAnimation (state = true) {
+    if (state) {
+        $query('#'+imageContainerId).classList.add('loading', 'iconfont');
+    } else {
+        // 关闭动画
+        $query('#'+imageContainerId).classList.remove('loading', 'iconfont');
+    }
 }
 
 /** 计算图片显示尺寸 */
@@ -162,8 +183,19 @@ function executeStack () {
 
 /** 队栈插入数据 */
 function setStack (src) {
-    imageSetStack.push(src);
+    changeAnimation(true);
+    clearBlobData();
+    imageSetStack.push(base64ToBlob(src));
     executeStack();
+}
+
+/**
+ * 释放blob数据
+ */
+function clearBlobData () {
+    if (revokeStack.push.length > 0) {
+        revokeBlobData(revokeStack.shift());
+    }
 }
 
 /** 创建新的image实例 */
@@ -178,6 +210,9 @@ function createImage () {
 
 /** 销毁image实例 */
 function destroyImage () {
+    // 释放blob数据
+    clearBlobData();
+    // 解除事件绑定
     unbindMouseOperation(document.getElementById(imageContainerId));
     window.removeEventListener('resize', size_debounce);
     window.removeEventListener('load', createImage);

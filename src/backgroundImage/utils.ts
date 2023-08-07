@@ -84,6 +84,11 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
             .then(() => {}, err => {
                 return Promise.reject(err);
             });
+        // 将缓存数组数据重置为空
+        await backgroundImageConfiguration.refreshBackgroundImagePath([])
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
         setMessage({
             message: '背景图储存路径已切换为默认路径'
         });
@@ -94,6 +99,11 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
     if (path && uri) {
         // 缓存数据
         await backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
+            .then(() => {}, err => {
+                return Promise.reject(err);
+            });
+        // 将缓存数组数据重置为空
+        await backgroundImageConfiguration.refreshBackgroundImagePath([])
             .then(() => {}, err => {
                 return Promise.reject(err);
             });

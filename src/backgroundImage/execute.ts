@@ -1,5 +1,5 @@
 import { Webview } from "vscode";
-import { backgroundImageDataInit, deleteImage, selectImage } from ".";
+import { backgroundImageDataInit, deleteImage, getBase64DataByCode, getBase64DataFromObject, selectImage } from ".";
 import { backgroundMessageData } from "./data";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
@@ -21,6 +21,10 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             // 初始化背景图数据 value: false | true
             if (value) backgroundImageDataInit();
             break;
+        case 'getBackgroundBase64Data':
+            // 发送code，用于获取具体base64数据
+            if (value) getBase64DataByCode(value);
+            break;
         case 'selectImage':
             // 选择图片 value: false | true
             if (value) selectImage();
@@ -34,6 +38,7 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             if (value) settingImage(value);
             break;
         case 'externalImage':
+            // 上传外部图片
             if (value) requestImageToBackground(value);
             break;
         case 'backgroundOpacity':
@@ -45,8 +50,8 @@ export function backgroundExecute ({ name, value }: backgroundMessageData, webvi
             randomSettingBackground(value);
             break;
         case 'viewBigImage':
-            // 标题发送哈希码前七位
-            toViewImage(value.src, `${value.code.slice(0, 7)}...`, webview);
+            // 查看大图，标题发送哈希码前七位
+            if (value) toViewImage(getBase64DataFromObject(value), `${value.slice(0, 7)}...`, webview);
             break;
         default:
             break;

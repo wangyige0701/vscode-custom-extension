@@ -57,7 +57,7 @@ const publicData = {
     backgroundOpacity: 0,
     /**
      * 图片列表渲染数组
-     * @type {{src:string,code:string}[] | null}
+     * @type {{src:string,code:string,init:boolean}[] | null}
     */
     imageRenderList: null
 }
@@ -88,14 +88,24 @@ const lockSet = {
     selectFile: false
 };
 
-// 列表操作实例，构造函数内重写渲染列表get、set方法
+/** 列表操作实例，构造函数内重写渲染列表get、set方法 */
 const listInstance = createInstance();
 
-// 操作队列
+/** @type {Function[]} 操作队列 */
 const operationQueue = [];
+
+/** @type {{ code: string, callback: Function}[]} 懒加载图片触发函数 */
+const lazyLoadImageList = [];
 
 // 初始加载所有图片
 window.addEventListener('load', onDataLoad.bind(this, false));
+
+// 销毁前释放所有blob资源
+window.addEventListener('unload', () => {
+    publicData.imageRenderList?.forEach(target => {
+        revokeBlobData(target.src);
+    });
+});
 
 // 添加图片按钮点击事件绑定
 getId(selectButtonId)?.addEventListener('click', buttonClickSelectImage);
@@ -155,6 +165,10 @@ function receiveMessage ({ data }) {
         case 'backgroundInitData':
             initImageData(value);
             break;
+        case 'backgroundSendBase64Data':
+            // 发送code编码后接收到的base64数据
+            if (value) queueSet(getBase64DataToLoad.bind(this, value));
+            break;
         case 'newImage':
             // value: string[]，添加的新图片路径和对应hashCode
             lockSet.selectFile = false;
@@ -202,6 +216,8 @@ function onDataLoad (reload=false) {
         deleteAllImage();
         listInstance.changeImageListInfo(true, true);
     }
+    // 重置状态
+    listInstance.reset();
     sendMessage({
         name: 'backgroundInit',
         value: true
@@ -216,7 +232,7 @@ function queueSet (...func) {
     for (let i = 0; i < func.length; i++) {
         const item = func[i];
         if (typeof item !== 'function') 
-            break;
+            continue;
         operationQueue.push(item);
     }
 }
@@ -343,11 +359,11 @@ function sendMessage (options={}) {
 
 /**
  * 初始化图片加载
- * @param {string[][]} array 
+ * @param {string[]} array 
  */
 function initImageData (array) {
     if (array.length > 0) {
-        delayAddImage(array, queueExecute.bind(this, true));
+        firstLoadImages(array, queueExecute.bind(this, true));
     } else {
         // 如果初始没有图片，则直接执行队列
         queueExecute(true);
@@ -355,89 +371,49 @@ function initImageData (array) {
 }
 
 /**
- * 延迟指定时间返回resolve的异步函数
- * @param {(data:any) => any} callback 
- * @param {number} time 
- * @returns 
+ * 首次加载图片列表时的处理方法，使用懒加载分批次加载所有图片
+ * @param {string[]} array 
+ * @param {Function} callback 
  */
-function voidDelay (callback, time=imageAnimationTime) {
-    return new Promise(resolve => {
-        callback();
-        setTimeout(resolve, time);
-    });
-}
-
-/**
- * 接收加载完成的图片插入方法数据，倒序遍历执行并且对每一个函数进行阻塞
- * @param {(() => Promise<void>)[]} promise 
- * @returns 
- */
-function delayHandle (promise) {
-    return new Promise(async (resolve) => {
-        let length = promise.length;
-        for (let i = length-1; i >= 0; i--) {
-            let item = promise[i];
-            if (!item) continue;
-            await item();
-        }
-        resolve();
-    }); 
-}
-
-/**
- * 延迟加载所有图片
- * @param {string[][]} array 
- * @param {() => any} callback 
- */
-function delayAddImage (array, callback=undefined) {
-    let imageArray = [];
-    array.forEach((item, index) => {
-        // 执行图片加载方法
-        imageArray.push(loadImage(item[0], index));
-    });
-    Promise.allSettled(imageArray).then(res => {
-        imageArray.splice(0, imageArray.length);
-        res.forEach(({ status, value }) => {
-            if (status === 'fulfilled') {
-                // 加载成功的图片数据传参给延迟执行的函数并且插入数组执行
-                imageArray.push(voidDelay.bind(null, () => {
-                    let blobUrl = base64ToBlob(array[value][0]);
-                    publicData.imageRenderList?.unshift({
-                        src: blobUrl,
-                        code: array[value][1]
-                    });
-                }));
-            }
+function firstLoadImages (array, callback=undefined) {
+    for (let i = 0; i < array.length; i++) {
+        const code = array[i]
+        publicData.imageRenderList?.push({
+            init: true,
+            code: code
         });
-        // 执行完成后调用回调函数
-        delayHandle(imageArray).then(() => {
-            callback?.();
-        });
-        imageArray = null;
+    }
+    callback?.();
+}
+
+/**
+ * 注册一个懒加载图片触发方法，类型是lazyLoad
+ * @param {string} code 
+ * @param {Function} callback 
+ */
+function registLazyLoadImage (code, callback) {
+    if (!code || !callback) return;
+    lazyLoadImageList.push({ code, callback });
+    // 发送编码获取base64数据
+    sendMessage({
+        name: 'getBackgroundBase64Data',
+        value: { code, type: 'lazyLoad' }
     });
 }
 
 /**
- * 通过Image方法进行图片初始化加载，加载成功或者缓存内有数据就resolve
- * @param {string} src 
- * @param {number} index 
- * @returns 
+ * 获取数据后根据对应编码和类型触发不同方法
+ * @param {{ code: string, data: string, type: string }} options 
  */
-function loadImage (src, index) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        if (img.complete) {
-            resolve(index);
-        } else {
-            img.onload = function () {
-                resolve(index);
-            }
-            img.onerror = function (e) {
-                reject(e);
-            }
-        }
-        img.src = src;
-    });
+function getBase64DataToLoad ({ code, data, type }) {
+    if (type === 'lazyLoad') {
+        // 懒加载图片
+        let index = lazyLoadImageList.findIndex(item => item.code === code);
+        if (index < 0) return;
+        // 加载后移除数组元素并执行回调函数
+        let target = lazyLoadImageList.splice(index, 1)?.[0];
+        target?.callback?.(base64ToBlob(data));
+    }
 }
 
 /**
@@ -445,11 +421,8 @@ function loadImage (src, index) {
  */
 function deleteAllImage () {
     // 提前赋值，防止操作数组时长度实时改变
-    let i = 0, length = publicData.imageRenderList?.length??0;
-    while(i < length) {
-        publicData.imageRenderList?.shift();
-        i++;
-    }
+    let length = publicData.imageRenderList?.length??0;
+    publicData.imageRenderList.splice(0, length);
 }
 
 /**
@@ -478,7 +451,7 @@ function deleteImageHandle (value) {
  * @param {{ code:string,src:string }} param 
  */
 function addImage (src, code) {
-    publicData.imageRenderList?.unshift({ code, src });
+    publicData.imageRenderList?.unshift({ code, src: base64ToBlob(src) });
 }
 
 /**
@@ -487,8 +460,10 @@ function addImage (src, code) {
  */
 function deleteImage (value) {
     const index = publicData.imageRenderList?.findIndex(({ code }) => code === value);
-    if (index >= 0) 
+    if (index >= 0) {
+        // 清除数组内容
         publicData.imageRenderList?.splice(index, 1);
+    }
 }
 
 /**
@@ -593,10 +568,10 @@ function classListOperation (target, operation, ...name) {
  * 判断对象是否含有某个属性
  * @param {{}} object 
  * @param {string[]} property 
- * @returns 
+ * @returns {boolean}
  */
 function objectHas (object, ...property) {
-    if (typeof object !== 'object') return false;
+    if (!object || typeof object !== 'object') return false;
     let result = true;
     for (let i = 0; i < property.length; i++) {
         if (!object.hasOwnProperty(property[i])) {

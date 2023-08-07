@@ -119,6 +119,7 @@ nav.list > img {
 
 /* 图片列表容器 */
 div.image-container {
+	--blur-number: 5px;
     width: 95%;
 	max-width: 333px;
     border-radius: 5px;
@@ -134,7 +135,7 @@ div.image-container {
 
 div.image-container.image-delete {
 	opacity: 0;
-	animation: image-delete .5s ease;
+	animation: image-delete .5s cubic-bezier(0.5, 0, 0.5, 1);
 }
 
 div.image-container:hover {
@@ -157,11 +158,71 @@ div.image-container:not(:last-child) {
 	margin-bottom: 10px;
 }
 
-div.image-container > img.image {
+/* 新插入的图片添加一个展开动画 */
+div.image-container[init=false] {
+	animation: image-add .5s cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+/* 图片遮罩容器 */
+div.image-container > div.image-popup {
+	display: inline-block;
+	user-select: none;
+	width: 90%;
+	height: auto;
+	line-height: 1em;
+	border-radius: 5px;
+	position: relative;
+	text-align: center;
+}
+
+div.image-container[loaded=false] > div.image-popup {
+	pointer-events: none;
+	aspect-ratio: 1.7;
+}
+
+div.image-container[loaded=false] > div.image-popup.loading-gradient > * {
+	display: none!important;
+}
+
+/* 线性加载动画样式 */
+div.image-container[loaded=false] > div.image-popup.loading-gradient {
+	background: linear-gradient(90deg, #f2f2f2 25%, #c7c7c7 37%, #f2f2f2 63%);
+	background-size: 400% 100%;
+}
+
+/* 新增图片需要等展开动画完成再开始线性加载动画 */
+div.image-container[init=false][loaded=false] > div.image-popup.loading-gradient {
+	animation: loading-gradient 1.5s ease .5s infinite;
+}
+
+/* 新增图片需要等展开动画完成再开始线性加载动画 */
+div.image-container[init=true][loaded=false] > div.image-popup.loading-gradient {
+	animation: loading-gradient 1.5s ease infinite;
+}
+
+/* 图片 */
+div.image-container > div.image-popup > img.image {
 	user-select: none;
 	max-width: 90%;
 	max-height: 150px;
-	animation: image-add .5s ease;
+	position: relative;
+	transition: opacity .3s ease;
+}
+
+/* 图片未完成加载时的透明度 */
+div.image-container[loaded=false] > div.image-popup > img.image {
+	opacity: 0;
+}
+
+/* 图片加载完成时的透明度 */
+div.image-container[loaded=true] > div.image-popup > img.image {
+	opacity: 1;
+}
+
+/* 加载完成，图片遮罩过渡关闭 */
+div.image-container[loaded=true] > div.image-popup {
+	background: transparent;
+	animation: blur-transition .5s ease;
 }
 
 /* 图片操作 */

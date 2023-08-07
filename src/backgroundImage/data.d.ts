@@ -10,8 +10,8 @@ interface dataType {
  * 接收通信数据类型
  */
 
-export type backgroundMessageData = backgroundInitType | selectImageType | deleteImageType | settingBackgroundType | 
-    externalImageType | backgroundOpacityType | randomBackgroundType | viewBigImageType;
+export type backgroundMessageData = backgroundInitType | getBackgroundBase64DataType | selectImageType | deleteImageType | settingBackgroundType | 
+externalImageType | backgroundOpacityType | randomBackgroundType | viewBigImageType;
 
 /**
  * 脚本侧通知初始化背景图信息
@@ -19,6 +19,14 @@ export type backgroundMessageData = backgroundInitType | selectImageType | delet
 interface backgroundInitType extends dataType {
     name: 'backgroundInit';
     value: boolean;
+}
+
+/**
+ * webview脚本侧通过code获取具体的base64数据
+ */
+interface getBackgroundBase64DataType extends dataType {
+    name: 'getBackgroundBase64Data';
+    value: { code: string, type: string };
 }
 
 /**
@@ -78,21 +86,29 @@ interface randomBackgroundType extends dataType {
 */
 interface viewBigImageType extends dataType {
     name: 'viewBigImage',
-    value: { code: string, src: string }
+    value: string
 }
 
 /**
  * 发送通信信息类型
 */
-export type backgroundSendMessageData = backgroundInitDataType | newImageType | deleteImageSuccessType | settingBackgroundSuccessType | 
-    newImageNetworkType | nowBackgroundOpacityType | backgroundStorePathChangeType | backgroundRandomListType;
+export type backgroundSendMessageData = backgroundInitDataType | backgroundSendBase64DataType | newImageType | deleteImageSuccessType | 
+settingBackgroundSuccessType | newImageNetworkType | nowBackgroundOpacityType | backgroundStorePathChangeType | backgroundRandomListType;
 
 /**
  * 通知脚本侧背景图信息初始化完成，返回所有背景图数据
  */
 interface backgroundInitDataType extends dataType {
     name: 'backgroundInitData';
-    value: string[][];
+    value: string[];
+}
+
+/**
+ * 发送图片具体的base64数据
+ */
+interface backgroundSendBase64DataType extends dataType {
+    name: 'backgroundSendBase64Data';
+    value: { code: string, data: string, type: string };
 }
 
 /**

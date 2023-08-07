@@ -5,6 +5,7 @@
 /**
  * 
  * @param {string} type 
+ * @returns {boolean}
  */
 function checkMediaType (type) {
     const typeList = ['application', 'audio', 'font', 'example', 'image', 'message', 'model', 'multipart', 'text', 'video'];
@@ -15,7 +16,10 @@ function checkMediaType (type) {
 }
 
 /**
- * 数据转换为blob
+ * 数据转换为blob的路径字符串
+ * @param {any|any[]} data
+ * @param {string} type
+ * @returns {string}
 */
 function dataToBlob (data, type) {
     try {
@@ -48,11 +52,15 @@ function getBase64Type (data) {
     return data.match(/^data:(\w+)\/(\w+);base64,(.*?)$/);
 }
 
+/**
+ * 将base64数据转为blob路径数据
+ * @param {string} data 
+ * @returns {string}
+ */
 function base64ToBlob (data) {
     const result = getBase64Type(data);
     const [n, dataName, fileName, fileData] = result;
-    console.log(fileData);
-    const butr = atob(fileData);
+    const butr = window.atob(fileData);
     let length = butr.length;
     const unit8 = new Uint8Array(length);
     while (length--) {
@@ -67,13 +75,13 @@ function base64ToBlob (data) {
  * @param {any} param 
  * @returns 
  */
-function debounce (callback, param) {
+function debounce (callback, time, param) {
     let timeout;
-    return function () {
+    return function (...params) {
         if (timeout) {
             clearTimeout(timeout);
         }
-        timeout = setTimeout(callback.bind(null, param), 300);
+        timeout = setTimeout(callback.bind(null, ...[param, ...params]), time);
     }
 }
 
@@ -88,12 +96,12 @@ function $create (name) {
 /**
  * 获取节点复数属性
  * @param {HTMLElement} target 目标元素
- * @param {string[]} options 需要获取的属性名数组
+ * @param {string[]|string} options 需要获取的属性名数组
  * @param {boolean} list 是否返回数组格式
  * @returns {string[] | {[key: string]: string}}
  */
 function complexGetAttr (target, options, list = true) {
-    if (!isArray(options)) options = [];
+    if (!isArray(options)) options = isString(options) ? [options] : [];
     if (!target || !target instanceof HTMLElement) return list ? new Array(options.length).fill(undefined) : options.reduce((obj, value) => {
         obj[value] = undefined;
         return obj;
@@ -136,11 +144,11 @@ function complexSetAttr (target, options, type) {
             complexSetAttr(target, value, 'css');
             continue;
         }
-        if (isArray(value)) value = value.reduce((pre, curr) => {
-            return pre + (isString(curr) ? curr : '');
+        if (isArray(value)) value = value.reduce((pre, curr, currIndex) => {
+            return pre + (isString(curr) ? `${currIndex>0&&curr?' ':''}${curr}` : '');
         }, '');
-        // 如果不是字符串，则以下操作直接跳过
-        if (!value || !isString(value)) continue;
+        // 数据类型改为字符串
+        value = String(value);
         if (type === 'css') {
             // 设置css样式
             target.style.hasOwnProperty(key) ? target.style[key] = value : null;
@@ -159,20 +167,20 @@ function complexSetAttr (target, options, type) {
 /**
  * 将复数节点插入根节点
  * @param {Element|ShadowRoot} target dom节点或者阴影根节点
- * @param {Element[]} list 
+ * @param {Element[]|Element} childs 需要插入的子节点
  * @returns {Element}
  */
-function complexAppendChild (target, list) {
+function complexAppendChild (target, childs) {
     if (!target || !target instanceof Element || !target instanceof ShadowRoot) return;
-    if (!Array.isArray(list)) {
-        if (list && list instanceof Element) {
-            list = [list];
+    if (!Array.isArray(childs)) {
+        if (childs && childs instanceof Element) {
+            childs = [childs];
         } else {
             return target
         }
     };
-    for (let i = 0; i < list.length; i++) {
-        let dom = list[i];
+    for (let i = 0; i < childs.length; i++) {
+        let dom = childs[i];
         if (!dom || !dom instanceof Element) continue;
         target.appendChild(dom);
     }
@@ -202,7 +210,7 @@ function $query (target, options = false) {
         // 检索对象
         element = options?.element??document;
     }
-    if (/^[^\s>~,:\.#]+[\s>~,:\.#]+/.test(target)) {
+    if (/^[^\s>~,\:]+[\s>~,\:\.#]+/.test(target)) {
         return all ? changeToArray(element.querySelectorAll(target)) : element.querySelector(target);
     } else if (target.startsWith('.')) {
         // 类名选择器

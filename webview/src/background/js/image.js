@@ -2,16 +2,20 @@
 
 // 监听右键点击，点击图片发送数据查看大图
 document.getElementById(listId).addEventListener('contextmenu', (e) => {
+    /** @type {{target:Element}} */
     let { target } = e;
-    if (!target.classList.contains('image-container') && !target.parentElement.classList.contains('image-container')) return;
+    // 遍历获取目标元素
+    while (target && target.id !== listId && !target.classList.contains(listImageClass)) {
+        target = target.parentElement;
+    }
+    if (!target || !target.classList.contains(listImageClass)) return;
     e.preventDefault();
-    if (target.parentElement.classList.contains('image-container')) target = target.parentElement;
     // 判断点击的图片是否已经显示大图
     let code = target.dataset?.code??'';
     if (code === nowSelectViewImage) return;
     sendMessage({
         name: 'viewBigImage',
-        value: { code, src: target.querySelector('.image')?.getAttribute('src')??'' }
+        value: code
     });
     nowSelectViewImage = code;
 });
@@ -51,6 +55,12 @@ function createInstance () {
          * 1为取消随机；2为设置勾选的图片，3为设置全部图片
         */
         settingRandomButtonTextState = 3;
+        /** @type {{ target: HTMLElement, data: {code:string,src:string,index:number,target?:HTMLElement} }[]} 记录注册的监听器 */
+        #recordMap = [];
+        /** 是否初始化并且开始监听懒加载 */
+        #lazyObserve = false;
+        /** 删除图片的动画 */
+        #deleteByAnimation = true;
 
         constructor() {
             // 初始化时更新加载状态
@@ -70,6 +80,29 @@ function createInstance () {
         }
 
         /**
+         * 重置状态
+         */
+        reset () {
+            // 重置状态
+            this.#lazyObserve = false;
+            // 初始化数组
+            this.#recordMap = [];
+        }
+
+        /**
+         * 延迟触发懒加载开启函数
+        */
+        #initToLazyLoadImage = debounce(() => {
+            if (this.#lazyObserve) return
+            this.#lazyObserve = true;
+            // 开始监听是否懒加载图片
+            this.#scrollDebounce();
+            window.addEventListener('resize', this.#scrollDebounce, { passive: true });
+            this.element.addEventListener('scroll', this.#scrollDebounce, { passive: true });
+
+        }, 500);
+
+        /**
          * 重置数组的操作方法，将数据和元素操作进行绑定
          * @param {ImageList} _this
          */
@@ -79,26 +112,32 @@ function createInstance () {
             const newMethods = Object.create(oldMethods);
             methods.forEach(method => {
                 newMethods[method] = function (...args) {
+                    _this.#deleteByAnimation = true;
                     switch (method) {
                         case 'push':
                         case 'unshift':
+                            // 新增
                             args.forEach(arg => {
-                                if (objectHas(arg, 'src', 'code')) 
+                                if (objectHas(arg, 'init', 'code'))
+                                    arg.target = _this.#addImageItem(arg, method==='unshift', true);
+                                else if (objectHas(arg, 'src', 'code')) 
                                     arg.target = _this.#addImageItem(arg, method==='unshift'); // 元素对象
                             });
                             break;
                         case 'pop':
-                            _this.#deleteImageItem(this[this.length-1].target);
+                            _this.#deleteImageItem(this[this.length-1].target, this.src);
                             break;
                         case 'shift':
-                            _this.#deleteImageItem(this[0].target);
+                            _this.#deleteImageItem(this[0].target, this.src);
                             break;
                         case 'splice':
-                            if (args.slice(2).length === 0) 
+                            if (args.slice(2).length === 0) {
+                                if (args[1].length > 1) _this.#deleteByAnimation = false;
                                 // 只处理通过splice删除元素
                                 for (let i = 0; i < args[1]; i++) {
-                                    _this.#deleteImageItem(this[args[0]+i].target);
+                                    _this.#deleteImageItem(this[args[0]+i].target, this.src);
                                 }
+                            }
                             break;
                         default:
                             break;
@@ -251,57 +290,171 @@ function createInstance () {
          * 插入一个img节点
          * @param {{code:string,src:string,index:number,target?:HTMLElement}} data 图片数据
          * @param {boolean} head 是否从头部插入，默认为true
+         * @param {boolean} init 是否是初始加载
+         * @returns {HTMLElement}
          */
-        #addImageItem (data, head=true) {
-            if (!data) return;
-            const { src, code } = data;
-            if (!src) return;
+        #addImageItem (data, head=true, init=false) {
+            if (init) {
+                // 异步调用懒加载触发函数
+                setTimeout(this.#initToLazyLoadImage);
+                const { code } = data;
+                return this.#loadImageLazy(data, code, head);
+            } else {
+                const { src, code } = data;
+                return this.#loadImageDirect(data, src, code, head);
+            }
+        }
+
+        /** 监听是否达到触发高度 */
+        #observer = new window.IntersectionObserver((entries, obs) => {
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                let window_height = window.innerHeight;
+                let { top, bottom, height } = entry.boundingClientRect;
+                if (top > (0 - height) && bottom < (window_height + height)) {
+                    // 目标不在已注册元素列表中
+                    let index = this.#recordMap.findIndex((item) => item.target === entry.target);
+                    if (index < 0) continue;
+                    const value = this.#recordMap[index];
+                    registLazyLoadImage(
+                        complexGetAttr(value.target, imageContainerCodeName)[0], 
+                        this.#createImage.bind(this, value.target, value.data)
+                    );
+                    this.#recordMap.splice(index, 1);
+                }
+                // 解除绑定，防止首次滚动后连续触发监听
+                obs.unobserve(entry.target);
+            }
+        });
+
+        /**
+         * 监听图片是否懒加载
+        */
+        #scrollDebounce = debounce(() => {
+            if (this.#recordMap.length <= 0) {
+                // 删除相关监听
+                window.removeEventListener('resize', this.#scrollDebounce, { passive: true });
+                this.element.removeEventListener('scroll', this.#scrollDebounce, { passive: true });
+                this.#recordMap = null;
+                this.#observer = null;
+                this.#scrollDebounce = null;
+            } else {
+                // 添加监听
+                this.#recordMap.forEach(item => {
+                    this.#observer.observe(item.target);
+                });
+            }
+        }, 300);
+
+        /**
+         * 延迟加载图片
+         * @param {string} code 编码
+         * @param {boolean} head 是否从头部插入，默认为true
+         * @returns {HTMLElement}
+         */
+        #loadImageLazy (data, code, head) {
+            if (!code) return;
             /** 外层容器 @type {HTMLElement} */
-            let el = complexSetAttr($create('div'), { 
-                class: `${listImageClass} ${this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''}`, 
+            let el = complexAppendChild(complexSetAttr($create('div'), { 
+                class: [listImageClass, this.settingRandomButtonTextState === 1 ? imageIsRandomClass : '', 'init-image'],
                 [imageContainerCodeName]: code, 
-                id: imageContainerCode+'-'+code 
-            });
-            // 图片本体
-            el.appendChild(complexSetAttr($create('img'), { class: imageClass, loading: 'lazy', title: '右键查看大图', src }));
-            // 操作按钮
-            let selectBut, deleteBut;
-            el.appendChild(selectBut = complexSetAttr($create('span'), { class: imageButtonClass }));
-            el.appendChild(deleteBut = complexSetAttr($create('span'), { class: imageButtonClass }));
-            classListOperation(selectBut, 'add', imageSelectButtonClass, circleBackIconClass);
-            classListOperation(deleteBut, 'add', imageDeleteButtonClass, deleteIconClass);
-            // 事件绑定
-            this.imageSelectIconEventBind(selectBut, false, data);
-            this.imageDeleteIconEventBind(deleteBut, false, data);
-            this.imageElementEventBind(el, false, data);
-            selectBut = null, deleteBut = null;
+                id: imageContainerCode+'-'+code,
+                loaded: false,
+                init: true,
+                animation: false
+            }), complexSetAttr($create('div'), { class: 'image-popup loading-gradient' }));
+            // 插入懒加载监听对象
+            this.#recordMap.push({ target: el, data: data });
             // 插入元素
-            this.insert.call(this, el, head);
+            this.insert(this.element, el, head);
             return el;
         }
 
         /**
+         * 非初始图片直接加载图片元素
+         * @param {string} src blob路径
+         * @param {string} code 编码
+         * @param {boolean} head 是否从头部插入，默认为true
+         * @returns {HTMLElement}
+         */
+        #loadImageDirect (data, src, code, head) {
+            if (!src || !code) return;
+            /** 遮罩容器 @type {HTMLElement} */
+            let el = complexAppendChild(complexSetAttr($create('div'), { 
+                class: [listImageClass, this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''], 
+                [imageContainerCodeName]: code, 
+                id: imageContainerCode+'-'+code,
+                loaded: false,
+                init: false,
+                animation: false
+            }), complexSetAttr($create('div'), { class: 'image-popup loading-gradient' }));
+            this.#createImage(el, data,  src);
+            // 插入元素
+            this.insert(this.element, el, head);
+            return el;
+        }
+
+        /**
+         * 创建图片元素
+         * @param {HTMLElement} container 图片容器
+         * @param {string} src
+         */
+        #createImage (container, data, src) {
+            // 如果没有src属性，就将数据赋值进对象中
+            if (!data.hasOwnProperty('src')) data.src = src;
+            complexSetAttr(container, { animation: true });
+            const img = new Image();
+            img.onload = () => {
+                // 设置完节点属性后选择子节点
+                let popup = $query('.image-popup', complexSetAttr(container, { loaded: true }));
+                // 图片本体
+                complexAppendChild(popup, complexSetAttr(img, { 
+                    class: imageClass, 
+                    loading: 'lazy', 
+                    title: '右键查看大图' 
+                }));
+                // 操作按钮
+                let selectBut, deleteBut;
+                complexAppendChild(container, selectBut = complexSetAttr($create('span'), { class: imageButtonClass }));
+                complexAppendChild(container, deleteBut = complexSetAttr($create('span'), { class: imageButtonClass }));
+                classListOperation(selectBut, 'add', imageSelectButtonClass, circleBackIconClass);
+                classListOperation(deleteBut, 'add', imageDeleteButtonClass, deleteIconClass);
+                // 事件绑定
+                this.imageSelectIconEventBind(selectBut, false, data);
+                this.imageDeleteIconEventBind(deleteBut, false, data);
+                this.imageElementEventBind(container, false, data);
+                selectBut = null, deleteBut = null;
+            }
+            img.src = src;
+        }
+
+        /**
          * 插入元素方法
+         * @param {HTMLElement} target
          * @param {HTMLElement} el
          * @param {boolean} head
          */
-        insert (el, head) {
-            if (this.element.childNodes.length === 0 || !head) {
-                this.element.appendChild(el);
+        insert (target, el, head) {
+            if (!target || (!target instanceof HTMLElement)) return;
+            if (target.childNodes.length === 0 || !head) {
+                target.appendChild(el);
             } else {
                 // 在开头插入元素
-                this.element.insertBefore(el, this.element.firstChild);
+                target.insertBefore(el, target.firstChild);
             }
         }
 
         /**
          * 删除一个图片元素
          * @param {HTMLElement} target 
+         * @param {string} blobUrl
          */
-        #deleteImageItem (target) {
+        #deleteImageItem (target, blobUrl) {
+            // 释放blob缓存
+            if (blobUrl) revokeBlobData(blobUrl)
             if (!target) return;
             // 添加删除类名动画
-            classListOperation(target, 'add', imageDeleteCLass);
+            if (this.#deleteByAnimation) classListOperation(target, 'add', imageDeleteCLass);
             let selectBut = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
                 deleteBut = $query(`.${imageButtonClass}.${imageDeleteButtonClass}`, target);
             // 解除事件绑定
@@ -402,7 +555,7 @@ function createInstance () {
         }
 
         /**
-         * 字节点长度是否满足
+         * 子节点长度是否满足
          */
         isChildLength (length = 0) {
             this.check();

@@ -16,6 +16,7 @@ var webviewTarget: Webview | null = null;
  * @param title 标题
  */
 export function toViewImage (path: string, title: string, useWebView: Webview) {
+    if (!path) return;
     if (!viewImageWebviewInstance) {
         viewImageWebviewInstance = registerWebviewPanel('ViewImage', { path: 'webview/src/viewImage', title: 'image:'+title });
         viewImageWebviewInstance.onDidDispose(destroyInstance);

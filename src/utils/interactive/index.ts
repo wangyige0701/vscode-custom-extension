@@ -175,6 +175,18 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
 }
 
 /**
+ * 通过dispose手动关闭statusBar的方法
+ * @param message 
+ * @returns 
+ */
+export function setStatusBarResolve (message: string | StatusBarIconMessage): Disposable {
+    if (isObject(message)) {
+        message = `$(${message.icon})${message.message}`;
+    }
+    return window.setStatusBarMessage(message);
+}
+
+/**
  * 调用进度条api
  * @param options 
  * @param task 

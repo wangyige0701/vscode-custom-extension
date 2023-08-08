@@ -1,5 +1,6 @@
 .vscode/**
 .vscode-test/**
+node_modules/**
 src/**
 .gitignore
 .yarnrc
@@ -8,6 +9,7 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+**/rollup.config.js
 resources/background/**
 resources/extension/**
 resources/docs/**
@@ -22,5 +24,3 @@ fileicons/**
 out/**
 dist/**
 !dist/extension.js
-rollup.config.js
-node_modules/**

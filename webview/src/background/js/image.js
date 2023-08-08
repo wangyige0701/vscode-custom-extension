@@ -464,6 +464,8 @@ function createInstance () {
             selectBut = null, deleteBut = null;
             setTimeout(() => {
                 target.remove();
+                // 开始检测懒加载元素
+                this.#scrollDebounce();
             }, imageAnimationTime);
         }
 

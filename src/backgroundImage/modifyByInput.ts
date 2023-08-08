@@ -36,22 +36,18 @@ export function requestImageToBackground (url: string) {
  */
 function getImageBase64ByRequest (url: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        try {
-            const reg = url.match(imageUrl);
-            if (!reg) {
-                reject(new Error('Illegal Image URL'));
-                return;
-            }
-            GetImage(url).then(res => {
-                return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
-            }).then(data => {
-                resolve(data);
-            }).catch(err => {
-                reject(err);
-            });
-        } catch (error) {
-            errHandle(error);
+        const reg = url.match(imageUrl);
+        if (!reg) {
+            reject(new Error('Illegal Image URL'));
+            return;
         }
+        GetImage(url).then(res => {
+            return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
+        }).then(data => {
+            resolve(data);
+        }).catch(err => {
+            reject(err);
+        });
     });
 }
 
@@ -90,23 +86,19 @@ export function backgroundOpacityModify (opacity: number) {
  */
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        try {
-            if (opacity === backgroundImageConfiguration.getBackgroundOpacity()) {
-                resolve(false);
-                return;
-            }
-            getExternalFileContent().then(data => {
-                const content = getExternalCssModifyOpacityContent(data[0], getNewBackgroundOpacity(opacity));
-                return writeExternalCssFile(content);
-            }).then(() => {
-                return setSourceCssImportInfo();
-            }).then(() => {
-                resolve(true);
-            }).catch(err => {
-                reject(err);
-            });
-        } catch (error) {
-            errHandle(error);
+        if (opacity === backgroundImageConfiguration.getBackgroundOpacity()) {
+            resolve(false);
+            return;
         }
+        getExternalFileContent().then(data => {
+            const content = getExternalCssModifyOpacityContent(data[0], getNewBackgroundOpacity(opacity));
+            return writeExternalCssFile(content);
+        }).then(() => {
+            return setSourceCssImportInfo();
+        }).then(() => {
+            resolve(true);
+        }).catch(err => {
+            reject(err);
+        });
     });
 }

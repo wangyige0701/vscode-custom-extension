@@ -73,6 +73,11 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
  * @param reset 是否重置路径
  */
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
+    // 将储存数组数据重置为空
+    await backgroundImageConfiguration.refreshBackgroundImagePath([])
+        .then(() => {}, err => {
+            return Promise.reject(err);
+        })
     if (reset) {
         if (!backgroundImageConfiguration.getBackgroundStorePath()) {
             setMessage({
@@ -81,11 +86,6 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
             return Promise.resolve();
         }
         await backgroundImageConfiguration.setBackgroundStorePath("")
-            .then(() => {}, err => {
-                return Promise.reject(err);
-            });
-        // 将缓存数组数据重置为空
-        await backgroundImageConfiguration.refreshBackgroundImagePath([])
             .then(() => {}, err => {
                 return Promise.reject(err);
             });
@@ -99,11 +99,6 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
     if (path && uri) {
         // 缓存数据
         await backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
-            .then(() => {}, err => {
-                return Promise.reject(err);
-            });
-        // 将缓存数组数据重置为空
-        await backgroundImageConfiguration.refreshBackgroundImagePath([])
             .then(() => {}, err => {
                 return Promise.reject(err);
             });

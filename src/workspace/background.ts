@@ -3,6 +3,9 @@ import { isString } from "../utils";
 
 const namespace = 'wangyige.background';
 
+/**
+ * 背景图配置项对象
+ */
 export const backgroundImageConfiguration = {
     /**
      * 获取背景图配置信息

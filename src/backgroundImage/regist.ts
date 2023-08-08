@@ -48,7 +48,7 @@ function checkRandomCode (): Promise<void> {
 					resolve();
 				}, err => {
 					reject(err);
-				})
+				});
 			} else {
 				resolve();
 			}

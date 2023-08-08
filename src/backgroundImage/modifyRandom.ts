@@ -32,23 +32,23 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
     }
     isChangeBackgroundImage('是否设置背景图随机切换？每次打开软件会随机切换一张背景图。').then(() => {
         backgroundImageConfiguration.setBackgroundIsRandom(true)
-            .then(() => {
-                return backgroundImageConfiguration.setBackgroundRandomList(value);
-            }, err => {
-                errHandle(err);
-            }).then(() => {
-                setMessage({ message: '设置完成，下次打开软件会随机切换背景图。' });
-            }, err => {
-                errHandle(err);
-            }).then(() => {
-                // 发送设置的数据
-                backgroundSendMessage({
-                    name: 'backgroundRandomList',
-                    value
-                });
-                // 切换一张背景图，下次打开生效
-                setRandomBackground();
+        .then(() => {
+            return backgroundImageConfiguration.setBackgroundRandomList(value);
+        }, err => {
+            errHandle(err);
+        }).then(() => {
+            setMessage({ message: '设置完成，下次打开软件会随机切换背景图。' });
+        }, err => {
+            errHandle(err);
+        }).then(() => {
+            // 发送设置的数据
+            backgroundSendMessage({
+                name: 'backgroundRandomList',
+                value
             });
+            // 切换一张背景图，下次打开生效
+            setRandomBackground();
+        });
     }).catch(err => {
         errHandle(err);
     });

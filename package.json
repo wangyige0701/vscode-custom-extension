@@ -71,7 +71,7 @@
 					"wangyige.background.load": {
 						"type": "boolean",
 						"default": false,
-						"description": "软件启动后加载背景图的判断"
+						"description": "软件启动后是否加载了背景图的判断"
 					},
 					"wangyige.background.opacity": {
 						"type": "number",
@@ -83,12 +83,12 @@
 					"wangyige.background.nowImagePath": {
 						"type": "string",
 						"default": "",
-						"description": "当前选中图片路径哈希值"
+						"description": "当前设置的背景图对应的哈希码"
 					},
 					"wangyige.background.allImagePath": {
 						"type": "object",
 						"default": {},
-						"description": "所有选择的背景图路径哈希值数组"
+						"description": "所有保存的背景图对应的哈希码数组，不同路径会存放在路径对应的哈希码索引下"
 					},
 					"wangyige.background.isSetBackground": {
 						"type": "boolean",
@@ -98,12 +98,12 @@
 					"wangyige.background.defaultPath": {
 						"type": "string",
 						"default": "",
-						"description": "选择文件默认打开的路径"
+						"description": "选择文件时默认打开的路径"
 					},
 					"wangyige.background.storePath": {
 						"type": "string",
 						"default": "",
-						"description": "储存图片数据的路径，为空则是默认的resources下的background路径"
+						"description": "储存图片数据的路径，为空则是默认的`resources/background`路径"
 					},
 					"wangyige.background.isRandom": {
 						"type": "boolean",
@@ -113,12 +113,12 @@
 					"wangyige.background.randomList": {
 						"type": "array",
 						"default": [],
-						"description": "随机切换的背景图哈希码"
+						"description": "随机切换背景图时，可选择的所有背景图对应的哈希码数组"
 					},
 					"wangyige.background.randomCode": {
 						"type": "string",
 						"default": "",
-						"description": "下一次启动时随机切换的图片哈希码"
+						"description": "下一次启动时切换的图片哈希码"
 					},
 					"wangyige.webview.VSCodeVersion": {
 						"type": "string",
@@ -128,7 +128,12 @@
 					"wangyige.webview.ExtensionVersion": {
 						"type": "string",
 						"default": "",
-						"description": "记录上一次操作的插件版本号，用于判断下次webview引用更新"
+						"description": "记录上一次操作的扩展版本号，用于判断下次webview引用更新"
+					},
+					"wangyige.global.ExtensionVersion": {
+						"type": "string",
+						"default": "",
+						"description": "记录全局状态的扩展版本号，用于判断是否有版本修改后需要执行的操作"
 					}
 				}
 			}

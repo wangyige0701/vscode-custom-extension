@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.4.0] - 2023-8-9
+ - 优化：修改工作区储存数据格式，切换文件储存路径后可以保存所有路径下的文件排序
+ - 优化：图片列表加载后自动滚动到当前设置的背景图位置
+
 ## [0.3.0] - 2023-8-8
  - 优化：侧栏图片列表加载优化，使用懒加载题升加载速度，文档中的图片路径使用blob路径
  - 调整：切换文件储存路径时重置配置项中的储存列表
@@ -62,6 +66,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.4.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.4.0
 [0.3.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.3.0
 [0.2.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.4
 [0.2.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.1

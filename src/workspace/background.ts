@@ -90,10 +90,7 @@ export const backgroundImageConfiguration = {
                 return Promise.resolve();
             list.splice(value, 1);
         }
-        await this.setBackgroundConfiguration(
-            'allImagePath', 
-            this.getBackgroundAllImageObject()
-        ).then(() => {
+        await this.setBackgroundAllImageObject(list).then(() => {
             return Promise.resolve();
         }, err => {
             return Promise.reject(err);

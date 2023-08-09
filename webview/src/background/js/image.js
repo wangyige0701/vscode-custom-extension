@@ -79,6 +79,19 @@ function createInstance () {
             publicData.imageRenderList.__proto__ = this.#resetMethods(this);
         }
 
+
+        /**
+         * 监听图片是否懒加载
+         * @type {(...params: any[]) => void}
+        */
+        #scrollDebounce;
+
+        /** 
+         * 监听是否达到触发高度
+         * @type {IntersectionObserver}
+         * */
+        #observer;
+
         /**
          * 重置状态
          */
@@ -87,6 +100,43 @@ function createInstance () {
             this.#lazyObserve = false;
             // 初始化数组
             this.#recordMap = [];
+
+            this.#scrollDebounce = debounce(() => {
+                if (this.#recordMap.length <= 0) {
+                    // 删除相关监听
+                    window.removeEventListener('resize', this.#scrollDebounce, { passive: true });
+                    this.element.removeEventListener('scroll', this.#scrollDebounce, { passive: true });
+                    this.#recordMap = null;
+                    this.#observer = null;
+                    this.#scrollDebounce = null;
+                } else {
+                    // 添加监听
+                    this.#recordMap.forEach(item => {
+                        this.#observer.observe(item.target);
+                    });
+                }
+            }, 300);
+
+            this.#observer = new window.IntersectionObserver((entries, obs) => {
+                for (let i = 0; i < entries.length; i++) {
+                    const entry = entries[i];
+                    let window_height = window.innerHeight;
+                    let { top, bottom, height } = entry.boundingClientRect;
+                    if (top > (0 - height) && bottom < (window_height + height)) {
+                        // 目标不在已注册元素列表中
+                        let index = this.#recordMap.findIndex((item) => item.target === entry.target);
+                        if (index < 0) continue;
+                        const value = this.#recordMap[index];
+                        registLazyLoadImage(
+                            complexGetAttr(value.target, imageContainerCodeName)[0], 
+                            this.#createImage.bind(this, value.target, value.data)
+                        );
+                        this.#recordMap.splice(index, 1);
+                    }
+                    // 解除绑定，防止首次滚动后连续触发监听
+                    obs.unobserve(entry.target);
+                }
+            });
         }
 
         /**
@@ -99,7 +149,6 @@ function createInstance () {
             this.#scrollDebounce();
             window.addEventListener('resize', this.#scrollDebounce, { passive: true });
             this.element.addEventListener('scroll', this.#scrollDebounce, { passive: true });
-
         }, 500);
 
         /**
@@ -305,47 +354,6 @@ function createInstance () {
             }
         }
 
-        /** 监听是否达到触发高度 */
-        #observer = new window.IntersectionObserver((entries, obs) => {
-            for (let i = 0; i < entries.length; i++) {
-                const entry = entries[i];
-                let window_height = window.innerHeight;
-                let { top, bottom, height } = entry.boundingClientRect;
-                if (top > (0 - height) && bottom < (window_height + height)) {
-                    // 目标不在已注册元素列表中
-                    let index = this.#recordMap.findIndex((item) => item.target === entry.target);
-                    if (index < 0) continue;
-                    const value = this.#recordMap[index];
-                    registLazyLoadImage(
-                        complexGetAttr(value.target, imageContainerCodeName)[0], 
-                        this.#createImage.bind(this, value.target, value.data)
-                    );
-                    this.#recordMap.splice(index, 1);
-                }
-                // 解除绑定，防止首次滚动后连续触发监听
-                obs.unobserve(entry.target);
-            }
-        });
-
-        /**
-         * 监听图片是否懒加载
-        */
-        #scrollDebounce = debounce(() => {
-            if (this.#recordMap.length <= 0) {
-                // 删除相关监听
-                window.removeEventListener('resize', this.#scrollDebounce, { passive: true });
-                this.element.removeEventListener('scroll', this.#scrollDebounce, { passive: true });
-                this.#recordMap = null;
-                this.#observer = null;
-                this.#scrollDebounce = null;
-            } else {
-                // 添加监听
-                this.#recordMap.forEach(item => {
-                    this.#observer.observe(item.target);
-                });
-            }
-        }, 300);
-
         /**
          * 延迟加载图片
          * @param {string} code 编码
@@ -436,11 +444,22 @@ function createInstance () {
          */
         insert (target, el, head) {
             if (!target || (!target instanceof HTMLElement)) return;
-            if (target.childNodes.length === 0 || !head) {
+            /** @type {NodeListOf<ChildNode>} */
+            const childs = target.childNodes;
+            if (childs.length === 0 || !head) {
                 target.appendChild(el);
             } else {
-                // 在开头插入元素
-                target.insertBefore(el, target.firstChild);
+                /** @type {ChildNode[]} */
+                const checkTarget = [];
+                childs.forEach(child => {
+                    if (!(child instanceof Text) && child.id !== 'imageListInfo') checkTarget.push(child)
+                });
+                if (checkTarget.length === 0) {
+                    target.appendChild(el);
+                } else {
+                    // 在开头插入元素
+                    target.insertBefore(el, checkTarget[0]);
+                }
             }
         }
 

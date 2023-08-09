@@ -51,7 +51,7 @@ const isBackgroundCheckComplete: {
 }
 
 /**
- * 从工作区中获取储存的数据并更新至缓存数组中
+ * 从工作区中获取储存的哈希码数据并更新至缓存数组中
  */
 function refreshImageCodeList () {
     // 更新储存列表数据
@@ -153,7 +153,7 @@ export function deleteImage (...code: string[]) {
                 const array: Promise<string>[] = [];
                 code.forEach(item => {
                     array.push(deleteFileStore(item));
-                })
+                });
                 Promise.all(array).then(target => {
                     backgroundSendMessage({
                         name: 'deleteImageSuccess',
@@ -325,8 +325,8 @@ export function backgroundImageDataInit () {
 }
 
 /**
- * 根据传入的code发送对应base64数据
- * @param {code: string, type: string} options 需要获取数据的编码以及传递的类型，用于webview侧判断哪边调用 
+ * 根据传入的哈希码发送对应图片base64数据
+ * @param {code: string, type: string} options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用 
  * @returns 
  */
 export function getBase64DataByCode ({ code, type }: { code: string, type: string }): void {
@@ -339,7 +339,7 @@ export function getBase64DataByCode ({ code, type }: { code: string, type: strin
 }
 
 /**
- * 从储存对象中根据编码获取base64数据
+ * 从储存对象中根据哈希码获取base64数据
 */
 export function getBase64DataFromObject (code: string): string {
     if (repositoryData.hasOwnProperty(code)) {
@@ -394,7 +394,7 @@ async function codeListRefresh (code: string, state: codeChangeType='add', addDa
         // 判断删除图片是否在随机切换数组中
         const rendomList = backgroundImageConfiguration.getBackgroundRandomList();
         if (rendomList.length > 0 && rendomList.includes(code)) {
-            // 如果在，则更新随机数组，将删除掉的编码去除
+            // 如果在，则更新随机数组，将删除掉的哈希码去除
             await backgroundImageConfiguration.setBackgroundRandomList(
                 rendomList.splice(rendomList.findIndex(item => item === code, 1))
             ).then(() => {}, err => {

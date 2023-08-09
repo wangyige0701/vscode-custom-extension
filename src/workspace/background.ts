@@ -57,7 +57,12 @@ export const backgroundImageConfiguration = {
         const path = this.getSettingStorePath()??'default';
         const data = this.getBackgroundAllImageObject();
         data[path] = value;
-        return this.setBackgroundConfiguration('allImagePath', data);
+        // 整理数据，去除没有数据的索引
+        const result: { [key: string]: string[] } = {};
+        for (let name in data) {
+            if (data[name] && data[name].length > 0) result[name] = data[name];
+        }
+        return this.setBackgroundConfiguration('allImagePath', result);
     },
 
     /**

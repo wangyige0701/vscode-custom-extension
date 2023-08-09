@@ -452,7 +452,7 @@ function createInstance () {
                 /** @type {ChildNode[]} */
                 const checkTarget = [];
                 childs.forEach(child => {
-                    if (!(child instanceof Text) && child.id !== 'imageListInfo') checkTarget.push(child)
+                    if (!(child instanceof Text) && child.id !== imageListInfoId) checkTarget.push(child)
                 });
                 if (checkTarget.length === 0) {
                     target.appendChild(el);
@@ -637,6 +637,10 @@ function createInstance () {
                 return;
             let target = this.getChild()[value];
             classListOperation(target, 'add', selectClass);
+            setTimeout(() => {
+                // 滚动到可视区域
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
         }
 
         /**

@@ -1,4 +1,4 @@
-import { toHex } from "./hash";
+import { cryHex } from "./hash";
 
 /**
  * 对字符串进行正则校验
@@ -93,7 +93,7 @@ export function getRandomCode (length: number | string = 24): string {
  * @returns 
  */
 export function getHashCode (): string {
-    return toHex(String(new Date().getTime()));
+    return cryHex(String(new Date().getTime()));
 }
 
 /**

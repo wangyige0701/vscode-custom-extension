@@ -87,7 +87,7 @@
 					},
 					"wangyige.background.allImagePath": {
 						"type": "array",
-						"default": [],
+						"default": {},
 						"description": "所有选择的背景图路径哈希值数组"
 					},
 					"wangyige.background.isSetBackground": {

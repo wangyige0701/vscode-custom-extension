@@ -10,7 +10,6 @@ import { Uri, version } from "vscode";
 import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 import { ContentAndUri, info } from "./data";
-import { errHandle } from "../error";
 
 /**
  * vscode的源css文件名
@@ -185,7 +184,7 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
                 throw { jump: true, modify: false };
             }
             if (data && data.code) {
-                // 编码校验失败或者没有css文件，重新写入
+                // 哈希码校验失败或者没有css文件，重新写入
                 return modifyCssFileForBackground(data.code);
             } else {
                 throw { jump: true, modify: true };

@@ -1,5 +1,5 @@
 import type { ExtensionContext } from 'vscode';
-import { registBackground } from './backgroundImage/regist';
+import { registBackground } from './background/regist';
 import { contextContainer } from './utils/webview/index';
 
 export function activate(context: ExtensionContext) {

@@ -8,6 +8,11 @@ const namespace = 'wangyige.background';
  */
 export const backgroundImageConfiguration = {
     /**
+     * 获取所有储存数据
+    */
+    backgroundSortData: <{ [key: string]: string[] }>getWorkSpace(namespace).get('allImagePath'),
+
+    /**
      * 获取背景图配置信息
      * @returns 
      */
@@ -29,7 +34,10 @@ export const backgroundImageConfiguration = {
      * @returns {string[]}
      */
     getBackgroundAllImagePath (): string[] {
-        return backgroundImageConfiguration.getBackgroundConfiguration('allImagePath');
+        const path = this.getBackgroundStorePath()??'default';
+        // 没有对应属性则新创建一个
+        if (!this.backgroundSortData.hasOwnProperty(path)) this.backgroundSortData[path] = [];
+        return this.backgroundSortData[path];
     },
 
     /**
@@ -50,10 +58,10 @@ export const backgroundImageConfiguration = {
                 return Promise.resolve();
             list.splice(value, 1);
         }
-        await backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', list)
-            .then(() => {}, err => {
-                return Promise.reject(err);
-            });
+        await backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', this.backgroundSortData)
+        .then(() => {}, err => {
+            return Promise.reject(err);
+        });
         return Promise.resolve();
     },
 
@@ -62,7 +70,10 @@ export const backgroundImageConfiguration = {
      * @param value 
      */
     refreshBackgroundImagePath (value: string[]): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', value);
+        const path = this.getBackgroundStorePath()??'default';
+        // 只更新对应属性的数据
+        this.backgroundSortData[path] = value;
+        return backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', this.backgroundSortData);
     },
 
     /**

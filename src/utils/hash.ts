@@ -1,28 +1,19 @@
+import crypto from "crypto";
 
-function encodeUTF8 (s: string): number[] {
-    let c: number, r: number[] = [], x: number;
-    for (let i = 0; i < s.length; i++) {
-        if ((c = s.charCodeAt(i)) < 0x80) {
-            r.push(c);
-        } else if (c < 0x800) {
-            // >> 二进制向右移位；& 二进制与运算
-            r.push(0xC0 + (c >> 6 & 0x1F), 0x80 + (c & 0x3F));
-        } else {
-            // ^ 二进制异或运算
-            if ((x = c ^ 0x800) >> 10 == 0) {
-                // 四字节UTF-16转为unicode
-                c = (x << 10) + (s.charCodeAt(++i) ^ 0xDC00) + 0x10000;
-                r.push(0xF0 + (c >> 18 & 0x7), 0x80 + (c >> 12 & 0x3F));
-            } else {
-                r.push(0xE0 + (c >> 12 & 0xF));
-            }
-            r.push(0x80 + (c >> 6 & 0x3F), 0x80 + (c & 0x3F));
-        }
-    }
-    return r;
+/**
+ * node默认的加密算法
+ * @param s 需要生成哈希码的字符串
+ */
+export function cryHex (s: string): string {
+    return crypto.createHash('md5').update(s).digest('hex');
 }
 
-export function toHex (s: string) {
+/**
+ * 生成哈希码
+ * @param s 
+ * @returns 
+ */
+export function selfHex (s: string) {
     let data = new Uint8Array(encodeUTF8(s));
     // >>> 无符号右移
     let l = ((data.length + 8) >>> 6 << 4) + 16, u8: Uint8Array | undefined = new Uint8Array(l << 2);
@@ -70,4 +61,32 @@ export function toHex (s: string) {
         return (e < 16 ? "0" : "") + e.toString(16);
     }).join("");
     return hex;
+}
+
+/**
+ * 编码为utf8
+ * @param s 
+ * @returns 
+ */
+function encodeUTF8 (s: string): number[] {
+    let c: number, r: number[] = [], x: number;
+    for (let i = 0; i < s.length; i++) {
+        if ((c = s.charCodeAt(i)) < 0x80) {
+            r.push(c);
+        } else if (c < 0x800) {
+            // >> 二进制向右移位；& 二进制与运算
+            r.push(0xC0 + (c >> 6 & 0x1F), 0x80 + (c & 0x3F));
+        } else {
+            // ^ 二进制异或运算
+            if ((x = c ^ 0x800) >> 10 == 0) {
+                // 四字节UTF-16转为unicode
+                c = (x << 10) + (s.charCodeAt(++i) ^ 0xDC00) + 0x10000;
+                r.push(0xF0 + (c >> 18 & 0x7), 0x80 + (c >> 12 & 0x3F));
+            } else {
+                r.push(0xE0 + (c >> 12 & 0xF));
+            }
+            r.push(0x80 + (c >> 6 & 0x3F), 0x80 + (c & 0x3F));
+        }
+    }
+    return r;
 }

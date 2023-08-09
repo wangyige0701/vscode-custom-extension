@@ -73,11 +73,6 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
  * @param reset 是否重置路径
  */
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
-    // 将储存数组数据重置为空
-    await backgroundImageConfiguration.refreshBackgroundImagePath([])
-        .then(() => {}, err => {
-            return Promise.reject(err);
-        })
     if (reset) {
         if (!backgroundImageConfiguration.getBackgroundStorePath()) {
             setMessage({

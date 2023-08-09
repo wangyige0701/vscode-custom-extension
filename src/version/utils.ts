@@ -1,19 +1,31 @@
-import { version } from "vscode";
+import { version as vscVersion } from "vscode";
 import { errHandle } from "../error";
 import { getWorkSpace, setWorkSpace } from "../workspace";
 import { getVersion } from ".";
 
 /**
- * 获取当前版本状态
+ * 根据id获取指定类型的储存数据
+ * @param id 
+ * @param type 
  * @returns 
  */
-export function checkVersion (id: string): boolean {
+export function getVersionById (id: string, type: 'VSCodeVersion'|'ExtensionVersion') {
+    return getWorkSpace("wangyige."+id).get(type);
+}
+
+/**
+ * 获取当前版本状态
+ * @param id 指定id的版本
+ * @param checkVsc 是否需要校验vscode的版本
+ * @returns 
+ */
+export function checkVersion (id: string, checkVsc: boolean = true): boolean {
     const config = getWorkSpace("wangyige."+id);
     const vscode = config.get("VSCodeVersion");
     const extension = config.get("ExtensionVersion");
-    if (!vscode || !extension) 
+    if ((checkVsc && !vscode) || !extension) 
         return false;
-    if (vscode !== version || extension !== getVersion()) 
+    if ((checkVsc && vscode !== vscVersion) || extension !== getVersion()) 
         return false;
     return true;
 }
@@ -21,13 +33,13 @@ export function checkVersion (id: string): boolean {
 /**
  * 更新版本信息
  */
-export function refreshVersion (id: string) {
-    setWorkSpace("wangyige."+id, "VSCodeVersion", version)
-        .then(() => {
-            return setWorkSpace("wangyige."+id, "ExtensionVersion", getVersion());
-        }, err => {
-            errHandle(err);
-        }).then(() => {}, err => {
-            errHandle(err);
-        });
+export function refreshVersion (id: string, refreshVsc: boolean = true) {
+    return Promise.resolve(
+        setWorkSpace("wangyige."+id, "ExtensionVersion", getVersion())
+    ).then(() => {
+        if (refreshVsc) 
+            return Promise.resolve(setWorkSpace("wangyige."+id, "VSCodeVersion", vscVersion));
+    }).catch(err => {
+        errHandle(err);
+    });
 }

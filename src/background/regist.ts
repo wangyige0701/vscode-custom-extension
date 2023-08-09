@@ -1,4 +1,4 @@
-import { commands } from "vscode";
+import { Disposable, commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
 import { registWebviewProvider } from "../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
@@ -6,13 +6,23 @@ import { backgroundImageConfiguration } from "../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
 import { bindMessageCallback } from "../utils/webview/message";
 import { backgroundExecute } from "./execute";
+import { copyFileWhenVersionChange } from "../version/versionChange";
+import { setStatusBarResolve } from "../utils/interactive";
 
 /**
  * 注册背景图设置功能
  */
 export function registBackground () {
-	// 检测是否需要更新缓存图片码
-	checkRandomCode().then(() => {
+	let dispose: Disposable | undefined = setStatusBarResolve({
+		icon: 'loading~spin',
+		message: '默认路径图片数据确认'
+	});
+	copyFileWhenVersionChange('resources/background').then(() => {
+		dispose?.dispose();
+		dispose = undefined;
+		// 检测是否需要更新缓存图片码
+		return checkRandomCode();
+	}).then(() => {
 		// 检测配置完整
 		return WindowInitCheckCssModifyCompleteness();
 	}).then(() => {

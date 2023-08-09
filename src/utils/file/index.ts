@@ -24,6 +24,15 @@ export function joinPathUri (uri: Uri, ...name: string[]): Uri {
 }
 
 /**
+ * 根据路径创建一个Uri
+ * @param path 
+ * @returns 
+ */
+export function createUri (path: string): Uri {
+    return Uri.file(path);
+}
+
+/**
  * 将给定路径转换为相对于vscode的资源路径
  * @param path 
  * @returns 
@@ -141,6 +150,11 @@ export function readFileUri (uri: Uri): Promise<Uint8Array> {
     });
 }
 
+/**
+ * 传递数组查询多个文件内容
+ * @param uri 
+ * @returns 
+ */
 export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
     return new Promise((resolve, reject) => {
         const list: Promise<Uint8Array>[] = [];

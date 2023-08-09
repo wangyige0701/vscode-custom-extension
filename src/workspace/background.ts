@@ -1,17 +1,16 @@
 import { getWorkSpace, setWorkSpace } from ".";
 import { isString } from "../utils";
+import { cryHex } from '../utils/hash';
 
+/**
+ * 命名空间
+ */
 const namespace = 'wangyige.background';
 
 /**
  * 背景图配置项对象
  */
 export const backgroundImageConfiguration = {
-    /**
-     * 获取所有储存数据
-    */
-    backgroundSortData: <{ [key: string]: string[] }>getWorkSpace(namespace).get('allImagePath'),
-
     /**
      * 获取背景图配置信息
      * @returns 
@@ -30,14 +29,47 @@ export const backgroundImageConfiguration = {
     },
 
     /**
+     * 获取当前储存路径，如果有则返回哈希值
+     * @returns 
+     */
+    getSettingStorePath (): string | undefined {
+        const path = this.getBackgroundStorePath();
+        if (path) {
+            return cryHex(path);
+        } else {
+            return undefined;
+        }
+    },
+
+    /**
+     * 获取所有储存数据
+    */
+    getBackgroundAllImageObject(): { [key: string]: string[] } {
+        return this.getBackgroundConfiguration('allImagePath');
+    },
+
+    /**
+     * 设置当前路径下的哈希码数组缓存
+     * @param value 
+     * @returns 
+     */
+    setBackgroundAllImageObject (value: string[]): Thenable<void> {
+        const path = this.getSettingStorePath()??'default';
+        const data = this.getBackgroundAllImageObject();
+        data[path] = value;
+        return this.setBackgroundConfiguration('allImagePath', data);
+    },
+
+    /**
      * 获取所有选择的图片哈希值数据
      * @returns {string[]}
      */
     getBackgroundAllImagePath (): string[] {
-        const path = this.getBackgroundStorePath()??'default';
+        const path = this.getSettingStorePath()??'default';
+        const data = this.getBackgroundAllImageObject();
         // 没有对应属性则新创建一个
-        if (!this.backgroundSortData.hasOwnProperty(path)) this.backgroundSortData[path] = [];
-        return this.backgroundSortData[path];
+        if (!data.hasOwnProperty(path)) data[path] = [];
+        return data[path];
     },
 
     /**
@@ -47,7 +79,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     async setBackgroundAllImagePath (value: string | number, state: 'add' | 'delete' = 'add'): Promise<void> {
-        const list: string[] = backgroundImageConfiguration.getBackgroundAllImagePath();
+        const list: string[] = this.getBackgroundAllImagePath();
         if (state === 'add' && isString(value)) {
             // 添加一个图片数据
             list.unshift(value);
@@ -58,11 +90,14 @@ export const backgroundImageConfiguration = {
                 return Promise.resolve();
             list.splice(value, 1);
         }
-        await backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', this.backgroundSortData)
-        .then(() => {}, err => {
+        await this.setBackgroundConfiguration(
+            'allImagePath', 
+            this.getBackgroundAllImageObject()
+        ).then(() => {
+            return Promise.resolve();
+        }, err => {
             return Promise.reject(err);
         });
-        return Promise.resolve();
     },
 
     /**
@@ -70,10 +105,8 @@ export const backgroundImageConfiguration = {
      * @param value 
      */
     refreshBackgroundImagePath (value: string[]): Thenable<void> {
-        const path = this.getBackgroundStorePath()??'default';
         // 只更新对应属性的数据
-        this.backgroundSortData[path] = value;
-        return backgroundImageConfiguration.setBackgroundConfiguration('allImagePath', this.backgroundSortData);
+        return this.setBackgroundAllImageObject(value);
     },
 
     /**
@@ -81,7 +114,7 @@ export const backgroundImageConfiguration = {
      * @returns {boolean}
      */
     getBackgroundIsSetBackground (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration('isSetBackground');
+        return this.getBackgroundConfiguration('isSetBackground');
     },
 
     /**
@@ -90,7 +123,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundIsSetBackground (value: boolean): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('isSetBackground', value);
+        return this.setBackgroundConfiguration('isSetBackground', value);
     },
 
     /**
@@ -98,7 +131,7 @@ export const backgroundImageConfiguration = {
      * @returns {string}
      */
     getBackgroundNowImagePath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration('nowImagePath');
+        return this.getBackgroundConfiguration('nowImagePath');
     },
 
     /**
@@ -107,7 +140,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundNowImagePath (value: string): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('nowImagePath', value);
+        return this.setBackgroundConfiguration('nowImagePath', value);
     },
 
     /**
@@ -115,7 +148,7 @@ export const backgroundImageConfiguration = {
      * @returns {number}
      */
     getBackgroundOpacity (): number {
-        return backgroundImageConfiguration.getBackgroundConfiguration('opacity');
+        return this.getBackgroundConfiguration('opacity');
     },
 
     /**
@@ -124,7 +157,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundOpacity (value: number): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('opacity', value);
+        return this.setBackgroundConfiguration('opacity', value);
     },
 
     /**
@@ -132,7 +165,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundSelectDefaultPath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration('defaultPath');
+        return this.getBackgroundConfiguration('defaultPath');
     },
 
     /**
@@ -141,7 +174,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundSelectDefaultPath (value: string): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('defaultPath', value);
+        return this.setBackgroundConfiguration('defaultPath', value);
     },
 
     /**
@@ -149,7 +182,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundLoad (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration('load');
+        return this.getBackgroundConfiguration('load');
     },
 
     /**
@@ -158,7 +191,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundLoad (value: boolean): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('load', value);
+        return this.setBackgroundConfiguration('load', value);
     },
 
     /**
@@ -166,7 +199,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundStorePath (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration('storePath');
+        return this.getBackgroundConfiguration('storePath');
     },
 
     /**
@@ -175,7 +208,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundStorePath (value: string): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('storePath', value);
+        return this.setBackgroundConfiguration('storePath', value);
     },
 
     /**
@@ -183,7 +216,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundIsRandom (): boolean {
-        return backgroundImageConfiguration.getBackgroundConfiguration('isRandom');
+        return this.getBackgroundConfiguration('isRandom');
     },
 
     /**
@@ -192,7 +225,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundIsRandom (value: boolean): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('isRandom', value);
+        return this.setBackgroundConfiguration('isRandom', value);
     },
 
     /**
@@ -200,7 +233,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundRandomList (): string[] {
-        return backgroundImageConfiguration.getBackgroundConfiguration('randomList');
+        return this.getBackgroundConfiguration('randomList');
     },
 
     /**
@@ -209,7 +242,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundRandomList (value: string[]): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('randomList', value);
+        return this.setBackgroundConfiguration('randomList', value);
     },
 
     /**
@@ -217,7 +250,7 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     getBackgroundRandomCode (): string {
-        return backgroundImageConfiguration.getBackgroundConfiguration('randomCode');
+        return this.getBackgroundConfiguration('randomCode');
     },
 
     /**
@@ -226,6 +259,6 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundRandomCode (value: string): Thenable<void> {
-        return backgroundImageConfiguration.setBackgroundConfiguration('randomCode', value);
+        return this.setBackgroundConfiguration('randomCode', value);
     }
 }

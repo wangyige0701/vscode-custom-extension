@@ -86,7 +86,7 @@
 						"description": "当前选中图片路径哈希值"
 					},
 					"wangyige.background.allImagePath": {
-						"type": "array",
+						"type": "object",
 						"default": {},
 						"description": "所有选择的背景图路径哈希值数组"
 					},

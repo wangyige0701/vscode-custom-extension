@@ -42,7 +42,7 @@ export const backgroundImageConfiguration = {
     },
 
     /**
-     * 获取所有储存数据
+     * 获取所有图片哈希码数组的储存数据
     */
     getBackgroundAllImageObject(): { [key: string]: string[] } {
         return this.getBackgroundConfiguration('allImagePath');

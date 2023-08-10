@@ -485,7 +485,7 @@ function createInstance () {
                 target.remove();
                 // 开始检测懒加载元素
                 this.#scrollDebounce();
-            }, imageAnimationTime);
+            }, this.#deleteByAnimation?imageAnimationTime:0);
         }
 
         /**

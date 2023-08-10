@@ -639,7 +639,7 @@ function createInstance () {
             classListOperation(target, 'add', selectClass);
             setTimeout(() => {
                 // 滚动到可视区域
-                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         }
 

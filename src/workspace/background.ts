@@ -76,7 +76,7 @@ export const backgroundImageConfiguration = {
         const data = this.getBackgroundAllImageObject();
         // 整理数据，去除没有数据的索引
         const result: { [key: string]: string[] } = {};
-        result[path] = value;
+        if (value.length > 0) result[path] = value;
         for (let name in data) {
             if (data[name] && data[name].length > 0 && name !== path) result[name] = data[name];
         }

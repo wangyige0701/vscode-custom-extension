@@ -3,7 +3,7 @@ import { setMessage, setStatusBar } from "../utils/interactive";
 import { windowReload } from "../utils/system";
 import { contextContainer } from "../utils/webview/index";
 import { Uri } from "vscode";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { backgroundImageConfiguration, defaultPath } from "../workspace/background";
 import { errHandle } from "../error";
 import { minmax } from "../utils";
 import { backgroundSendMessage } from "./execute_webview";
@@ -23,7 +23,7 @@ export function imageStoreUri (): Promise<Uri | void> {
                 // 没有缓存数据则获取插件路径
                 uri = contextContainer.instance?.extensionUri;
                 if (uri) {
-                    uri = joinPathUri(uri, 'resources', 'background');
+                    uri = joinPathUri(uri, ...defaultPath);
                 } else {
                     uri = undefined;
                 }

@@ -1,6 +1,8 @@
 import { getWorkSpace, setWorkSpace } from ".";
 import { isString } from "../utils";
+import { joinPathUri } from "../utils/file";
 import { cryHex } from '../utils/hash';
+import { contextContainer } from "../utils/webview";
 
 /**
  * 命名空间
@@ -8,9 +10,25 @@ import { cryHex } from '../utils/hash';
 const namespace = 'wangyige.background';
 
 /**
+ * 背景图片默认存储路径
+*/
+export const defaultPath = ['resources', 'background'];
+
+/**
  * 背景图配置项对象
  */
 export const backgroundImageConfiguration = {
+    /**
+     * 获取默认储存路径
+    */
+    getDefaultPath (): string {
+        let theDefaultPath = 'default';
+        if (contextContainer.instance && contextContainer.instance.extensionUri) {
+            theDefaultPath = cryHex(joinPathUri(contextContainer.instance.extensionUri, ...defaultPath).fsPath);
+        }
+        return theDefaultPath;
+    },
+
     /**
      * 获取背景图配置信息
      * @returns 
@@ -54,13 +72,13 @@ export const backgroundImageConfiguration = {
      * @returns 
      */
     setBackgroundAllImageObject (value: string[]): Thenable<void> {
-        const path = this.getSettingStorePath()??'default';
+        const path = this.getSettingStorePath()??this.getDefaultPath();
         const data = this.getBackgroundAllImageObject();
-        data[path] = value;
         // 整理数据，去除没有数据的索引
         const result: { [key: string]: string[] } = {};
+        result[path] = value;
         for (let name in data) {
-            if (data[name] && data[name].length > 0) result[name] = data[name];
+            if (data[name] && data[name].length > 0 && name !== path) result[name] = data[name];
         }
         return this.setBackgroundConfiguration('allImagePath', result);
     },
@@ -70,7 +88,7 @@ export const backgroundImageConfiguration = {
      * @returns {string[]}
      */
     getBackgroundAllImagePath (): string[] {
-        const path = this.getSettingStorePath()??'default';
+        const path = this.getSettingStorePath()??this.getDefaultPath();
         const data = this.getBackgroundAllImageObject();
         // 没有对应属性则新创建一个
         if (!data.hasOwnProperty(path)) data[path] = [];

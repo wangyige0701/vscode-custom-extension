@@ -28,7 +28,7 @@ export function copyFileWhenVersionChange (path: string): Promise<void> {
             resolve();
             return;
         }
-        // 存放扩展的根路径，需要根据环境变量分别取值
+        // 存放扩展的根路径，由于只在生产环境下执行，所以，只需要获取到向上两层根目录
         const rootPath = createUri(pathResolve(__dirname, '../..'));
         // 获取文件名
         const { publisher, name } = require('../../package.json');

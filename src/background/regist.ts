@@ -8,6 +8,7 @@ import { bindMessageCallback } from "../utils/webview/message";
 import { backgroundExecute } from "./execute";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { setStatusBarResolve } from "../utils/interactive";
+import { errHandle } from "../error";
 
 /**
  * 注册背景图设置功能
@@ -37,6 +38,8 @@ export function registBackground () {
 
 		// 绑定事件通信回调
 		bindMessageCallback('onBackground', backgroundExecute);
+	}).catch(err => {
+		errHandle(err);
 	});
 }
 
@@ -54,9 +57,13 @@ function checkRandomCode (): Promise<void> {
 					resolve();
 					return;
 				}
-				backgroundImageConfiguration.setBackgroundNowImagePath(code).then(() => {
+				Promise.resolve(
+					backgroundImageConfiguration.setBackgroundNowImagePath(code)
+				).then(() => {
+					return Promise.resolve(backgroundImageConfiguration.setBackgroundRandomCode(''));
+				}).then(() => {
 					resolve();
-				}, err => {
+				}).catch(err => {
 					reject(err);
 				});
 			} else {

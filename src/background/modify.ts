@@ -6,10 +6,11 @@ import { dirname, join } from "path";
 import { getDate } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { Uri, version } from "vscode";
+import { Disposable, Uri, version } from "vscode";
 import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 import { ContentAndUri, info } from "./data";
+import { setStatusBarResolve } from "../utils/interactive";
 
 /**
  * vscode的源css文件名
@@ -105,19 +106,26 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             return;
         }
         let infoContent: info | undefined;
+        let statusBarTarget: Disposable | null;
         getExternalCssContent(codeValue).then(res => {
             if (res === false) {
                 // 不需要更新，直接跳出
                 throw { jump: true };
             }
             infoContent = res[1];
+            // 状态栏提示文字
+            statusBarTarget = setStatusBarResolve({
+                icon: 'loading~spin',
+                message: `${random?'随机':''}背景图设置中`
+            });
             return writeExternalCssFile(res[0]);
         }).then(() => {
             return settingConfiguration(infoContent!, random);
         }).then(() => {
             return setSourceCssImportInfo();
         }).then(() => {
-            setBackgroundImageSuccess();
+            statusBarTarget?.dispose();
+            setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
             resolve();
         }).catch(err => {
             // 传递了jump属性就resolve
@@ -126,6 +134,9 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             } else {
                 reject(err);
             }
+        }).finally(() => {
+            statusBarTarget?.dispose();
+            statusBarTarget = null;
         });
     });
 }

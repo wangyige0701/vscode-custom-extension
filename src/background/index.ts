@@ -88,7 +88,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
     return new Promise((resolve, reject) => {
         isBackgroundCheckComplete.check = true;
         let state = false,
-        statusBarTarget: Disposable|null = setStatusBarResolve({
+        statusBarTarget: Disposable | null = setStatusBarResolve({
             icon: 'loading~spin',
             message: '背景图文件校验中'
         });
@@ -431,7 +431,7 @@ function codeCheck (code: string, data: string): Promise<void> {
  * @param code 
  * @param state 
  */
-function codeListRefresh (code: string, state: codeChangeType='add', addData: string|undefined = undefined): Promise<void> {
+function codeListRefresh (code: string, state: codeChangeType = 'add', addData: string|undefined = undefined): Promise<void> {
     return new Promise((resolve, reject) => {
         // 缓存数组是否需要被更改
         let modify: boolean = false;

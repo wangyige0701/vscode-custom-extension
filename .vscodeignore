@@ -20,7 +20,7 @@ webview/*.css
 webview/*.js
 test/**
 filePackage/**
-fileicons/**
+themes/**
 out/**
 dist/**
 !dist/extension.js

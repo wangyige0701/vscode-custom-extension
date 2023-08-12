@@ -14,13 +14,12 @@ import { errHandle } from "../error";
  * 注册背景图设置功能
  */
 export function registBackground () {
-	let dispose: Disposable | undefined = setStatusBarResolve({
+	let statusBarTarget: Disposable | null = setStatusBarResolve({
 		icon: 'loading~spin',
 		message: '默认路径图片数据确认'
 	});
 	copyFileWhenVersionChange('resources/background').then(() => {
-		dispose?.dispose();
-		dispose = undefined;
+		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();
 	}).then(() => {
@@ -40,6 +39,9 @@ export function registBackground () {
 		bindMessageCallback('onBackground', backgroundExecute);
 	}).catch(err => {
 		errHandle(err);
+	}).finally(() => {
+		statusBarTarget?.dispose();
+		statusBarTarget = null;
 	});
 }
 

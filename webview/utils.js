@@ -225,18 +225,15 @@ function $query (target, options = false) {
 }
 
 /**
- * 将元素对象转换为数组
- * @typedef {Element} theElement
- * @param {HTMLCollectionOf<theElement>|NodeListOf<theElement>|null} item 
- * @returns {theElement[]}
+ * 将可迭代对象转换为数组
+ * @param {any} item 
+ * @returns {any}
  */
 function changeToArray (item) {
     if (!item) return item;
-    const result = [];
-    for (let i = 0; i < item.length; i++) {
-        result.push(item[i]);
-    }
-    return result;
+    const iterator = item[Symbol.iterator];
+    if (typeof iterator !== 'function') return item;
+    return Array.from(item);
 }
 
 /**

@@ -133,7 +133,7 @@ div.image-container {
 	animation: opacity-show .5s ease;
 }
 
-div.image-container.image-delete {
+div.image-container.image-delete[init=false] {
 	opacity: 0;
 	animation: image-delete .5s cubic-bezier(0.5, 0, 0.5, 1);
 }
@@ -222,6 +222,7 @@ div.image-container[loaded=true] > div.image-popup > img.image {
 /* 加载完成，图片遮罩过渡关闭 */
 div.image-container[loaded=true] > div.image-popup {
 	background: transparent;
+	overflow: hidden;
 	animation: blur-transition .5s ease;
 }
 

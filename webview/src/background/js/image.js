@@ -100,7 +100,7 @@ function createInstance () {
             this.#lazyObserve = false;
             // 初始化数组
             this.#recordMap = [];
-
+            // 滚动防抖函数
             this.#scrollDebounce = debounce(() => {
                 if (this.#recordMap.length <= 0) {
                     // 删除相关监听
@@ -146,7 +146,7 @@ function createInstance () {
             if (this.#lazyObserve) return
             this.#lazyObserve = true;
             // 开始监听是否懒加载图片
-            this.#scrollDebounce();
+            this.#scrollDebounce?.();
             window.addEventListener('resize', this.#scrollDebounce, { passive: true });
             this.element.addEventListener('scroll', this.#scrollDebounce, { passive: true });
         }, 500);
@@ -484,7 +484,7 @@ function createInstance () {
             setTimeout(() => {
                 target.remove();
                 // 开始检测懒加载元素
-                this.#scrollDebounce();
+                this.#scrollDebounce?.();
             }, this.#deleteByAnimation?imageAnimationTime:0);
         }
 
@@ -639,7 +639,7 @@ function createInstance () {
             classListOperation(target, 'add', selectClass);
             setTimeout(() => {
                 // 滚动到可视区域
-                target?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                elementScrollIntoView(target, { behavior: 'smooth', block: 'center' });
             });
         }
 

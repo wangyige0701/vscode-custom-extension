@@ -6,6 +6,12 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.4.4 - 2023-8-13
+ - 优化：图片列表动画优化
+
+## 0.4.3 - 2023-8-13
+ - 调整：图标替换，状态栏文字修改
+
 ## 0.4.2 - 2023-8-11
  - 修复：图片列表删除图片错误修复
 

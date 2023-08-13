@@ -447,11 +447,50 @@ function deleteImageHandle (value) {
 }
 
 /**
+ * 判断当前是否正在滚动列表到顶部，如果是则需要将图片数据插入数组，等待滚动完成插入
+ */
+var isScrollToTopAndAddImage = false;
+
+/**
+ * 存放等待被插入的图片数据
+ * @type {{src:string,code:string}[]}
+ */
+const listForAddImage = [];
+
+/**
  * 顶部添加一张图片
- * @param {{ code:string,src:string }} param 
+ * @param {string} src 图片数据
+ * @param {string} code 图片哈希码 
  */
 function addImage (src, code) {
-    publicData.imageRenderList?.unshift({ code, src: base64ToBlob(src) });
+    /** @type {Element} */
+    const target = $query('#'+listId);
+    if (!target || !(target instanceof Element)) return;
+    // 先转换为blob路径
+    src = base64ToBlob(src);
+    if (target.scrollTop <= 0) {
+        // 已经在顶部
+        isScrollToTopAndAddImage = false;
+        publicData.imageRenderList?.unshift({ code, src });
+        return;
+    }
+    // 数据插入数组
+    listForAddImage.push({ code, src });
+    // isScrollToTopAndAddImage为true则代表已经在滚动中，插入图片进入数组就可以直接跳出
+    if (isScrollToTopAndAddImage) {
+        return;
+    }
+    isScrollToTopAndAddImage = true;
+    // 容器滚动
+    elementScrollTo(target, { top: 0, behavior: 'smooth' });
+    // 滚动到顶部后再插入图片
+    animationFrameResult(() => {
+        return target.scrollTop <= 0;
+    }, () => {
+        isScrollToTopAndAddImage = false;
+        const { src: $src, code: $code } = listForAddImage.shift();
+        publicData.imageRenderList?.unshift({ code: $code, src: $src });
+    });
 }
 
 /**

@@ -28,7 +28,8 @@ if (!process.env.NODE_ENV) {
     let file_param: file_suffix[] = ['css', 'js'];
     let root = getRoot();
     const ext_css: string[] = [], ext_js: string[] = [];
-    var ver_text = `/* version: ${now_ver()} */`;
+    const now_version = now_ver();
+    var ver_text = `/* version: ${now_version} */`;
     // 获取公共css、js文件
     dir_content(root).then(res => {
         res.forEach(item => {
@@ -41,7 +42,7 @@ if (!process.env.NODE_ENV) {
         });
         return toPackage(file_param, { css: ext_css, js: ext_js });
     }).then(() => {
-        ProcessExit(consoleByColor('green', '\n打包完成\n'), 0);
+        ProcessExit(consoleByColor('green', `\n打包完成   （预发布版本：v${now_version}）\n`), 0);
     }).catch(err => {
         ProcessExit(consoleByColor('red', err), 1);
     });

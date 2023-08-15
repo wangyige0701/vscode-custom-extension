@@ -1,4 +1,4 @@
-import { CancellationToken, Progress, ProgressLocation, ProgressOptions, Uri } from "vscode";
+import { CancellationToken, Progress, ProgressLocation, Uri } from "vscode";
 
 /**
  * 选择文件方法参数

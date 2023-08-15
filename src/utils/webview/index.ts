@@ -5,6 +5,7 @@ import { contextInter, webFileType } from "./main";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
+import { WError, promiseReject } from "../../error";
 
 const webFile: webFileType = {
     html: 'index.html',
@@ -92,7 +93,7 @@ export class FileMerge {
             }).then(() => {
                 resolve(this.htmlContent);
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'setHtml', 'FileMerge'));
             });
         });
     }
@@ -120,7 +121,12 @@ export class FileMerge {
                     await readFileUri(searchUri!).then((val: Uint8Array) => {
                         this.htmlContent = val.toString();
                     }).catch(err => {
-                        throw new Error(err);
+                        throw new WError('Read File Error', {
+                            cause: err,
+                            position: 'Function',
+                            ClassName: 'FileMerge',
+                            FunctionName: 'start > readDirectoryUri > readFileUri'
+                        });
                     });
                 } else if (!dev) {
                     // 生产环境只解析html
@@ -133,7 +139,7 @@ export class FileMerge {
             }
             return Promise.resolve();
         }).catch(err => {
-            return Promise.reject(err);
+            return Promise.reject(promiseReject(err, 'start', 'FileMerge'));
         });
     }
 
@@ -159,7 +165,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'production', 'FileMerge'));
             });
         });
     }
@@ -180,7 +186,7 @@ export class FileMerge {
                 }).then(() => {
                     resolve();
                 }).catch(err => {
-                    reject(err);
+                    reject(promiseReject(err, 'refreshCssIconfont', 'FileMerge'));
                 });
             }
         });
@@ -200,7 +206,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'development', 'FileMerge'));
             });
         });
     }
@@ -213,20 +219,19 @@ export class FileMerge {
      */
     private readDirectoryFile (uri: Uri, fileType: string): Promise<Uri[]> {
         return new Promise((resolve, reject) => {
-            try {
-                readDirectoryUri(newUri(uri)).then(res => {
-                    const list: Uri[] = [], checkReg = new RegExp(`\\.${fileType}$`);
-                    res.forEach(item => {
-                        if (item[1] === 1 && checkReg.test(item[0])) 
-                            list.push(newUri(uri, item[0]));
-                    });
-                    resolve(list);
-                }).catch(err => {
-                    throw err;
+            readDirectoryUri(newUri(uri)).then(res => {
+                const list: Uri[] = [], checkReg = new RegExp(`\\.${fileType}$`);
+                res.forEach(item => {
+                    try {
+                        if (item[1] === 1 && checkReg.test(item[0])) list.push(newUri(uri, item[0]));
+                    } catch (error) {
+                        throw error;
+                    }
                 });
-            } catch (error) {
-                reject(error);
-            }
+                resolve(list);
+            }).catch(err => {
+                reject(promiseReject(err, 'readDirectoryFile', 'FileMerge'));
+            });
         });
     }
 
@@ -244,7 +249,7 @@ export class FileMerge {
             readFileUriList(fileUri).then(res => {
                 resolve(mergeWebviewFile(res));
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'mergeAllFile', 'FileMerge'));
             });
         });
     }
@@ -254,31 +259,31 @@ export class FileMerge {
      */
     private cssFileMerge (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (this.cssUri) {
-                let external_css_content: string = '';
-                // 外部统一样式处理
-                this.externalFileMerge('css').then(res => {
-                    external_css_content = res;
-                    return this.readDirectoryFile(this.cssUri!, 'css');
-                }).then(res => {
-                    // 只能引入一个css文件，需要将其余引用样式写入主css文件中
-                    return this.mergeAllFile(res);
-                }).then(str => {
-                    // css文件整合，icon引入路径修改
-                    let css: string = this.cssIconfontPath(external_css_content, webview) + '\n' + str;
-                    return Promise.resolve(css);
-                }).then((css: string | Buffer) => {
-                    css = createBuffer(css);
-                    // 合并css文件
-                    return writeFileUri(this.newCssUri!, css);
-                }).then(() => {
-                    resolve();
-                }).catch(err => {
-                    reject(err);
-                });
-            } else {
+            if (!this.cssUri) {
                 resolve();
+                return;
             }
+            let external_css_content: string = '';
+            // 外部统一样式处理
+            this.externalFileMerge('css').then(res => {
+                external_css_content = res;
+                return this.readDirectoryFile(this.cssUri!, 'css');
+            }).then(res => {
+                // 只能引入一个css文件，需要将其余引用样式写入主css文件中
+                return this.mergeAllFile(res);
+            }).then(str => {
+                // css文件整合，icon引入路径修改
+                let css: string = this.cssIconfontPath(external_css_content, webview) + '\n' + str;
+                return Promise.resolve(css);
+            }).then((css: string | Buffer) => {
+                css = createBuffer(css);
+                // 合并css文件
+                return writeFileUri(this.newCssUri!, css);
+            }).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(promiseReject(err, 'cssFileMerge', 'FileMerge'));
+            });
         });
     }
 
@@ -294,27 +299,27 @@ export class FileMerge {
      */
     private jsFileMerge (): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (this.jsUri) {
-                let externale_js_content: string = '';
-                this.externalFileMerge('js').then(res => {
-                    externale_js_content = res;
-                    return this.readDirectoryFile(this.jsUri!, 'js');
-                }).then(res => {
-                    return this.mergeAllFile(res);
-                }).then(str => {
-                    let js: string = `(function () {${'\n'+externale_js_content + '\n' + str+'\n'}})();`;
-                    return Promise.resolve(js);
-                }).then((js: string | Buffer) => {
-                    js = createBuffer(js);
-                    return writeFileUri(this.newJsUri!, js);
-                }).then(() => {
-                    resolve();
-                }).catch(err => {
-                    reject(err);
-                });
-            } else {
+            if (!this.jsUri) {
                 resolve();
+                return; 
             }
+            let externale_js_content: string = '';
+            this.externalFileMerge('js').then(res => {
+                externale_js_content = res;
+                return this.readDirectoryFile(this.jsUri!, 'js');
+            }).then(res => {
+                return this.mergeAllFile(res);
+            }).then(str => {
+                let js: string = `(function () {${'\n'+externale_js_content + '\n' + str+'\n'}})();`;
+                return Promise.resolve(js);
+            }).then((js: string | Buffer) => {
+                js = createBuffer(js);
+                return writeFileUri(this.newJsUri!, js);
+            }).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(promiseReject(err, 'jsFileMerge', 'FileMerge'));
+            });
         });
     }
 
@@ -326,7 +331,7 @@ export class FileMerge {
             this.mergeAllFile(type === 'css' ? this.externalCssUri : this.externalJsUri).then(res => {
                 resolve(res);
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'externalFileMerge', 'FileMerge'));
             });
         });
     }

@@ -1,6 +1,6 @@
 import { ViewColumn, WebviewOptions, WebviewPanel, WebviewPanelOptions, window } from 'vscode';
 import { FileMerge } from ".";
-import { errHandle } from '../../error';
+import { errlog } from '../../error';
 import { messageHandle } from './message';
 
 /** 注册panel类型webview页面 */
@@ -16,7 +16,7 @@ export function registerWebviewPanel (
     newFile.setHtml(panel.webview).then(html => {
         panel.webview.html = html;
     }).catch(err => {
-        errHandle(err);
+        errlog(err);
     }).finally(() => {
         newFile = null;
     });

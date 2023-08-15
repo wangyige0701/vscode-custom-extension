@@ -12,7 +12,7 @@ export function GetImage (url: string): Promise<Buffer> {
         }).then(res => {
             resolve(res.data);
         }).catch(err => {
-            reject(err.data || err);
+            reject(new Error('Error when request Image Data', { cause: err }));
         });
     });
 }

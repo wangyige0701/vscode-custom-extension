@@ -1,5 +1,5 @@
 import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
-import { errHandle } from "../../error";
+import { errlog } from "../../error";
 import { options } from "./main";
 import { messageHandle } from "./message";
 import { FileMerge, contextContainer } from './index'
@@ -27,13 +27,13 @@ export class webviewCreateProvider implements WebviewViewProvider {
                 // html赋值
                 webviewView.webview.html = html;
             }).catch(err => {
-                errHandle(err);
+                errlog(err);
             }).finally(() => {
                 this.newFile = null;
             });
             messageHandle(webviewView.webview);
         } catch (error) {
-            errHandle(error);
+            errlog(error);
         }
     }
 }

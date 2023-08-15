@@ -1,5 +1,5 @@
-import { errHandle } from "../error";
-import { delay, getRandom } from "../utils";
+import { errlog } from "../error";
+import { getRandom } from "../utils";
 import { setMessage } from "../utils/interactive";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
@@ -14,7 +14,7 @@ import { settingImage } from "./execute_setting";
 export function randomSettingBackground (value: string[] | false, tip: boolean = true) {
     if (value === false) {
         // 根据tip参数判断是否需要显示弹框提示
-        delay(0).then(() => {
+        Promise.resolve().then(() => {
             if (tip) 
                 return isChangeBackgroundImage('是否关闭背景图随机切换？');
         }).then(() => {
@@ -22,7 +22,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         }).then(() => {
             closeRandomBackground();
         }).catch(err => {
-            errHandle(err);
+            errlog(err);
         });
         return;
     }
@@ -31,26 +31,25 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         return;
     }
     isChangeBackgroundImage('是否设置背景图随机切换？每次打开软件会随机切换一张背景图。').then(() => {
-        backgroundImageConfiguration.setBackgroundIsRandom(true)
-        .then(() => {
-            return backgroundImageConfiguration.setBackgroundRandomList(value);
-        }, err => {
-            errHandle(err);
-        }).then(() => {
-            setMessage({ message: '设置完成，下次打开软件会随机切换背景图。' });
-        }, err => {
-            errHandle(err);
-        }).then(() => {
-            // 发送设置的数据
-            backgroundSendMessage({
-                name: 'backgroundRandomList',
-                value
-            });
-            // 切换一张背景图，下次打开生效
-            setRandomBackground();
+        return Promise.resolve(
+            backgroundImageConfiguration.setBackgroundIsRandom(true)
+        );
+    }).then(() => {
+        return Promise.resolve(
+            backgroundImageConfiguration.setBackgroundRandomList(value)
+        );
+    }).then(() => {
+        setMessage({ message: '设置完成，下次打开软件会随机切换背景图。' });
+    }).then(() => {
+        // 发送设置的数据
+        backgroundSendMessage({
+            name: 'backgroundRandomList',
+            value
         });
+        // 切换一张背景图，下次打开生效
+        setRandomBackground();
     }).catch(err => {
-        errHandle(err);
+        errlog(err);
     });
 }
 
@@ -70,7 +69,7 @@ export function setRandomBackground () {
     if (list.length <= 0) 
         return;
     const code: string = list[getRandom(0, list.length)];
-    settingImage({ code }, true)!.catch((err) => {
-        errHandle(err);
+    settingImage({ code }, true).catch((err) => {
+        errlog(err);
     });
 }

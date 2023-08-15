@@ -29,7 +29,7 @@ function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse>
         }).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(err);
+            reject(new Error('Axios Get Request Error', { cause: err }));
         });
     });
 }
@@ -48,7 +48,7 @@ function post (url: string, data: any, options?: AxiosRequestConfig): Promise<Ax
         }).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(err);
+            reject(new Error('Axios Post Request Error', { cause: err }));
         });
     });
 }

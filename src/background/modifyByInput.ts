@@ -1,5 +1,5 @@
 import { createFileStore } from ".";
-import { errHandle } from "../error";
+import { WError, errlog, promiseReject } from "../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../utils/file";
 import { setMessage } from "../utils/interactive";
 import { imageUrl } from "../utils/regexp";
@@ -20,7 +20,7 @@ export function requestImageToBackground (url: string) {
     }).then(({ hashCode, base64 }) => {
         sendMsg = [base64, hashCode];
     }).catch(err => {
-        errHandle(err);
+        errlog(err);
     }).finally(() => {
         backgroundSendMessage({
             name: 'newImageNetwork',
@@ -38,7 +38,11 @@ function getImageBase64ByRequest (url: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const reg = url.match(imageUrl);
         if (!reg) {
-            reject(new Error('Illegal Image URL'));
+            reject(new WError('Illegal Image URL', {
+                position: 'Parameter',
+                FunctionName: 'getImageBase64ByRequest',
+                ParameterName: 'url'
+            }));
             return;
         }
         GetImage(url).then(res => {
@@ -46,7 +50,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
         }).then(data => {
             resolve(data);
         }).catch(err => {
-            reject(err);
+            reject(promiseReject(err, 'getImageBase64ByRequest'));
         });
     });
 }
@@ -69,7 +73,7 @@ export function backgroundOpacityModify (opacity: number) {
             });
         }
     }).catch(err => {
-        errHandle(err);
+        errlog(err);
     }).finally(() => {
         // 发送通信，返回设置好的透明度，并关闭按钮加载状态
         backgroundSendMessage({
@@ -98,7 +102,7 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
         }).then(() => {
             resolve(true);
         }).catch(err => {
-            reject(err);
+            reject(promiseReject(err, 'changeBackgroundFileOpacity'));
         });
     });
 }

@@ -10,18 +10,23 @@
 import { isNumber, isString } from "../utils";
 import { setMessage } from "../utils/interactive";
 import { isDev } from "../version";
+import WError from "./WError";
 
+/** 环境 */
+const environment = isDev();
 
 /**
  * 错误统一处理
  * @param e 
  * @param isThrow 是否抛出错误不进行弹框打印
  */
-export function errHandle (e: any, isThrow: boolean = !isDev()) {
+function errlog (e: any, isThrow: boolean = !environment) {
+    if (!e) return;
     if (isThrow) {
         console.log(e);
         return;
     }
+    if (environment) console.error(e);
     if (!e) return;
     if (isString(e) || isNumber(e)) {
         setMessage({
@@ -31,11 +36,46 @@ export function errHandle (e: any, isThrow: boolean = !isDev()) {
         });
         return;
     }
+    if (e instanceof WError) {
+        setMessage({
+            type: 'error',
+            message: e.stack??`${e.name}: ${e.message}`,
+            modal: false
+        });
+        return;
+    }
     if (e instanceof Error) {
         setMessage({
             type: 'error',
-            message: e.stack??`${e.name??'Error'}:${e.message}`,
+            message: e.stack??`${e.name??'Error'}: ${e.message}`,
             modal: false
         });
+        return;
     }
+    setMessage({
+        type: 'error',
+        message: String(e),
+        modal: false
+    });
+}
+
+/**
+ * Promise通过reject抛出错误时的错误信息
+ * @param err 
+ * @param FunctionName 
+ * @returns 
+ */
+function promiseReject(err: any, FunctionName: string, ClassName?:string): WError {
+    return new WError('Promise rejected', {
+        cause: err,
+        position: 'Function',
+        FunctionName,
+        ClassName
+    });
+}
+
+export {
+    WError,
+    errlog,
+    promiseReject
 }

@@ -5,7 +5,7 @@ import { isObject } from "../utils";
 import { messageSend } from "../utils/webview/message";
 
 /** webview实例保存 */
-export var webviewInstance: { value: Webview|undefined } = {
+export const webviewInstance: { value: Webview|undefined } = {
     value: undefined
 };
 

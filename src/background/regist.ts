@@ -8,7 +8,7 @@ import { bindMessageCallback } from "../utils/webview/message";
 import { backgroundExecute } from "./execute";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { setStatusBarResolve } from "../utils/interactive";
-import { errHandle } from "../error";
+import { errlog, promiseReject } from "../error";
 
 /**
  * 注册背景图设置功能
@@ -38,7 +38,7 @@ export function registBackground () {
 		// 绑定事件通信回调
 		bindMessageCallback('onBackground', backgroundExecute);
 	}).catch(err => {
-		errHandle(err);
+		errlog(err);
 	}).finally(() => {
 		statusBarTarget?.dispose();
 		statusBarTarget = null;
@@ -51,28 +51,26 @@ export function registBackground () {
  */
 function checkRandomCode (): Promise<void> {
 	return new Promise((resolve, reject) => {
-		try {
-			if (backgroundImageConfiguration.getBackgroundIsRandom()) {
-				// 当状态为随机切换时，根棍当前选择图片数据
-				const code = backgroundImageConfiguration.getBackgroundRandomCode();
-				if (!code) {
-					resolve();
-					return;
-				}
-				Promise.resolve(
-					backgroundImageConfiguration.setBackgroundNowImagePath(code)
-				).then(() => {
-					return Promise.resolve(backgroundImageConfiguration.setBackgroundRandomCode(''));
-				}).then(() => {
-					resolve();
-				}).catch(err => {
-					reject(err);
-				});
-			} else {
-				resolve();
-			}
-		} catch (error) {
-			reject(error);
+		if (!backgroundImageConfiguration.getBackgroundIsRandom()) {
+			resolve();
+			return;
 		}
+		// 当状态为随机切换时，根棍当前选择图片数据
+		const code = backgroundImageConfiguration.getBackgroundRandomCode();
+		if (!code) {
+			resolve();
+			return;
+		}
+		Promise.resolve(
+			backgroundImageConfiguration.setBackgroundNowImagePath(code)
+		).then(() => {
+			return Promise.resolve(
+				backgroundImageConfiguration.setBackgroundRandomCode('')
+			);
+		}).then(() => {
+			resolve();
+		}).catch(err => {
+			reject(promiseReject(err, 'checkRandomCode'));
+		});
 	});
 }

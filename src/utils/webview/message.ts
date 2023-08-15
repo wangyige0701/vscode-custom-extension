@@ -1,6 +1,6 @@
 import { Webview } from "vscode";
 import { MessageData, MessageGroupCallback, MessageGroupCallbackName, callbackType } from "./main";
-import { errHandle } from "../../error";
+import { errlog } from "../../error";
 
 /**
  * 绑定通信回调函数对象
@@ -53,7 +53,7 @@ export function messageSend (webview: Webview, options: MessageData): void {
         try {
             webview.postMessage(options);
         } catch (error) {
-            errHandle(error);
+            errlog(error);
         }
     }
 }

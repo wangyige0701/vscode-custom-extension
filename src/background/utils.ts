@@ -4,7 +4,7 @@ import { windowReload } from "../utils/system";
 import { contextContainer } from "../utils/webview/index";
 import { Uri } from "vscode";
 import { backgroundImageConfiguration, defaultPath } from "../workspace/background";
-import { errHandle } from "../error";
+import { WError, errlog, promiseReject } from "../error";
 import { minmax } from "../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
@@ -30,15 +30,15 @@ export function imageStoreUri (): Promise<Uri | void> {
             }
             if (!uri) {
                 resolve();
-            } else {
-                imageStoreUriExits(uri).then(uri => {
-                    resolve(uri);
-                }).catch(err => {
-                    reject(err);
-                });
+                return
             }
+            imageStoreUriExits(uri).then(uri => {
+                resolve(uri);
+            }).catch(err => {
+                reject(promiseReject(err, 'imageStoreUri'));
+            });
         } catch (error) {
-            reject(error);
+            reject(promiseReject(error, 'imageStoreUri'));
         }
     });
 }
@@ -50,20 +50,24 @@ export function imageStoreUri (): Promise<Uri | void> {
  */
 export function imageStoreUriExits (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
-        if (uri) {
-            isFileExits(uri).then(res => {
-                if (!res) {
-                    // 文件夹不存在进行创建
-                    return createDirectoryUri(uri);
-                }
-            }).then(() => {
-                resolve(uri);
-            }).catch(err => {
-                reject(err);
-            });
-        } else {
-            reject(new Error('Uri undefindef'));
+        if (!uri) {
+            reject(new WError('Undefined Uri', {
+                position: 'Parameter',
+                FunctionName: 'imageStoreUriExits',
+                ParameterName: 'uri'
+            }));
+            return;
         }
+        isFileExits(uri).then(res => {
+            if (!res) {
+                // 文件夹不存在进行创建
+                return createDirectoryUri(uri);
+            }
+        }).then(() => {
+            resolve(uri);
+        }).catch(err => {
+            reject(promiseReject(err, 'imageStoreUriExits'));
+        });
     });
 }
 
@@ -80,10 +84,11 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
             });
             return Promise.resolve();
         }
-        await backgroundImageConfiguration.setBackgroundStorePath("")
-            .then(() => {}, err => {
-                return Promise.reject(err);
-            });
+        await Promise.resolve(
+            backgroundImageConfiguration.setBackgroundStorePath("")
+        ).catch(err => {
+            return Promise.reject(promiseReject(err, 'resetImageStorePath'));
+        });
         setMessage({
             message: '背景图储存路径已切换为默认路径'
         });
@@ -93,10 +98,11 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
     const uri = Uri.file(path);
     if (path && uri) {
         // 缓存数据
-        await backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
-            .then(() => {}, err => {
-                return Promise.reject(err);
-            });
+        await Promise.resolve(
+            backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
+        ).catch(err => {
+            return Promise.reject(promiseReject(err, 'resetImageStorePath'));
+        });
         setMessage({
             message: '背景图储存路径已切换为：'+uri.fsPath
         });
@@ -121,29 +127,25 @@ function sendStoreChangeMessage () {
  */
 export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
     return new Promise((resolve, reject) => {
-        try {
-            setMessage({
-                message: '提示',
-                modal: true,
-                detail: message,
-                items: [{
-                    id: 0,
-                    title: '确认'
-                }]
-            }).then(res => {
-                if (res && res.id === 0) {
-                    // 返回true
-                    resolve();
-                    return;
-                }
-                // 选择取消返回reject
-                reject();
-            }).catch((err) => {
-                reject(err);
-            });
-        } catch (error) {
-            errHandle(error);
-        }
+        setMessage({
+            message: '提示',
+            modal: true,
+            detail: message,
+            items: [{
+                id: 0,
+                title: '确认'
+            }]
+        }).then(res => {
+            if (res && res.id === 0) {
+                // 返回true
+                resolve();
+                return;
+            }
+            // 选择取消返回reject
+            reject();
+        }).catch((err) => {
+            reject(promiseReject(err, 'isChangeBackgroundImage'));
+        });
     });
 }
 
@@ -176,25 +178,23 @@ export function setBackgroundImageSuccess (message: string = '背景图设置成
  * 是否重启窗口更新背景
  */
 export function isWindowReloadToLoadBackimage (title: string = '是否重启窗口以应用背景') {
-     try {
-        setMessage({
-            message: title,
-            modal: false,
-            items: [{
-                id: 0,
-                title: '确认'
-            }, {
-                id: 1,
-                title: '取消'
-            }]
-        }).then(res => {
-            if (res && res.id === 0) {
-                windowReload();
-            }
-        });
-    } catch (error) {
-        errHandle(error);
-    }
+    setMessage({
+        message: title,
+        modal: false,
+        items: [{
+            id: 0,
+            title: '确认'
+        }, {
+            id: 1,
+            title: '取消'
+        }]
+    }).then(res => {
+        if (res && res.id === 0) {
+            windowReload();
+        }
+    }).catch(err => {
+        errlog(err);
+    });
 }
 
 /**

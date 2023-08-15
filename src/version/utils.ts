@@ -1,5 +1,5 @@
 import { version as vscVersion } from "vscode";
-import { errHandle } from "../error";
+import { errlog } from "../error";
 import { getWorkSpace, setWorkSpace } from "../workspace";
 import { getVersion } from ".";
 
@@ -40,6 +40,6 @@ export function refreshVersion (id: string, refreshVsc: boolean = true) {
         if (refreshVsc) 
             return Promise.resolve(setWorkSpace("wangyige."+id, "VSCodeVersion", vscVersion));
     }).catch(err => {
-        errHandle(err);
+        errlog(err);
     });
 }

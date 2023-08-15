@@ -1,7 +1,16 @@
 import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window } from 'vscode';
 import { check, isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
-import { MessageBoxType, ProgressLocationData, ProgressOptionsNew, ProgressTaskType, SelectFileParams, StatusBarCallback, StatusBarIconMessage, StatusBarParam } from './main';
+import { 
+    MessageBoxType, 
+    ProgressLocationData, 
+    ProgressOptionsNew, 
+    ProgressTaskType, 
+    SelectFileParams, 
+    StatusBarCallback, 
+    StatusBarIconMessage, 
+    StatusBarParam 
+} from './main';
 
 /**
  * 调用输入框api获取输入内容
@@ -12,25 +21,23 @@ import { MessageBoxType, ProgressLocationData, ProgressOptionsNew, ProgressTaskT
  */
 export function getInputInfo (title: string, placeHolder: string, reg: RegExp = /^[a-zA-Z0-9]*$/): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
-        try {
-            window.showInputBox({
-                password: false,
-                ignoreFocusOut: true,
-                placeHolder: placeHolder,
-                prompt: title,
-                validateInput: function (text: string): string {
-                    if (check(text, reg)) {
-                        return "";
-                    } else {
-                        return "Illegal input";
-                    }
+        window.showInputBox({
+            password: false,
+            ignoreFocusOut: true,
+            placeHolder: placeHolder,
+            prompt: title,
+            validateInput: function (text: string): string {
+                if (check(text, reg)) {
+                    return "";
+                } else {
+                    return "Illegal input";
                 }
-            }).then((msg: string | undefined) => {
-                resolve(msg);
-            });
-        } catch (error) {
-            reject(error);
-        }
+            }
+        }).then((msg: string | undefined) => {
+            resolve(msg);
+        }, err => {
+            reject(new Error('InputBox Error', { cause: err }));
+        });
     });
 }
 
@@ -77,11 +84,13 @@ export function selectFile ({
                     }
                     resolve({ uri: res, file: files, dirName });
                 } else {
-                    reject(new Error('undefinded select data'));
+                    reject();
                 }
+            }, err => {
+                reject(new Error('ShowOpenDialog Error', { cause: err }));
             });
         } catch (error) {
-            reject(error);
+            reject(new Error('Catch Error', { cause: error }));
         }
     });
 }
@@ -106,26 +115,26 @@ export function setMessage<T extends MessageItem> ({
                 return;
             }
             if (!modal) detail = undefined;
-            isUndefined(items) ? 
-                // items是undefinded不传
-                getMessageBoxAllData()[type](message, {
-                    modal,
-                    detail
-                }).then(res => {
-                    resolve(res as undefined);
-                }, err => {
-                    reject(err);
-                }) : 
-                getMessageBoxAllData()[type](message, {
-                    modal,
-                    detail
-                }, ...items).then(res => {
-                    resolve(res);
-                }, err => {
-                    reject(err);
-                });
+            // items是undefinded不传
+            isUndefined(items) 
+            ? getMessageBoxAllData()[type](message, {
+                modal,
+                detail
+            }).then(res => {
+                resolve(res as undefined);
+            }, err => {
+                reject(new Error('MessageBox Error', { cause: err }));
+            }) 
+            : getMessageBoxAllData()[type](message, {
+                modal,
+                detail
+            }, ...items).then(res => {
+                resolve(res);
+            }, err => {
+                reject(new Error('MessageBox Error', { cause: err }));
+            });
         } catch (error) {
-            reject(error);
+            reject(new Error('Catch Error', { cause: error }));
         }
     });
 }
@@ -165,7 +174,7 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
                     resolve();
                 }, option);
             } catch (error) {
-                reject(error);
+                reject(new Error('Catch Error', { cause: error }));
             }
         })
     } else {

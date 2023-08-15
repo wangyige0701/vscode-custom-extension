@@ -58,15 +58,11 @@ export function createBuffer (content: string | Uint8Array | readonly number[]):
  */
 export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boolean | undefined } | undefined): Promise<void> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.copy(source, target, options).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.copy(source, target, options).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.copy', { cause: err }));
+        });
     });
 }
 
@@ -81,15 +77,11 @@ export function uriDelete (uri: Uri, options?: {
     useTrash?: boolean | undefined 
 } | undefined): Promise<void> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.delete(uri, options).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.delete(uri, options).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.delete', { cause: err }));
+        });
     });
 }
 
@@ -100,15 +92,11 @@ export function uriDelete (uri: Uri, options?: {
  */
 export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.readDirectory(uri).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.readDirectory(uri).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.readDirectory', { cause: err }));
+        });
     });
 }
 
@@ -119,15 +107,11 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
  */
 export function createDirectoryUri (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.createDirectory(uri).then(() => {
-                resolve(uri);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.createDirectory(uri).then(() => {
+            resolve(uri);
+        }, err => {
+            reject(new Error('workspace.fs.createDirectory', { cause: err }));
+        });
     });
 }
 
@@ -138,15 +122,11 @@ export function createDirectoryUri (uri: Uri): Promise<Uri> {
  */
 export function readFileUri (uri: Uri): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.readFile(uri).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.readFile(uri).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.readFile', { cause: err }));
+        });
     });
 }
 
@@ -164,7 +144,7 @@ export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
         Promise.all(list).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(err);
+            reject(new Error('Error on readFile by list', { cause: err }));
         });
     });
 }
@@ -177,15 +157,11 @@ export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
  */
 export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.writeFile(uri, content).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.writeFile(uri, content).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.writeFile', { cause: err }));
+        });
     });
 }
 
@@ -196,15 +172,11 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
  */
 export function uriStat (uri: Uri): Promise<FileStat> {
     return new Promise((resolve, reject) => {
-        try {
-            workspace.fs.stat(uri).then(res => {
-                resolve(res);
-            }, err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        workspace.fs.stat(uri).then(res => {
+            resolve(res);
+        }, err => {
+            reject(new Error('workspace.fs.stat', { cause: err }));
+        });
     });
 }
 
@@ -221,7 +193,7 @@ export function isFileExits (data: Uri | string): Promise<boolean> {
             }
             resolve(existsSync(data));
         } catch (error) {
-            reject(error);
+            reject(new Error('Error when use existsSync', { cause: error }));
         }
     });
 }
@@ -233,18 +205,14 @@ export function isFileExits (data: Uri | string): Promise<boolean> {
  */
 export function imageToBase64 (path: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        try {
-            readFileUri(Uri.file(pathResolve(path))).then(content => {
-                const fileType = imageToBase64Type(extname(path).substring(1));
-                return base64ByFiletypeAndData('image', fileType, content);
-            }).then(data => {
-                resolve(data);
-            }).catch(err => {
-                reject(err);
-            });
-        } catch (error) {
-            reject(error);
-        }
+        readFileUri(Uri.file(pathResolve(path))).then(content => {
+            const fileType = imageToBase64Type(extname(path).substring(1));
+            return base64ByFiletypeAndData('image', fileType, content);
+        }).then(data => {
+            resolve(data);
+        }).catch(err => {
+            reject(new Error('Error when change Image to Base64 Data', { cause: err }));
+        });
     });
 }
 
@@ -260,7 +228,7 @@ export function base64ByFiletypeAndData (type: string, fileType: string, data: s
         try {
             resolve(`data:${type}/${fileType};base64,${createBuffer(data).toString('base64')}`);
         } catch (error) {
-            reject(error);
+            reject(new Error('Error when Merge Base64 Data', { cause: error }));
         }
     });
 }

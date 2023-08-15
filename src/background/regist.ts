@@ -13,7 +13,7 @@ import { errlog, promiseReject } from "../error";
 /**
  * 注册背景图设置功能
  */
-export function registBackground () {
+export function registBackground (): void {
 	let statusBarTarget: Disposable | null = setStatusBarResolve({
 		icon: 'loading~spin',
 		message: '默认路径图片数据确认'

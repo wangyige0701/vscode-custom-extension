@@ -11,7 +11,7 @@ import { settingImage } from "./execute_setting";
  * @param value 
  * @param tip 是否弹出提示
  */
-export function randomSettingBackground (value: string[] | false, tip: boolean = true) {
+export function randomSettingBackground (value: string[] | false, tip: boolean = true): void {
     if (value === false) {
         // 根据tip参数判断是否需要显示弹框提示
         Promise.resolve().then(() => {
@@ -57,7 +57,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
  * 插件开启后随机设置下次的背景图
  * @returns 
  */
-export function setRandomBackground () {
+export function setRandomBackground (): void {
     if (!backgroundImageConfiguration.getBackgroundIsRandom())
         return;
     // 允许随机设置背景图

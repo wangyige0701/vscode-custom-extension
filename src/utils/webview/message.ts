@@ -1,5 +1,5 @@
 import { Webview } from "vscode";
-import { MessageData, MessageGroupCallback, MessageGroupCallbackName, callbackType } from "./main";
+import { MessageData, MessageGroupCallback, MessageGroupCallbackName, callbackType } from "./type";
 import { errlog } from "../../error";
 
 /**

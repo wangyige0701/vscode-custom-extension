@@ -1,6 +1,6 @@
 import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
 import { errlog } from "../../error";
-import { options } from "./main";
+import { options } from "./type";
 import { messageHandle } from "./message";
 import { FileMerge, contextContainer } from './index'
 

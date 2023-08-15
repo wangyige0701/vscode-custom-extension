@@ -10,7 +10,7 @@ import {
     StatusBarCallback, 
     StatusBarIconMessage, 
     StatusBarParam 
-} from './main';
+} from './type';
 
 /**
  * 调用输入框api获取输入内容

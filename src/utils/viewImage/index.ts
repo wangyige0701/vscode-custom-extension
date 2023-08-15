@@ -1,9 +1,9 @@
 import { Webview, WebviewPanel } from "vscode";
 import { registerWebviewPanel } from "../webview/panel";
-import { viewImageMessageData, viewImageSendMessage } from "./data";
+import { viewImageMessageData, viewImageSendMessage } from "./type";
 import { isObject } from "..";
 import { bindMessageCallback, messageSend, unbindMessageCallback } from "../webview/message";
-import { MessageData } from "../webview/main";
+import { MessageData } from "../webview/type";
 
 var viewImageWebviewInstance: WebviewPanel | null = null;
 

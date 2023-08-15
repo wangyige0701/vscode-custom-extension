@@ -6,7 +6,12 @@ import { imageUrl } from "../utils/regexp";
 import { GetImage } from "../utils/request/utils";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
-import { getExternalCssModifyOpacityContent, getExternalFileContent, setSourceCssImportInfo, writeExternalCssFile } from "./modify";
+import { 
+    getExternalCssModifyOpacityContent, 
+    getExternalFileContent, 
+    setSourceCssImportInfo, 
+    writeExternalCssFile 
+} from "./modify";
 import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils";
 
 /**

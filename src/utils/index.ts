@@ -179,29 +179,6 @@ export function minmax (min: number, max: number, value: number): number {
     return value <= min ? min : value >= max ? max : value;
 }
 
-type switchData = string | number | boolean;
-
-interface newSwitchCase {
-    case: (key: switchData, func: Function) => void | newSwitchCase;
-}
-
-/**
- * 使用if-else的switch方法，测试
- * @param name 
- * @returns 
- */
-export function newSwitch (name: switchData): void | newSwitchCase {
-    return {
-        case: function (key: switchData, func: Function) {
-            if (key === name) {
-                func?.();
-            } else {
-                return this;
-            }
-        }
-    }
-}
-
 /**
  * 延迟指定时间
  * @param time 

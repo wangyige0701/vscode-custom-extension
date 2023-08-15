@@ -1,7 +1,7 @@
 import { Uri, Webview} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { getNonce } from "..";
-import { contextInter, webFileType } from "./main";
+import { contextInter, webFileType } from "./type";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";

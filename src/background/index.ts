@@ -1,13 +1,27 @@
 import { Uri, FileType, Disposable } from "vscode";
 import { delay, getHashCode } from "../utils";
-import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
+import { 
+    createBuffer, 
+    imageToBase64, 
+    newUri, 
+    readDirectoryUri, 
+    readFileUri, 
+    uriDelete, 
+    writeFileUri
+} from "../utils/file";
 import { selectFile, setStatusBarResolve, showProgress } from "../utils/interactive";
 import { WError, errlog, promiseReject } from "../error";
 import { backgroundImageConfiguration } from "../workspace/background";
-import { changeLoadState, imageStoreUri, isChangeBackgroundImage, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
+import { 
+    changeLoadState, 
+    imageStoreUri, 
+    isChangeBackgroundImage, 
+    isWindowReloadToLoadBackimage, 
+    setBackgroundImageSuccess 
+} from "./utils";
 import { backgroundSendMessage } from "./execute_webview";
 import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
-import { bufferAndCode, codeChangeType } from "./data";
+import { bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 
@@ -38,15 +52,15 @@ const repositoryData: { [key: string]: string } = {};
  * 背景图是否校验完成判断，完成后才能进行列表初始化
 */
 const isBackgroundCheckComplete: {
+    /** 是否校验完成 */
     check: boolean;
+    /** 是否需要初始化 */
     init: boolean;
+    /** 是否正在初始化中 */
     running: boolean
 } = {
-    /** 是否校验完成 */
     check: false,
-    /** 是否需要初始化 */
     init: false,
-    /** 是否正在初始化中 */
     running: false
 }
 

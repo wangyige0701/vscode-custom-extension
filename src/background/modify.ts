@@ -7,9 +7,15 @@ import { getDate } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Disposable, Uri, version } from "vscode";
-import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
+import { 
+    changeLoadState, 
+    getNewBackgroundOpacity, 
+    imageStoreUri, 
+    isWindowReloadToLoadBackimage, 
+    setBackgroundImageSuccess 
+} from "./utils";
 import { getVersion } from "../version";
-import { ContentAndUri, info } from "./data";
+import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../utils/interactive";
 import { WError, promiseReject } from "../error";
 
@@ -54,9 +60,12 @@ const w = '\\w\*';
 const nw = '[\\d\\w]\*'; 
 
 /**
- * 匹配源及外部css文件修改内容标签范围正则文本，捕获标签中的内容
+ * 匹配源及外部css文件修改内容标签范围正则字符串，捕获标签中的内容
  */
 const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
+/**
+ * 匹配源及外部css文件修改内容标签范围，捕获标签中的内容的正则对象
+ */
 const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
 
 /**
@@ -64,10 +73,13 @@ const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
 */
 const findSourceCssVersionContent = 
     `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
+/**
+ * 捕获源css文件引用文本中的问号后接内容的正则对象
+*/
 const findSourceCssVersionContentRegexp = new RegExp(findSourceCssVersionContent);
 
 /**
- * 匹配外部css文件并捕获注释信息正则文本
+ * 匹配外部css文件并捕获注释信息正则字符串
  */
 const findExternalCssPosition = 
     `${importStartMatch}${a}${
@@ -79,13 +91,19 @@ const findExternalCssPosition =
     }${a}${
         getReg('ImageCode')
     }${a}${importEndMatch}`;
+/**
+ * 匹配外部css文件并捕获注释信息的正则对象
+ */
 const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
 
 /**
- * 获取外部css文件中的透明度值正则
+ * 获取外部css文件中的透明度值正则字符串
  */
 const findExternalCssOpacityData = 
     `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
+/**
+ * 获取外部css文件中的透明度值的正则对象
+ */
 const findExternalCssOpacityDataRegexp = new RegExp(findExternalCssOpacityData);
 
 /**

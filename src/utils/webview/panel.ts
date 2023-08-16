@@ -3,7 +3,14 @@ import { FileMerge } from ".";
 import { errlog } from '../../error';
 import { messageHandle } from './message';
 
-/** 注册panel类型webview页面 */
+/** 
+ * 注册panel类型webview页面
+ * @param viewType webview面板标识
+ * @param provider.path 创建的webview页面文件引用路径，默认路径是当前扩展的根路径
+ * @param provider.title webview面板的标题文本
+ * @param viewColumn 在编辑器中显示的面板位置索引
+ * @param options webview页面的设置，默认是允许脚本插入
+ * */
 export function registerWebviewPanel (
     viewType: string, 
     provider: { path: string, title: string }, 

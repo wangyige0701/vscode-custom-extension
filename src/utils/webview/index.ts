@@ -45,8 +45,8 @@ export class FileMerge {
     private externalJsUri: Uri[] = [];
     /** webview文件根路径，用于获取公共文件 */
     private publicFileUri?:Uri;
-    /** 图标资源路径 */
-    private iconUri?: Uri;
+    /** webview文件夹资源路径 */
+    private mainUri?: Uri;
     /** 环境变量 */
     private env: 'development' | 'production' = 'development';
 
@@ -64,7 +64,7 @@ export class FileMerge {
         // 生产环境合成index.production.js/css，开发环境合成index.development.js/css
         this.newCssUri = newUri(this.baseUri!, `index.${this.env}.css`);
         this.newJsUri = newUri(this.baseUri!, `index.${this.env}.js`);
-        this.iconUri = this.publicFileUri;
+        this.mainUri = this.publicFileUri;
     }
 
     /**
@@ -291,7 +291,7 @@ export class FileMerge {
      * 将css文件中的iconfont引入路径进行替换
      */
     private cssIconfontPath (css: string, webview: Webview): string {
-        return css.replace(/(#iconfont)/g, `${webview.asWebviewUri(this.iconUri!)}`);
+        return css.replace(/(#iconfont)/g, this.mainUri ? webview.asWebviewUri(this.mainUri).toString() : '');
     }
 
     /**

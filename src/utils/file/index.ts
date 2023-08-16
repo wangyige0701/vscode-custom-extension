@@ -37,8 +37,8 @@ export function createUri (path: string): Uri {
  * @param path 
  * @returns 
  */
-export function pathToVscode (path: string): string {
-    return Uri.file(path).with({ scheme: 'vscode-resource' }).toString();
+export function pathToVscode (path: string): Uri {
+    return Uri.file(path).with({ scheme: 'vscode-resource' });
 }
 
 /**

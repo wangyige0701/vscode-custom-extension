@@ -1,4 +1,11 @@
-import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
+import { 
+    window, 
+    WebviewViewProvider, 
+    Disposable, 
+    CancellationToken, 
+    WebviewView, 
+    WebviewViewResolveContext 
+} from "vscode";
 import { errlog } from "../../error";
 import { options } from "./type";
 import { messageHandle } from "./message";
@@ -39,7 +46,7 @@ export class webviewCreateProvider implements WebviewViewProvider {
 }
 
 /**
- * 注册webview
+ * 注册webview provider
  */
 export function registWebviewProvider (viewId: string, provider: { path: string, title: string }, options?: options | undefined): Disposable {
     const dispose = window.registerWebviewViewProvider(viewId, new webviewCreateProvider(provider.path, provider.title), options);

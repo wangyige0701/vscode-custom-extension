@@ -2,7 +2,7 @@
 	"name": "wangyige",
 	"displayName": "WangYige",
 	"description": "My custom extension",
-	"version": "0.4.5",
+	"version": "0.4.6",
 	"publisher": "wangyige",
 	"repository": {
 		"url": "https://github.com/wangyige0701/vscodeCustomExtension"
@@ -156,7 +156,12 @@
 					"group": "navigation"
 				}
 			]
-		}
+		},
+		"iconThemes": [{
+			"id": "wyg-icon-theme",
+			"label": "MyIconTheme",
+			"path": "./resources/theme/wyg-icon-theme.json"
+		}]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run check && npm run compile",

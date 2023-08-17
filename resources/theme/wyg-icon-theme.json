@@ -1,0 +1,10 @@
+{
+    "iconDefinitions": {
+        "wyg-title-icon": {
+            "iconPath": "../icon/icon.100.png"
+        }
+    },
+    "fileExtensions": {
+        "wyg": "wyg-title-icon"
+    }
+}

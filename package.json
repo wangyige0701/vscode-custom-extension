@@ -5,7 +5,8 @@
 	"version": "0.4.6",
 	"publisher": "wangyige",
 	"repository": {
-		"url": "https://github.com/wangyige0701/vscodeCustomExtension"
+		"type": "github",
+		"url": "https://github.com/wangyige0701/vscode-custom-extension.git"
 	},
 	"engines": {
 		"vscode": "^1.78.0"

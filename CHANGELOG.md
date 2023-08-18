@@ -78,16 +78,16 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
-[0.4.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.4.0
-[0.3.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.3.0
-[0.2.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.4
-[0.2.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.2.1
-[0.1.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.1
-[0.1.0]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.1.0
-[0.0.7]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.7
-[0.0.6]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.6
-[0.0.5]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.5
-[0.0.4]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.4
-[0.0.3]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.3
-[0.0.2]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.2
-[0.0.1]: https://github.com/wangyige0701/vscodeCustomExtension/releases/tag/v0.0.1
+[0.4.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.0
+[0.3.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.3.0
+[0.2.4]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.2.4
+[0.2.1]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.2.1
+[0.1.1]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.1.1
+[0.1.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.1.0
+[0.0.7]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.7
+[0.0.6]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.6
+[0.0.5]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.5
+[0.0.4]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.4
+[0.0.3]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.3
+[0.0.2]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.2
+[0.0.1]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.0.1

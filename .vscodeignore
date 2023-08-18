@@ -20,7 +20,8 @@ webview/*.css
 webview/*.js
 test/**
 filePackage/**
-themes/**
 out/**
 dist/**
 !dist/extension.js
+# 主题文件夹不进行发布
+resources/theme/**

@@ -25,7 +25,11 @@ document.getElementById(listId).addEventListener('contextmenu', (e) => {
  * @returns 
  */
 function createInstance () {
-    const imageDeleteCLass = 'image-delete';
+    /** 图片加载删除动画时间 */
+    const imageAnimationTime = 500;
+    const imageDeleteClass = 'image-delete';
+    const imageDeletMultipleClass = 'multiple-images-delete';
+    const imageDeletMultipleScrollClass = 'multiple-images-delete-scroll';
     class ImageList {
         /**
          * 记录选中的图片元素
@@ -59,8 +63,8 @@ function createInstance () {
         #recordMap = [];
         /** 是否初始化并且开始监听懒加载 */
         #lazyObserve = false;
-        /** 删除图片的动画 */
-        #deleteByAnimation = true;
+        /** 删除图片的动画 @type {number} */
+        #deleteByAnimation = 0;
 
         constructor() {
             // 初始化时更新加载状态
@@ -140,6 +144,15 @@ function createInstance () {
         }
 
         /**
+         * 删除多张图片调用
+        */
+        deleteMultipleImages (func, index=1) {
+            this.#deleteByAnimation = index;
+            func?.();
+            this.#deleteByAnimation = 0;
+        }
+
+        /**
          * 延迟触发懒加载开启函数
         */
         #initToLazyLoadImage = debounce(() => {
@@ -161,7 +174,6 @@ function createInstance () {
             const newMethods = Object.create(oldMethods);
             methods.forEach(method => {
                 newMethods[method] = function (...args) {
-                    _this.#deleteByAnimation = true;
                     switch (method) {
                         case 'push':
                         case 'unshift':
@@ -181,7 +193,6 @@ function createInstance () {
                             break;
                         case 'splice':
                             if (args.slice(2).length === 0) {
-                                if (args[1].length > 1) _this.#deleteByAnimation = false;
                                 // 只处理通过splice删除元素
                                 for (let i = 0; i < args[1]; i++) {
                                     _this.#deleteImageItem(this[args[0]+i].target, this.src);
@@ -470,10 +481,12 @@ function createInstance () {
          */
         #deleteImageItem (target, blobUrl) {
             // 释放blob缓存
-            if (blobUrl) revokeBlobData(blobUrl)
+            if (blobUrl) revokeBlobData(blobUrl);
             if (!target) return;
-            // 添加删除类名动画
-            if (this.#deleteByAnimation) classListOperation(target, 'add', imageDeleteCLass);
+            const { time: $time, class: $class, multiple=false, delayTime=0 } = this.#deleteImageData();
+            if (multiple) target.style.setProperty('--delay-time', delayTime/1000+'s');
+            // 添加删除类名动画，同时删除多张图片需要额外添加类名
+            classListOperation(target, 'add', imageDeleteClass, $class);
             let selectBut = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
                 deleteBut = $query(`.${imageButtonClass}.${imageDeleteButtonClass}`, target);
             // 解除事件绑定
@@ -485,7 +498,35 @@ function createInstance () {
                 target.remove();
                 // 开始检测懒加载元素
                 this.#scrollDebounce?.();
-            }, this.#deleteByAnimation?imageAnimationTime:0);
+            }, $time);
+        }
+
+        /** 删除的图片计数 */
+        #deleteCount = 0;
+
+        /**
+         * 返回删除图片时对应的类名和动画时间
+         * @returns {{time:number, class:string, multiple:boolean, delayTime:number}}
+        */
+        #deleteImageData () {
+            if (this.#deleteCount >= this.#deleteByAnimation) {
+                this.#deleteCount = 0;
+            }
+            if (this.#deleteByAnimation > 1) {
+                return { 
+                    delayTime: this.#deleteCount * (imageAnimationTime/2), 
+                    time: ((this.#deleteCount++) + 1) * (imageAnimationTime/2), 
+                    class: imageDeletMultipleScrollClass, 
+                    multiple: true 
+                };
+            }
+            // 删除一张或者重置列表
+            this.#deleteCount = 0
+            if (this.#deleteByAnimation === 0) {
+                return { time: imageAnimationTime, class: '' };
+            } else if (this.#deleteByAnimation === 1) {
+                return { time: imageAnimationTime/2, class: imageDeletMultipleClass };
+            }
         }
 
         /**

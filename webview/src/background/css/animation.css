@@ -35,6 +35,15 @@
     }
 }
 
+@keyframes opacity-hide {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
 @keyframes loading-rotate {
 	from {
 		transform: rotate(0);

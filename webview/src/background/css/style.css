@@ -133,9 +133,20 @@ div.image-container {
 	animation: opacity-show .5s ease;
 }
 
-div.image-container.image-delete[init=false] {
+/* 加载完成的图片在删除时添加删除动画 */
+div.image-container.image-delete {
 	opacity: 0;
 	animation: image-delete .5s cubic-bezier(0.5, 0, 0.5, 1);
+}
+
+/* 同时删除多张图片的透明度动画 */
+div.image-container.image-delete.multiple-images-delete {
+	animation: opacity-hide .25s ease;
+}
+
+/* 删除多张图片的滚动动画 */
+div.image-container.image-delete.multiple-images-delete-scroll {
+	animation: image-delete .25s linear var(--delay-time);
 }
 
 div.image-container:hover {
@@ -159,7 +170,7 @@ div.image-container:not(:last-child) {
 }
 
 /* 新插入的图片添加一个展开动画 */
-div.image-container[init=false] {
+.image-container[init=false] {
 	animation: image-add .5s cubic-bezier(0.5, 0, 0.5, 1);
 }
 

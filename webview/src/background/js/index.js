@@ -41,7 +41,6 @@ const imageListInfoContent = '.image-list-info>.info-content'; // 图片列表�
 const imageListInfoShowClass = 'show'; // 显示文字提示类名
 const imageListInfoEmpty = '暂无背景图数据，请上传';
 const imageListInfoEmptyLoading = '背景图数据加载中';
-const imageAnimationTime = 500; // 图片加载删除动画时间
 
 /**
  * 公共数据
@@ -213,7 +212,8 @@ function receiveMessage ({ data }) {
 function onDataLoad (reload=false) {
     if (reload === true) {
         publicData.canSelect = false;
-        deleteAllImage();
+        // 重置图片不需要滚动消失动画
+        listInstance.deleteMultipleImages(deleteAllImage);
         listInstance.changeImageListInfo(true, true);
     }
     // 重置状态
@@ -431,9 +431,14 @@ function deleteAllImage () {
  */
 function deleteImageHandle (value) {
     if (Array.isArray(value)) {
-        value.forEach(item => {
-            deleteImage(item);
-        });
+        let call = () => {
+            value.forEach((item) => {
+                deleteImage(item);
+            });
+        }
+        // 根据长度判断是否需要滚动动画
+        value.length > 1 ? listInstance.deleteMultipleImages(call, value.length) : call();
+        
     } else {
         deleteImage(value);
     }
@@ -597,7 +602,7 @@ function classListOperation (target, operation, ...name) {
     const list = target?.classList;
     if (list) {
         name.forEach(item => {
-            list?.[operation]?.(item);
+            if (item) list[operation]?.(item);
         });
     }
     return list;

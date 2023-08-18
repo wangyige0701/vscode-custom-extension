@@ -8,6 +8,9 @@
 		"type": "github",
 		"url": "https://github.com/wangyige0701/vscode-custom-extension.git"
 	},
+	"bugs": {
+		"url": "https://github.com/wangyige0701/vscode-custom-extension/issues"
+	},
 	"engines": {
 		"vscode": "^1.78.0"
 	},
@@ -19,6 +22,9 @@
 	],
 	"main": "./dist/extension.js",
 	"icon": "/resources/image/title.128.png",
+	"keywords": [
+		"background"
+	],
 	"contributes": {
 		"commands": [
 			{
@@ -157,12 +163,7 @@
 					"group": "navigation"
 				}
 			]
-		},
-		"iconThemes": [{
-			"id": "wyg-icon-theme",
-			"label": "MyIconTheme",
-			"path": "./resources/theme/wyg-icon-theme.json"
-		}]
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run check && npm run compile",

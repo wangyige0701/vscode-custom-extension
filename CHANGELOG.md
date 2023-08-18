@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.4.7 - 2023-8-18
+ - 优化：图片列表删除多张图片时，添加列表滚动效果
+
 ## 0.4.4 - 2023-8-13
  - 优化：图片列表动画优化
 

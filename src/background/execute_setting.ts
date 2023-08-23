@@ -20,7 +20,7 @@ export function settingImage ({ code, index }: settingImageData, random?: false)
 export function settingImage ({ code, index }: settingImageData, random: boolean = false) {
     if (random === true) {
         // 随机切换背景图在组件停止运行前进行，不进行弹框提示
-        return setting(code, random);
+        return setting(code, true);
     }
     // 如果不是随机切换背景图，则表示当前需要弹出提示
     isChangeBackgroundImage().then(() => {
@@ -29,7 +29,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
             title: '背景图设置中'
         }, (progress) => {
             return <Promise<void>> new Promise(resolve => {
-                setting(code, random).then(() => {
+                setting(code, false).then(() => {
                     backgroundSendMessage({
                         name: 'settingBackgroundSuccess',
                         value: index!

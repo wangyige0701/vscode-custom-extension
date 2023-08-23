@@ -87,15 +87,15 @@
 						"default": 0.3,
 						"description": "背景透明度(0-1)"
 					},
-					"wangyige.background.nowImagePath": {
+					"wangyige.background.nowImageCode": {
 						"type": "string",
 						"default": "",
 						"description": "当前设置的背景图对应的哈希码"
 					},
-					"wangyige.background.allImagePath": {
+					"wangyige.background.allImageCodes": {
 						"type": "object",
 						"default": {},
-						"description": "所有保存的背景图对应的哈希码数组，不同路径会存放在路径对应的哈希码索引下"
+						"description": "所有保存的背景图对应的哈希码数组对象，不同路径会存放在路径对应的索引下"
 					},
 					"wangyige.background.isSetBackground": {
 						"type": "boolean",

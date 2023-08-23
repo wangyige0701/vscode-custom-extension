@@ -10,31 +10,32 @@ import { copyFileWhenVersionChange } from "../version/versionChange";
 import { setStatusBarResolve } from "../utils/interactive";
 import { errlog, promiseReject } from "../error";
 
-/**
- * 注册背景图设置功能
- */
+/** 注册背景图设置功能 */
 export function registBackground (): void {
 	let statusBarTarget: Disposable | null = setStatusBarResolve({
 		icon: 'loading~spin',
 		message: '默认路径图片数据确认'
 	});
+	let isSetRandomBack = false;
 	copyFileWhenVersionChange('resources/background').then(() => {
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();
-	}).then(() => {
+	}).then(state => {
+		isSetRandomBack = state;
 		// 检测配置完整
 		return WindowInitCheckCssModifyCompleteness();
 	}).then(() => {
 		// 开启后判断是否随机修改背景
-		setRandomBackground();
+		if (isSetRandomBack) 
+			return setRandomBackground();
+	}).then(() => {
 		// 设置背景图的侧栏webview注册
 		registWebviewProvider('wangyige.custom.backgroundImage', { path: 'webview/src/background', title: '背景图片' });
 		// 命令事件注册
 		commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);
 		commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
 		commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
-
 		// 绑定事件通信回调
 		bindMessageCallback('onBackground', backgroundExecute);
 	}).catch(err => {
@@ -45,30 +46,27 @@ export function registBackground (): void {
 	});
 }
 
-/**
- * 检测当前状态是否为背景随机切换，是则更新随机图片缓存到当前图片缓存中
- * @returns 
- */
-function checkRandomCode (): Promise<void> {
+/** 检测当前状态是否为背景随机切换，是则更新随机图片缓存到当前图片缓存中 */
+function checkRandomCode (): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		if (!backgroundImageConfiguration.getBackgroundIsRandom()) {
-			resolve();
+			resolve(false);
 			return;
 		}
 		// 当状态为随机切换时，根棍当前选择图片数据
 		const code = backgroundImageConfiguration.getBackgroundRandomCode();
 		if (!code) {
-			resolve();
+			resolve(false);
 			return;
 		}
 		Promise.resolve(
-			backgroundImageConfiguration.setBackgroundNowImagePath(code)
+			backgroundImageConfiguration.setBackgroundNowImageCode(code)
 		).then(() => {
 			return Promise.resolve(
 				backgroundImageConfiguration.setBackgroundRandomCode('')
 			);
 		}).then(() => {
-			resolve();
+			resolve(true);
 		}).catch(err => {
 			reject(promiseReject(err, 'checkRandomCode'));
 		});

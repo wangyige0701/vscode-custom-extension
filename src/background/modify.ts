@@ -117,8 +117,11 @@ const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 
 /**
  * 修改外部css文件的背景图属性
+ * @param codeValue 图片的哈希码
+ * @param random 是否为随机设置背景图状态
+ * @param tip 是否需要显示提示文本
  */
-export function modifyCssFileForBackground (codeValue: string, random: boolean = false): Promise<void> {
+export function modifyCssFileForBackground (codeValue: string, random: boolean = false, tip: boolean = true): Promise<void> {
     return new Promise((resolve, reject) => {
         if (!codeValue) {
             reject(new WError('Undefined Hash Code', {
@@ -138,7 +141,7 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             }
             infoContent = res[1];
             // 状态栏提示文字
-            statusBarTarget = setStatusBarResolve({
+            if (tip) statusBarTarget = setStatusBarResolve({
                 icon: 'loading~spin',
                 message: `${random?'随机':''}背景图设置中`
             });
@@ -149,7 +152,7 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             return setSourceCssImportInfo();
         }).then(() => {
             statusBarTarget?.dispose();
-            setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
+            if (tip) setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
             resolve();
         }).catch(err => {
             // 传递了jump属性就resolve
@@ -333,7 +336,7 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
             // 当不是随机切换时，将code存入当前图片缓存，否则存入随机切换图片缓存
             if (!random) {
                 return Promise.resolve(
-                    backgroundImageConfiguration.setBackgroundNowImagePath(options.ImageCode)
+                    backgroundImageConfiguration.setBackgroundNowImageCode(options.ImageCode)
                 );
             }
             return Promise.resolve(
@@ -353,7 +356,7 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
 function deleteConfiguration (): Promise<void> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
-            backgroundImageConfiguration.setBackgroundNowImagePath("")
+            backgroundImageConfiguration.setBackgroundNowImageCode("")
         ).then(() => {
             return Promise.resolve(
                 backgroundImageConfiguration.setBackgroundIsSetBackground(false)
@@ -530,7 +533,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
 function getNowSettingCode (): Promise<string | false> {
     return new Promise((resolve, reject) => {
         try {
-            const storageCode = backgroundImageConfiguration.getBackgroundNowImagePath();
+            const storageCode = backgroundImageConfiguration.getBackgroundNowImageCode();
             if (!storageCode) {
                 resolve(false);
             } else {

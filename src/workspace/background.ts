@@ -63,7 +63,7 @@ export const backgroundImageConfiguration = {
      * 获取所有图片哈希码数组的储存数据
     */
     getBackgroundAllImageObject(): { [key: string]: string[] } {
-        return this.getBackgroundConfiguration('allImagePath');
+        return this.getBackgroundConfiguration('allImageCodes');
     },
 
     /**
@@ -80,14 +80,14 @@ export const backgroundImageConfiguration = {
         for (let name in data) {
             if (data[name] && data[name].length > 0 && name !== path) result[name] = data[name];
         }
-        return this.setBackgroundConfiguration('allImagePath', result);
+        return this.setBackgroundConfiguration('allImageCodes', result);
     },
 
     /**
      * 获取所有选择的图片哈希值数据
      * @returns {string[]}
      */
-    getBackgroundAllImagePath (): string[] {
+    getBackgroundAllImageCodes (): string[] {
         const path = this.getSettingStorePath()??this.getDefaultPath();
         const data = this.getBackgroundAllImageObject();
         // 没有对应属性则新创建一个
@@ -101,8 +101,8 @@ export const backgroundImageConfiguration = {
      * @param state 添加：add, 删除：delete
      * @returns 
      */
-    async setBackgroundAllImagePath (value: string | number, state: 'add' | 'delete' = 'add'): Promise<void> {
-        const list: string[] = this.getBackgroundAllImagePath();
+    async setBackgroundAllImageCodes (value: string | number, state: 'add' | 'delete' = 'add'): Promise<void> {
+        const list: string[] = this.getBackgroundAllImageCodes();
         if (state === 'add' && isString(value)) {
             // 添加一个图片数据
             list.unshift(value);
@@ -150,8 +150,8 @@ export const backgroundImageConfiguration = {
      * 当前选中的图片哈希值
      * @returns {string}
      */
-    getBackgroundNowImagePath (): string {
-        return this.getBackgroundConfiguration('nowImagePath');
+    getBackgroundNowImageCode (): string {
+        return this.getBackgroundConfiguration('nowImageCode');
     },
 
     /**
@@ -159,8 +159,8 @@ export const backgroundImageConfiguration = {
      * @param value 
      * @returns 
      */
-    setBackgroundNowImagePath (value: string): Thenable<void> {
-        return this.setBackgroundConfiguration('nowImagePath', value);
+    setBackgroundNowImageCode (value: string): Thenable<void> {
+        return this.setBackgroundConfiguration('nowImageCode', value);
     },
 
     /**

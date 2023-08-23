@@ -257,7 +257,7 @@ function isArray (target) {
  * @param {any} target 
  */
 function isObject (target) {
-    return toString.call(target) === '[object Object]';
+    return typeof target === 'object' && !isArray(target) && !isNull(target);
 }
 
 /**

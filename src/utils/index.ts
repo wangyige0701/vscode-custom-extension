@@ -93,8 +93,20 @@ export function getRandomCode (length: number | string = 24): string {
  * @returns 
  */
 export function getHashCode (): string {
-    return cryHex(String(new Date().getTime()));
+    return cryHex(randomHexString());
 }
+
+/**
+ * 生成随机id，使用时间戳乘以随机数再转换为16进制，并将小数点替换为随机字符
+ */
+export const randomHexString: () => string = (function () {
+    const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const length = str.length;
+    function create (): string {
+        return (Math.random() * (new Date().getTime())).toString(16).replace(/\./g, str.charAt(Math.floor(Math.random() * length)));
+    }
+    return create;
+})();
 
 /**
  * 是否是字符串类型

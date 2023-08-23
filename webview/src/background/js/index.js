@@ -1,69 +1,22 @@
 /* index(1) */
 
-/**
- * vscode api
- */
+/** vscode api */
 const vscode = acquireVsCodeApi();
 
 /** 当前选择查看的图片 @type {string|null} */
 let nowSelectViewImage = null;
 
-const selectButtonId = 'selectImage'; // 选择图片的按钮
-const selectButtonText = '选择本地图片';
-const selectButtonLoadingCLass = 'iconfont'; // 选择文件按钮加载图片容器
-const batchButtonContainerClass = 'batch-operation'; // 删除或批量设置按钮区域容器类名
-const batchDeleteId = 'batchDelete'; // 批量删除按钮
-const randomBackId = 'randomBack'; // 背景图随机设置按钮
-const selectAllId = 'selectAll'; // 全部选中按钮
-const selectCancelId = 'selectCancel'; // 取消选中按钮
-const rendomAllBack = '随机切换（全部）';
-const rendomSelectBack = '随机切换（选中）';
-const closeRandom = '关闭随机切换';
-const judgeLoading = 'isloading';
-const loadingClass = 'loading-rotate';
-const listId = 'list'; // 图片列表区域id
-const listImageClass = 'image-container'; // 图片列表类名
-const imageContainerCode = 'code';
-const imageContainerCodeName = 'data-'+imageContainerCode; // 图片中用于存放code哈希码的属性名
-const imageClass = 'image'; // 图片公用类名
-const selectClass = 'select'; // 图片选中的类名
-const imageIsRandomClass = 'random'; // 图片被选为随机设置的类名
-const selectButtonToContainerClass = 'container-icon-select'; // 左上角图标选中时图片容器的类名
-const imageButtonClass = 'image-operation'; // 图片操作按钮类名
-const imageSelectButtonClass = 'image-select'; // 图片选中按钮类名
-const imageDeleteButtonClass = 'image-delete'; // 图片删除按钮类名
-const circleBackIconClass = 'icon-circle-background'; // 圆形背景填充图标类名
-const deleteIconClass = 'icon-delete'; // 删除图标类名
-const ImageSelectStateClass = 'select'; // 图片左上角图标选中类名
-const imageListInfoId = 'imageListInfo'; // 图片列表展示文字提示区域容器
-const imageListInfoIcon = '.image-list-info>.iconfont'; // 图片列表文字提示区域图标
-const imageListInfoContent = '.image-list-info>.info-content'; // 图片列表提示区域文字容器
-const imageListInfoShowClass = 'show'; // 显示文字提示类名
-const imageListInfoEmpty = '暂无背景图数据，请上传';
-const imageListInfoEmptyLoading = '背景图数据加载中';
-
-/**
- * 公共数据
- */
+/** 公共数据 */
 const publicData = {
-    /**
-     * 在首次加载完图片之前不允许点击
-     */
+    /** 在首次加载完图片之前不允许点击 */
     canSelect: false,
-    /**
-     * 背景透明度
-    */
+    /** 背景透明度 */
     backgroundOpacity: 0,
-    /**
-     * 图片列表渲染数组
-     * @type {{src:string,code:string,init:boolean}[] | null}
-    */
+    /** @type {{src:string,code:string,init:boolean}[] | null} 图片列表渲染数组 */
     imageRenderList: null
 }
 
-/**
- * 图标编码
- */
+/** 图标编码 */
 const iconCode = {
     loadingSingle: '&#xe8fd;',
     image: '&#xe645;',
@@ -73,25 +26,22 @@ const iconCode = {
     select: '&#xe640;'
 }
 
-/**
- * 按钮锁集合
- */
+/** 按钮锁集合 */
 const lockSet = {
-    /**
-     * 输入框确认按钮
-    */
+    /** 输入框确认按钮*/
     inputConfirm: false,
-    /**
-     * 上传图片按钮
-    */
+    /** 上传图片按钮 */
     selectFile: false
 };
 
 /** 列表操作实例，构造函数内重写渲染列表get、set方法 */
 const listInstance = createInstance();
 
-/** @type {Function[]} 操作队列 */
-const operationQueue = [];
+/** @type {Queue} 主函数操作队列 */
+const operationQueue = new Queue(false);
+
+/** @type {Queue} 图片新增处理的队列 */
+const addImageQueue = new Queue(false);
 
 /** @type {{ code: string, callback: Function}[]} 懒加载图片触发函数 */
 const lazyLoadImageList = [];
@@ -107,19 +57,19 @@ window.addEventListener('unload', () => {
 });
 
 // 添加图片按钮点击事件绑定
-getId(selectButtonId)?.addEventListener('click', buttonClickSelectImage);
+getId(queryNames.selectButtonId)?.addEventListener('click', buttonClickSelectImage);
 
 // 批量删除按钮绑定事件
-getId(batchDeleteId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickDeleteSelect));
+getId(queryNames.batchDeleteId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickDeleteSelect));
 
 // 批量随机设置背景图事件
-getId(randomBackId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickRandomBackground));
+getId(queryNames.randomBackId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickRandomBackground));
 
 // 全选按钮点击事件
-getId(selectAllId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectAll));
+getId(queryNames.selectAllId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectAll));
 
 // 取消全选按钮点击事件
-getId(selectCancelId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectCancel));
+getId(queryNames.selectCancelId)?.addEventListener('click', canChangeForButton.bind(this, buttonClickSelectCancel));
 
 // 脚本侧通信接收事件
 window.addEventListener('message', receiveMessage);
@@ -135,9 +85,7 @@ function canChange () {
     return publicData.canSelect;
 }
 
-/**
- * 修改点击状态，不会从true改为false，只有初始化后调用
- */
+/** 修改点击状态，不会从true改为false，只有初始化后调用 */
 function changeState (state) {
     if (state && !publicData.canSelect) {
         publicData.canSelect = true;
@@ -145,6 +93,20 @@ function changeState (state) {
         let length = publicData.imageRenderList?.length??0;
         if (length <= 0)
             listInstance.changeImageListInfo(true, false);
+    }
+}
+
+/**
+ * 发送消息
+ * @param {{
+ * name:'backgroundInit'|'selectImage'|'deleteImage'|'randomBackground'|'settingBackground'|'getBackgroundBase64Data'|'viewBigImage'|'externalImage'|'backgroundOpacity',
+ * value:any
+ * }} options
+ */
+function sendMessage (options={}) {
+    if (options && typeof options === 'object') {
+        options.group = 'background';
+        vscode.postMessage(options);
     }
 }
 
@@ -166,38 +128,38 @@ function receiveMessage ({ data }) {
             break;
         case 'backgroundSendBase64Data':
             // 发送code编码后接收到的base64数据
-            if (value) queueSet(getBase64DataToLoad.bind(this, value));
+            if (value) operationQueue.set(getBase64DataToLoad.bind(this, value));
             break;
         case 'newImage':
             // value: string[]，添加的新图片路径和对应hashCode
             lockSet.selectFile = false;
-            if (value) queueSet(addImage.apply(this, value));
+            if (value) operationQueue.set(addImageHandle.bind(this, value));
             break;
         case 'deleteImageSuccess':
             // value: string | array，确定删除图片
-            queueSet(deleteImageHandle.bind(this, value));
+            operationQueue.set(deleteImageHandle.bind(this, value));
             break;
         case 'settingBackgroundSuccess':
             // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
-            queueSet(listInstance.imageClickHandle.bind(listInstance, value));
+            operationQueue.set(listInstance.imageClickHandle.bind(listInstance, value));
             break;
         case 'newImageNetwork':
             // 通过网络地址下载图片
             lockSet.inputConfirm = false;
-            if (value) queueSet(addImage.apply(this, value), inputSendDataComplete);
+            if (value) operationQueue.set(addImageHandle.bind(this, value), inputSendDataComplete);
             break;
         case 'nowBackgroundOpacity':
             // 初始化和设置透明度后返回
             lockSet.inputConfirm = false;
-            queueSet(opacityMessageGetHandle.bind(this, value));
+            operationQueue.set(opacityMessageGetHandle.bind(this, value));
             break;
         case 'backgroundStorePathChange':
             // 图片储存路径更改，重新请求初始化
-            if (value) queueSet(onDataLoad.bind(this, true));
+            if (value) operationQueue.set(onDataLoad.bind(this, true));
             break;
         case 'backgroundRandomList':
             // 随机设置背景图状态更改或这初始化获取状态
-            queueSet(changeRenderByRandomSetting.bind(this, value));
+            operationQueue.set(changeRenderByRandomSetting.bind(this, value));
             break;
         default:
             break;
@@ -206,9 +168,7 @@ function receiveMessage ({ data }) {
     queueExecute(canChange());
 }
 
-/**
- * 加载时初始化图片数据
- */
+/** 加载时初始化图片数据 */
 function onDataLoad (reload=false) {
     if (reload === true) {
         publicData.canSelect = false;
@@ -225,34 +185,17 @@ function onDataLoad (reload=false) {
 }
 
 /**
- * 队列插入数据
- * @param {Function[]} func 
- */
-function queueSet (...func) {
-    for (let i = 0; i < func.length; i++) {
-        const item = func[i];
-        if (typeof item !== 'function') 
-            continue;
-        operationQueue.push(item);
-    }
-}
-
-/**
  * 队列顶端取出函数执行
+ * @param {boolean} state 是否立即执行的状态，为false则代表当前不能立刻执行队列函数
  */
 function queueExecute (state=false) {
     if (!state) return;
     changeState(state);
-    if (operationQueue.length > 0) {
-        operationQueue.shift()?.();
-        // 队列长度大于0继续执行
-        operationQueue.length > 0 ? queueExecute(state) : null;
-    }
+    // 当canChange()为false后不再继续执行下一个函数
+    operationQueue.execute(canChange());
 }
 
-/**
- * 选择图片按钮点击
- */
+/** 选择图片按钮点击 */
 function buttonClickSelectImage () {
     if (!canChange() || lockSet.selectFile) return;
     lockSet.selectFile = true;
@@ -262,16 +205,13 @@ function buttonClickSelectImage () {
     });
 }
 
-/**
- * 根据能否点击变量判断是否触发函数
- */
+/** 根据能否点击变量判断是否触发函数 */
 function canChangeForButton (callback) {
-    if (canChange()) callback?.();
+    if (!canChange()) return;
+    callback?.();
 }
 
-/**
- * 删除选中的图片
- */
+/** 删除选中的图片 */
 function buttonClickDeleteSelect () {
     if (listInstance.selectImageList.length > 0) {
         sendMessage({
@@ -281,9 +221,7 @@ function buttonClickDeleteSelect () {
     }
 }
 
-/**
- * 设置随机背景图，空数组代表从所有图片中设置，或者取消背景图的设置
- */
+/** 设置随机背景图，空数组代表从所有图片中设置，或者取消背景图的设置 */
 function buttonClickRandomBackground () {
     let value = false;
     if (listInstance.settingRandomButtonTextState > 1) {
@@ -296,9 +234,7 @@ function buttonClickRandomBackground () {
     });
 }
 
-/**
- * 选中列表所有图片
- */
+/** 选中列表所有图片 */
 function buttonClickSelectAll () {
     listInstance.getChild()?.forEach(child => {
         let code;
@@ -308,9 +244,7 @@ function buttonClickSelectAll () {
     });
 }
 
-/**
- * 取消列表所有图片的选中
- */
+/** 取消列表所有图片的选中 */
 function buttonClickSelectCancel () {
     let length = listInstance.selectImageList.length;
     if (length > 0) {
@@ -319,41 +253,6 @@ function buttonClickSelectCancel () {
             listInstance.selectImageList.splice(i, 1);
             length--;
         }
-    }
-}
-
-/**
- * 删除图标按钮点击
- * @param {string} code 
- * @returns 
- */
-function iconClickDeleteImage (code) {
-    if (!canChange()) return;
-    sendMessage({
-        name: 'deleteImage',
-        value: [code]
-    });
-}
-
-/**
- * 设置背景图样式
- * @param {string} code 
- */
-function settingBackground (code) {
-    sendMessage({
-        name: 'settingBackground',
-        value: code
-    });
-}
-
-/**
- * 发送消息
- * @param {{name:string,value:any}} options
- */
-function sendMessage (options={}) {
-    if (options && typeof options === 'object') {
-        options.group = 'background';
-        vscode.postMessage(options);
     }
 }
 
@@ -387,23 +286,8 @@ function firstLoadImages (array, callback=undefined) {
 }
 
 /**
- * 注册一个懒加载图片触发方法，类型是lazyLoad
- * @param {string} code 
- * @param {Function} callback 
- */
-function registLazyLoadImage (code, callback) {
-    if (!code || !callback) return;
-    lazyLoadImageList.push({ code, callback });
-    // 发送编码获取base64数据
-    sendMessage({
-        name: 'getBackgroundBase64Data',
-        value: { code, type: 'lazyLoad' }
-    });
-}
-
-/**
  * 获取数据后根据对应编码和类型触发不同方法
- * @param {{ code: string, data: string, type: string }} options 
+ * @param {{ code: string, data: string, type: 'lazyLoad'|'addImage' }} options 
  */
 function getBase64DataToLoad ({ code, data, type }) {
     if (type === 'lazyLoad') {
@@ -413,12 +297,19 @@ function getBase64DataToLoad ({ code, data, type }) {
         // 加载后移除数组元素并执行回调函数
         let target = lazyLoadImageList.splice(index, 1)?.[0];
         target?.callback?.(base64ToBlob(data));
+    } else if (type === 'addImage') {
+        // 新增图片的数据获取
+        Promise.resolve(
+            addImage(data, code)
+        ).then(() => {
+            addImageQueue.execute(false);
+        }).catch(err => {
+            throw err;
+        });
     }
 }
 
-/**
- * 删除所有图片
- */
+/** 删除所有图片 */
 function deleteAllImage () {
     // 提前赋值，防止操作数组时长度实时改变
     let length = publicData.imageRenderList?.length??0;
@@ -452,49 +343,73 @@ function deleteImageHandle (value) {
 }
 
 /**
- * 判断当前是否正在滚动列表到顶部，如果是则需要将图片数据插入数组，等待滚动完成插入
+ * 新增数据处理，根据哈希码数组依次获取图片数据并插入
+ * @param {string[]} datas
  */
+function addImageHandle (datas) {
+    function req (code) {
+        sendMessage({
+            name: 'getBackgroundBase64Data',
+            value: { code, type: 'addImage' }
+        });
+    }
+    for (let index = 0; index < datas.length; index++) {
+        const code = datas[index];
+        addImageQueue.set(req.bind(null, code));
+    }
+    // 队列执行，每一步函数执行结束不会立刻执行下一个，等待触发
+    addImageQueue.execute(false);
+}
+
+/** 判断当前是否正在滚动列表到顶部，如果是则需要将图片数据插入数组，等待滚动完成插入 */
 var isScrollToTopAndAddImage = false;
 
-/**
- * 存放等待被插入的图片数据
- * @type {{src:string,code:string}[]}
- */
+/** @type {{src:string,code:string}[]} 存放等待被插入的图片数据 */
 const listForAddImage = [];
 
 /**
- * 顶部添加一张图片
+ * 顶部添加一张图片，异步处理
  * @param {string} src 图片数据
  * @param {string} code 图片哈希码 
  */
 function addImage (src, code) {
-    /** @type {Element} */
-    const target = $query('#'+listId);
-    if (!target || !(target instanceof Element)) return;
-    // 先转换为blob路径
-    src = base64ToBlob(src);
-    if (target.scrollTop <= 0) {
-        // 已经在顶部
-        isScrollToTopAndAddImage = false;
-        publicData.imageRenderList?.unshift({ code, src });
-        return;
-    }
-    // 数据插入数组
-    listForAddImage.push({ code, src });
-    // isScrollToTopAndAddImage为true则代表已经在滚动中，插入图片进入数组就可以直接跳出
-    if (isScrollToTopAndAddImage) {
-        return;
-    }
-    isScrollToTopAndAddImage = true;
-    // 容器滚动
-    elementScrollTo(target, { top: 0, behavior: 'smooth' });
-    // 滚动到顶部后再插入图片
-    animationFrameResult(() => {
-        return target.scrollTop <= 0;
-    }, () => {
-        isScrollToTopAndAddImage = false;
-        const { src: $src, code: $code } = listForAddImage.shift();
-        publicData.imageRenderList?.unshift({ code: $code, src: $src });
+    return new Promise((resolve, reject) => {
+        try {
+            /** @type {Element} */
+            const target = $query('#'+queryNames.listId);
+            if (!target || !(target instanceof Element)) {
+                resolve();
+                return;
+            }
+            // 先转换为blob路径
+            src = base64ToBlob(src);
+            if (target.scrollTop <= 0) {
+                // 已经在顶部
+                isScrollToTopAndAddImage = false;
+                publicData.imageRenderList?.unshift({ code, src });
+                resolve();
+                return;
+            }
+            // 数据插入数组
+            listForAddImage.push({ code, src });
+            // isScrollToTopAndAddImage为true则代表已经在滚动中，插入图片进入数组就可以直接跳出
+            if (isScrollToTopAndAddImage) {
+                resolve();
+                return;
+            }
+            isScrollToTopAndAddImage = true;
+            // 容器滚动
+            elementScrollTo(target, { top: 0, behavior: 'smooth' });
+            // 滚动到顶部后再插入图片
+            animationFrameResult(() => target.scrollTop <= 0, () => {
+                isScrollToTopAndAddImage = false;
+                const { src: $src, code: $code } = listForAddImage.shift();
+                publicData.imageRenderList?.unshift({ code: $code, src: $src });
+                resolve();
+            });
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -574,19 +489,19 @@ function registLock (property, setback) {
  * @returns 
  */
 function selectFileButtonLock (value) {
-    const button = getId(selectButtonId);
-    const icon = button.querySelector('.'+selectButtonLoadingCLass);
+    const button = getId(queryNames.selectButtonId);
+    const icon = button.querySelector('.'+queryNames.selectButtonLoadingClass);
     if (!icon) return;
     if (value) {
         // 为true上锁，添加加载图标
-        button.classList.add(judgeLoading);
+        button.classList.add(queryNames.judgeLoading);
         icon.innerHTML = iconCode.loadingSingle;
-        icon.classList.add(loadingClass);
+        icon.classList.add(queryNames.loadingClass);
     } else {
         // 删除加载图标
-        button.classList.remove(judgeLoading);
+        button.classList.remove(queryNames.judgeLoading);
         icon.innerHTML = null;
-        icon.classList.remove(loadingClass);
+        icon.classList.remove(queryNames.loadingClass);
     }
 }
 

@@ -112,11 +112,11 @@ interface backgroundSendBase64DataType extends dataType {
 }
 
 /**
- * 通知脚本侧图片选择完成，返回哈希码和base64数据，为空则是保存中出错
+ * 通知脚本侧图片选择完成，返回哈希码
  */
 interface newImageType extends dataType {
     name: 'newImage';
-    value: [string, string] | undefined;
+    value: string[];
 }
 
 /**
@@ -137,11 +137,11 @@ interface settingBackgroundSuccessType extends dataType {
 }
 
 /**
- * 通知脚本侧网络图片下载成功，同样返回哈希码和base64
+ * 通知脚本侧网络图片下载成功，返回哈希码
  */
 interface newImageNetworkType extends dataType {
     name: 'newImageNetwork';
-    value: [string, string] | undefined;
+    value: string[];
 }
 
 /**
@@ -175,8 +175,8 @@ interface backgroundRandomListType extends dataType {
  * 读取.wyg文件时返回的格式类型
  */
 export interface bufferAndCode {
-    buffer:Uint8Array;
-    code:string;
+    buffer: Uint8Array;
+    code: string;
 }
 
 /**

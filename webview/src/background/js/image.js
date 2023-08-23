@@ -1,14 +1,14 @@
 /* index(3) */
 
-// 监听右键点击，点击图片发送数据查看大图
-document.getElementById(listId).addEventListener('contextmenu', (e) => {
+/** 监听右键点击，点击图片发送数据查看大图 */
+document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) => {
     /** @type {{target:Element}} */
     let { target } = e;
     // 遍历获取目标元素
-    while (target && target.id !== listId && !target.classList.contains(listImageClass)) {
+    while (target && target.id !== queryNames.listId && !target.classList.contains(queryNames.listImageClass)) {
         target = target.parentElement;
     }
-    if (!target || !target.classList.contains(listImageClass)) return;
+    if (!target || !target.classList.contains(queryNames.listImageClass)) return;
     e.preventDefault();
     // 判断点击的图片是否已经显示大图
     let code = target.dataset?.code??'';
@@ -25,39 +25,18 @@ document.getElementById(listId).addEventListener('contextmenu', (e) => {
  * @returns 
  */
 function createInstance () {
-    /** 图片加载删除动画时间 */
-    const imageAnimationTime = 500;
-    const imageDeleteClass = 'image-delete';
-    const imageDeletMultipleClass = 'multiple-images-delete';
-    const imageDeletMultipleScrollClass = 'multiple-images-delete-scroll';
     class ImageList {
-        /**
-         * 记录选中的图片元素
-         * @type {string[]}
-        */
+        /** @type {string[]} 记录选中的图片元素 */
         selectImageList;
-        /**
-         * 校验是否不显示列表提示文字
-         * @type {boolean}
-        */
+        /** @type {boolean} 校验是否不显示列表提示文字 */
         imageInfoEmpty;
-        /**
-         * 校验是否不显示加载图标
-         * @type {boolean}
-        */
+        /** @type {boolean} 校验是否不显示加载图标 */
         imageInfoLoading;
-        /**
-         * 当前是否设置了随机切换背景图
-        */
+        /** 当前是否设置了随机切换背景图 */
         isRandomBackground = false;
-        /**
-         * 当前设置的随机切换列表
-        */
+        /** 当前设置的随机切换列表 */
         randomList = [];
-        /**
-         * 当前设置随机背景按钮的文字内容。
-         * 1为取消随机；2为设置勾选的图片，3为设置全部图片
-        */
+        /** 当前设置随机背景按钮的文字内： 1为取消随机；2为设置勾选的图片，3为设置全部图片 */
         settingRandomButtonTextState = 3;
         /** @type {{ target: HTMLElement, data: {code:string,src:string,index:number,target?:HTMLElement} }[]} 记录注册的监听器 */
         #recordMap = [];
@@ -70,7 +49,7 @@ function createInstance () {
             // 初始化时更新加载状态
             this.changeImageListInfo(true, true);
             /** @type {string} */
-            this.id = listId;
+            this.id = queryNames.listId;
             /** @type {HTMLElement} */
             this.element = $query('#'+this.id);
             // 劫持选择列表长度改变
@@ -83,22 +62,12 @@ function createInstance () {
             publicData.imageRenderList.__proto__ = this.#resetMethods(this);
         }
 
-
-        /**
-         * 监听图片是否懒加载
-         * @type {(...params: any[]) => void}
-        */
+        /** @type {(...params: any[]) => void} 监听图片是否懒加载 */
         #scrollDebounce;
-
-        /** 
-         * 监听是否达到触发高度
-         * @type {IntersectionObserver}
-         * */
+        /**  @type {IntersectionObserver} 监听是否达到触发高度 */
         #observer;
 
-        /**
-         * 重置状态
-         */
+        /** 重置状态 */
         reset () {
             // 重置状态
             this.#lazyObserve = false;
@@ -132,7 +101,7 @@ function createInstance () {
                         if (index < 0) continue;
                         const value = this.#recordMap[index];
                         registLazyLoadImage(
-                            complexGetAttr(value.target, imageContainerCodeName)[0], 
+                            complexGetAttr(value.target, queryNames.imageContainerCodeName)[0], 
                             this.#createImage.bind(this, value.target, value.data)
                         );
                         this.#recordMap.splice(index, 1);
@@ -143,18 +112,14 @@ function createInstance () {
             });
         }
 
-        /**
-         * 删除多张图片调用
-        */
+        /** 删除多张图片调用 */
         deleteMultipleImages (func, index=1) {
             this.#deleteByAnimation = index;
             func?.();
             this.#deleteByAnimation = 0;
         }
 
-        /**
-         * 延迟触发懒加载开启函数
-        */
+        /** 延迟触发懒加载开启函数 */
         #initToLazyLoadImage = debounce(() => {
             if (this.#lazyObserve) return
             this.#lazyObserve = true;
@@ -209,9 +174,7 @@ function createInstance () {
             return newMethods;
         }
 
-        /**
-         * 重写set方法，新增只处理unshift
-         */
+        /** 重写set方法，新增只处理unshift */
         #set (target, property, value, receiver) {
             if (property === 'length') {
                 // 修改length属性更新索引
@@ -222,19 +185,17 @@ function createInstance () {
                 value > 0 ? 
                     (
                         this.changeImageListInfo(false),
-                        getId(selectButtonId)?.setAttribute('title', `${selectButtonText}（已上传${value}张）`)
+                        getId(queryNames.selectButtonId)?.setAttribute('title', `${queryNames.selectButtonText}（已上传${value}张）`)
                     ) : 
                     (
                         this.changeImageListInfo(true),
-                        getId(selectButtonId)?.setAttribute('title', selectButtonText)
+                        getId(queryNames.selectButtonId)?.setAttribute('title', queryNames.selectButtonText)
                     );
             }
             return Reflect.set(target, property, value, receiver);
         }
 
-        /**
-         * 重写get方法
-         */
+        /** 重写get方法，正常返回 */
         #get (target, property, receiver) {
             return Reflect.get(target, property, receiver);
         }
@@ -256,11 +217,11 @@ function createInstance () {
                     }
                     if (property === 'length') {
                         /** @type {HTMLElement} 判断是否需要展示删除按钮 */
-                        const batchButton = $query(`.${batchButtonContainerClass}`);
+                        const batchButton = $query(`.${queryNames.batchButtonContainerClass}`);
                         if (value > 0) {
-                            batchButton.classList.add(selectButtonToContainerClass);
+                            batchButton.classList.add(queryNames.selectButtonToContainerClass);
                         } else {
-                            batchButton.classList.remove(selectButtonToContainerClass);
+                            batchButton.classList.remove(queryNames.selectButtonToContainerClass);
                         }
                         _this.settingRandomButtonText();
                     }
@@ -279,22 +240,20 @@ function createInstance () {
         renderBySelectListLength (isAdd) {
             const array = [];
             this.getChild()?.forEach(child => {
-                if (child.classList.contains(selectButtonToContainerClass)) 
-                    array.push(child.dataset[imageContainerCode]);
+                if (child.classList.contains(queryNames.selectButtonToContainerClass)) 
+                    array.push(child.dataset[queryNames.imageContainerCode]);
             });
             let operation, codes = [];
             if (isAdd) {
                 // 新增数据
                 this.selectImageList.forEach(n => {
-                    if (!array.includes(n))
-                        codes.push(n);
+                    if (!array.includes(n)) codes.push(n);
                 });
                 operation = 'add';
             } else {
                 // 删减数据
                 array.forEach(o => {
-                    if (!this.selectImageList.includes(o))
-                        codes.push(o);
+                    if (!this.selectImageList.includes(o)) codes.push(o);
                 });
                 operation = 'remove';
             }
@@ -313,12 +272,10 @@ function createInstance () {
             return array;
         }
 
-        /**
-         * 根据当前是否已经设置随机切换和勾选的图片数量进行按钮内文字的替换
-         */
+        /** 根据当前是否已经设置随机切换和勾选的图片数量进行按钮内文字的替换 */
         settingRandomButtonText () {
             /** @type {HTMLElement|null} 切换按钮内文字 */
-            const buttonItem = $query(`.${batchButtonContainerClass} #${randomBackId}`);
+            const buttonItem = $query(`.${queryNames.batchButtonContainerClass} #${queryNames.randomBackId}`);
             if (!buttonItem) 
                 return;
             const length = this.selectImageList.length;
@@ -326,24 +283,24 @@ function createInstance () {
                 // 勾选图片长度大于0，按钮点击设置随机背景图
                 if (this.settingRandomButtonTextState === 2)
                     return;
-                buttonItem.innerText = rendomSelectBack;
+                buttonItem.innerText = queryNames.rendomSelectBack;
                 this.settingRandomButtonTextState = 2;
             } else {
                 // 未勾选则根据当前是否是随机切换背景图的状态显示文字
                 if (this.isRandomBackground) {
                     if (this.settingRandomButtonTextState === 1)
                         return;
-                    buttonItem.innerText = closeRandom;
+                    buttonItem.innerText = queryNames.closeRandom;
                     this.settingRandomButtonTextState = 1;
                 } else {
                     if (this.settingRandomButtonTextState === 3)
                         return;
-                    buttonItem.innerText = rendomAllBack;
+                    buttonItem.innerText = queryNames.rendomAllBack;
                     this.settingRandomButtonTextState = 3;
                 }
             }
             // 设置按钮标题
-            getId(randomBackId)?.setAttribute('title', buttonItem.innerText);
+            getId(queryNames.randomBackId)?.setAttribute('title', buttonItem.innerText);
         }
 
         /**
@@ -375,9 +332,9 @@ function createInstance () {
             if (!code) return;
             /** 外层容器 @type {HTMLElement} */
             let el = complexAppendChild(complexSetAttr($create('div'), { 
-                class: [listImageClass, this.settingRandomButtonTextState === 1 ? imageIsRandomClass : '', 'init-image'],
-                [imageContainerCodeName]: code, 
-                id: imageContainerCode+'-'+code,
+                class: [queryNames.listImageClass, this.settingRandomButtonTextState === 1 ? queryNames.imageIsRandomClass : '', 'init-image'],
+                [queryNames.imageContainerCodeName]: code, 
+                id: queryNames.imageContainerCode+'-'+code,
                 loaded: false,
                 init: true,
                 animation: false
@@ -400,9 +357,9 @@ function createInstance () {
             if (!src || !code) return;
             /** 遮罩容器 @type {HTMLElement} */
             let el = complexAppendChild(complexSetAttr($create('div'), { 
-                class: [listImageClass, this.settingRandomButtonTextState === 1 ? imageIsRandomClass : ''], 
-                [imageContainerCodeName]: code, 
-                id: imageContainerCode+'-'+code,
+                class: [queryNames.listImageClass, this.settingRandomButtonTextState === 1 ? queryNames.imageIsRandomClass : ''], 
+                [queryNames.imageContainerCodeName]: code, 
+                id: queryNames.imageContainerCode+'-'+code,
                 loaded: false,
                 init: false,
                 animation: false
@@ -428,16 +385,16 @@ function createInstance () {
                 let popup = $query('.image-popup', complexSetAttr(container, { loaded: true }));
                 // 图片本体
                 complexAppendChild(popup, complexSetAttr(img, { 
-                    class: imageClass, 
+                    class: queryNames.imageClass, 
                     loading: 'lazy', 
                     title: '右键查看大图' 
                 }));
                 // 操作按钮
                 let selectBut, deleteBut;
-                complexAppendChild(container, selectBut = complexSetAttr($create('span'), { class: imageButtonClass }));
-                complexAppendChild(container, deleteBut = complexSetAttr($create('span'), { class: imageButtonClass }));
-                classListOperation(selectBut, 'add', imageSelectButtonClass, circleBackIconClass);
-                classListOperation(deleteBut, 'add', imageDeleteButtonClass, deleteIconClass);
+                complexAppendChild(container, selectBut = complexSetAttr($create('span'), { class: queryNames.imageButtonClass }));
+                complexAppendChild(container, deleteBut = complexSetAttr($create('span'), { class: queryNames.imageButtonClass }));
+                classListOperation(selectBut, 'add', queryNames.imageSelectButtonClass, queryNames.circleBackIconClass);
+                classListOperation(deleteBut, 'add', queryNames.imageDeleteButtonClass, queryNames.deleteIconClass);
                 // 事件绑定
                 this.imageSelectIconEventBind(selectBut, false, data);
                 this.imageDeleteIconEventBind(deleteBut, false, data);
@@ -463,7 +420,7 @@ function createInstance () {
                 /** @type {ChildNode[]} */
                 const checkTarget = [];
                 childs.forEach(child => {
-                    if (!(child instanceof Text) && child.id !== imageListInfoId) checkTarget.push(child)
+                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) checkTarget.push(child)
                 });
                 if (checkTarget.length === 0) {
                     target.appendChild(el);
@@ -486,9 +443,9 @@ function createInstance () {
             const { time: $time, class: $class, multiple=false, delayTime=0 } = this.#deleteImageData();
             if (multiple) target.style.setProperty('--delay-time', delayTime/1000+'s');
             // 添加删除类名动画，同时删除多张图片需要额外添加类名
-            classListOperation(target, 'add', imageDeleteClass, $class);
-            let selectBut = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
-                deleteBut = $query(`.${imageButtonClass}.${imageDeleteButtonClass}`, target);
+            classListOperation(target, 'add', queryNames.imageDeleteClass, $class);
+            let selectBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
+                deleteBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageDeleteButtonClass}`, target);
             // 解除事件绑定
             this.imageSelectIconEventBind(selectBut, true);
             this.imageDeleteIconEventBind(deleteBut, true);
@@ -514,18 +471,18 @@ function createInstance () {
             }
             if (this.#deleteByAnimation > 1) {
                 return { 
-                    delayTime: this.#deleteCount * (imageAnimationTime/2), 
-                    time: ((this.#deleteCount++) + 1) * (imageAnimationTime/2), 
-                    class: imageDeletMultipleScrollClass, 
+                    delayTime: this.#deleteCount * (queryNames.imageAnimationTime/2), 
+                    time: ((this.#deleteCount++) + 1) * (queryNames.imageAnimationTime/2), 
+                    class: queryNames.imageDeletMultipleScrollClass, 
                     multiple: true 
                 };
             }
             // 删除一张或者重置列表
             this.#deleteCount = 0
             if (this.#deleteByAnimation === 0) {
-                return { time: imageAnimationTime, class: '' };
+                return { time: queryNames.imageAnimationTime, class: '' };
             } else if (this.#deleteByAnimation === 1) {
-                return { time: imageAnimationTime/2, class: imageDeletMultipleClass };
+                return { time: queryNames.imageAnimationTime/2, class: queryNames.imageDeletMultipleClass };
             }
         }
 
@@ -538,27 +495,25 @@ function createInstance () {
             if (array.length <= 0) {
                 // 小于等于0，所有图片全部设置被选中为随机设置
                 this.getChild()?.forEach(child => {
-                    if (!child.classList.contains(imageIsRandomClass))
-                        child.classList.add(imageIsRandomClass);
+                    if (!child.classList.contains(queryNames.imageIsRandomClass))
+                        child.classList.add(queryNames.imageIsRandomClass);
                 });
             } else {
                 // 设置传入的数据
                 this.deleteAllRandomSelectClass();
                 array.forEach(item => {
                     /** @type {HTMLElement} */
-                    const result = $query(`.${listImageClass}#${imageContainerCode}-${item}`);
-                    result?.classList.add(imageIsRandomClass);
+                    const result = $query(`.${queryNames.listImageClass}#${queryNames.imageContainerCode}-${item}`);
+                    result?.classList.add(queryNames.imageIsRandomClass);
                 });
             }
         }
         
-        /**
-         * 清除所有图片的随机设置状态类名
-         */
+        /** 清除所有图片的随机设置状态类名 */
         deleteAllRandomSelectClass () {
             this.getChild()?.forEach(child => {
-                if (child.classList.contains(imageIsRandomClass))
-                    child.classList.remove(imageIsRandomClass);
+                if (child.classList.contains(queryNames.imageIsRandomClass))
+                    child.classList.remove(queryNames.imageIsRandomClass);
             });
         }
 
@@ -573,38 +528,37 @@ function createInstance () {
                 // 加载状态不同，empty属性相同也可能有不同语句，需要重置状态
                 this.imageInfoEmpty = undefined;
                 /** @type {HTMLElement} */
-                let loadingTarget = $query(imageListInfoIcon);
+                let loadingTarget = $query(queryNames.imageListInfoIcon);
                 if (loading) {
                     // 添加动画
-                    classListOperation(loadingTarget, 'add', loadingClass, imageListInfoShowClass);
+                    classListOperation(loadingTarget, 'add', queryNames.loadingClass, queryNames.imageListInfoShowClass);
                     complexSetAttr(loadingTarget, iconCode.loadingSingle, 'html');
                 } else {
-                    classListOperation(loadingTarget, 'remove', loadingClass, imageListInfoShowClass);
+                    classListOperation(loadingTarget, 'remove', queryNames.loadingClass, queryNames.imageListInfoShowClass);
                     complexSetAttr(loadingTarget, '', 'html');
                 }
             }
             if (empty !== this.imageInfoEmpty) {
                 this.imageInfoEmpty = empty;
                 /** @type {HTMLElement} */
-                let infoTarget = $query(imageListInfoContent);
-                let containerTarget = getId(imageListInfoId);
+                let infoTarget = $query(queryNames.imageListInfoContent);
+                let containerTarget = getId(queryNames.imageListInfoId);
                 if (empty) {
                     // 数组为空，根据加载情况显示文字
-                    classListOperation(containerTarget, 'add', imageListInfoShowClass)
-                    complexSetAttr(infoTarget, loading ? imageListInfoEmptyLoading : imageListInfoEmpty, 'text');
+                    classListOperation(containerTarget, 'add', queryNames.imageListInfoShowClass)
+                    complexSetAttr(infoTarget, loading ? queryNames.imageListInfoEmptyLoading : queryNames.imageListInfoEmpty, 'text');
                 } else {
                     // 数组不为空，隐藏文字区域
-                    classListOperation(containerTarget, 'remove', imageListInfoShowClass);
+                    classListOperation(containerTarget, 'remove', queryNames.imageListInfoShowClass);
                     complexSetAttr(infoTarget, '', 'text');
                 }
             }
         }
 
-        /**
-         * 检查是否有元素
-         */
+        /** 检查是否有元素 */
         check () {
-            if (!this.element) throw new Error('没有对应元素');
+            if (this.element) return;
+            throw new Error('没有对应元素');
         }
 
         /**
@@ -613,12 +567,10 @@ function createInstance () {
          */
         getChild () {
             this.check();
-            return $query('.'+listImageClass, { all: true, element: this.element });
+            return $query('.'+queryNames.listImageClass, { all: true, element: this.element });
         }
 
-        /**
-         * 子节点长度是否满足
-         */
+        /** 子节点长度是否满足 */
         isChildLength (length = 0) {
             this.check();
             return this.getChild().length > length;
@@ -635,18 +587,18 @@ function createInstance () {
                 return;
             codes.forEach(code => {
                 /** @type {HTMLElement} */
-                const target = $query(`.${listImageClass}#${imageContainerCode}-${code}`),
+                const target = $query(`.${queryNames.listImageClass}#${queryNames.imageContainerCode}-${code}`),
                 /** @type {Element} */
-                childTarget = $query(`.${imageButtonClass}.${imageSelectButtonClass}`, target),
+                childTarget = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
                 classList = childTarget?.classList;
                 if (!classList) 
                     return;
-                if (operation === 'add' && !classList.contains(ImageSelectStateClass)) {
-                    classList.add(ImageSelectStateClass);
-                    target.classList.add(selectButtonToContainerClass);
-                } else if (operation === 'remove' && classList.contains(ImageSelectStateClass)) {
-                    classList.remove(ImageSelectStateClass);
-                    target.classList.remove(selectButtonToContainerClass);
+                if (operation === 'add' && !classList.contains(queryNames.ImageSelectStateClass)) {
+                    classList.add(queryNames.ImageSelectStateClass);
+                    target.classList.add(queryNames.selectButtonToContainerClass);
+                } else if (operation === 'remove' && classList.contains(queryNames.ImageSelectStateClass)) {
+                    classList.remove(queryNames.ImageSelectStateClass);
+                    target.classList.remove(queryNames.selectButtonToContainerClass);
                 }
             });
         }
@@ -677,7 +629,7 @@ function createInstance () {
             if (index === value) 
                 return;
             let target = this.getChild()[value];
-            classListOperation(target, 'add', selectClass);
+            classListOperation(target, 'add', queryNames.selectClass);
             setTimeout(() => {
                 // 滚动到可视区域
                 elementScrollIntoView(target, { behavior: 'smooth', block: 'center' });
@@ -690,7 +642,7 @@ function createInstance () {
          */
         cancelSelect (index) {
             if (index >= 0) {
-                classListOperation(this.getChild()[index], 'remove', selectClass);
+                classListOperation(this.getChild()[index], 'remove', queryNames.selectClass);
             }
         }
 
@@ -720,16 +672,12 @@ function createInstance () {
             let type = false, index = -1;
             const child = this.getChild();
             for (let i = 0; i < child.length; i++) {
-                if (child[i].classList.contains(selectClass)) {
-                    index = i;
-                    type = true;
+                if (child[i].classList.contains(queryNames.selectClass)) {
+                    index = i, type = true;
                     break;
                 }
             }
-            return {
-                select: type,
-                index
-            }
+            return { select: type, index }
         }
 
         /**
@@ -737,14 +685,15 @@ function createInstance () {
          * @param {HTMLElement} el 
          */
         getCodeValue (el) {
-            if (el && objectHas(el.dataset, imageContainerCode)) {
-                return el.dataset[imageContainerCode];
+            if (el && objectHas(el.dataset, queryNames.imageContainerCode)) {
+                return el.dataset[queryNames.imageContainerCode];
             }
             return undefined;
         }
 
         /**
          * 删除图标点击事件处理
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          * @param {MouseEvent} e 
          * @returns 
          */
@@ -759,6 +708,7 @@ function createInstance () {
 
         /**
          * 选择图标点击事件处理
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          * @param {MouseEvent} e 
          * @returns 
          */
@@ -773,26 +723,28 @@ function createInstance () {
 
         /**
          * 绑定事件处理函数
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          * @param {{target:HTMLElement}} param
          */
         imageClick (data=undefined, { target }) {
             if (!canChange()) 
                 return;
-            if (target.classList.contains(imageClass)) 
+            if (target.classList.contains(queryNames.imageClass)) 
                 target = target.parentElement;
-            if (target.classList.contains(selectClass)) 
+            if (target.classList.contains(queryNames.selectClass)) 
                 return;
             // 通过哈希码和索引选择背景图
-            if (objectHas(data, 'code', 'index'))
-                settingBackground({
-                    code: data.code,
-                    index: data.index
-                });
+            if (!objectHas(data, 'code', 'index')) return;
+            settingBackground({
+                code: data.code,
+                index: data.index
+            });
         }
 
         /**
          * 删除按钮事件绑定
          * @param {HTMLElement} el 
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
         imageDeleteIconEventBind(el, remove=false, data=undefined) {
             if (!el) return;
@@ -804,6 +756,7 @@ function createInstance () {
         /**
          * 选择按钮事件绑定
          * @param {HTMLElement} el 
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
         imageSelectIconEventBind(el, remove=false, data=undefined) {
             if (!el) return;
@@ -815,6 +768,7 @@ function createInstance () {
         /**
          * 绑定图片点击事件
          * @param {HTMLElement} el 
+         * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
         */
         imageElementEventBind (el, remove=false, data=undefined) {
             if (!el) return;
@@ -823,6 +777,44 @@ function createInstance () {
                 el.addEventListener('click', this.imageClick.bind(this, data));
         }
     }
-
     return new ImageList();
+}
+
+/**
+ * 设置背景图
+ * @param {string} code 
+ */
+function settingBackground (code) {
+    sendMessage({
+        name: 'settingBackground',
+        value: code
+    });
+}
+
+/**
+ * 删除图标按钮点击
+ * @param {string} code 
+ * @returns 
+ */
+function iconClickDeleteImage (code) {
+    if (!canChange()) return;
+    sendMessage({
+        name: 'deleteImage',
+        value: [code]
+    });
+}
+
+/**
+ * 注册一个懒加载图片触发方法，类型是lazyLoad
+ * @param {string} code 
+ * @param {Function} callback 
+ */
+function registLazyLoadImage (code, callback) {
+    if (!code || !callback) return;
+    lazyLoadImageList.push({ code, callback });
+    // 发送编码获取base64数据
+    sendMessage({
+        name: 'getBackgroundBase64Data',
+        value: { code, type: 'lazyLoad' }
+    });
 }

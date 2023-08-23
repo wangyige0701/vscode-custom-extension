@@ -2,9 +2,7 @@ import { errlog } from "../error";
 import { selectFile, setMessage } from "../utils/interactive";
 import { resetImageStorePath } from "./utils";
 
-/**
- * 选择文件夹作为背景图数据储存路径
-*/
+/** 选择文件夹作为背景图数据储存路径 */
 export function selectFolderForBackgroundStore (): void {
     setMessage({
         message: '提示',
@@ -26,9 +24,7 @@ export function selectFolderForBackgroundStore (): void {
     });
 }
 
-/**
- * 重置背景图储存路径
- */
+/** 重置背景图储存路径 */
 export function resetBackgroundStorePath (): void {
     setMessage({
         message: '提示',

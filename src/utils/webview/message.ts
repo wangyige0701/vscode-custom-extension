@@ -2,9 +2,7 @@ import { Webview } from "vscode";
 import { MessageData, MessageGroupCallback, MessageGroupCallbackName, callbackType } from "./type";
 import { errlog } from "../../error";
 
-/**
- * 绑定通信回调函数对象
- */
+/** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
     onBackground: null,
     onViewImage: null
@@ -20,9 +18,7 @@ export function unbindMessageCallback (name: MessageGroupCallbackName) {
     if (name in messageCallback) messageCallback[name] = null;
 }
 
-/**
- * webview侧通信事件接收统一处理
- */
+/** webview侧通信事件接收统一处理 */
 export function messageHandle (webview: Webview) {
     webview.onDidReceiveMessage((message: MessageData) => {
         switch (message.group) {
@@ -45,9 +41,7 @@ export function messageHandle (webview: Webview) {
     });
 }
 
-/**
- * 扩展侧向webview侧发送通信数据
-*/
+/** 扩展侧向webview侧发送通信数据 */
 export function messageSend (webview: Webview, options: MessageData): void {
     if (webview) {
         try {

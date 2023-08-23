@@ -9,7 +9,7 @@ import { modifyCssFileForBackground } from "./modify";
 
 /**
  * 记录随机设置背景图的相关数据，并更新状态
- * @param value 
+ * @param value 为false是关闭随机切换，为数组是打开随机切换，切换范围是数组内的图片
  * @param tip 是否弹出提示
  */
 export function randomSettingBackground (value: string[] | false, tip: boolean = true): void {

@@ -1,18 +1,14 @@
-/**
- * 根据扩展版本判断是否需要复制旧版本的某个文件到新版本中
-*/
+/** 根据扩展版本判断是否需要复制旧版本的某个文件到新版本中 */
 
 import { checkVersion, getVersionById, refreshVersion } from './utils';
 import { getVersion, isDev } from '.';
 import { createUri, isFileExits, newUri, uriCopy } from '../utils/file';
 import { resolve as pathResolve } from 'path';
 
-/**
- * 只获取当前扩展版本是否修改的状态
- */
+/** 只获取当前扩展版本是否修改的状态 */
 const isExtensionVersionChange = !checkVersion('global', false);
 
-// 更新版本信息
+/* 更新版本信息 */
 if (isExtensionVersionChange) {
     refreshVersion('global', false);
 }

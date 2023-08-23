@@ -11,9 +11,7 @@ import { options } from "./type";
 import { messageHandle } from "./message";
 import { FileMerge, contextContainer } from './index'
 
-/**
- * 通过html文件插入webview
- */
+/** 通过html文件插入webview */
 export class webviewCreateProvider implements WebviewViewProvider {
     private newFile: FileMerge | null;
 
@@ -45,9 +43,7 @@ export class webviewCreateProvider implements WebviewViewProvider {
     }
 }
 
-/**
- * 注册webview provider
- */
+/** 注册webview provider */
 export function registWebviewProvider (viewId: string, provider: { path: string, title: string }, options?: options | undefined): Disposable {
     const dispose = window.registerWebviewViewProvider(viewId, new webviewCreateProvider(provider.path, provider.title), options);
     contextContainer.instance!.subscriptions.push(dispose);

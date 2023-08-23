@@ -13,9 +13,7 @@ const webFile: webFileType = {
     js: 'js'
 }
 
-/**
- * 当前版本号是否有变化，判断是否需要重新合并文件
- */
+/** 当前版本号是否有变化，判断是否需要重新合并文件 */
 const isVersionSame = checkVersion('webview');
 
 // 判断是否需要更新版本信息
@@ -69,8 +67,7 @@ export class FileMerge {
 
     /**
      * 生成html字符串
-     * @param webview 
-     * @returns 
+     * @param webview webview实例
      */
     setHtml (webview: Webview): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -100,6 +97,7 @@ export class FileMerge {
 
     /**
      * 读取html文本，获取css和js文件路径
+     * @param dev 是否是开发环境
      */
     private async start (dev: boolean) {
         await readDirectoryUri(this.publicFileUri!).then(res => {
@@ -145,6 +143,8 @@ export class FileMerge {
 
     /**
      * 根据环境执行不同html文本获取函数
+     * @param webview webview实例
+     * @param dev 是否是开发环境
      */
     private envHandle (webview: Webview, dev: boolean): Promise<void> {
         if (dev) {
@@ -157,6 +157,8 @@ export class FileMerge {
 
     /**
      * 生产环境读取文本
+     * @param webview webview实例
+     * @param dev 是否是开发环境
      */
     private production (webview: Webview, dev: boolean): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -170,9 +172,7 @@ export class FileMerge {
         });
     }
 
-    /**
-     * 根据版本判断是否需要更新css文件内的icon图标路径
-     */
+    /** 根据版本判断是否需要更新css文件内的icon图标路径 */
     private refreshCssIconfont (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
             if (isVersionSame) {
@@ -194,7 +194,9 @@ export class FileMerge {
 
     /**
      * 开发环境读取文本
-    */
+     * @param webview webview实例
+     * @param dev 是否是开发环境
+     */
     private development (webview: Webview, dev: boolean): Promise<void> {
         return new Promise((resolve, reject) => {
             // 查询指定html文件路径
@@ -215,7 +217,6 @@ export class FileMerge {
      * 开发环境读取指定路径下的文件，需要限制文件类型
      * @param uri
      * @param fileType 文件类型 
-     * @returns 
      */
     private readDirectoryFile (uri: Uri, fileType: string): Promise<Uri[]> {
         return new Promise((resolve, reject) => {
@@ -237,8 +238,7 @@ export class FileMerge {
 
     /**
      * 开发环境下将不同文件内容根据顺序合并
-     * @param fileUri 
-     * @returns 
+     * @param fileUri 需要合并的文件数组
      */
     private mergeAllFile (fileUri: Uri[]): Promise<string> {
         return new Promise((resolve, reject) => {
@@ -254,9 +254,7 @@ export class FileMerge {
         });
     }
 
-    /**
-     * 开发环境合并css文件
-     */
+    /** 开发环境合并css文件 */
     private cssFileMerge (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.cssUri) {
@@ -287,16 +285,12 @@ export class FileMerge {
         });
     }
 
-    /**
-     * 将css文件中的iconfont引入路径进行替换
-     */
+    /** 将css文件中的iconfont引入路径进行替换 */
     private cssIconfontPath (css: string, webview: Webview): string {
         return css.replace(/(#iconfont)/g, this.mainUri ? webview.asWebviewUri(this.mainUri).toString() : '../..');
     }
 
-    /**
-     * 开发环境合并js文件
-     */
+    /** 开发环境合并js文件 */
     private jsFileMerge (): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.jsUri) {
@@ -323,9 +317,7 @@ export class FileMerge {
         });
     }
 
-    /**
-     * 合并外部文件内容
-    */
+    /** 合并外部文件内容 */
     private externalFileMerge (type: 'css'|'js'): Promise<string> {
         return new Promise((resolve, reject) => {
             this.mergeAllFile(type === 'css' ? this.externalCssUri : this.externalJsUri).then(res => {
@@ -344,8 +336,7 @@ export const contextContainer: contextInter = {
 
 /**
  * 将不同文件下的Uint8Array数据转为字符串，按序合并返回
- * @param data 
- * @returns 
+ * @param data 需要被转换的数据
  */
 export function mergeWebviewFile (data: string[] | Uint8Array[]): string {
     let list: string[] = [];

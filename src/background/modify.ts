@@ -19,14 +19,10 @@ import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../utils/interactive";
 import { WError, promiseReject } from "../error";
 
-/**
- * vscode的源css文件名
- */
+/** vscode的源css文件名 */
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';
 
-/**
- * 写背景图样式的外部css文件名
- */
+/** 写背景图样式的外部css文件名 */
 const externalFileName = 'backgroundImageInfo.css';
 
 /** 标签名 */
@@ -59,28 +55,18 @@ const w = '\\w\*';
 /** 任意单词和数字 */
 const nw = '[\\d\\w]\*'; 
 
-/**
- * 匹配源及外部css文件修改内容标签范围正则字符串，捕获标签中的内容
- */
+/** 匹配源及外部css文件修改内容标签范围正则字符串，捕获标签中的内容 */
 const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
-/**
- * 匹配源及外部css文件修改内容标签范围，捕获标签中的内容的正则对象
- */
+/** 匹配源及外部css文件修改内容标签范围，捕获标签中的内容的正则对象 */
 const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
 
-/**
- * 捕获源css文件引用文本中的问号后接内容
-*/
+/** 捕获源css文件引用文本中的问号后接内容 */
 const findSourceCssVersionContent = 
     `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
-/**
- * 捕获源css文件引用文本中的问号后接内容的正则对象
-*/
+/** 捕获源css文件引用文本中的问号后接内容的正则对象 */
 const findSourceCssVersionContentRegexp = new RegExp(findSourceCssVersionContent);
 
-/**
- * 匹配外部css文件并捕获注释信息正则字符串
- */
+/** 匹配外部css文件并捕获注释信息正则字符串 */
 const findExternalCssPosition = 
     `${importStartMatch}${a}${
         getReg('VSCodeVersion')
@@ -91,24 +77,16 @@ const findExternalCssPosition =
     }${a}${
         getReg('ImageCode')
     }${a}${importEndMatch}`;
-/**
- * 匹配外部css文件并捕获注释信息的正则对象
- */
+/** 匹配外部css文件并捕获注释信息的正则对象 */
 const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
 
-/**
- * 获取外部css文件中的透明度值正则字符串
- */
+/** 获取外部css文件中的透明度值正则字符串 */
 const findExternalCssOpacityData = 
     `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
-/**
- * 获取外部css文件中的透明度值的正则对象
- */
+/** 获取外部css文件中的透明度值的正则对象 */
 const findExternalCssOpacityDataRegexp = new RegExp(findExternalCssOpacityData);
 
-/**
- * 对外部css文件的透明度进行修改的正则，包括动画样式内的透明度
-*/
+/** 对外部css文件的透明度进行修改的正则，包括动画样式内的透明度 */
 const externalCssOpacityModify = 
     `(${importStartMatch}${a}vscode-body-opacity-wyg${s}\{${a}to${s}\{${a
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}body${s}\{${a
@@ -168,9 +146,7 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
     });
 }
 
-/**
- * 删除外部和源css文件中背景图的相关设置内容
- */
+/** 删除外部和源css文件中背景图的相关设置内容 */
 export function deletebackgroundCssFileModification (): Promise<void> {
     return new Promise((resolve, reject) => {
         getSourceCssFileContent().then(data => {
@@ -202,10 +178,7 @@ export function deletebackgroundCssFileModification (): Promise<void> {
     });
 }
 
-/**
- * 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码
- * @returns 
- */
+/** 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码 */
 export function checExternalDataIsRight (): Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
         getNowSettingCode().then(res => {
@@ -242,7 +215,6 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
 /**
  * 将导入语句写入主样式文件中
  * @param init 是否是初始化调用，初始化调用此方法为校验，不需要进行文件修改
- * @returns 
  */
 export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify:boolean}> {
     return new Promise((resolve, reject) => {
@@ -323,6 +295,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
 /**
  * 设置当前背景哈希码缓存，将是否设置背景状态值改为true
  * @param options 
+ * @param random 是否是随机切换背景图方法内调用
  */
 function settingConfiguration (options: info, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -350,9 +323,7 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
     });
 }
 
-/**
- * 删除背景的缓存数据，将是否设置背景状态值改为false
-*/
+/** 删除背景的缓存数据，将是否设置背景状态值改为false */
 function deleteConfiguration (): Promise<void> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
@@ -373,7 +344,6 @@ function deleteConfiguration (): Promise<void> {
  * 获取vscode样式文件目录的Uri，没有指定name的文件就进行创建
  * @param name 指定文件名
  * @param create 没有文件是否创建
- * @returns 
  */
 function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
     return new Promise((resolve, reject) => {
@@ -418,8 +388,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
 
 /**
  * 将背景样式写入外部样式文件
- * @param content 
- * @returns 
+ * @param content css文本
  */
 export function writeExternalCssFile (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -435,10 +404,7 @@ export function writeExternalCssFile (content: string): Promise<void> {
     });
 }
 
-/**
- * 获取外部css文件内容
- * @returns 
- */
+/** 获取外部css文件内容 */
 export function getExternalFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
         let uriValue: Uri;
@@ -457,7 +423,7 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
 /**
  * 获取外部文件设置的背景样式字符串和相关信息，
  * 如果不需要更新数据即当前文件内的哈希码和需要设置的相同，则返回false
- * @param codeValue 
+ * @param codeValue 图片哈希码
  */
 function getExternalCssContent (codeValue: string): Promise<[string, info] | false> {
     return new Promise((resolve, reject) => {
@@ -525,11 +491,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
     });
 }
 
-/**
- * 获取缓存中的当前设置的背景图哈希码数据，
- * 如果没有缓存数据，返回false
- * @returns 
- */
+/** 获取缓存中的当前设置的背景图哈希码数据，如果没有缓存数据，返回false */
 function getNowSettingCode (): Promise<string | false> {
     return new Promise((resolve, reject) => {
         try {
@@ -547,7 +509,7 @@ function getNowSettingCode (): Promise<string | false> {
 
 /**
  * 获取vscode源样式文件内容，返回内容文本和路径uri
- * @returns {[string, Uri]} 内容文本和路径uri
+ * @returns 内容文本和路径uri
  */
 function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
@@ -571,11 +533,9 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
 }
 
 /**
- * 校验源css文件是否已经被修改，即是否已经添加引入外部css文件的语句，
- * 是则返回true，可以跳过
+ * 校验源css文件是否已经被修改，即是否已经添加引入外部css文件的语句，是则返回true，可以跳过
  * @param content 
  * @param uri 
- * @returns 
  */
 function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:string, uri:Uri, exits:boolean }> {
     return new Promise((resolve, reject) => {
@@ -596,7 +556,6 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:st
 /**
  * 获取背景设置css文件的相关信息
  * @param content 
- * @returns 
  */
 function findInfo (content: string): Promise<info | false> {
     return new Promise((resolve, reject) => {
@@ -622,7 +581,7 @@ function findInfo (content: string): Promise<info | false> {
 /**
  * 生成获取外部文件注释信息的正则
  * @param name 
- * @returns 
+ * @param catchData 是否需要捕获对应数据
  */
 function getReg (name: string, catchData: boolean = true): string {
     if (catchData) {
@@ -652,8 +611,8 @@ function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndU
 
 /**
  * 获取外部css文件修改了透明度后的内容
- * @param value 
- * @returns 
+ * @param content 被替换的文本
+ * @param value 替换的透明度数据
  */
 export function getExternalCssModifyOpacityContent (content: string, value: number): string {
     return content.replace(externalCssOpacityModifyRegexp, `$1${value}$3${value}$5`);

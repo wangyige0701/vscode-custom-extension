@@ -8,10 +8,7 @@ import { WError, errlog, promiseReject } from "../error";
 import { minmax } from "../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
-/**
- * 获取储存背景图资源的uri，指定路径不存在则会进行创建
- * @returns {Uri|undefined}
- */
+/** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri | void> {
     return new Promise((resolve, reject) => {
         try {
@@ -46,7 +43,6 @@ export function imageStoreUri (): Promise<Uri | void> {
 /**
  * 校验指定路径是否存在，不存在进行创建
  * @param uri 
- * @returns 
  */
 export function imageStoreUriExits (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
@@ -111,9 +107,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
     return Promise.resolve();
 }
 
-/**
- * 背景图储存路径修改通知
- */
+/** 背景图储存路径修改通知 */
 function sendStoreChangeMessage () {
     backgroundSendMessage({
         name: 'backgroundStorePathChange',
@@ -123,7 +117,7 @@ function sendStoreChangeMessage () {
 
 /**
  * 打开系统弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
- * @returns 
+ * @param message 弹框文本
  */
 export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -166,6 +160,8 @@ export function setBackgroundInfoOnStatusBar (message: string = '', icon: string
 
 /**
  * 背景图设置成功，状态栏提示
+ * @param message
+ * @param time 状态栏内容消失的时间
  */
 export function setBackgroundImageSuccess (message: string = '背景图设置成功', time: number = 3000) {
     setStatusBar({
@@ -176,6 +172,7 @@ export function setBackgroundImageSuccess (message: string = '背景图设置成
 
 /**
  * 是否重启窗口更新背景
+ * @param title 标题
  */
 export function isWindowReloadToLoadBackimage (title: string = '是否重启窗口以应用背景') {
     setMessage({
@@ -197,9 +194,7 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
     });
 }
 
-/**
- * 更改缓存中的加载状态属性
- */
+/** 更改缓存中的加载状态属性 */
 export function changeLoadState () {
     backgroundImageConfiguration.setBackgroundLoad(true);
 }
@@ -214,9 +209,7 @@ export function getNewBackgroundOpacity (opacity: number): number {
     return opacity;
 }
 
-/**
- * 关闭随机切换背景图后的消息提示
- */
+/** 关闭随机切换背景图后的消息提示 */
 export function closeRandomBackground () {
     setMessage({ message: '已关闭背景图随机切换。' });
     backgroundSendMessage({

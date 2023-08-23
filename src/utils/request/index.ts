@@ -3,7 +3,6 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 /**
  * axios请求状态处理
  * @param data 
- * @returns 
  */
 function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
@@ -20,7 +19,6 @@ function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
  * Get请求
  * @param url 
  * @param options 
- * @returns 
  */
 function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
@@ -41,7 +39,6 @@ function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse>
  * @param url 
  * @param data 
  * @param options 
- * @returns 
  */
 function post (url: string, data: any, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {

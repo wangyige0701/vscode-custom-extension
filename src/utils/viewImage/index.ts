@@ -7,7 +7,7 @@ import { MessageData } from "../webview/type";
 
 var viewImageWebviewInstance: WebviewPanel | null = null;
 
-// 调用方法的webview对象
+/** 调用方法的webview对象 */
 var webviewTarget: Webview | null = null;
 
 /**
@@ -33,18 +33,14 @@ export function toViewImage (path: string, title: string, useWebView: Webview) {
     });
 }
 
-/**
- * 销毁实例
- */
+/** 销毁实例 */
 export function disposeViewImage () {
     if (viewImageWebviewInstance) {
         viewImageWebviewInstance.dispose();
     }
 }
 
-/**
- * 实例销毁
- */
+/** 实例销毁 */
 function destroyInstance () {
     // 向调用的webview对象发送销毁状态
     if (webviewTarget) messageSend(webviewTarget!, {
@@ -56,9 +52,7 @@ function destroyInstance () {
     webviewTarget = null;
 }
 
-/**
- * 发送通信给webview
- */
+/** 发送通信给webview */
 function sendMessage (options: viewImageSendMessage) {
     if (viewImageWebviewInstance && options && isObject(options)) {
         options.group = 'viewImage';

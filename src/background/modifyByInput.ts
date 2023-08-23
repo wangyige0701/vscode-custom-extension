@@ -36,8 +36,7 @@ export function requestImageToBackground (url: string) {
 
 /**
  * 请求网络图片并转为base64数据
- * @param url 
- * @returns 
+ * @param url 图片路径
  */
 function getImageBase64ByRequest (url: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -62,7 +61,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
 
 /**
  * 修改背景图透明度
- * @param opacity 
+ * @param opacity 透明度数据
  */
 export function backgroundOpacityModify (opacity: number) {
     let sendOpacity: number = backgroundImageConfiguration.getBackgroundOpacity();
@@ -91,7 +90,6 @@ export function backgroundOpacityModify (opacity: number) {
 /**
  * 将透明度重新写入外部css文件
  * @param opacity 
- * @returns 
  */
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {

@@ -17,7 +17,6 @@ import {
  * @param title 输入框下方提示标题
  * @param placeHolder 占位符
  * @param reg 正则校验规则
- * @returns {Promise}
  */
 export function getInputInfo (title: string, placeHolder: string, reg: RegExp = /^[a-zA-Z0-9]*$/): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
@@ -44,7 +43,6 @@ export function getInputInfo (title: string, placeHolder: string, reg: RegExp = 
 /**
  * 选择文件
  * @param param 
- * @returns 
  */
 export function selectFile ({
     files = true,
@@ -98,7 +96,6 @@ export function selectFile ({
 /**
  * 设置消息弹框
  * @param param
- * @returns 
  */
 export function setMessage<T extends MessageItem> ({
     type = 'information',
@@ -139,10 +136,7 @@ export function setMessage<T extends MessageItem> ({
     });
 }
 
-/**
- * 获取消息弹框所有方法
- * @returns 
- */
+/** 获取消息弹框所有方法 */
 function getMessageBoxAllData () {
     return {
         information: window.showInformationMessage,
@@ -157,7 +151,6 @@ function getMessageBoxAllData () {
  * @param option 
  * @param callback 
  * @param callbackParam 
- * @returns 
  */
 export function setStatusBar (message: string | StatusBarIconMessage, option?:StatusBarParam, callback?: StatusBarCallback, ...callbackParam: any[]): Disposable {
     if (isObject(message)) {
@@ -186,7 +179,6 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
 /**
  * 通过dispose手动关闭statusBar的方法
  * @param message 
- * @returns 
  */
 export function setStatusBarResolve (message: string | StatusBarIconMessage): Disposable {
     if (isObject(message)) {
@@ -199,7 +191,6 @@ export function setStatusBarResolve (message: string | StatusBarIconMessage): Di
  * 调用进度条api
  * @param options 
  * @param task 
- * @returns 
  */
 export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>) {
     if (isString(options.location)) 
@@ -210,7 +201,6 @@ export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTask
 /**
  * 获取location的值
  * @param name 
- * @returns 
  */
 function getProgressLocation (name: ProgressLocationData) {
     return ProgressLocation[name];

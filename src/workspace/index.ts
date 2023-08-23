@@ -3,7 +3,6 @@ import { WorkspaceConfiguration, workspace } from "vscode";
 /**
  * 获取工作区配置
  * @param name 
- * @returns 
  */
 export function getWorkSpace (name: string): WorkspaceConfiguration {
     return workspace.getConfiguration(name);

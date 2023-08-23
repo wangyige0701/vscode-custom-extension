@@ -52,19 +52,14 @@ export function addZero (value: number | string, length: number = 2): string {
     return value;
 }
 
-/**
- * 迭代器循环数字范围
- */
+/** 迭代器循环数字范围 */
 export function *range (end: number, start: number = 0, step: number = 1) {
     for (let i = start; i < end; i += step) {
         yield i;
     }
 }
 
-/**
- * 生成一个唯一标识
- * @returns 
- */
+/** 生成一个唯一标识，目前在注册webview页面时使用 */
 export function getNonce() {
 	let text = '';
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -88,17 +83,12 @@ export function getRandomCode (length: number | string = 24): string {
     return str;
 }
 
-/**
- * 根据时间戳生成一个16进制哈希码
- * @returns 
- */
+/** 根据时间戳生成一个16进制哈希码 */
 export function getHashCode (): string {
     return cryHex(randomHexString());
 }
 
-/**
- * 生成随机id，使用时间戳乘以随机数再转换为16进制，并将小数点替换为随机字符
- */
+/** 生成随机id，使用时间戳乘以随机数再转换为16进制，并将小数点替换为随机字符 */
 export const randomHexString: () => string = (function () {
     const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const length = str.length;
@@ -111,7 +101,6 @@ export const randomHexString: () => string = (function () {
 /**
  * 是否是字符串类型
  * @param value 
- * @returns {boolean}
  */
 export function isString (value: any): value is string {
     return typeof value === 'string';
@@ -120,7 +109,6 @@ export function isString (value: any): value is string {
 /**
  * 是否是数字类型
  * @param value 
- * @returns {boolean}
  */
 export function isNumber (value: any): value is number {
     return typeof value === 'number';
@@ -129,7 +117,6 @@ export function isNumber (value: any): value is number {
 /**
  * 是否是数组类型
  * @param value 
- * @returns {boolean}
  */
 export function isArray (value: any): value is any[] {
     return Array.isArray(value);
@@ -138,7 +125,6 @@ export function isArray (value: any): value is any[] {
 /**
  * 是否是null类型
  * @param value 
- * @returns {boolean}
  */
 export function isNull (value: any): value is null {
     return value === null;
@@ -147,7 +133,6 @@ export function isNull (value: any): value is null {
 /**
  * 是否是对象类型
  * @param value 
- * @returns {boolean}
  */
 export function isObject (value: any): value is {[key:string|number]:any} {
     return typeof value === 'object' && !isArray(value) && !isNull(value);
@@ -156,7 +141,6 @@ export function isObject (value: any): value is {[key:string|number]:any} {
 /**
  * 是否是undefined类型
  * @param value 
- * @returns {boolean}
  */
 export function isUndefined (value: any): value is undefined {
     return typeof value === 'undefined';
@@ -165,7 +149,6 @@ export function isUndefined (value: any): value is undefined {
 /**
  * 是否是函数类型
  * @param value 
- * @returns {boolean}
  */
 export function isFunction (value: any): value is Function {
     return typeof value === 'function';
@@ -174,7 +157,6 @@ export function isFunction (value: any): value is Function {
 /**
  * 是否是布朗类型
  * @param value 
- * @returns {boolean}
  */
 export function isBoolean (value: any): value is boolean {
     return typeof value === 'boolean';
@@ -185,7 +167,6 @@ export function isBoolean (value: any): value is boolean {
  * @param min 最小值
  * @param max 最大值
  * @param value 判断的数据
- * @returns 
  */
 export function minmax (min: number, max: number, value: number): number {
     return value <= min ? min : value >= max ? max : value;
@@ -194,7 +175,6 @@ export function minmax (min: number, max: number, value: number): number {
 /**
  * 延迟指定时间
  * @param time 
- * @returns 
  */
 export function delay (time: number = 0): Promise<void> {
     return new Promise(resolve => {
@@ -202,10 +182,7 @@ export function delay (time: number = 0): Promise<void> {
     });
 }
 
-/**
- * 返回一个空的Promise函数
- * @returns 
- */
+/** 返回一个空的Promise函数 */
 export function voidFunc (): Promise<void> {
     return new Promise(resolve => {
         resolve();
@@ -216,7 +193,6 @@ export function voidFunc (): Promise<void> {
  * 生成一个指定范围的随机整数 [start, end)
  * @param start 起始位置，闭区间
  * @param end 结束位置，开区间
- * @returns 
  */
 export function getRandom (start: number, end: number): number {
     return ~~(Math.random() * (end - start) + start);

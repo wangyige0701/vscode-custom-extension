@@ -11,7 +11,6 @@ export function cryHex (s: string): string {
 /**
  * 生成哈希码
  * @param s 
- * @returns 
  */
 export function selfHex (s: string) {
     let data = new Uint8Array(encodeUTF8(s));
@@ -66,7 +65,6 @@ export function selfHex (s: string) {
 /**
  * 编码为utf8
  * @param s 
- * @returns 
  */
 function encodeUTF8 (s: string): number[] {
     let c: number, r: number[] = [], x: number;

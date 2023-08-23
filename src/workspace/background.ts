@@ -4,23 +4,15 @@ import { joinPathUri } from "../utils/file";
 import { cryHex } from '../utils/hash';
 import { contextContainer } from "../utils/webview";
 
-/**
- * 命名空间
- */
+/** 命名空间 */
 const namespace = 'wangyige.background';
 
-/**
- * 背景图片默认存储路径
-*/
+/** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
 
-/**
- * 背景图配置项对象
- */
+/** 背景图配置项对象 */
 export const backgroundImageConfiguration = {
-    /**
-     * 获取默认储存路径
-    */
+    /** 获取默认储存路径 */
     getDefaultPath (): string {
         let theDefaultPath = 'default';
         if (contextContainer.instance && contextContainer.instance.extensionUri) {
@@ -29,10 +21,7 @@ export const backgroundImageConfiguration = {
         return theDefaultPath;
     },
 
-    /**
-     * 获取背景图配置信息
-     * @returns 
-     */
+    /** 获取背景图配置信息 */
     getBackgroundConfiguration (name: string): any {
         return getWorkSpace(namespace).get<any>(name);
     },
@@ -46,10 +35,7 @@ export const backgroundImageConfiguration = {
         return setWorkSpace(namespace, name, value);
     },
 
-    /**
-     * 获取当前储存路径，如果有则返回哈希值
-     * @returns 
-     */
+    /** 获取当前储存路径，如果有则返回哈希值 */
     getSettingStorePath (): string | undefined {
         const path = this.getBackgroundStorePath();
         if (path) {
@@ -59,9 +45,7 @@ export const backgroundImageConfiguration = {
         }
     },
 
-    /**
-     * 获取所有图片哈希码数组的储存数据
-    */
+    /** 获取所有图片哈希码数组的储存数据 */
     getBackgroundAllImageObject(): { [key: string]: string[] } {
         return this.getBackgroundConfiguration('allImageCodes');
     },
@@ -69,7 +53,6 @@ export const backgroundImageConfiguration = {
     /**
      * 设置当前路径下的哈希码数组缓存
      * @param value 
-     * @returns 
      */
     setBackgroundAllImageObject (value: string[]): Thenable<void> {
         const path = this.getSettingStorePath()??this.getDefaultPath();
@@ -83,10 +66,7 @@ export const backgroundImageConfiguration = {
         return this.setBackgroundConfiguration('allImageCodes', result);
     },
 
-    /**
-     * 获取所有选择的图片哈希值数据
-     * @returns {string[]}
-     */
+    /** 获取所有选择的图片哈希值数据 */
     getBackgroundAllImageCodes (): string[] {
         const path = this.getSettingStorePath()??this.getDefaultPath();
         const data = this.getBackgroundAllImageObject();
@@ -99,7 +79,6 @@ export const backgroundImageConfiguration = {
      * 更新图片哈希值数组数据
      * @param value 添加或删除的图片哈希码，如果删除某条数据可以直接传对应索引
      * @param state 添加：add, 删除：delete
-     * @returns 
      */
     async setBackgroundAllImageCodes (value: string | number, state: 'add' | 'delete' = 'add'): Promise<void> {
         const list: string[] = this.getBackgroundAllImageCodes();
@@ -129,10 +108,7 @@ export const backgroundImageConfiguration = {
         return this.setBackgroundAllImageObject(value);
     },
 
-    /**
-     * 是否设置了背景图
-     * @returns {boolean}
-     */
+    /** 是否设置了背景图 */
     getBackgroundIsSetBackground (): boolean {
         return this.getBackgroundConfiguration('isSetBackground');
     },
@@ -140,16 +116,12 @@ export const backgroundImageConfiguration = {
     /**
      * 是否设置了背景图状态修改
      * @param value 
-     * @returns 
      */
     setBackgroundIsSetBackground (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('isSetBackground', value);
     },
 
-    /**
-     * 当前选中的图片哈希值
-     * @returns {string}
-     */
+    /** 当前选中的图片哈希值 */
     getBackgroundNowImageCode (): string {
         return this.getBackgroundConfiguration('nowImageCode');
     },
@@ -157,16 +129,12 @@ export const backgroundImageConfiguration = {
     /**
      * 当前选中图片哈希值数据更新
      * @param value 
-     * @returns 
      */
     setBackgroundNowImageCode (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('nowImageCode', value);
     },
 
-    /**
-     * 当前背景透明度
-     * @returns {number}
-     */
+    /** 当前背景透明度 */
     getBackgroundOpacity (): number {
         return this.getBackgroundConfiguration('opacity');
     },
@@ -174,16 +142,12 @@ export const backgroundImageConfiguration = {
     /**
      * 背景透明度数据更新
      * @param value 
-     * @returns 
      */
     setBackgroundOpacity (value: number): Thenable<void> {
         return this.setBackgroundConfiguration('opacity', value);
     },
 
-    /**
-     * 当前选择文件默认路径
-     * @returns 
-     */
+    /** 当前选择文件默认路径 */
     getBackgroundSelectDefaultPath (): string {
         return this.getBackgroundConfiguration('defaultPath');
     },
@@ -191,16 +155,12 @@ export const backgroundImageConfiguration = {
     /**
      * 设置默认路径
      * @param value 
-     * @returns 
      */
     setBackgroundSelectDefaultPath (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('defaultPath', value);
     },
 
-    /**
-     * 获取背景图加载状态
-     * @returns 
-     */
+    /** 获取背景图加载状态 */
     getBackgroundLoad (): boolean {
         return this.getBackgroundConfiguration('load');
     },
@@ -208,16 +168,12 @@ export const backgroundImageConfiguration = {
     /**
      * 设置背景图加载状态
      * @param value 
-     * @returns 
      */
     setBackgroundLoad (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('load', value);
     },
 
-    /**
-     * 获取当前背景图储存路径
-     * @returns 
-     */
+    /** 获取当前背景图储存路径 */
     getBackgroundStorePath (): string {
         return this.getBackgroundConfiguration('storePath');
     },
@@ -225,16 +181,12 @@ export const backgroundImageConfiguration = {
     /**
      * 设置背景图储存路径
      * @param value 
-     * @returns 
      */
     setBackgroundStorePath (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('storePath', value);
     },
 
-    /**
-     * 获取是否开启了随机切换背景图状态
-     * @returns 
-     */
+    /** 获取是否开启了随机切换背景图状态 */
     getBackgroundIsRandom (): boolean {
         return this.getBackgroundConfiguration('isRandom');
     },
@@ -242,16 +194,12 @@ export const backgroundImageConfiguration = {
     /**
      * 设置是否开启了随机切换背景图状态
      * @param value 
-     * @returns 
      */
     setBackgroundIsRandom (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('isRandom', value);
     },
 
-    /**
-     * 获取随机切换的背景图哈希码数组
-     * @returns 
-     */
+    /** 获取随机切换的背景图哈希码数组 */
     getBackgroundRandomList (): string[] {
         return this.getBackgroundConfiguration('randomList');
     },
@@ -259,16 +207,12 @@ export const backgroundImageConfiguration = {
     /**
      * 设置随机切换的背景图哈希码数组
      * @param value 
-     * @returns 
      */
     setBackgroundRandomList (value: string[]): Thenable<void> {
         return this.setBackgroundConfiguration('randomList', value);
     },
 
-    /**
-     * 获取下一次启动时随机切换的图片哈希码
-     * @returns 
-     */
+    /** 获取下一次启动时随机切换的图片哈希码 */
     getBackgroundRandomCode (): string {
         return this.getBackgroundConfiguration('randomCode');
     },
@@ -276,7 +220,6 @@ export const backgroundImageConfiguration = {
     /**
      * 设置下一次启动时随机切换的图片哈希码
      * @param value 
-     * @returns 
      */
     setBackgroundRandomCode (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('randomCode', value);

@@ -17,7 +17,6 @@ export function newUri (uri: Uri, ...path: string[]): Uri {
  * 根据base uri拼接路径
  * @param uri 
  * @param name 
- * @returns 
  */
 export function joinPathUri (uri: Uri, ...name: string[]): Uri {
     return Uri.joinPath(uri, ...name);
@@ -26,7 +25,6 @@ export function joinPathUri (uri: Uri, ...name: string[]): Uri {
 /**
  * 根据路径创建一个Uri
  * @param path 
- * @returns 
  */
 export function createUri (path: string): Uri {
     return Uri.file(path);
@@ -35,7 +33,6 @@ export function createUri (path: string): Uri {
 /**
  * 将给定路径转换为相对于vscode的资源路径
  * @param path 
- * @returns 
  */
 export function pathToVscode (path: string): Uri {
     return Uri.file(path).with({ scheme: 'vscode-resource' });
@@ -70,7 +67,6 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boole
  * 删除指定uri文件
  * @param uri 
  * @param options 
- * @returns 
  */
 export function uriDelete (uri: Uri, options?: { 
     recursive?: boolean | undefined, 
@@ -88,7 +84,6 @@ export function uriDelete (uri: Uri, options?: {
 /**
  * 查看文件夹内容
  * @param uri 
- * @returns 
  */
 export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
     return new Promise((resolve, reject) => {
@@ -103,7 +98,6 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
 /**
  * 创建文件夹
  * @param uri 
- * @returns 
  */
 export function createDirectoryUri (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
@@ -118,7 +112,6 @@ export function createDirectoryUri (uri: Uri): Promise<Uri> {
 /**
  * 查看文件内容
  * @param uri 
- * @returns 
  */
 export function readFileUri (uri: Uri): Promise<Uint8Array> {
     return new Promise((resolve, reject) => {
@@ -133,7 +126,6 @@ export function readFileUri (uri: Uri): Promise<Uint8Array> {
 /**
  * 传递数组查询多个文件内容
  * @param uri 
- * @returns 
  */
 export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
     return new Promise((resolve, reject) => {
@@ -153,7 +145,6 @@ export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
  * 写文件
  * @param uri 
  * @param content 
- * @returns 
  */
 export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -168,7 +159,6 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
 /**
  * 查看对应uri信息
  * @param uri 
- * @returns 
  */
 export function uriStat (uri: Uri): Promise<FileStat> {
     return new Promise((resolve, reject) => {
@@ -183,7 +173,6 @@ export function uriStat (uri: Uri): Promise<FileStat> {
 /**
  * 判断指定路径是否存在
  * @param data 路径uri或者字符串
- * @returns 
  */
 export function isFileExits (data: Uri | string): Promise<boolean> {
     return new Promise((resolve, reject) => {
@@ -201,7 +190,6 @@ export function isFileExits (data: Uri | string): Promise<boolean> {
 /**
  * 将本地图片转为base64编码
  * @param path 
- * @returns 
  */
 export function imageToBase64 (path: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -221,7 +209,6 @@ export function imageToBase64 (path: string): Promise<string> {
  * @param type 
  * @param fileType 
  * @param data 
- * @returns 
  */
 export function base64ByFiletypeAndData (type: string, fileType: string, data: string | Uint8Array | readonly number[]): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -236,7 +223,6 @@ export function base64ByFiletypeAndData (type: string, fileType: string, data: s
 /**
  * 部分图片格式转换
  * @param fileType 
- * @returns 
  */
 export function imageToBase64Type (fileType: string) {
     if (fileType === 'jpg' || fileType === 'webp') {

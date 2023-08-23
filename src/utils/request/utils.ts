@@ -3,7 +3,6 @@ import request from ".";
 /**
  * 请求图片资源
  * @param url 
- * @returns 
  */
 export function GetImage (url: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {

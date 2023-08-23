@@ -7,7 +7,6 @@ import { getVersion } from ".";
  * 根据id获取指定类型的储存数据
  * @param id 
  * @param type 
- * @returns 
  */
 export function getVersionById (id: string, type: 'VSCodeVersion'|'ExtensionVersion') {
     return getWorkSpace("wangyige."+id).get(type);
@@ -17,7 +16,6 @@ export function getVersionById (id: string, type: 'VSCodeVersion'|'ExtensionVers
  * 获取当前版本状态
  * @param id 指定id的版本
  * @param checkVsc 是否需要校验vscode的版本
- * @returns 
  */
 export function checkVersion (id: string, checkVsc: boolean = true): boolean {
     const config = getWorkSpace("wangyige."+id);
@@ -30,9 +28,7 @@ export function checkVersion (id: string, checkVsc: boolean = true): boolean {
     return true;
 }
 
-/**
- * 更新版本信息
- */
+/** 更新版本信息 */
 export function refreshVersion (id: string, refreshVsc: boolean = true) {
     return Promise.resolve(
         setWorkSpace("wangyige."+id, "ExtensionVersion", getVersion())

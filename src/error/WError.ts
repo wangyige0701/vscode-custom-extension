@@ -1,3 +1,5 @@
+import { isString } from "../utils";
+
 type Errorposition = 'Function' | 'Class' | 'Parameter';
 
 type ErrorOptions = {
@@ -58,16 +60,29 @@ export default class WError extends Error {
         // 获取栈信息，并输出第一个文件
         if (this.stack) {
             let file = this.stack.split('\n').splice(wrap, 1)[0];
-            if (file) this.message += `\n >> In File: ${file}`;
+            if (file) this.message += `\n >> In File: ${file}\n`;
             this.stack = undefined;
         }
 
         // 获取具体原因并输出
-        if (this.has(options, 'cause')) {
-            this.message += '\n';
-            this.message += '------------------------------------\n';
-            options.cause instanceof WError ? this.message += options.cause.message : this.message += this.cause;
+        if (this.has(options, 'cause'))
+            this.message += this.causeHandle(options.cause);
+    }
+
+    /** cause数据处理 */
+    causeHandle (cause: any): string {
+        let msg = '\n------------------------------------\n';
+        if (isString(cause)) {
+            msg += cause;
+        } else if (this.has(cause, 'stack')) {
+            msg += cause.stack;
+        } else if (this.has(cause, 'message')) {
+            msg += this.message;
         }
+        if (this.has(cause, 'cause')) {
+            msg += this.causeHandle(cause.cause);
+        }
+        return msg;
     }
 
     /**

@@ -1,5 +1,6 @@
 /* index(2) */
 
+/** 输入框文本、选择器信息 */
 const inputInfo = {
     box: 'infoInput', // 输入框容器id
     id: 'inputValue', // 输入框id
@@ -33,33 +34,35 @@ const inputInfo = {
     }],
 }
 
-// 输入框事件绑定
+/** 输入框事件绑定 */
 const inputDataWatcher = createInputEvent();
 
 // 注册输入框确认按钮锁
 registLock('inputConfirm', inputConfirmButtonLock);
 
+/** 创建输入框事件 */
 function createInputEvent () {
     createInputSelection($query(inputInfo.selectionContainer));
     /** @type {HTMLElement[]} 输入框类型控制按钮列表 */
-    const selection = $query(inputInfo.selection, true);
+    let selection = $query(inputInfo.selection, true),
     /** @type {HTMLElement[]} 输入框操作按钮 */
-    let operation = $query(inputInfo.operation, true);
+    operation = $query(inputInfo.operation, true),
     /** @type {HTMLElement} 输入框操作按钮容器 */
-    let operationContainer = $query(inputInfo.operationContainer);
+    operationContainer = $query(inputInfo.operationContainer),
     /** @type {HTMLElement} 输入框的外层盒子 */
-    const box = getId(inputInfo.box);
+    box = getId(inputInfo.box),
     /** @type {HTMLInputElement} 输入框对象 */
-    const inputTarget = getId(inputInfo.id);
+    inputTarget = getId(inputInfo.id),
     /** @type {HTMLElement} 确认按钮 */
-    let confirm = getId(inputInfo.confirm);
+    confirm = getId(inputInfo.confirm),
     /** @type {HTMLElement} 清除按钮 */
-    let clear = getId(inputInfo.clear);
-    let type = undefined, value = '';
-    /**
-     * @type {{type:number,value:string}}
-     */
-    let inputDataWatcher = Object.defineProperties({}, {
+    clear = getId(inputInfo.clear),
+    /** 当前输入框类型 */
+    type = undefined,
+    /** 记录输入框文本的变量 */
+    value = '',
+    /** @type {{type:number,value:string}} 监听输入框数据状态的对象 */
+    inputDataWatcher = Object.defineProperties({}, {
         type: {
             // 0是下载外部图片；1是修改透明度
             enumerable: true,
@@ -75,9 +78,7 @@ function createInputEvent () {
                     inputSelectionClass(selection, type);
                 }
             },
-            get () {
-                return type;
-            }
+            get () { return type; }
         },
         value: {
             // 缓存输入框数据
@@ -103,9 +104,7 @@ function createInputEvent () {
                     classListOperation(operationContainer, 'remove', inputInfo.operationHideClass);
                 }
             },
-            get () {
-                return value;
-            }
+            get () { return value; }
         }
     });
     // 占位符初始赋值
@@ -149,7 +148,7 @@ function createInputEvent () {
         });
     });
     // 内存占用释放
-    operation = null;confirm = null;clear = null;
+    operation = null, confirm = null, clear = null;
     return inputDataWatcher;
 }
 
@@ -227,9 +226,7 @@ function getRegExpContent (data) {
     return data;
 }
 
-/**
- * 发送输入框数据进行处理
- */
+/** 发送输入框数据进行处理 */
 function inputSendInfo () {
     if (this.type === 1) backOpacityRange(this);
     if (!canChange()) return;
@@ -310,19 +307,17 @@ function inputConfirmButtonLock (value) {
     if (value) {
         // 为true上锁，添加加载图标
         icon.innerHTML = iconCode.loadingSingle;
-        icon.classList.add(loadingClass, inputInfo.confirmLock);
+        icon.classList.add(queryNames.loadingClass, inputInfo.confirmLock);
         getId(inputInfo.clear)?.classList.add(inputInfo.confirmLock);
     } else {
         // 删除加载图标
         icon.innerHTML = iconCode.confirm;
-        icon.classList.remove(loadingClass, inputInfo.confirmLock);
+        icon.classList.remove(queryNames.loadingClass, inputInfo.confirmLock);
         getId(inputInfo.clear)?.classList.remove(inputInfo.confirmLock);
     }
 }
 
-/**
- * 输入框内容发送处理完成后清空输入框内容
- */
+/** 输入框内容发送处理完成后清空输入框内容 */
 function inputSendDataComplete () {
     inputDataWatcher.value = "";
 }

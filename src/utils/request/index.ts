@@ -24,7 +24,9 @@ function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
  */
 function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
-        axios.get(url, options).then(res => {
+        axios.get(url, Object.assign({
+            timeout: 10*1000
+        }, options??{})).then(res => {
             return resultHandle(res);
         }).then(res => {
             resolve(res);
@@ -43,7 +45,9 @@ function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse>
  */
 function post (url: string, data: any, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
-        axios.post(url, data, options).then(res => {
+        axios.post(url, data, Object.assign({
+            timeout: 10*1000
+        }, options??{})).then(res => {
             return resultHandle(res);
         }).then(res => {
             resolve(res);

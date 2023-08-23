@@ -225,27 +225,38 @@ export function clearBackgroundConfig () {
  */
 export function selectImage () {
     // 需要发送的数据
-    let sendMsg: [string, string] | undefined = undefined;
-    let uriValue: Uri[] | undefined;
+    let sendMsg: string[] = [];
     selectFile({
-        many: false,
+        many: true,
         files: true,
         filters: imageFilters,
         defaultUri: selectFileDefaultPath
     }).then(({ uri, dirName }) => {
-        uriValue = uri;
-        // 选择一次文件后保存默认选择路径
-        return backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName);
-    }).then(() => {
-        return imageToBase64(uriValue![0].fsPath);
-    }).then(base64 => {
-        return createFileStore(base64);
-    }).then(({ hashCode, base64 }) => {
-        sendMsg = [base64, hashCode];
+        return <Promise<Uri[]>>new Promise((resolve, reject) => {
+            // 选择一次文件后保存默认选择路径
+            Promise.resolve(
+                backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName)
+            ).then(() => {
+                resolve(uri);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }).then(uris => {
+        return Promise.all(
+            uris.map(uri => imageToBase64(uri.fsPath))
+        );
+    }).then(base64s => {
+        return Promise.all(
+            base64s.map(base64 => createFileStore(base64))
+        );
+    }).then(datas => {
+        datas.forEach(hashCode => {
+            sendMsg.push(hashCode);
+        });
     }).catch(err => {
         errlog(err, true);
     }).finally(() => {
-        uriValue = undefined;
         backgroundSendMessage({
             name: 'newImage',
             value: sendMsg
@@ -627,9 +638,8 @@ function newHashCode (): string {
 
 /**
  * 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg)
- * @returns {Promise<{hashCode:string, base64:string}>}
  */
-export function createFileStore (base64: string): Promise<{hashCode:string, base64:string}> {
+export function createFileStore (base64: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const code: string = newHashCode();
         imageStoreUri().then(uri => {
@@ -647,7 +657,7 @@ export function createFileStore (base64: string): Promise<{hashCode:string, base
             // 新增一个哈希码数据
             return codeListRefresh(code, 'add', base64.toString());
         }).then(() => {
-            resolve({ hashCode: code, base64: base64 });
+            resolve(code);
         }).catch(err => {
             reject(promiseReject(err, 'createFileStore'));
         });

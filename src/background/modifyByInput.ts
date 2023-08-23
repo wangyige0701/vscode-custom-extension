@@ -19,11 +19,11 @@ import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils"
  * @param url 
  */
 export function requestImageToBackground (url: string) {
-    let sendMsg: [string, string] | undefined = undefined;
+    let sendMsg: string[] = [];
     getImageBase64ByRequest(url).then(data => {
         return createFileStore(data);
-    }).then(({ hashCode, base64 }) => {
-        sendMsg = [base64, hashCode];
+    }).then(hashCode => {
+        sendMsg.push(hashCode);
     }).catch(err => {
         errlog(err);
     }).finally(() => {

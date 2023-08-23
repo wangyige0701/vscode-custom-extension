@@ -25,32 +25,22 @@ import { bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 
-/**
- *  图片类型过滤规则
- */
+/** 图片类型过滤规则 */
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 
-/**
- * 背景图片哈希码数据列表
- */
+/** 背景图片哈希码数据列表 */
 const backgroundImageCodeList: string[] = [];
 
 // 初始化缓存数组数据
 refreshImageCodeList();
 
-/**
- * 选择文件的默认路径
- */
+/** 选择文件的默认路径 */
 var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
 
-/**
- * 储存哈希码和图片base64数据的键值对
- */
+/** 储存哈希码和图片base64数据的键值对 */
 const repositoryData: { [key: string]: string } = {};
 
-/**
- * 背景图是否校验完成判断，完成后才能进行列表初始化
-*/
+/** 背景图是否校验完成判断，完成后才能进行列表初始化 */
 const isBackgroundCheckComplete: {
     /** 是否校验完成 */
     check: boolean;
@@ -64,12 +54,10 @@ const isBackgroundCheckComplete: {
     running: false
 }
 
-/**
- * 从工作区中获取储存的哈希码数据并更新至缓存数组中
- */
+/** 从工作区中获取储存的哈希码数据并更新至缓存数组中 */
 function refreshImageCodeList () {
     // 更新储存列表数据
-    let cache: string[] | null = backgroundImageConfiguration.getBackgroundAllImagePath();
+    let cache: string[] | null = backgroundImageConfiguration.getBackgroundAllImageCodes();
     backgroundImageCodeList.length = cache.length;
     cache.forEach((item, index) => {
         if (backgroundImageCodeList[index] !== item)
@@ -78,9 +66,7 @@ function refreshImageCodeList () {
     cache = null;
 }
 
-/**
- * vscode初始化后检测背景配置是否完整
- */
+/** vscode初始化后检测背景配置是否完整 */
 export async function WindowInitCheckCssModifyCompleteness () {
     // 检查css文件是否正确
 	await checkImageCssDataIsRight().then(state => {
@@ -142,9 +128,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
     });
 }
 
-/**
- * 根据对象判断是否需要再次执行初始化函数
- */
+/** 根据对象判断是否需要再次执行初始化函数 */
 function executeInitFunc () {
     if (isBackgroundCheckComplete.init) {
         backgroundImageDataInit();
@@ -189,9 +173,7 @@ export function deleteImage (...code: string[]) {
     });
 }
 
-/**
- * 清除背景图相关设置
- */
+/** 清除背景图相关设置 */
 export function clearBackgroundConfig () {
     isChangeBackgroundImage('是否清除背景图配置').then(() => {
         showProgress({
@@ -220,9 +202,7 @@ export function clearBackgroundConfig () {
     });
 }
 
-/**
- * 侧栏webview页面从本地文件选择背景图
- */
+/** 侧栏webview页面从本地文件选择背景图 */
 export function selectImage () {
     // 需要发送的数据
     let sendMsg: string[] = [];
@@ -239,7 +219,7 @@ export function selectImage () {
             ).then(() => {
                 resolve(uri);
             }).catch(err => {
-                reject(err);
+                reject(promiseReject(err, 'selectImage > selectFile'));
             });
         });
     }).then(uris => {
@@ -310,7 +290,7 @@ export function backgroundImageDataInit () {
         if (state) {
             backgroundSendMessage({
                 name: 'settingBackgroundSuccess',
-                value: backgroundImageConfiguration.getBackgroundNowImagePath()
+                value: backgroundImageConfiguration.getBackgroundNowImageCode()
             });
         }
     }).then(() => {
@@ -348,7 +328,6 @@ export function backgroundImageDataInit () {
 /**
  * 根据传入的哈希码发送对应图片base64数据
  * @param options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用 
- * @returns 
  */
 export function getBase64DataByCode ({ code, type }: { code: string, type: string }): void {
     if (repositoryData.hasOwnProperty(code)) {
@@ -359,9 +338,7 @@ export function getBase64DataByCode ({ code, type }: { code: string, type: strin
     }
 }
 
-/**
- * 从储存对象中根据哈希码获取base64数据
-*/
+/** 从储存对象中根据哈希码获取base64数据 */
 export function getBase64DataFromObject (code: string): string {
     if (repositoryData.hasOwnProperty(code)) {
         return repositoryData[code];
@@ -373,7 +350,6 @@ export function getBase64DataFromObject (code: string): string {
 /**
  * 将从储存路径下读取的图片base64数据和对应哈希码一起返回
  * @param buffers 
- * @returns {Promise<string[][]>}
  */
 function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
@@ -487,7 +463,6 @@ function codeListRefresh (code: string, state: codeChangeType = 'add', addData: 
 /**
  * 判断列表中是否含有此图片哈希码
  * @param code 
- * @returns {boolean}
  */
 function hasHashCode (code: string): boolean {
     return backgroundImageCodeList.includes(code);
@@ -502,7 +477,7 @@ function hasHashCode (code: string): boolean {
  */
 function refreshBackgroundImageList (data: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        let cacheData: string[] | null = backgroundImageConfiguration.getBackgroundAllImagePath();
+        let cacheData: string[] | null = backgroundImageConfiguration.getBackgroundAllImageCodes();
         if (data.length === cacheData.length) {
             resolve(data);
             return;
@@ -537,7 +512,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
     for (let i = 0; i < long.length; i++) {
         const item = long[i], index = short.findIndex(i => i === item);
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
-        if (index < 0) await backgroundImageConfiguration.setBackgroundAllImagePath(item, type)
+        if (index < 0) await backgroundImageConfiguration.setBackgroundAllImageCodes(item, type)
         .catch(err => {
             return Promise.reject(promiseReject(err, 'compareCodeList'));
         });
@@ -550,7 +525,6 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
  * 校验储存图片base64数据的文件并进行读取
  * @param files 指定目录下的所有文件列表
  * @param uri 
- * @returns {Promise<bufferAndCode[]>}
  */
 function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferAndCode[]> {
     return new Promise((resolve, reject) => {
@@ -584,7 +558,6 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
  * 返回.wyg图片文件的base64数据和对应哈希码
  * @param uri 
  * @param code 
- * @returns {Promise<bufferAndCode>}
  */
 function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
     return new Promise((resolve, reject) => {
@@ -599,10 +572,7 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
     });
 }
 
-/**
- * 获取背景图目录下的所有文件，并校验路径下的文件夹是否存在
- * @returns {Promise<{ files: [string, FileType][], uri: Uri }>}
- */
+/** 获取背景图目录下的所有文件，并校验路径下的文件夹是否存在 */
 function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
         let _uri: Uri;
@@ -625,10 +595,7 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     });
 }
 
-/**
- * 生成一个没有重复的哈希码
- * @returns 
- */
+/** 生成一个没有重复的哈希码 */
 function newHashCode (): string {
     let code: string = getHashCode();
     if (hasHashCode(code)) 
@@ -636,9 +603,7 @@ function newHashCode (): string {
     return code;
 }
 
-/**
- * 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg)
- */
+/** 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg) */
 export function createFileStore (base64: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const code: string = newHashCode();
@@ -666,8 +631,7 @@ export function createFileStore (base64: string): Promise<string> {
 
 /**
  * 根据哈希码删除.wyg图片文件
- * @param code 
- * @returns {Promise<string>}
+ * @param code 需要删除图片的哈希码
  */
 function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {

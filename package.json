@@ -2,7 +2,7 @@
 	"name": "wangyige",
 	"displayName": "WangYige",
 	"description": "My custom extension",
-	"version": "0.4.7",
+	"version": "0.5.0",
 	"publisher": "wangyige",
 	"repository": {
 		"type": "github",

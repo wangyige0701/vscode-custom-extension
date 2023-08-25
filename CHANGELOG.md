@@ -6,7 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-## 0.4.7 - 2023-8-18
+#  [0.5.0] - 2023-8-25
+ - 优化：选择图片添加多选
+ - 修复：随机图配置关闭后重启软件背景图修改bug修复
+
+## [0.4.7] - 2023-8-18
  - 优化：图片列表删除多张图片时，添加列表滚动效果
 
 ## 0.4.4 - 2023-8-13
@@ -81,6 +85,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.5.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.0
+[0.4.7]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.7
 [0.4.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.0
 [0.3.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.3.0
 [0.2.4]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.2.4

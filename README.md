@@ -27,7 +27,7 @@
   - **上传图片：**
     1. 安装完扩展后，侧栏会出现此图标：
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/side-bar.png" />
+      <img height="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/side-bar.png" />
     </p>
     2. 点击图标，会进入操作页面，选择背景图片有两种方式：本地图片和网络图片：
     <p align="center">
@@ -36,7 +36,7 @@
     </p>
     3. 本地图片直接从文件夹选择，网络图片需要在输入框内输入图片地址。图片保存成功后会在下方的列表中显示：
     <p align="center">
-      <img height="300" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/display-in-list.png" />
+      <img height="250" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/display-in-list.png" />
     </p>
   <br/>
 
@@ -58,18 +58,18 @@
     </p>
     2. 在选中一张图片后可以进行全选或者取消选中的操作：
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/select-all.png" />
+      <img width="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/select-all.png" />
     </p>
     3. 对于选中的图片可以进行一下两种操作 
 
       - 同时删除，可以同时删除所有勾选的图片
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/delect-selected.png" />
+      <img width="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/delect-selected.png" />
     </p>
 
       - 随机切换选中图片，在选中的图片中进行背景图随机切换（详情可见下一条随即切换的描述）
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-selected.png" />
+      <img width="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-selected.png" />
     </p>
   <br/>
 
@@ -77,13 +77,13 @@
     除了可以设置某张图片为背景，还可以设置多张图片在每次打开软件时切换背景。方式有两种：
     1. 随机切换所有图片。在不选中任意图片时，点击`随机切换（全部）`按钮可以切换所有图片中的任意一张。设置此状态后新添加的图片也会被加入切换列表。
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-all.png" />
+      <img width="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-all.png" />
     </p>
     <br/>
 
     2. 随机切换选中图片。选中一张以上图片后，点击`随即切换（选中）`按钮，可以切换选中图片的任意一张，新上传的图片不会进入切换列表。但是如果删除了某一张图片，则此图片会被移除切换列表。
     <p align="center">
-      <img width="200" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-selected.png" />
+      <img width="150" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/random-selected.png" />
     </p>
   <br/>
 

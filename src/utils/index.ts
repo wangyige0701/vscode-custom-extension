@@ -93,7 +93,7 @@ export const randomHexString: () => string = (function () {
     const str = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const length = str.length;
     function create (): string {
-        return (Math.random() * (new Date().getTime())).toString(16).replace(/\./g, str.charAt(Math.floor(Math.random() * length)));
+        return (Math.random() * Date.now()).toString(16).replace(/\./g, str.charAt(Math.floor(Math.random() * length)));
     }
     return create;
 })();

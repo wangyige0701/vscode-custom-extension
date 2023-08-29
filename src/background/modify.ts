@@ -227,7 +227,7 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
                 throw { jump: true, modify: false };
             }
         }).then(({ content, uri, exits }) => {
-            const nowDate = new Date().getTime();
+            const nowDate = Date.now();
             let resContent: Buffer;
             if (exits === true) {
                 // 修改过源文件需要更换路径后的时间戳，去除缓存

@@ -85,21 +85,28 @@ window.addEventListener('message', receiveMessage);
 // 双击复原图片
 document.body.addEventListener('dblclick', image_transform_reset);
 
+/** 接收消息通讯并执行对应函数的实例对象 */
+const messageReceiver = messageDataExecute({
+    /** 设置图片路径 */
+    changeImage: {
+        execute: {
+            func: setStack,
+            data: true
+        }
+    },
+    /** 图片销毁 */
+    destroy: {
+        execute: {
+            func: destroyImage
+        }
+    }
+});
+
 /** 接收extensions侧发送的消息 */
 function receiveMessage ({ data }) {
     if (data.group !== 'viewImage') return;
-    const value = data.value;
-    switch (data.name) {
-        case 'changeImage':
-            // 设置图片路径
-            setStack(value);
-            break;
-        case 'destroy':
-            destroyImage();
-            break;
-        default:
-            break;
-    }
+    // 执行通讯传递数据
+    messageReceiver(data.name, data.value);
 }
 
 /** 

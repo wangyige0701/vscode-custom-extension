@@ -283,3 +283,46 @@ function isNumber (target) {
 function isNull (target) {
     return target === null;
 }
+
+/**
+ * 根据配置执行消息通讯后应该执行的函数
+ * @typedef {{func: Function, data: boolean, param?: any}} exeFunc
+ * @param {{ [key: string]: { execute: exeFunc|Array<exeFunc>, queue: boolean, extra?: Function }, queue: Function }} config 相关配置，data为是否必须传参并且参数有值
+ * @returns {(name: string, value: any) => any}
+ */
+function messageDataExecute (config) {
+    if (!config.queue) {
+        config.queue = (...funcs) => {
+            funcs.forEach(func => {
+                func?.();
+            });
+        }
+    }
+    for (let t in config) {
+        const target = config[t];
+        if (!Array.isArray(target.execute)) {
+            target.execute = [target.execute];
+        }
+    }
+    return (name, value=undefined) => {
+        if (!name || !(name in config)) return;
+        /** @type {{execute: exeFunc[], extra?: Function, queue: boolean}} 获取执行函数和是否队列执行判断 */
+        const { execute, extra, queue = false } = config[name];
+        // 额外函数执行
+        extra?.();
+        for (let i = 0; i < execute.length; i++) {
+            const target = execute[i];
+            const { func, data = false, param = undefined } = target;
+            if (!func || typeof func !== 'function') continue;
+            // 是否需要传参并且参数有值
+            if (data && value === undefined && param === undefined) continue;
+            const executeFunction = (param === undefined) 
+            ? value 
+                ? func.bind(null, value) 
+                : func.bind(null) 
+            : func.bind(null, param);
+            // 判断是否队列执行
+            queue ? config.queue(executeFunction) : executeFunction();
+        }
+    };
+}

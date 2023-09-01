@@ -9,19 +9,24 @@
         "@typescript-eslint"
     ],
     "rules": {
-        "@typescript-eslint/naming-convention": "warn",
-        "@typescript-eslint/semi": "warn",
-        "curly": "warn",
+        "curly": "off",
         "eqeqeq": "warn",
         "no-throw-literal": "warn",
-        "semi": "off"
+        "semi": "off",
+        "complexity": ["error", 15]
     },
+    "overrides": [{
+        "files": ["*.ts"],
+        "rules": {
+            "@typescript-eslint/semi": "off",
+            "@typescript-eslint/naming-convention": "warn",
+            "complexity": ["error", 15]
+        }
+    }],
     "ignorePatterns": [
         "out",
         "dist",
         "**/*.d.ts",
-        "resources/background",
-        "resource/extension",
         "test"
     ]
 }

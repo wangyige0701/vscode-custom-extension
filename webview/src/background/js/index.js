@@ -110,6 +110,87 @@ function sendMessage (options={}) {
     }
 }
 
+/** 接收消息通讯并执行对应函数的实例对象 */
+const messageReceiver = messageDataExecute({
+    queue: operationQueue.set.bind(operationQueue),
+    backgroundInitData: {
+        queue: false,
+        execute: {
+            func: initImageData,
+            data: true
+        }
+    },
+    /** 发送code编码后接收到的base64数据 */
+    backgroundSendBase64Data: {
+        queue: true,
+        execute: {
+            func: getBase64DataToLoad,
+            data: true
+        }
+    },
+    /** value: string[]，添加的新图片路径和对应hashCode */
+    newImage: {
+        queue: true,
+        extra: () => {lockSet.selectFile = false;},
+        execute: {
+            func: addImageHandle,
+            data: true
+        } 
+    },
+    /** value: string | array，确定删除图片 */
+    deleteImageSuccess: {
+        queue: true,
+        execute: {
+            func: deleteImageHandle,
+            data: true
+        }
+    },
+    /** value: number | string，点击图片处理完成，返回列表内对象，修改显示状态 */
+    settingBackgroundSuccess: {
+        queue: true,
+        execute: {
+            func: listInstance.imageClickHandle.bind(listInstance),
+            data: true
+        }
+    },
+    /** 通过网络地址下载图片 */
+    newImageNetwork: {
+        queue: true,
+        extra: () => {lockSet.inputConfirm = false;},
+        execute: [{
+            func: addImageHandle,
+            data: true,
+        }, {
+            func: inputSendDataComplete
+        }]
+    },
+    /** 初始化和设置透明度后返回 */
+    nowBackgroundOpacity: {
+        queue: true,
+        extra: () => {lockSet.inputConfirm = false;},
+        execute: {
+            func: opacityMessageGetHandle,
+            data: true
+        }
+    },
+    /** 图片储存路径更改，重新请求初始化 */
+    backgroundStorePathChange: {
+        queue: true,
+        execute: {
+            func: onDataLoad,
+            param: true
+        }
+    },
+    /** 随机设置背景图状态更改或这初始化获取状态 */
+    backgroundRandomList: {
+        queue: true,
+        execute: {
+            func: changeRenderByRandomSetting,
+            data: true
+        }
+    }
+});
+
 /**
  * 注册通信数据接收事件
  * @param {{data:{name:string,value:any,group:string}}} param 
@@ -121,49 +202,8 @@ function receiveMessage ({ data }) {
         return;
     }
     if (data.group !== 'background') return;
-    const value = data.value;
-    switch (data.name) {
-        case 'backgroundInitData':
-            initImageData(value);
-            break;
-        case 'backgroundSendBase64Data':
-            // 发送code编码后接收到的base64数据
-            if (value) operationQueue.set(getBase64DataToLoad.bind(this, value));
-            break;
-        case 'newImage':
-            // value: string[]，添加的新图片路径和对应hashCode
-            lockSet.selectFile = false;
-            if (value) operationQueue.set(addImageHandle.bind(this, value));
-            break;
-        case 'deleteImageSuccess':
-            // value: string | array，确定删除图片
-            operationQueue.set(deleteImageHandle.bind(this, value));
-            break;
-        case 'settingBackgroundSuccess':
-            // value: number | string，点击图片处理完成，返回列表内对象，修改显示状态
-            operationQueue.set(listInstance.imageClickHandle.bind(listInstance, value));
-            break;
-        case 'newImageNetwork':
-            // 通过网络地址下载图片
-            lockSet.inputConfirm = false;
-            if (value) operationQueue.set(addImageHandle.bind(this, value), inputSendDataComplete);
-            break;
-        case 'nowBackgroundOpacity':
-            // 初始化和设置透明度后返回
-            lockSet.inputConfirm = false;
-            operationQueue.set(opacityMessageGetHandle.bind(this, value));
-            break;
-        case 'backgroundStorePathChange':
-            // 图片储存路径更改，重新请求初始化
-            if (value) operationQueue.set(onDataLoad.bind(this, true));
-            break;
-        case 'backgroundRandomList':
-            // 随机设置背景图状态更改或这初始化获取状态
-            operationQueue.set(changeRenderByRandomSetting.bind(this, value));
-            break;
-        default:
-            break;
-    }
+    // 执行消息触发函数
+    messageReceiver(data.name, data.value);
     // 将对应函数插入队列后，根据canSelect的值判断是否可以执行
     queueExecute(canChange());
 }
@@ -329,7 +369,6 @@ function deleteImageHandle (value) {
         }
         // 根据长度判断是否需要滚动动画
         value.length > 1 ? listInstance.deleteMultipleImages(call, value.length) : call();
-        
     } else {
         deleteImage(value);
     }

@@ -93,9 +93,9 @@ function createInstance () {
             this.#observer = new window.IntersectionObserver((entries, obs) => {
                 for (let i = 0; i < entries.length; i++) {
                     const entry = entries[i];
-                    let window_height = window.innerHeight;
+                    let windowHeight = window.innerHeight;
                     let { top, bottom, height } = entry.boundingClientRect;
-                    if (top > (0 - height) && bottom < (window_height + height)) {
+                    if (top > (0 - height) && bottom < (windowHeight + height)) {
                         // 目标不在已注册元素列表中
                         let index = this.#recordMap.findIndex((item) => item.target === entry.target);
                         if (index < 0) continue;
@@ -420,7 +420,7 @@ function createInstance () {
                 /** @type {ChildNode[]} */
                 const checkTarget = [];
                 childs.forEach(child => {
-                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) checkTarget.push(child)
+                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) checkTarget.push(child);
                 });
                 if (checkTarget.length === 0) {
                     target.appendChild(el);

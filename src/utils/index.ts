@@ -163,6 +163,14 @@ export function isBoolean (value: any): value is boolean {
 }
 
 /**
+ * 是否是symbol类型
+ * @param value
+ */
+export function isSymbol (value: any): value is symbol {
+    return typeof value === 'symbol';
+}
+
+/**
  * 输出在一个最小最大范围内的值
  * @param min 最小值
  * @param max 最大值
@@ -196,4 +204,14 @@ export function voidFunc (): Promise<void> {
  */
 export function getRandom (start: number, end: number): number {
     return ~~(Math.random() * (end - start) + start);
+}
+
+/**
+ * 将字符串第一个字符大写
+ */
+export function firstUpperCase (data: string) {
+    if (isString(data)) {
+        return data.charAt(0).toUpperCase() + data.slice(1);
+    }
+    return data;
 }

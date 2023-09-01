@@ -40,3 +40,30 @@ interface webFileType {
 }
 
 type fb = Buffer | string | Uint8Array;
+
+type ExecuteFunction<F> = {func: ((value: F) => void)|(() => void), data?: boolean, noneParam?:boolean, param?: any};
+
+type ExecuteType<F> = {
+    /** 需要执行的函数 */
+    execute: ExecuteFunction<F> | Array<ExecuteFunction<F>>;
+    /** 是否需要放入队列执行 */
+    queue?: boolean;
+    /** 额外需要执行的函数 */
+    extra?: Function
+};
+
+export interface dataType {
+    group?:string;
+    name: string;
+    value?: any;
+}
+
+export type GetName<T extends dataType> = Pick<T, "name">["name"];
+
+/** 执行通讯信息对应函数 */
+export type MessageExecuteType<T extends dataType> = {
+    [K in GetName<T>]: ExecuteType<Extract<T, { name: K }>["value"]>;
+} & {
+    /** 队列执行函数 */
+    queue?: (...funcs: Function[]) => void;
+}

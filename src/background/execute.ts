@@ -12,6 +12,74 @@ import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../utils/viewImage";
 import { webviewInstance } from './execute_webview';
 import { settingImage } from './execute_setting';
+import { messageExecute } from "../utils/webview/message";
+
+/** 创建通信数据对应函数执行配置 */
+const messageReceiver = messageExecute<backgroundMessageData>({
+    /** 初始化背景图数据 value: false | true */
+    backgroundInit: {
+        execute: {
+            func: data => { if (data) backgroundImageDataInit(); },
+            data: true
+        }
+    },
+    /** 发送code，用于获取具体base64数据 */
+    getBackgroundBase64Data: {
+        execute: {
+            func: getBase64DataByCode,
+            data: true
+        }
+    },
+    /** 选择图片 value: false | true */
+    selectImage: {
+        execute: {
+            func: data => { if (data) selectImage(); },
+            data: true
+        }
+    },
+    /** 删除图片 value: string[] */
+    deleteImage: {
+        execute: {
+            func: data => { if (data && data.length > 0) deleteImage(...data); },
+            data: true
+        }
+    },
+    /** 设置背景图 value: { code, index } */
+    settingBackground: {
+        execute: {
+            func: settingImage,
+            data: true
+        }
+    },
+    /** 上传外部图片 */
+    externalImage: {
+        execute: {
+            func: requestImageToBackground,
+            data: true
+        }
+    },
+    /** 设置背景透明度 */
+    backgroundOpacity: {
+        execute: {
+            func: data => { if (data >= 0.1 && data <= 1) backgroundOpacityModify(data); },
+            data: true
+        }
+    },
+    /** 设置随机背景图 */
+    randomBackground: {
+        execute: {
+            func: randomSettingBackground,
+            data: true
+        }
+    },
+    /** 查看大图，标题发送哈希码前七位 */
+    viewBigImage: {
+        execute: {
+            func: data => { toViewImage(getBase64DataFromObject(data), `${data.slice(0, 7)}...`, webviewInstance.value!); },
+            data: true
+        }
+    }
+});
 
 /**
  * 背景图通信数据处理
@@ -22,44 +90,6 @@ import { settingImage } from './execute_setting';
  */
 export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
     if (!webviewInstance.value) webviewInstance.value = webview;
-    switch (name) {
-        case 'backgroundInit':
-            // 初始化背景图数据 value: false | true
-            if (value) backgroundImageDataInit();
-            break;
-        case 'getBackgroundBase64Data':
-            // 发送code，用于获取具体base64数据
-            if (value) getBase64DataByCode(value);
-            break;
-        case 'selectImage':
-            // 选择图片 value: false | true
-            if (value) selectImage();
-            break;
-        case 'deleteImage':
-            // 删除图片 value: string[]
-            if (value && value.length > 0) deleteImage(...value);
-            break;
-        case 'settingBackground':
-            // 设置背景图 value: { code, index }
-            if (value) settingImage(value);
-            break;
-        case 'externalImage':
-            // 上传外部图片
-            if (value) requestImageToBackground(value);
-            break;
-        case 'backgroundOpacity':
-            // 设置背景透明度
-            if (value >= 0.1 && value <= 1) backgroundOpacityModify(value);
-            break;
-        case 'randomBackground':
-            // 设置随机背景图
-            randomSettingBackground(value);
-            break;
-        case 'viewBigImage':
-            // 查看大图，标题发送哈希码前七位
-            if (value) toViewImage(getBase64DataFromObject(value), `${value.slice(0, 7)}...`, webview);
-            break;
-        default:
-            break;
-    }
+    // 执行对应方法
+    messageReceiver(name, value);
 }

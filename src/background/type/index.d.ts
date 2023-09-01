@@ -10,8 +10,15 @@ interface dataType {
  * 接收通信数据类型
  */
 
-export type backgroundMessageData = backgroundInitType | getBackgroundBase64DataType | selectImageType | deleteImageType | settingBackgroundType | 
-externalImageType | backgroundOpacityType | randomBackgroundType | viewBigImageType;
+export type backgroundMessageData = backgroundInitType 
+| getBackgroundBase64DataType 
+| selectImageType 
+| deleteImageType 
+| settingBackgroundType 
+| externalImageType 
+| backgroundOpacityType 
+| randomBackgroundType 
+| viewBigImageType;
 
 /**
  * 脚本侧通知初始化背景图信息
@@ -92,8 +99,15 @@ interface viewBigImageType extends dataType {
 /**
  * 发送通信信息类型
 */
-export type backgroundSendMessageData = backgroundInitDataType | backgroundSendBase64DataType | newImageType | deleteImageSuccessType | 
-settingBackgroundSuccessType | newImageNetworkType | nowBackgroundOpacityType | backgroundStorePathChangeType | backgroundRandomListType;
+export type backgroundSendMessageData = backgroundInitDataType 
+| backgroundSendBase64DataType 
+| newImageType 
+| deleteImageSuccessType 
+| settingBackgroundSuccessType 
+| newImageNetworkType 
+| nowBackgroundOpacityType 
+| backgroundStorePathChangeType 
+| backgroundRandomListType;
 
 /**
  * 通知脚本侧背景图信息初始化完成，返回所有背景图数据

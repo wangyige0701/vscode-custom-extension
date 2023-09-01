@@ -19,7 +19,8 @@
         "files": ["*.ts"],
         "rules": {
             "@typescript-eslint/semi": "off",
-            "@typescript-eslint/naming-convention": "warn",
+            "@typescript-eslint/naming-convention": "off",
+            "no-throw-literal": "off",
             "complexity": ["error", 15]
         }
     }],

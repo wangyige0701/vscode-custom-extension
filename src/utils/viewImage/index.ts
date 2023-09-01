@@ -62,8 +62,5 @@ function sendMessage (options: viewImageSendMessage) {
 
 /** 接收webview侧发送消息 */
 function getMessage ({ name, value }: viewImageMessageData, webview: Webview) {
-    switch (name) {
-        default:
-            break;
-    }
+    return
 }

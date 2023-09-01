@@ -286,7 +286,7 @@ function isNull (target) {
 
 /**
  * 根据配置执行消息通讯后应该执行的函数
- * @typedef {{func: Function, data: boolean, param?: any}} exeFunc
+ * @typedef {{func: Function, data: boolean, noneParam: boolean, param?: any}} exeFunc
  * @param {{ [key: string]: { execute: exeFunc|Array<exeFunc>, queue: boolean, extra?: Function }, queue: Function }} config 相关配置，data为是否必须传参并且参数有值
  * @returns {(name: string, value: any) => any}
  */
@@ -312,12 +312,12 @@ function messageDataExecute (config) {
         extra?.();
         for (let i = 0; i < execute.length; i++) {
             const target = execute[i];
-            const { func, data = false, param = undefined } = target;
+            const { func, data = false, noneParam = false, param = undefined } = target;
             if (!func || typeof func !== 'function') continue;
             // 是否需要传参并且参数有值
             if (data && value === undefined && param === undefined) continue;
             const executeFunction = (param === undefined) 
-            ? value 
+            ? (value !== undefined && !noneParam) 
                 ? func.bind(null, value) 
                 : func.bind(null) 
             : func.bind(null, param);

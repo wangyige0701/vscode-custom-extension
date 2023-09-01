@@ -161,7 +161,8 @@ const messageReceiver = messageDataExecute({
             func: addImageHandle,
             data: true,
         }, {
-            func: inputSendDataComplete
+            func: inputSendDataComplete,
+            noneParam: true
         }]
     },
     /** 初始化和设置透明度后返回 */

@@ -1,6 +1,17 @@
 import { Webview } from "vscode";
-import { MessageData, MessageGroupCallback, MessageGroupCallbackName, callbackType } from "./type";
+import { 
+    ExecuteFunction, 
+    ExecuteType, 
+    GetName, 
+    MessageData, 
+    MessageExecuteType, 
+    MessageGroupCallback, 
+    MessageGroupCallbackName, 
+    callbackType, 
+    dataType 
+} from "./type";
 import { errlog } from "../../error";
+import { firstUpperCase } from "..";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
@@ -21,23 +32,16 @@ export function unbindMessageCallback (name: MessageGroupCallbackName) {
 /** webview侧通信事件接收统一处理 */
 export function messageHandle (webview: Webview) {
     webview.onDidReceiveMessage((message: MessageData) => {
-        switch (message.group) {
-            case 'background':
-                // 背景图数据处理
-                messageCallback.onBackground?.({ 
-                    name: message.name, 
-                    value: message.value
-                }, webview);
-                break;
-            case 'viewImage':
-                messageCallback.onViewImage?.({
-                    name: message.name, 
-                    value: message.value
-                }, webview);
-                break;
-            default:
-                break;
-        }
+        const groupName = message.group;
+        if (!groupName) return;
+        /** 执行函数名 */
+        const executeName = 'on' + firstUpperCase(groupName) as MessageGroupCallbackName;
+        // 是否有对应函数
+        if (!(executeName in messageCallback)) return;
+        messageCallback[executeName]?.({
+            name: message.name, 
+            value: message.value
+        }, webview);
     });
 }
 
@@ -50,4 +54,45 @@ export function messageSend (webview: Webview, options: MessageData): void {
             errlog(error);
         }
     }
+}
+
+/**
+ * 根据配置信息执行接收到通讯信息后应该执行的函数
+ */
+export function messageExecute<T extends dataType> (config: MessageExecuteType<T>) {
+    if (!config.queue) {
+        config.queue = (...funcs: Function[]) => {
+            funcs.forEach(func => {
+                func?.();
+            });
+        }
+    }
+    // 配置信息整理
+    for (let t in config) {
+        const target = config[t as GetName<T>];
+        if (!Array.isArray(target.execute)) {
+            target.execute = [target.execute];
+        }
+    }
+    return <K extends GetName<T>, F = Extract<T, { name: GetName<T> }>["value"]>(name: string, value: any = undefined) => {
+        if (!name || !(name in config)) return;
+        /** 获取执行函数和是否队列执行判断 */
+        const { execute, extra, queue = false } = config[name as K] as ExecuteType<F> & { execute: Array<ExecuteFunction<F>> };
+        // 额外函数执行
+        extra?.();
+        for (let i = 0; i < execute.length; i++) {
+            const target = execute[i];
+            const { func, data = false, noneParam = false, param = undefined } = target;
+            if (!func || typeof func !== 'function') continue;
+            // 是否需要传参并且参数有值
+            if (data && value === undefined && param === undefined) continue;
+            const executeFunction = (param === undefined) // 当局部传参有数据时默认传局部参数
+            ? (value !== undefined && !noneParam) // 全局传参是否有数据并且需要参数
+                ? (func as (value: any) => void).bind(null, value) 
+                : (func as () => void).bind(null) 
+            : (func as (value: any) => void).bind(null, param);
+            // 判断是否队列执行
+            queue ? config.queue!(executeFunction) : executeFunction();
+        }
+    };
 }

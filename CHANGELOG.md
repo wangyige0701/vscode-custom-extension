@@ -6,11 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
-# 0.5.1 - 2023-9-2
+## 0.5.1 - 2023-9-2
  - 修复：多选图片上传时缓存数组数据不正确bug修复
  - 优化：侧栏图片列表懒加载判断优化
 
-#  [0.5.0] - 2023-8-25
+## [0.5.0] - 2023-8-25
  - 优化：选择图片添加多选
  - 修复：随机图配置关闭后重启软件背景图修改bug修复
 

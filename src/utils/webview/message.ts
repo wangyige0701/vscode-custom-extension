@@ -7,8 +7,7 @@ import {
     MessageExecuteType, 
     MessageGroupCallback, 
     MessageGroupCallbackName, 
-    callbackType, 
-    dataType 
+    callbackType
 } from "./type";
 import { errlog } from "../../error";
 import { firstUpperCase } from "..";
@@ -59,7 +58,7 @@ export function messageSend (webview: Webview, options: MessageData): void {
 /**
  * 根据配置信息执行接收到通讯信息后应该执行的函数
  */
-export function messageExecute<T extends dataType> (config: MessageExecuteType<T>) {
+export function messageExecute<T extends MessageDataType> (config: MessageExecuteType<T>) {
     if (!config.queue) {
         config.queue = (...funcs: Function[]) => {
             funcs.forEach(func => {

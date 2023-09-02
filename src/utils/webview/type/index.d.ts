@@ -52,16 +52,10 @@ type ExecuteType<F> = {
     extra?: Function
 };
 
-export interface dataType {
-    group?:string;
-    name: string;
-    value?: any;
-}
-
-export type GetName<T extends dataType> = Pick<T, "name">["name"];
+export type GetName<T extends MessageDataType> = Pick<T, "name">["name"];
 
 /** 执行通讯信息对应函数 */
-export type MessageExecuteType<T extends dataType> = {
+export type MessageExecuteType<T extends MessageDataType> = {
     [K in GetName<T>]: ExecuteType<Extract<T, { name: K }>["value"]>;
 } & {
     /** 队列执行函数 */

@@ -1,11 +1,5 @@
 import { Uri } from "vscode";
 
-interface dataType {
-    group?:string;
-    name: string;
-    value?: any;
-}
-
 /**
  * 接收通信数据类型
  */
@@ -23,7 +17,7 @@ export type backgroundMessageData = backgroundInitType
 /**
  * 脚本侧通知初始化背景图信息
  */
-interface backgroundInitType extends dataType {
+interface backgroundInitType extends MessageDataType {
     name: 'backgroundInit';
     value: boolean;
 }
@@ -31,7 +25,7 @@ interface backgroundInitType extends dataType {
 /**
  * webview脚本侧通过code获取具体的base64数据
  */
-interface getBackgroundBase64DataType extends dataType {
+interface getBackgroundBase64DataType extends MessageDataType {
     name: 'getBackgroundBase64Data';
     value: { code: string, type: string };
 }
@@ -39,7 +33,7 @@ interface getBackgroundBase64DataType extends dataType {
 /**
  * 脚本侧通知打开文件夹选择图片
  */
-interface selectImageType extends dataType {
+interface selectImageType extends MessageDataType {
     name: 'selectImage';
     value: boolean;
 }
@@ -47,7 +41,7 @@ interface selectImageType extends dataType {
 /**
  * 脚本侧传递图片哈希码数组通知删除图片
  */
-interface deleteImageType extends dataType {
+interface deleteImageType extends MessageDataType {
     name: 'deleteImage';
     value: string[];
 }
@@ -56,7 +50,7 @@ interface deleteImageType extends dataType {
  * 脚本侧传递哈希码和索引通知设置此图片为背景图，
  * 需要响应索引
  */
-interface settingBackgroundType extends dataType {
+interface settingBackgroundType extends MessageDataType {
     name: 'settingBackground';
     value: {
         code: string,
@@ -67,7 +61,7 @@ interface settingBackgroundType extends dataType {
 /**
  * 脚本侧发送字符串通知下载外部图片储存
  */
-interface externalImageType extends dataType {
+interface externalImageType extends MessageDataType {
     name: 'externalImage';
     value: string;
 }
@@ -75,7 +69,7 @@ interface externalImageType extends dataType {
 /**
  * 脚本侧发送数字通知修改透明度
  */
-interface backgroundOpacityType extends dataType {
+interface backgroundOpacityType extends MessageDataType {
     name: 'backgroundOpacity';
     value: number;
 }
@@ -83,7 +77,7 @@ interface backgroundOpacityType extends dataType {
 /**
  * 脚本侧发送字符串数组通知开启背景图随机设置，为空表示从所有图片中随机选择，为false表示关闭随机切换
  */
-interface randomBackgroundType extends dataType {
+interface randomBackgroundType extends MessageDataType {
     name: 'randomBackground';
     value: string[] | false;
 }
@@ -91,7 +85,7 @@ interface randomBackgroundType extends dataType {
 /**
  * 查看大图发送图片数据和编码
 */
-interface viewBigImageType extends dataType {
+interface viewBigImageType extends MessageDataType {
     name: 'viewBigImage',
     value: string
 }
@@ -112,7 +106,7 @@ export type backgroundSendMessageData = backgroundInitDataType
 /**
  * 通知脚本侧背景图信息初始化完成，返回所有背景图数据
  */
-interface backgroundInitDataType extends dataType {
+interface backgroundInitDataType extends MessageDataType {
     name: 'backgroundInitData';
     value: string[];
 }
@@ -120,7 +114,7 @@ interface backgroundInitDataType extends dataType {
 /**
  * 发送图片具体的base64数据
  */
-interface backgroundSendBase64DataType extends dataType {
+interface backgroundSendBase64DataType extends MessageDataType {
     name: 'backgroundSendBase64Data';
     value: { code: string, data: string, type: string };
 }
@@ -128,7 +122,7 @@ interface backgroundSendBase64DataType extends dataType {
 /**
  * 通知脚本侧图片选择完成，返回哈希码
  */
-interface newImageType extends dataType {
+interface newImageType extends MessageDataType {
     name: 'newImage';
     value: string[];
 }
@@ -137,7 +131,7 @@ interface newImageType extends dataType {
  * 通知脚本侧图片删除成功，因为允许多张删除，
  * 所以返回一个所有删除图片的哈希码字符串数组
  */
-interface deleteImageSuccessType extends dataType {
+interface deleteImageSuccessType extends MessageDataType {
     name: 'deleteImageSuccess';
     value: string[];
 }
@@ -145,7 +139,7 @@ interface deleteImageSuccessType extends dataType {
 /**
  * 通知脚本侧背景图设置成功，可以返回索引和哈希码，目前全部返回哈希码字符串
  */
-interface settingBackgroundSuccessType extends dataType {
+interface settingBackgroundSuccessType extends MessageDataType {
     name: 'settingBackgroundSuccess';
     value: number | string;
 }
@@ -153,7 +147,7 @@ interface settingBackgroundSuccessType extends dataType {
 /**
  * 通知脚本侧网络图片下载成功，返回哈希码
  */
-interface newImageNetworkType extends dataType {
+interface newImageNetworkType extends MessageDataType {
     name: 'newImageNetwork';
     value: string[];
 }
@@ -161,7 +155,7 @@ interface newImageNetworkType extends dataType {
 /**
  * 初始化时获取或者设置透明度后通知脚本侧当前透明度信息
  */
-interface nowBackgroundOpacityType extends dataType {
+interface nowBackgroundOpacityType extends MessageDataType {
     name: 'nowBackgroundOpacity';
     value: number
 }
@@ -169,7 +163,7 @@ interface nowBackgroundOpacityType extends dataType {
 /**
  * 修改背景图储存路径后通知脚本侧重新渲染图片列表
  */
-interface backgroundStorePathChangeType extends dataType {
+interface backgroundStorePathChangeType extends MessageDataType {
     name: 'backgroundStorePathChange',
     value: boolean
 }
@@ -179,7 +173,7 @@ interface backgroundStorePathChangeType extends dataType {
  * 返回当前随机设置背景图的列表给脚本侧通知修改相关渲染，
  * 如果取消了随机设置，则返回false
  */
-interface backgroundRandomListType extends dataType {
+interface backgroundRandomListType extends MessageDataType {
     name: 'backgroundRandomList';
     value: string[] | false;
 }

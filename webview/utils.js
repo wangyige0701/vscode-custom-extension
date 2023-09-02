@@ -3,7 +3,7 @@
 /* 公共js工具 */
 
 /**
- * 
+ * 检测media类型
  * @param {string} type 
  * @returns {boolean}
  */

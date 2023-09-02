@@ -215,3 +215,35 @@ export function firstUpperCase (data: string) {
     }
     return data;
 }
+
+/**
+ * 创建一个队列执行对象
+ */
+export function queueCreate () {
+    let executeing: boolean = false;
+    const queue: Function[] = [];
+    /** 插入队列 */
+    function set (func: Function) {
+        if (!func || typeof func !== 'function') return;
+        queue.push(func);
+        if (!executeing) execute();
+    }
+    /** 执行队列 */
+    function execute () {
+        executeing = true;
+        Promise.resolve(queue.shift()?.()).then(() => {
+            if (queue.length === 0) {
+                executeing = false;
+            } else {
+                execute();
+            }
+        }).catch(err => {
+            executeing = false;
+            throw new Error(err);
+        });
+    }
+    return {
+        set,
+        execute
+    }
+}

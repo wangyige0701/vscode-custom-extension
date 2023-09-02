@@ -43,25 +43,25 @@ registLock('inputConfirm', inputConfirmButtonLock);
 /** 创建输入框事件 */
 function createInputEvent () {
     createInputSelection($query(inputInfo.selectionContainer));
-    /** @type {HTMLElement[]} 输入框类型控制按钮列表 */
+    /** 输入框类型控制按钮列表 @type {HTMLElement[]} */
     let selection = $query(inputInfo.selection, true),
-    /** @type {HTMLElement[]} 输入框操作按钮 */
+    /** 输入框操作按钮 @type {HTMLElement[]} */
     operation = $query(inputInfo.operation, true),
-    /** @type {HTMLElement} 输入框操作按钮容器 */
+    /** 输入框操作按钮容器 @type {HTMLElement} */
     operationContainer = $query(inputInfo.operationContainer),
-    /** @type {HTMLElement} 输入框的外层盒子 */
+    /** 输入框的外层盒子 @type {HTMLElement} */
     box = getId(inputInfo.box),
-    /** @type {HTMLInputElement} 输入框对象 */
+    /** 输入框对象 @type {HTMLInputElement} */
     inputTarget = getId(inputInfo.id),
-    /** @type {HTMLElement} 确认按钮 */
+    /** 确认按钮 @type {HTMLElement} */
     confirm = getId(inputInfo.confirm),
-    /** @type {HTMLElement} 清除按钮 */
+    /** 清除按钮 @type {HTMLElement} */
     clear = getId(inputInfo.clear),
     /** 当前输入框类型 */
     type = undefined,
     /** 记录输入框文本的变量 */
     value = '',
-    /** @type {{type:number,value:string}} 监听输入框数据状态的对象 */
+    /** 监听输入框数据状态的对象 @type {{type:number,value:string}} */
     inputDataWatcher = Object.defineProperties({}, {
         type: {
             // 0是下载外部图片；1是修改透明度

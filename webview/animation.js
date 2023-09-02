@@ -1,6 +1,5 @@
 /* index(1) */
 
-
 /**
  * 页面滚动至指定元素处
  * @typedef {'start'|'center'|'end'|'nearest'} dircetion

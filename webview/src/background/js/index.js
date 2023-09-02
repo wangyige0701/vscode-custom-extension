@@ -37,13 +37,13 @@ const lockSet = {
 /** 列表操作实例，构造函数内重写渲染列表get、set方法 */
 const listInstance = createInstance();
 
-/** @type {Queue} 主函数操作队列 */
+/** 主函数操作队列 @type {Queue} */
 const operationQueue = new Queue(false);
 
-/** @type {Queue} 图片新增处理的队列 */
+/** 图片新增处理的队列 @type {Queue} */
 const addImageQueue = new Queue(false);
 
-/** @type {{ code: string, callback: Function}[]} 懒加载图片触发函数 */
+/** 懒加载图片触发函数 @type {{ code: string, callback: Function}[]} */
 const lazyLoadImageList = [];
 
 // 初始加载所有图片
@@ -110,7 +110,7 @@ function sendMessage (options={}) {
     }
 }
 
-/** 接收消息通讯并执行对应函数的实例对象 */
+/** 接收消息通讯并执行对应函数的实例对象 @type {(name: string, value: any) => any} */
 const messageReceiver = messageDataExecute({
     queue: operationQueue.set.bind(operationQueue),
     backgroundInitData: {
@@ -393,7 +393,8 @@ function addImageHandle (datas) {
             value: { code, type: 'addImage' }
         });
     }
-    for (let index = 0; index < datas.length; index++) {
+    // 倒序插入
+    for (let index = datas.length - 1; index >= 0; index--) {
         const code = datas[index];
         addImageQueue.set(req.bind(null, code));
     }
@@ -404,7 +405,7 @@ function addImageHandle (datas) {
 /** 判断当前是否正在滚动列表到顶部，如果是则需要将图片数据插入数组，等待滚动完成插入 */
 var isScrollToTopAndAddImage = false;
 
-/** @type {{src:string,code:string}[]} 存放等待被插入的图片数据 */
+/** 存放等待被插入的图片数据 @type {{src:string,code:string}[]} */
 const listForAddImage = [];
 
 /**
@@ -565,7 +566,7 @@ function classListOperation (target, operation, ...name) {
 
 /**
  * 判断对象是否含有某个属性
- * @param {{}} object 
+ * @param {Object} object 
  * @param {string[]} property 
  * @returns {boolean}
  */

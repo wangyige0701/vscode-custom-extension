@@ -85,7 +85,7 @@ window.addEventListener('message', receiveMessage);
 // 双击复原图片
 document.body.addEventListener('dblclick', image_transform_reset);
 
-/** 接收消息通讯并执行对应函数的实例对象 */
+/** 接收消息通讯并执行对应函数的实例对象 @type {(name: string, value: any) => any} */
 const messageReceiver = messageDataExecute({
     /** 设置图片路径 */
     changeImage: {

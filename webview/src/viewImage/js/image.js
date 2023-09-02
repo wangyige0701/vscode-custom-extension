@@ -14,7 +14,7 @@ function changeCss (el) {
 }
 
 /**
- * 
+ * 绑定鼠标事件
  * @param {HTMLElement} el 
  */
 function bindMouseOperation (el) {
@@ -27,7 +27,7 @@ function bindMouseOperation (el) {
 }
 
 /**
- * 
+ * 结束鼠标事件绑定
  * @param {HTMLElement} el 
  */
 function unbindMouseOperation (el) {

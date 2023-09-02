@@ -3,7 +3,7 @@
 /* 队列执行方法 */
 
 class Queue {
-    /** @type {Function[]} 存放队列执行函数的数组 */
+    /** 存放队列执行函数的数组 @type {Function[]} */
     #queue = [];
 
     /** 队列函数是否正则执行 */

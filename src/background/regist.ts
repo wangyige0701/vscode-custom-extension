@@ -27,8 +27,9 @@ export function registBackground (): void {
 		return WindowInitCheckCssModifyCompleteness();
 	}).then(() => {
 		// 开启后判断是否随机修改背景
-		if (isSetRandomBack) 
+		if (isSetRandomBack) {
 			return setRandomBackground();
+		}
 	}).then(() => {
 		// 设置背景图的侧栏webview注册
 		registWebviewProvider('wangyige.custom.backgroundImage', { path: 'webview/src/background', title: '背景图片' });
@@ -53,7 +54,7 @@ function checkRandomCode (): Promise<boolean> {
 			resolve(false);
 			return;
 		}
-		// 当状态为随机切换时，根棍当前选择图片数据
+		// 当状态为随机切换时，更新当前选择图片数据
 		const code = backgroundImageConfiguration.getBackgroundRandomCode();
 		if (!code) {
 			resolve(false);

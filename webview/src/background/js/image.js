@@ -26,19 +26,19 @@ document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) =
  */
 function createInstance () {
     class ImageList {
-        /** @type {string[]} 记录选中的图片元素 */
+        /** 记录选中的图片元素 @type {string[]} */
         selectImageList;
-        /** @type {boolean} 校验是否不显示列表提示文字 */
+        /** 校验是否不显示列表提示文字 @type {boolean} */
         imageInfoEmpty;
-        /** @type {boolean} 校验是否不显示加载图标 */
+        /** 校验是否不显示加载图标 @type {boolean} */
         imageInfoLoading;
         /** 当前是否设置了随机切换背景图 */
         isRandomBackground = false;
         /** 当前设置的随机切换列表 */
         randomList = [];
-        /** 当前设置随机背景按钮的文字内： 1为取消随机；2为设置勾选的图片，3为设置全部图片 */
+        /** 当前设置随机背景按钮的文字内： 1为取消随机；2为设置勾选的图片；3为设置全部图片 @type {1|2|3} */
         settingRandomButtonTextState = 3;
-        /** @type {{ target: HTMLElement, data: {code:string,src:string,index:number,target?:HTMLElement} }[]} 记录注册的监听器 */
+        /** 记录注册的监听器 @type {{ target: HTMLElement, data: {code:string,src:string,index:number,target?:HTMLElement} }[]} */
         #recordMap = [];
         /** 是否初始化并且开始监听懒加载 */
         #lazyObserve = false;
@@ -62,9 +62,9 @@ function createInstance () {
             publicData.imageRenderList.__proto__ = this.#resetMethods(this);
         }
 
-        /** @type {(...params: any[]) => void} 监听图片是否懒加载 */
+        /** 监听图片是否懒加载 @type {(...params: any[]) => void} */
         #scrollDebounce;
-        /**  @type {IntersectionObserver} 监听是否达到触发高度 */
+        /** 监听是否达到触发高度 @type {IntersectionObserver} */
         #observer;
 
         /** 重置状态 */
@@ -91,10 +91,12 @@ function createInstance () {
             }, 300);
 
             this.#observer = new window.IntersectionObserver((entries, obs) => {
+                /** 视图高度 */
+                const windowHeight = window.innerHeight;
                 for (let i = 0; i < entries.length; i++) {
-                    const entry = entries[i];
-                    let windowHeight = window.innerHeight;
-                    let { top, bottom, height } = entry.boundingClientRect;
+                    const entry = entries[i],
+                    /** 元素位置及大小 */
+                    { top, bottom, height } = entry.boundingClientRect;
                     if (top > (0 - height) && bottom < (windowHeight + height)) {
                         // 目标不在已注册元素列表中
                         let index = this.#recordMap.findIndex((item) => item.target === entry.target);
@@ -182,15 +184,13 @@ function createInstance () {
                     item.index = index;
                 });
                 // 长度大于0，关闭文字区域
-                value > 0 ? 
-                    (
-                        this.changeImageListInfo(false),
-                        getId(queryNames.selectButtonId)?.setAttribute('title', `${queryNames.selectButtonText}（已上传${value}张）`)
-                    ) : 
-                    (
-                        this.changeImageListInfo(true),
-                        getId(queryNames.selectButtonId)?.setAttribute('title', queryNames.selectButtonText)
-                    );
+                if (value > 0) {
+                    this.changeImageListInfo(false);
+                    getId(queryNames.selectButtonId)?.setAttribute('title', `${queryNames.selectButtonText}（已上传${value}张）`);
+                } else {
+                    this.changeImageListInfo(true);
+                    getId(queryNames.selectButtonId)?.setAttribute('title', queryNames.selectButtonText);
+                }
             }
             return Reflect.set(target, property, value, receiver);
         }
@@ -276,25 +276,29 @@ function createInstance () {
         settingRandomButtonText () {
             /** @type {HTMLElement|null} 切换按钮内文字 */
             const buttonItem = $query(`.${queryNames.batchButtonContainerClass} #${queryNames.randomBackId}`);
-            if (!buttonItem) 
+            if (!buttonItem) {
                 return;
+            }
             const length = this.selectImageList.length;
             if (length > 0) {
                 // 勾选图片长度大于0，按钮点击设置随机背景图
-                if (this.settingRandomButtonTextState === 2)
+                if (this.settingRandomButtonTextState === 2) {
                     return;
+                }
                 buttonItem.innerText = queryNames.rendomSelectBack;
                 this.settingRandomButtonTextState = 2;
             } else {
                 // 未勾选则根据当前是否是随机切换背景图的状态显示文字
                 if (this.isRandomBackground) {
-                    if (this.settingRandomButtonTextState === 1)
+                    if (this.settingRandomButtonTextState === 1) {
                         return;
+                    }
                     buttonItem.innerText = queryNames.closeRandom;
                     this.settingRandomButtonTextState = 1;
                 } else {
-                    if (this.settingRandomButtonTextState === 3)
+                    if (this.settingRandomButtonTextState === 3) {
                         return;
+                    }
                     buttonItem.innerText = queryNames.rendomAllBack;
                     this.settingRandomButtonTextState = 3;
                 }
@@ -400,6 +404,8 @@ function createInstance () {
                 this.imageDeleteIconEventBind(deleteBut, false, data);
                 this.imageElementEventBind(container, false, data);
                 selectBut = null, deleteBut = null;
+                // 图片加载完成再次执行监测函数
+                this.#scrollDebounce?.();
             }
             img.src = src;
         }

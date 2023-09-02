@@ -11,6 +11,7 @@ module.exports = {
         file: 'dist/extension.js',
         format: 'cjs'
     },
+    external: ["vscode"],
     plugins: [
         typescript({ 
             tsconfig: './tsconfig.json',
@@ -56,18 +57,23 @@ function changeRequire (root = '.') {
     }
 }
 
-/** 
+/**
+ * 路径位置检测 
  * @param {string} requirePath 
  * @param {string} filePath
- * */
+ */
 function checkPosition (requirePath, filePath) {
     if (!requirePath) return '';
     filePath = path.resolve(filePath, '..');
     let paths = [];
     requirePath.split('/').forEach((item, index) => {
-        if (item === '.' && index > 0) throw new Error('Illegal Path');
-        else if (item === '..') filePath = path.resolve(filePath, '..');
-        else paths.push(item);
+        if (item === '.' && index > 0) {
+            throw new Error('Illegal Path');
+        } else if (item === '..') {
+            filePath = path.resolve(filePath, '..');
+        } else {
+            paths.push(item);
+        }
     });
     return filePath === __dirname ? {
         path: paths.join('/'),

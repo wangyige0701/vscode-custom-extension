@@ -12,6 +12,9 @@ export type callbackType = (({ name, value }: any, webview: Webview) => any) | n
 
 export type MessageGroupCallback = Record<MessageGroupCallbackName, callbackType>;
 
+/** 全局的通讯数据 */
+type GlobalMessageGroup = 'viewImageDestroy';
+
 /**
  * webview端发送通信信息方法
  */
@@ -20,7 +23,7 @@ export interface MessageSend {
 }
 
 export interface MessageData {
-    group: MessageGroup | 'viewImageDestroy';
+    group: MessageGroup | GlobalMessageGroup;
     name: string;
     value?: any;
 }

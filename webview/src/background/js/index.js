@@ -46,6 +46,24 @@ const addImageQueue = new Queue(false);
 /** 懒加载图片触发函数 @type {{ code: string, callback: Function}[]} */
 const lazyLoadImageList = [];
 
+/**
+ * 发送消息
+ * @type {(options: {
+ * name: 
+ *      |'backgroundInit'
+ *      |'selectImage'
+ *      |'deleteImage'
+ *      |'randomBackground'
+ *      |'settingBackground'
+ *      |'getBackgroundBase64Data'
+ *      |'viewBigImage'
+ *      |'externalImage'
+ *      |'backgroundOpacity',
+ * value:any
+ * }) => any}
+ */
+const sendMessage = createSendMessage('background', vscode);
+
 // 初始加载所有图片
 window.addEventListener('load', onDataLoad.bind(this, false));
 
@@ -93,20 +111,6 @@ function changeState (state) {
         let length = publicData.imageRenderList?.length??0;
         if (length <= 0)
             listInstance.changeImageListInfo(true, false);
-    }
-}
-
-/**
- * 发送消息
- * @param {{
- * name:'backgroundInit'|'selectImage'|'deleteImage'|'randomBackground'|'settingBackground'|'getBackgroundBase64Data'|'viewBigImage'|'externalImage'|'backgroundOpacity',
- * value:any
- * }} options
- */
-function sendMessage (options={}) {
-    if (options && typeof options === 'object') {
-        options.group = 'background';
-        vscode.postMessage(options);
     }
 }
 

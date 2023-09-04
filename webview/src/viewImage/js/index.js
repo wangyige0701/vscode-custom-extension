@@ -2,7 +2,9 @@
 
 const vscode = acquireVsCodeApi();
 
+/** 图片容器id */
 const imageContainerId = 'image';
+
 /** 图片标签实例 @type {HTMLImageElement} */
 var imageInstance = null,
     window_width = 0,
@@ -12,11 +14,17 @@ var imageInstance = null,
     re_image_width = 0,
     re_image_height = 0;
 
+/** 是否正则执行 */
+var isRunning = false;
+
 /** @type {string[]} 存放图片路径 */
 const imageSetStack = [];
 
 /** @type {string[]} 存放需要释放的blob路径 */
 const revokeStack = [];
+
+/** 发送消息实例 */
+const sendMessage = createSendMessage('viewImage', vscode);
 
 /** 图片操作属性 */
 const operationTarge = {
@@ -90,49 +98,69 @@ const messageReceiver = messageDataExecute({
     /** 设置图片路径 */
     changeImage: {
         execute: {
-            func: setStack,
+            func: setQueue,
             data: true
         }
     },
-    /** 图片销毁 */
-    destroy: {
+    /** 图片重新渲染 */
+    changeViewState: {
         execute: {
-            func: destroyImage
+            func: setQueue,
+            data: true
+        }
+    },
+    /** 图片数据销毁 */
+    clearImageData: {
+        execute: {
+            func: clearOldImage,
+            data: true
         }
     }
 });
 
-/** 接收extensions侧发送的消息 */
+/** 接收扩展侧发送的消息 */
 function receiveMessage ({ data }) {
     if (data.group !== 'viewImage') return;
     // 执行通讯传递数据
     messageReceiver(data.name, data.value);
 }
 
-/** 
- * 刷新图片样式
- * @param {string} src
- *  */
-async function changeImageStyle (src) {
-    operationTarge.can = false;
-    if (!imageInstance || !src) return;
-    revokeStack.push(src);
+/** 移除图片 */
+function removeImage () {
     /** @type {HTMLElement} */
     let target = $query('#'+imageContainerId);
     if (target.childElementCount > 0) {
         target.removeChild(imageInstance);
     }
     target.style.cssText = '';
-    loadImage(src, function () {
-        re_image_width = imageInstance.width;
-        re_image_height = imageInstance.height;
-        complete_size();
-        changeAnimation(false);
-        target.append(imageInstance);
-        // 修改图片位置
-        image_position();
-        operationTarge.can = true;
-        return Promise.resolve();
+}
+
+/** 
+ * 刷新图片样式
+ * @param {string} src
+ *  */
+function changeImageStyle (src) {
+    return new Promise((resolve, reject) => {
+        // 状态置为false，不允许继续改变
+        isRunning = true;
+        if (!imageInstance || !src) {
+            reject(src??'');
+            return;
+        }
+        operationTarge.can = false;
+        revokeStack.push(src);
+        loadImage(src, function () {
+            window.requestAnimationFrame(() => {
+                re_image_width = imageInstance.width, re_image_height = imageInstance.height;
+                complete_size();
+                changeAnimation(false);
+                $query('#'+imageContainerId).append(imageInstance);
+                // 修改图片位置
+                image_position();
+                operationTarge.can = true;
+                resolve();
+            });
+        });
     });
 }
 
@@ -141,11 +169,19 @@ async function changeImageStyle (src) {
  * @param {boolean} state 
  */
 function changeAnimation (state = true) {
-    if (state) {
-        $query('#'+imageContainerId).classList.add('loading', 'iconfont');
-    } else {
+    /** @type {HTMLElement} */
+    const target = $query('#'+imageContainerId);
+    const names = ['loading', 'iconfont'];
+    /** 是否含有指定类名 */
+    const check = names.every(item => target.classList.contains(item));
+    if (state && !check) {
+        target.classList.add('loading', 'iconfont');
+        return;
+    } 
+    if (!state && check) {
         // 关闭动画
-        $query('#'+imageContainerId).classList.remove('loading', 'iconfont');
+        target.classList.remove('loading', 'iconfont');
+        return;
     }
 }
 
@@ -180,27 +216,42 @@ function loadImage (src, callback) {
     imageInstance.src = src;
 }
 
-/** 队栈内容执行 */
-function executeStack () {
-    if (!imageInstance || imageSetStack.length <= 0) return;
-    changeImageStyle(imageSetStack.shift()).then(() => {
-        executeStack();
+/** 队列内容执行 */
+function executeQueue () {
+    if (imageSetStack.length <= 0) {
+        isRunning = false;
+        return;
+    }
+    changeImageStyle(imageSetStack.shift()).catch(src => {
+        // 如果没有image实例，则释放blob路径数据
+        revokeBlobData(src);
+    }).finally(() => {
+        executeQueue();
     });
 }
 
-/** 队栈插入数据 */
-function setStack (src) {
+/** 图片切换时释放上一张图片资源 */
+function clearOldImage (data) {
+    removeImage();
     changeAnimation(true);
     clearBlobData();
-    imageSetStack.push(base64ToBlob(src));
-    executeStack();
+    if (!data) return;
+    sendMessage({
+        name: 'clearImageSuccess',
+        value: true
+    });
 }
 
-/**
- * 释放blob数据
- */
+/** 队列插入数据 */
+function setQueue (src) {
+    clearOldImage(false);
+    imageSetStack.push(base64ToBlob(src));
+    if (!isRunning) executeQueue();
+}
+
+/** 释放blob数据 */
 function clearBlobData () {
-    if (revokeStack.push.length > 0) {
+    if (revokeStack.length > 0) {
         revokeBlobData(revokeStack.shift());
     }
 }
@@ -211,7 +262,7 @@ function createImage () {
     bindMouseOperation(document.getElementById(imageContainerId));
     if (!imageInstance) {
         imageInstance = new Image();
-        executeStack();
+        executeQueue();
     }
 }
 
@@ -261,20 +312,7 @@ function decimal (number, t = 3) {
     return +number.toFixed(t);
 }
 
-/**
- * 发送消息
- * @param {{name:string,value?:any}} options
- */
-function sendMessage (options={}) {
-    if (options && typeof options === 'object') {
-        options.group = 'viewImage';
-        vscode.postMessage(options);
-    }
-}
-
-/**
- * 重置图片操作
- */
+/** 重置图片操作 */
 function image_transform_reset () {
     operationTarge.scale = 1;
     operationTarge.left = 0;

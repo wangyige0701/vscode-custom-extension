@@ -167,6 +167,7 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run check && npm run compile",
+		"vscode:uninstall": "node ./dist/uninstall",
 		"compile": "rollup -c",
 		"pre": "ts-node src/filePackage/production.ts",
 		"check": "ts-node src/filePackage/check.ts",

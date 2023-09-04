@@ -165,8 +165,8 @@ export function deleteImage (...code: string[]) {
                     message: '删除成功',
                     increment: 100
                 });
-                // 延迟1.5秒关闭进度条
-                return delay(1500);
+                // 延迟关闭进度条
+                return delay(500);
             }).catch(err => {
                 errlog(err);
             }).finally(() => {
@@ -181,30 +181,35 @@ export function deleteImage (...code: string[]) {
 /** 清除背景图相关设置 */
 export function clearBackgroundConfig () {
     isChangeBackgroundImage('是否清除背景图配置').then(() => {
-        showProgress({
-            location: 'Notification',
-            title: '清除中'
-        }, (progress) => <Promise<void>>new Promise(resolve => {
-            deletebackgroundCssFileModification().then(() => {
-                progress.report({
-                    message: '清除成功',
-                    increment: 100
-                });
-                return delay(1500);
-            }).then(() => {
-                if (backgroundImageConfiguration.getBackgroundIsRandom()) {
-                    // 如果当前设置了随机切换，需要关闭
-                    randomSettingBackground(false, false);
-                }
-            }).catch(err => {
-                errlog(err);
-            }).finally(() => {
-                resolve();
-            });
-        }));
+        return Promise.resolve(clearBackgroundConfigExecute());
+    }).then(() => {
+        if (backgroundImageConfiguration.getBackgroundIsRandom()) {
+            // 如果当前设置了随机切换，需要关闭
+            randomSettingBackground(false, false);
+        }
     }).catch(error => {
         errlog(error);
     });
+}
+
+/** 执行配置清除方法 */
+export function clearBackgroundConfigExecute () {
+    return showProgress({
+        location: 'Notification',
+        title: '清除中'
+    }, (progress) => <Promise<void>>new Promise(resolve => {
+        deletebackgroundCssFileModification().then(() => {
+            progress.report({
+                message: '清除成功',
+                increment: 100
+            });
+            return delay(500);
+        }).catch(err => {
+            errlog(err);
+        }).finally(() => {
+            resolve();
+        });
+    }));
 }
 
 /** 侧栏webview页面从本地文件选择背景图 */

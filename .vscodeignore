@@ -23,5 +23,6 @@ filePackage/**
 out/**
 dist/**
 !dist/extension.js
+!dist/uninstall.js
 # 主题文件夹不进行发布
 resources/theme/**

@@ -21,10 +21,12 @@ export function checkVersion (id: string, checkVsc: boolean = true): boolean {
     const config = getWorkSpace("wangyige."+id);
     const vscode = config.get("VSCodeVersion");
     const extension = config.get("ExtensionVersion");
-    if ((checkVsc && !vscode) || !extension) 
+    if ((checkVsc && !vscode) || !extension) {
         return false;
-    if ((checkVsc && vscode !== vscVersion) || extension !== getVersion()) 
+    }
+    if ((checkVsc && vscode !== vscVersion) || extension !== getVersion()) {
         return false;
+    }
     return true;
 }
 

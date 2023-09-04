@@ -156,8 +156,9 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
     if (isObject(message)) {
         message = `$(${message.icon})${message.message}`;
     }
-    if (isUndefined(option)) 
+    if (isUndefined(option)) {
         return window.setStatusBarMessage(message);
+    }
     let thenable: Thenable<any>;
     if (isNumber(option)) {
         thenable = <Promise<void>>new Promise((resolve, reject) => {

@@ -87,15 +87,11 @@ function imageDataLoad (imageData: string | Function) {
     });
 }
 
-/** 销毁实例 */
+/** 监听对象丢弃 */
 export function disposeViewImage () {
-    if (viewImageWebviewInstance) {
-        viewImageWebviewInstance.dispose();
-    }
-    if (viewImageWebviewFuncs) {
-        viewImageWebviewFuncs.didDispose?.dispose();
-        viewImageWebviewFuncs.didChange?.dispose();
-    }
+    viewImageWebviewInstance?.dispose();
+    viewImageWebviewFuncs.didDispose?.dispose();
+    viewImageWebviewFuncs.didChange?.dispose();
 }
 
 /** 从别的tab切换回查看页面时，重新加载图片 */

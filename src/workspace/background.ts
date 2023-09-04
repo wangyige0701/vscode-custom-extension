@@ -61,7 +61,9 @@ export const backgroundImageConfiguration = {
         const result: { [key: string]: string[] } = {};
         if (value.length > 0) result[path] = value;
         for (let name in data) {
-            if (data[name] && data[name].length > 0 && name !== path) result[name] = data[name];
+            if (data[name] && data[name].length > 0 && name !== path) {
+                result[name] = data[name];
+            }
         }
         return this.setBackgroundConfiguration('allImageCodes', result);
     },

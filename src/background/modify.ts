@@ -3,7 +3,7 @@
 */
 
 import { dirname, join } from "path";
-import { getDate } from "../utils";
+import { createExParamPromise, getDate } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Disposable, Uri, version } from "vscode";
@@ -111,22 +111,20 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             }));
             return;
         }
-        let infoContent: info | undefined;
         let statusBarTarget: Disposable | null;
         getExternalCssContent(codeValue).then(res => {
             if (res === false) {
                 // 不需要更新，直接跳出
                 throw { jump: true };
             }
-            infoContent = res[1];
             // 状态栏提示文字
             if (tip) statusBarTarget = setStatusBarResolve({
                 icon: 'loading~spin',
                 message: `${random?'随机':''}背景图设置中`
             });
-            return writeExternalCssFile(res[0]);
-        }).then(() => {
-            return settingConfiguration(infoContent!, random);
+            return createExParamPromise(writeExternalCssFile(res[0]), res[1]);
+        }).then(([_, infoContent]) => {
+            return settingConfiguration(infoContent, random);
         }).then(() => {
             return setSourceCssImportInfo();
         }).then(() => {
@@ -408,13 +406,11 @@ export function writeExternalCssFile (content: string): Promise<void> {
 /** 获取外部css文件内容 */
 export function getExternalFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
-        let uriValue: Uri;
         // 获取指定路径uri，没有文件则创建
         getCssUri(externalFileName).then(uri => {
-            uriValue = uri!;
-            return readFileUri(uri!);
-        }).then(content => {
-            resolve([content.toString(), uriValue]);
+            return createExParamPromise(readFileUri(uri!), uri!);
+        }).then(([content, uri]) => {
+            resolve([content.toString(), uri]);
         }).catch(err => {
             reject(promiseReject(err, 'getExternalFileContent'));
         });
@@ -428,7 +424,6 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
  */
 function getExternalCssContent (codeValue: string): Promise<[string, info] | false> {
     return new Promise((resolve, reject) => {
-        let imageUri: Uri;
         const extensionVer = getVersion(),
         date = getDate();
         imageStoreUri().then(uri => {
@@ -440,11 +435,10 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                     description: 'The Uri of image folder is undefined'
                 });
             }
-            imageUri = uri;
-            return getExternalFileContent();
-        }).then(content => {
-            return findInfo(content[0]);
-        }).then(data => {
+            return createExParamPromise(getExternalFileContent(), uri);
+        }).then(([content, uri]) => {
+            return createExParamPromise(findInfo(content[0]), uri);
+        }).then(([data, uri]) => {
             if (data) {
                 const { ImageCode, VSCodeVersion, ExtensionVersion } = data;
                 // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
@@ -452,7 +446,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                     throw { jump: true, data: false };
                 }
             }
-            return readFileUri(newUri(imageUri, `${codeValue}.back.wyg`));
+            return readFileUri(newUri(uri, `${codeValue}.back.wyg`));
         }).then(image => {
             const opacity = getNewBackgroundOpacity(backgroundImageConfiguration.getBackgroundOpacity());
             const delay = 2; // 动画延迟的时间
@@ -514,15 +508,13 @@ function getNowSettingCode (): Promise<string | false> {
  */
 function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
-        let uriValue: Uri;
         getCssUri(cssName, false).then(uri => {
             if (!uri) {
                 throw { jump: true };
             }
-            uriValue = uri;
-            return readFileUri(uri);
-        }).then(res => {
-            resolve([res!.toString(), uriValue]);
+            return createExParamPromise(readFileUri(uri), uri);
+        }).then(([res, uri]) => {
+            resolve([res!.toString(), uri]);
         }).catch(err => {
             if (err.jump) {
                 resolve();

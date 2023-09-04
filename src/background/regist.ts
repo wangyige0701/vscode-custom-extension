@@ -9,6 +9,7 @@ import { backgroundExecute } from "./execute";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { setStatusBarResolve } from "../utils/interactive";
 import { errlog, promiseReject } from "../error";
+import { createExParamPromise } from "../utils";
 
 /** 注册背景图设置功能 */
 export function registBackground (): void {
@@ -16,18 +17,16 @@ export function registBackground (): void {
 		icon: 'loading~spin',
 		message: '默认路径图片数据确认'
 	});
-	let isSetRandomBack = false;
 	copyFileWhenVersionChange('resources/background').then(() => {
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();
 	}).then(state => {
-		isSetRandomBack = state;
 		// 检测配置完整
-		return WindowInitCheckCssModifyCompleteness();
-	}).then(() => {
+		return createExParamPromise(WindowInitCheckCssModifyCompleteness(), state);
+	}).then(([_, state]) => {
 		// 开启后判断是否随机修改背景
-		if (isSetRandomBack) {
+		if (state) {
 			return setRandomBackground();
 		}
 	}).then(() => {

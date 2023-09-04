@@ -1,4 +1,11 @@
+import { getChecksumsData } from "./utils";
 
 
-/** 文件校验和数组 */
-const checksumsArray: string[] = [];
+export function checksumsInit () {
+    getChecksumsData().then(data => {
+        if (data) {
+            
+        }
+        
+    })
+}

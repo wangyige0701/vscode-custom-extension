@@ -252,3 +252,16 @@ export function queueCreate (immediately: boolean = true) {
         clear
     }
 }
+
+/**
+ * 创建带有额外参数的promise
+ */
+export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, ...params: P): Promise<MergeTypes<T, P>> {
+    return new Promise((resolve, reject) => {
+        Promise.resolve(prom).then(data => {
+            resolve([data, ...params]);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}

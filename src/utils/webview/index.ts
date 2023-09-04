@@ -1,6 +1,6 @@
 import { Uri, Webview} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
-import { getNonce } from "..";
+import { createExParamPromise, getNonce } from "..";
 import { contextInter, webFileType } from "./type";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
@@ -224,7 +224,9 @@ export class FileMerge {
                 const list: Uri[] = [], checkReg = new RegExp(`\\.${fileType}$`);
                 res.forEach(item => {
                     try {
-                        if (item[1] === 1 && checkReg.test(item[0])) list.push(newUri(uri, item[0]));
+                        if (item[1] === 1 && checkReg.test(item[0])) {
+                            list.push(newUri(uri, item[0]));
+                        }
                     } catch (error) {
                         throw error;
                     }
@@ -261,22 +263,19 @@ export class FileMerge {
                 resolve();
                 return;
             }
-            let external_css_content: string = '';
             // 外部统一样式处理
             this.externalFileMerge('css').then(res => {
-                external_css_content = res;
-                return this.readDirectoryFile(this.cssUri!, 'css');
-            }).then(res => {
+                return createExParamPromise(this.readDirectoryFile(this.cssUri!, 'css'), res);
+            }).then(([res, external_css_content]) => {
                 // 只能引入一个css文件，需要将其余引用样式写入主css文件中
-                return this.mergeAllFile(res);
-            }).then(str => {
+                return createExParamPromise(this.mergeAllFile(res), external_css_content);
+            }).then(([str, external_css_content]) => {
                 // css文件整合，icon引入路径修改
                 let css: string = this.cssIconfontPath(external_css_content, webview) + '\n' + str;
                 return Promise.resolve(css);
-            }).then((css: string | Buffer) => {
-                css = createBuffer(css);
+            }).then(css => {
                 // 合并css文件
-                return writeFileUri(this.newCssUri!, css);
+                return writeFileUri(this.newCssUri!, createBuffer(css));
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -297,18 +296,15 @@ export class FileMerge {
                 resolve();
                 return; 
             }
-            let externale_js_content: string = '';
             this.externalFileMerge('js').then(res => {
-                externale_js_content = res;
-                return this.readDirectoryFile(this.jsUri!, 'js');
-            }).then(res => {
-                return this.mergeAllFile(res);
-            }).then(str => {
+                return createExParamPromise(this.readDirectoryFile(this.jsUri!, 'js'), res);
+            }).then(([res, externale_js_content]) => {
+                return createExParamPromise(this.mergeAllFile(res), externale_js_content);
+            }).then(([str, externale_js_content]) => {
                 let js: string = `(function () {${'\n'+externale_js_content + '\n' + str+'\n'}})();`;
                 return Promise.resolve(js);
-            }).then((js: string | Buffer) => {
-                js = createBuffer(js);
-                return writeFileUri(this.newJsUri!, js);
+            }).then(js => {
+                return writeFileUri(this.newJsUri!, createBuffer(js));
             }).then(() => {
                 resolve();
             }).catch(err => {

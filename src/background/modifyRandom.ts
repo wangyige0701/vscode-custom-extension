@@ -1,6 +1,6 @@
 import { errlog } from "../error";
 import { getRandom } from "../utils";
-import { setMessage } from "../utils/interactive";
+import { showMessage } from "../utils/interactive";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { closeRandomBackground, isChangeBackgroundImage } from "./utils";
@@ -44,7 +44,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
     }
     // value为字符串的情况
     if (value.length === 1) {
-        setMessage({ message: '设置随机切换背景请选择两张以上图片' });
+        showMessage({ message: '设置随机切换背景请选择两张以上图片' });
         return;
     }
     isChangeBackgroundImage('是否设置背景图随机切换？每次打开软件会随机切换一张背景图。').then(() => {
@@ -59,7 +59,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         // 切换一张背景图，下次打开生效
         return setRandomBackground();
     }).then(() => {
-        setMessage({ message: '设置完成，下次打开软件会随机切换背景图' });
+        showMessage({ message: '设置完成，下次打开软件会随机切换背景图' });
     }).then(() => {
         // 发送设置的数据
         backgroundSendMessage({

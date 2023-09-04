@@ -97,7 +97,7 @@ export function selectFile ({
  * 设置消息弹框
  * @param param
  */
-export function setMessage<T extends MessageItem> ({
+export function showMessage<T extends MessageItem> ({
     type = 'information',
     message,
     modal = false,

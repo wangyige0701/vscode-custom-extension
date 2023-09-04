@@ -8,7 +8,7 @@
  */
 
 import { isNumber, isString } from "../utils";
-import { setMessage } from "../utils/interactive";
+import { showMessage } from "../utils/interactive";
 import { isDev } from "../version";
 import WError from "./WError";
 
@@ -29,7 +29,7 @@ function errlog (e: any, isThrow: boolean = !environment) {
     if (environment) console.error(e);
     if (!e) return;
     if (isString(e) || isNumber(e)) {
-        setMessage({
+        showMessage({
             type: 'error',
             message: e.toString(),
             modal: false
@@ -37,7 +37,7 @@ function errlog (e: any, isThrow: boolean = !environment) {
         return;
     }
     if (e instanceof WError) {
-        setMessage({
+        showMessage({
             type: 'error',
             message: e.stack??`${e.name}: ${e.message}`,
             modal: false
@@ -45,14 +45,14 @@ function errlog (e: any, isThrow: boolean = !environment) {
         return;
     }
     if (e instanceof Error) {
-        setMessage({
+        showMessage({
             type: 'error',
             message: e.stack??`${e.name??'Error'}: ${e.message}`,
             modal: false
         });
         return;
     }
-    setMessage({
+    showMessage({
         type: 'error',
         message: String(e),
         modal: false

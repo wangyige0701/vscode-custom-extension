@@ -1,5 +1,5 @@
 import { createDirectoryUri, isFileExits, joinPathUri } from "../utils/file";
-import { setMessage, setStatusBar } from "../utils/interactive";
+import { showMessage, setStatusBar } from "../utils/interactive";
 import { windowReload } from "../utils/system";
 import { contextContainer } from "../utils/webview/index";
 import { Uri } from "vscode";
@@ -75,7 +75,7 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
     if (reset) {
         if (!backgroundImageConfiguration.getBackgroundStorePath()) {
-            setMessage({
+            showMessage({
                 message: '当前储存路径已为默认路径'
             });
             return Promise.resolve();
@@ -85,7 +85,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         ).catch(err => {
             return Promise.reject(promiseReject(err, 'resetImageStorePath'));
         });
-        setMessage({
+        showMessage({
             message: '背景图储存路径已切换为默认路径'
         });
         sendStoreChangeMessage();
@@ -99,7 +99,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         ).catch(err => {
             return Promise.reject(promiseReject(err, 'resetImageStorePath'));
         });
-        setMessage({
+        showMessage({
             message: '背景图储存路径已切换为：'+uri.fsPath
         });
         sendStoreChangeMessage();
@@ -121,7 +121,7 @@ function sendStoreChangeMessage () {
  */
 export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
     return new Promise((resolve, reject) => {
-        setMessage({
+        showMessage({
             message: '提示',
             modal: true,
             detail: message,
@@ -175,7 +175,7 @@ export function setBackgroundImageSuccess (message: string = '背景图设置成
  * @param title 标题
  */
 export function isWindowReloadToLoadBackimage (title: string = '是否重启窗口以应用背景') {
-    setMessage({
+    showMessage({
         message: title,
         modal: false,
         items: [{
@@ -211,7 +211,7 @@ export function getNewBackgroundOpacity (opacity: number): number {
 
 /** 关闭随机切换背景图后的消息提示 */
 export function closeRandomBackground () {
-    setMessage({ message: '已关闭背景图随机切换。' });
+    showMessage({ message: '已关闭背景图随机切换。' });
     backgroundSendMessage({
         name: 'backgroundRandomList',
         value: false

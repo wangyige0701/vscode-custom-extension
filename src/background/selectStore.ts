@@ -1,10 +1,10 @@
 import { errlog } from "../error";
-import { selectFile, setMessage } from "../utils/interactive";
+import { selectFile, showMessage } from "../utils/interactive";
 import { resetImageStorePath } from "./utils";
 
 /** 选择文件夹作为背景图数据储存路径 */
 export function selectFolderForBackgroundStore (): void {
-    setMessage({
+    showMessage({
         message: '提示',
         modal: true,
         detail: '是否修改背景图储存路径',
@@ -26,7 +26,7 @@ export function selectFolderForBackgroundStore (): void {
 
 /** 重置背景图储存路径 */
 export function resetBackgroundStorePath (): void {
-    setMessage({
+    showMessage({
         message: '提示',
         modal: true,
         detail: '是否重置背景图储存路径',

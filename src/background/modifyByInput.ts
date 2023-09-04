@@ -1,7 +1,7 @@
 import { createFileStore } from ".";
 import { WError, errlog, promiseReject } from "../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../utils/file";
-import { setMessage } from "../utils/interactive";
+import { showMessage } from "../utils/interactive";
 import { imageUrl } from "../utils/regexp";
 import { GetImage } from "../utils/request/utils";
 import { backgroundImageConfiguration } from "../workspace/background";
@@ -72,7 +72,7 @@ export function backgroundOpacityModify (opacity: number) {
             return backgroundImageConfiguration.setBackgroundOpacity(opacity);
         } else {
             // state为false，和当前透明度相同，不进行修改
-            setMessage({
+            showMessage({
                 message: `当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`
             });
         }

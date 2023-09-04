@@ -18,6 +18,7 @@ import { getVersion } from "../version";
 import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../utils/interactive";
 import { WError, promiseReject } from "../error";
+import { getNodeModulePath } from "../utils/system";
 
 /** vscode的源css文件名 */
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';
@@ -351,15 +352,15 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
             resolve();
             return;
         }
-        const module = require.main;
-        if (!module) {
+        const modulePath = getNodeModulePath();
+        if (!modulePath) {
             throw new WError('NodeModule is Undefined', {
                 position: 'Function',
                 FunctionName: 'getCssUri',
-                description: 'The main property from require is undefined. This data is used to get Css File Path'
+                description: 'Current Module is not main module. This data is needed to get Css File Path'
             });
         }
-        const uri = Uri.file(join(dirname(module.filename), 'vs', 'workbench', name));
+        const uri = Uri.file(join(dirname(modulePath), 'vs', 'workbench', name));
         isFileExits(uri).then(res => {
             if (res) {
                 // 有指定路径

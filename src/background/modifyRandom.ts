@@ -16,13 +16,15 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
     if (value === false) {
         // 根据tip参数判断是否需要显示弹框提示
         Promise.resolve().then(() => {
-            if (tip) 
+            if (tip) {
                 return isChangeBackgroundImage('是否关闭背景图随机切换？');
+            }
         }).then(() => {
             let code: string = '';
             // 如果删除随机背景配置，则重置css文件中的背景图为当前背景；如果tip为false，则代表是清除所有配置，不需要再次修改
-            if (tip && (code = backgroundImageConfiguration.getBackgroundNowImageCode()))
+            if (tip && (code = backgroundImageConfiguration.getBackgroundNowImageCode())) {
                 return modifyCssFileForBackground(code, false, false);
+            }
         }).then(() => {
             // 修改状态
             return Promise.resolve(
@@ -40,6 +42,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         });
         return;
     }
+    // value为字符串的情况
     if (value.length === 1) {
         setMessage({ message: '设置随机切换背景请选择两张以上图片' });
         return;

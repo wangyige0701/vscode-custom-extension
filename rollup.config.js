@@ -6,11 +6,14 @@ const json = require('@rollup/plugin-json');
 const path = require('path');
 
 module.exports = {
-    input: 'src/extension.ts',
-    output: {
+    input: ['src/extension.ts', 'src/uninstall.ts'],
+    output: [{
         file: 'dist/extension.js',
         format: 'cjs'
-    },
+    }, {
+        file: 'dist/uninstall.js',
+        format: 'cjs'
+    }],
     external: ["vscode"],
     plugins: [
         typescript({ 

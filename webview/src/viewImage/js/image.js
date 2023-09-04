@@ -10,7 +10,12 @@ const mouseMove = {
 
 /** @param {HTMLElement} el */
 function changeCss (el) {
-    el.style.transform = `translate(${operationTarge.left}px, ${operationTarge.top}px) scale(${operationTarge.scale})`;
+    el.style.transform = `matrix3d(
+        ${operationTarge.scale}, 0, 0, 0, 
+        0, ${operationTarge.scale}, 0, 0, 
+        0, 0, 1, 0,
+        ${operationTarge.left}, ${operationTarge.top}, 0, 1
+    )`;
 }
 
 /**

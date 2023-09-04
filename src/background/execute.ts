@@ -75,7 +75,7 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 查看大图，标题发送哈希码前七位 */
     viewBigImage: {
         execute: {
-            func: data => { toViewImage(getBase64DataFromObject(data), `${data.slice(0, 7)}...`, webviewInstance.value!); },
+            func: data => { toViewImage(data, getBase64DataFromObject.bind(null, data), `${data.slice(0, 7)}...`, webviewInstance.value!); },
             data: true
         }
     }

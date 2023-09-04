@@ -219,14 +219,14 @@ export function firstUpperCase (data: string) {
 /**
  * 创建一个队列执行对象
  */
-export function queueCreate () {
+export function queueCreate (immediately: boolean = true) {
     let executeing: boolean = false;
     const queue: Function[] = [];
     /** 插入队列 */
     function set (func: Function) {
         if (!func || typeof func !== 'function') return;
         queue.push(func);
-        if (!executeing) execute();
+        if (immediately && !executeing) execute();
     }
     /** 执行队列 */
     function execute () {
@@ -235,7 +235,7 @@ export function queueCreate () {
             if (queue.length === 0) {
                 executeing = false;
             } else {
-                execute();
+                if (immediately) execute();
             }
         }).catch(err => {
             executeing = false;

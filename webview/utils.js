@@ -227,7 +227,7 @@ function $query (target, options = false) {
 /**
  * 将可迭代对象转换为数组
  * @param {any} item 
- * @returns {any}
+ * @returns {any[]}
  */
 function changeToArray (item) {
     if (!item) return item;
@@ -282,6 +282,23 @@ function isNumber (target) {
  */
 function isNull (target) {
     return target === null;
+}
+
+/**
+ * 创建一个发送webview通讯的实例
+ * @param {string} groupName
+ * @param {Object} vscodeApi
+ * @returns {(options: {name: string, value: any}) => any}
+ */
+function createSendMessage (groupName, vscodeApi) {
+    if (!groupName) throw new Error('Need Group Name');
+    if (!vscodeApi) throw new Error('None Vscode Api');
+    return function (options={}) {
+        if (options && isObject(options)) {
+            options.group = groupName;
+            vscodeApi.postMessage(options);
+        }
+    }
 }
 
 /**

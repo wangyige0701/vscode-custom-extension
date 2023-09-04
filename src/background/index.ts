@@ -380,7 +380,7 @@ function codeAdd (code: string, data: string): Promise<void> {
         // 储存对象添加一条数据
         repositoryData[code] = data??'';
         // 放入队列待执行
-        let copyBackImgCodeList: undefined | string[] = backgroundImageCodeList.map(item => item);
+        let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
         backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
             Promise.resolve(
                 backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
@@ -407,7 +407,7 @@ function codeDelete (code: string): Promise<void> {
         // 删除存储对象中的base64数据
         if (repositoryData.hasOwnProperty(code)) delete repositoryData[code];
         // 更新缓存数组
-        let copyBackImgCodeList: undefined | string[] = backgroundImageCodeList.map(item => item);
+        let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
         backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
             Promise.resolve().then(() => {
                 // 判断删除图片是否在随机切换数组中

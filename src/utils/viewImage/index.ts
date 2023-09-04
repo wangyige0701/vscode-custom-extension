@@ -119,6 +119,10 @@ function destroyInstance () {
     }
     unbindMessageCallback('onViewImage');
     disposeViewImage();
+    // 清空队列
+    viewHandleQueue.clear();
+    imageDataQueue.clear();
+    // 实例置空
     viewImageWebviewInstance = null;
     webviewTarget = null;
     viewImageWebviewFuncs.didChange = null;

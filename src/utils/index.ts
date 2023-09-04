@@ -242,8 +242,13 @@ export function queueCreate (immediately: boolean = true) {
             throw new Error(err);
         });
     }
+    function clear () {
+        executeing = false;
+        queue.splice(0);
+    }
     return {
         set,
-        execute
+        execute,
+        clear
     }
 }

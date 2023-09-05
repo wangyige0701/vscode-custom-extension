@@ -115,16 +115,17 @@ export function showMessage<T extends MessageItem> ({
                 detail = void 0;
             }
             // items是undefinded不传
-            isUndefined(items) 
-            ?   getMessageBoxAllData()[type](message, {
+            if (isUndefined(items)) {
+                getMessageBoxAllData()[type](message, {
                     modal,
                     detail
                 }).then(res => {
                     resolve(res as undefined);
                 }, err => {
                     reject(new Error('MessageBox Error', { cause: err }));
-                }) 
-            :   getMessageBoxAllData()[type](message, {
+                });
+            } else {
+                getMessageBoxAllData()[type](message, {
                     modal,
                     detail
                 }, ...items).then(res => {
@@ -132,6 +133,7 @@ export function showMessage<T extends MessageItem> ({
                 }, err => {
                     reject(new Error('MessageBox Error', { cause: err }));
                 });
+            }
         } catch (error) {
             reject(new Error('Catch Error', { cause: error }));
         }

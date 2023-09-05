@@ -1,6 +1,5 @@
 import type { CheckSumsData, ChecksumsDataOperation } from "./types/index";
 
-
 export const checksumsMap: ChecksumsDataOperation<Map<string, CheckSumsData>> = new class {
     /** 校验和数据记录 */
     private mapData: Map<string, CheckSumsData> = new Map();
@@ -30,16 +29,50 @@ export const checksumsMap: ChecksumsDataOperation<Map<string, CheckSumsData>> = 
         this.mapData.clear();
     }
 
+    /** 新旧哈希是否相同 */
+    same (name: string, hash: string) {
+        if (this.has(name)) {
+            return this.get(name)!.value === hash;
+        }
+        return false;
+    }
+
     /** 更新校验和哈希值 */
     update (name: string, hash: string) {
         if (this.has(name)) {
-            const value = this.get(name)!;
-            value.value = hash;
-            this.set(name, value);
+            this.get(name)!.value = hash;
         }
     }
 
     get origin () {
         return this.mapData;
+    }
+}
+
+/** 校验和数据的状态 */
+export class ChecksumsState {
+    static isRefreshChecksums = false;
+
+    static init = false;
+
+    /** 更改能否修改校验和状态 */
+    static change (state: boolean  = true) {
+        this.isRefreshChecksums = state;
+        return this;
+    }
+
+    /** 获取是否允许修改校验和状态 */
+    static get () {
+        return this.isRefreshChecksums;
+    }
+
+    /** 修改初始化状态 */
+    static initial () {
+        this.init = true;
+    }
+
+    /** 是否已经初始化 */
+    static isInitial () {
+        return this.init;
     }
 }

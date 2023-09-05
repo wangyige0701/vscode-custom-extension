@@ -23,5 +23,6 @@ export type ChecksumsDataOperation<T> = {
     delete(name: string): void;
     has(name: string): boolean;
     clear(): void;
+    same(name: string, hash: string): boolean;
     update(name: string, hash: string): void;
 } & Record<"origin", T>

@@ -1,11 +1,16 @@
+import { Uri } from "vscode";
 import { createExParamPromise, range } from "..";
 import { errlog } from "../../error";
 import { cryHex } from "../hash";
-import { checksumsMap } from "./data";
-import { getChecksumsData, getFullPathOfChecksum, readChecksumsData } from "./utils";
+import { checksumsMap, ChecksumsState } from "./data";
+import { getChecksumsData, getFullPathOfChecksum } from "./utils";
+import { modifyChecksum } from "./modify";
 
-
+/** 校验和相关数据初始化 */
 export function checksumsInit () {
+    if (ChecksumsState.isInitial()) {
+        return;
+    }
     getChecksumsData().then(data => {
         const paths = data.map(item => item.path);
         const hashs = data.map(item => item.hash);
@@ -23,12 +28,17 @@ export function checksumsInit () {
             });
         }
     }).then(() => {
-        return readChecksumsData();
-    }).then((data) => {
-        checksumsMap.origin.forEach(({ regexp }) => {
-            console.log(data.match(regexp));
-        })
+        // 将状态置为true
+        ChecksumsState.change(true).initial();
     }).catch(err => {
         errlog(err);
     });
+}
+
+/** 重新检测指定目录文件 */
+export function reChecksum (path: Uri): Promise<void> {
+    if (ChecksumsState.isInitial() && ChecksumsState.get() && path) {
+        return modifyChecksum(path);
+    }
+    return Promise.resolve();
 }

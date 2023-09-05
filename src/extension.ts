@@ -7,7 +7,8 @@ export function activate(context: ExtensionContext) {
 	contextContainer.instance = context;
 	// 注册背景图侧栏页面
 	registBackground();
-	checksumsInit()
+	// 初始化校验和数据
+	checksumsInit();
 }
 
 // This method is called when your extension is deactivated

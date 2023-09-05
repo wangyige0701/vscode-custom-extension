@@ -2,9 +2,9 @@
  * 修改css文件，修改部分包括vscode的源css文件和写入body背景样式的外部css文件
 */
 
-import { dirname, join } from "path";
+import { dirname, join as pathjoin } from "path";
 import { createExParamPromise, getDate } from "../utils";
-import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
+import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Disposable, Uri, version } from "vscode";
 import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "./utils";
@@ -13,6 +13,7 @@ import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../utils/interactive";
 import { WError, promiseReject } from "../error";
 import { getNodeModulePath } from "../utils/system";
+import { reChecksum } from "../utils/checksums";
 
 /** vscode的源css文件名 */
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';
@@ -150,7 +151,7 @@ export function deletebackgroundCssFileModification (): Promise<void> {
         }).then(data => {
             if (data) {
                 const { content, uri } = data!;
-                return writeFileUri(uri, createBuffer(content));
+                return sourceCeeFileChangeChecksum(uri, createBuffer(content));
             }
         }).then(() => {
             // 删除外部css文件
@@ -235,7 +236,8 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
                     }@import url("./${externalFileName}?${nowDate}");${
                     '\n'+importEnd}`+content);
             }
-            return writeFileUri(uri, resContent);
+            // 修改源文件并重置校验和
+            return sourceCeeFileChangeChecksum(uri, resContent);
         }).then(() => {
             resolve({ modify: true });
         }).catch(err => {
@@ -244,6 +246,22 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             } else {
                 reject(promiseReject(err, 'setSourceCssImportInfo'));
             }
+        });
+    });
+}
+
+/**
+ * 源css文件修改后重置校验和数据
+ * @param uri 源文件的uri数据
+ */
+function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<void> {
+    return new Promise((resolve, reject) => {
+        writeFileUri(uri, content).then(() => {
+            return reChecksum(uri);
+        }).then(() => {
+            resolve();
+        }).catch(err => {
+            reject(promiseReject(err, 'sourceCeeFileChangeChecksum'));
         });
     });
 }
@@ -351,7 +369,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
                 description: 'Current Module is not main module. This data is needed to get Css File Path'
             });
         }
-        const uri = Uri.file(join(dirname(modulePath), 'vs', 'workbench', name));
+        const uri = createUri(pathjoin(dirname(modulePath), 'vs', 'workbench', name));
         isFileExits(uri).then(res => {
             if (res) {
                 // 有指定路径

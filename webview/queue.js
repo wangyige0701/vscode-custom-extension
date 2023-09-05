@@ -22,8 +22,7 @@ class Queue {
      */
     set (...funcs) {
         if (funcs.length <= 0) return;
-        for (let index = 0; index < funcs.length; index++) {
-            const func = funcs[index];
+        for (const func of funcs) {
             if (!func || typeof func !== 'function') continue;
             this.#queue.push(func);
         }

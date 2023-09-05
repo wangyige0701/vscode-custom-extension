@@ -102,15 +102,15 @@ function $create (name) {
  */
 function complexGetAttr (target, options, list = true) {
     if (!isArray(options)) options = isString(options) ? [options] : [];
-    if (!target || !target instanceof HTMLElement) return list ? new Array(options.length).fill(undefined) : options.reduce((obj, value) => {
-        obj[value] = undefined;
+    if (!target || !target instanceof HTMLElement) return list ? new Array(options.length).fill(void 0) : options.reduce((obj, value) => {
+        obj[value] = void 0;
         return obj;
     }, {});
     /** @type {string[]|{[key: string]: string}} */
     let result = list ? [] : {};
     options.forEach(key => {
         // 除了通过getAttribute获取，还有可能是set、get获取
-        let value = target.hasAttribute(key) ? target.getAttribute(key) : (target[key] ?? undefined);
+        let value = target.hasAttribute(key) ? target.getAttribute(key) : (target[key] ?? void 0);
         list ? result.push(value) : result[key] = value;
     });
     return result;
@@ -277,6 +277,14 @@ function isNumber (target) {
 }
 
 /**
+ * 是否是undefined
+ * @param {any} target
+ */
+function isUndefined (target) {
+    return typeof target === 'undefined';
+}
+
+/**
  * 是否是null
  * @param {any} target 
  */
@@ -321,7 +329,7 @@ function messageDataExecute (config) {
             target.execute = [target.execute];
         }
     }
-    return (name, value=undefined) => {
+    return (name, value = void 0) => {
         if (!name || !(name in config)) return;
         /** @type {{execute: exeFunc[], extra?: Function, queue: boolean}} 获取执行函数和是否队列执行判断 */
         const { execute, extra, queue = false } = config[name];
@@ -329,12 +337,12 @@ function messageDataExecute (config) {
         extra?.();
         for (let i = 0; i < execute.length; i++) {
             const target = execute[i];
-            const { func, data = false, noneParam = false, param = undefined } = target;
+            const { func, data = false, noneParam = false, param = void 0 } = target;
             if (!func || typeof func !== 'function') continue;
             // 是否需要传参并且参数有值
-            if (data && value === undefined && param === undefined) continue;
-            const executeFunction = (param === undefined) 
-            ? (value !== undefined && !noneParam) 
+            if (data && isUndefined(value) && isUndefined(param)) continue;
+            const executeFunction = isUndefined(param) 
+            ? (!isUndefined(value) && !noneParam) 
                 ? func.bind(null, value) 
                 : func.bind(null) 
             : func.bind(null, param);

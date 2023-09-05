@@ -1,5 +1,5 @@
 import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window } from 'vscode';
-import { check, isNumber, isObject, isString, isUndefined } from '../index';
+import { $undefined, check, isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
 import { 
     MessageBoxType, 
@@ -48,7 +48,7 @@ export function selectFile ({
     files = true,
     folders = false,
     many = false,
-    filters = undefined,
+    filters = void 0,
     title = '选择文件',
     openLabel = '确认',
     defaultUri
@@ -58,11 +58,11 @@ export function selectFile ({
             if (files && folders) folders = false;
             if (!files && !folders) files = true;
             if (folders && many) many = false;
-            if (folders && filters) filters = undefined;
+            if (folders && filters) filters = $undefined();
             if (isString(defaultUri) && defaultUri.length > 0) {
                 defaultUri = Uri.file(defaultUri);
             } else {
-                defaultUri = undefined;
+                defaultUri = $undefined();
             }
             window.showOpenDialog({
                 defaultUri: defaultUri as Uri | undefined,
@@ -111,25 +111,27 @@ export function showMessage<T extends MessageItem> ({
                 reject('Null message for MessageBox');
                 return;
             }
-            if (!modal) detail = undefined;
+            if (!modal) {
+                detail = $undefined();
+            }
             // items是undefinded不传
             isUndefined(items) 
-            ? getMessageBoxAllData()[type](message, {
-                modal,
-                detail
-            }).then(res => {
-                resolve(res as undefined);
-            }, err => {
-                reject(new Error('MessageBox Error', { cause: err }));
-            }) 
-            : getMessageBoxAllData()[type](message, {
-                modal,
-                detail
-            }, ...items).then(res => {
-                resolve(res);
-            }, err => {
-                reject(new Error('MessageBox Error', { cause: err }));
-            });
+            ?   getMessageBoxAllData()[type](message, {
+                    modal,
+                    detail
+                }).then(res => {
+                    resolve(res as undefined);
+                }, err => {
+                    reject(new Error('MessageBox Error', { cause: err }));
+                }) 
+            :   getMessageBoxAllData()[type](message, {
+                    modal,
+                    detail
+                }, ...items).then(res => {
+                    resolve(res);
+                }, err => {
+                    reject(new Error('MessageBox Error', { cause: err }));
+                });
         } catch (error) {
             reject(new Error('Catch Error', { cause: error }));
         }

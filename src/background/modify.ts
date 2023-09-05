@@ -283,7 +283,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
             resolve({ state: false, code: codeValue });
         }).catch(err => {
             if (err.jump) {
-                resolve({ state: err.state, code: err.code??undefined });
+                resolve({ state: err.state, code: err.code??void 0 });
             } else {
                 reject(promiseReject(err, 'checkCurentImageIsSame'));
             }

@@ -1,5 +1,5 @@
 import { Uri, FileType, Disposable } from "vscode";
-import { createExParamPromise, delay, getHashCode, queueCreate } from "../utils";
+import { $undefined, createExParamPromise, delay, getHashCode, queueCreate } from "../utils";
 import { 
     createBuffer, 
     imageToBase64, 
@@ -389,7 +389,7 @@ function codeAdd (code: string, data: string): Promise<void> {
             Promise.resolve(
                 backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
             ).then(() => {
-                copyBackImgCodeList = undefined;
+                copyBackImgCodeList = $undefined();
                 refreshImageCodeList();
             }).then(() => {
                 $res();
@@ -428,7 +428,7 @@ function codeDelete (code: string): Promise<void> {
                     backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
                 );
             }).then(() => {
-                copyBackImgCodeList = undefined;
+                copyBackImgCodeList = $undefined();
                 refreshImageCodeList();
             }).then(() => {
                 $res();
@@ -465,7 +465,7 @@ function codeCheck (code: string, data: string): Promise<void> {
  * @param code 
  * @param state 
  */
-function codeListRefresh (code: string, state: codeChangeType = 'add', addData: string|undefined = undefined): Promise<void> {
+function codeListRefresh (code: string, state: codeChangeType = 'add', addData: string|undefined = void 0): Promise<void> {
     if (state === 'add') {
         return codeAdd(code, addData!);
     } else if (state === 'delete') {

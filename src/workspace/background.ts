@@ -41,7 +41,7 @@ export const backgroundImageConfiguration = {
         if (path) {
             return cryHex(path);
         } else {
-            return undefined;
+            return void 0;
         }
     },
 

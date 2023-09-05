@@ -9,8 +9,10 @@
  */
 function checkMediaType (type) {
     const typeList = ['application', 'audio', 'font', 'example', 'image', 'message', 'model', 'multipart', 'text', 'video'];
-    for (let index in typeList) {
-        if (type.startsWith(typeList[index])) return true;
+    for (const value of typeList) {
+        if (type.startsWith(value)) {
+            return true;
+        }
     }
     return false;
 }
@@ -179,8 +181,7 @@ function complexAppendChild (target, childs) {
             return target
         }
     };
-    for (let i = 0; i < childs.length; i++) {
-        let dom = childs[i];
+    for (const dom of childs) {
         if (!dom || !dom instanceof Element) continue;
         target.appendChild(dom);
     }
@@ -335,8 +336,7 @@ function messageDataExecute (config) {
         const { execute, extra, queue = false } = config[name];
         // 额外函数执行
         extra?.();
-        for (let i = 0; i < execute.length; i++) {
-            const target = execute[i];
+        for (const target of execute) {
             const { func, data = false, noneParam = false, param = void 0 } = target;
             if (!func || typeof func !== 'function') continue;
             // 是否需要传参并且参数有值
@@ -350,4 +350,13 @@ function messageDataExecute (config) {
             queue ? config.queue(executeFunction) : executeFunction();
         }
     };
+}
+
+/** 迭代器循环数字范围 */
+function *range (end, start = 0, step = 1) {
+    const compare = start <= end;
+    step = Math.max(Math.abs(step), 1);
+    for (let i = start; compare ? i < end : i > end; compare ? i += step : i -= step) {
+        yield i;
+    }
 }

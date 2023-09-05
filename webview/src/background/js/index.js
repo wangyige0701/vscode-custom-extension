@@ -320,11 +320,10 @@ function initImageData (array) {
  * @param {Function} callback 
  */
 function firstLoadImages (array, callback = void 0) {
-    for (let i = 0; i < array.length; i++) {
-        const code = array[i]
+    for (const code of array) {
         publicData.imageRenderList?.push({
             init: true,
-            code: code
+            code
         });
     }
     callback?.();
@@ -398,8 +397,8 @@ function addImageHandle (datas) {
         });
     }
     // 倒序插入
-    for (let index = datas.length - 1; index >= 0; index--) {
-        const code = datas[index];
+    for (const i of range(-1, datas.length - 1)) {
+        const code = datas[i];
         addImageQueue.set(req.bind(null, code));
     }
     // 队列执行，每一步函数执行结束不会立刻执行下一个，等待触发
@@ -577,8 +576,8 @@ function classListOperation (target, operation, ...name) {
 function objectHas (object, ...property) {
     if (!object || typeof object !== 'object') return false;
     let result = true;
-    for (let i = 0; i < property.length; i++) {
-        if (!object.hasOwnProperty(property[i])) {
+    for (const val of property) {
+        if (!object.hasOwnProperty(val)) {
             result = false;
             break;
         }

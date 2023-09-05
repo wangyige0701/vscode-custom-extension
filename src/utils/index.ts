@@ -54,7 +54,9 @@ export function addZero (value: number | string, length: number = 2): string {
 
 /** 迭代器循环数字范围 */
 export function *range (end: number, start: number = 0, step: number = 1) {
-    for (let i = start; i < end; i += step) {
+    const compare = start <= end;
+    step = Math.max(Math.abs(step), 1);
+    for (let i = start; compare ? i < end : i > end; compare ? i += step : i -= step) {
         yield i;
     }
 }

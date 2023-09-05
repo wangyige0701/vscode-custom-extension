@@ -93,10 +93,9 @@ function createInstance () {
             this.#observer = new window.IntersectionObserver((entries, obs) => {
                 /** 视图高度 */
                 const windowHeight = window.innerHeight;
-                for (let i = 0; i < entries.length; i++) {
-                    const entry = entries[i],
+                for (const entry of entries) {
                     /** 元素位置及大小 */
-                    { top, bottom, height } = entry.boundingClientRect;
+                    const { top, bottom, height } = entry.boundingClientRect;
                     if (top > (0 - height) && bottom < (windowHeight + height)) {
                         // 目标不在已注册元素列表中
                         let index = this.#recordMap.findIndex((item) => item.target === entry.target);
@@ -161,8 +160,8 @@ function createInstance () {
                         case 'splice':
                             if (args.slice(2).length === 0) {
                                 // 只处理通过splice删除元素
-                                for (let i = 0; i < args[1]; i++) {
-                                    _this.#deleteImageItem(this[args[0]+i].target, this.src);
+                                for (const i of range(args[1])) {
+                                    _this.#deleteImageItem(this[args[0] + i].target, this.src);
                                 }
                             }
                             break;
@@ -660,7 +659,7 @@ function createInstance () {
             this.check();
             const list = this.getChild();
             let index = -1;
-            for (let i = 0; i < list.length; i++) {
+            for (const i of range(list.length)) {
                 if (this.getCodeValue(list[i]) === code) {
                     index = i;
                     break;
@@ -677,7 +676,7 @@ function createInstance () {
             this.check();
             let type = false, index = -1;
             const child = this.getChild();
-            for (let i = 0; i < child.length; i++) {
+            for (const i of range(child.length)) {
                 if (child[i].classList.contains(queryNames.selectClass)) {
                     index = i, type = true;
                     break;

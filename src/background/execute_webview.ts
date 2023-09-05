@@ -1,12 +1,12 @@
 import { Webview } from "vscode";
 import { MessageData } from "../utils/webview/type";
 import { backgroundSendMessageData } from "./type";
-import { $undefined, isObject } from "../utils";
+import { isObject } from "../utils";
 import { messageSend } from "../utils/webview/message";
 
 /** webview实例保存 */
 export const webviewInstance: { value: Webview|undefined } = {
-    value: $undefined()
+    value: void 0
 };
 
 /**

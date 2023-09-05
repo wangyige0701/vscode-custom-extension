@@ -1,5 +1,5 @@
 import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window } from 'vscode';
-import { $undefined, check, isNumber, isObject, isString, isUndefined } from '../index';
+import { check, isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
 import { 
     MessageBoxType, 
@@ -58,11 +58,11 @@ export function selectFile ({
             if (files && folders) folders = false;
             if (!files && !folders) files = true;
             if (folders && many) many = false;
-            if (folders && filters) filters = $undefined();
+            if (folders && filters) filters = void 0;
             if (isString(defaultUri) && defaultUri.length > 0) {
                 defaultUri = Uri.file(defaultUri);
             } else {
-                defaultUri = $undefined();
+                defaultUri = void 0;
             }
             window.showOpenDialog({
                 defaultUri: defaultUri as Uri | undefined,
@@ -112,7 +112,7 @@ export function showMessage<T extends MessageItem> ({
                 return;
             }
             if (!modal) {
-                detail = $undefined();
+                detail = void 0;
             }
             // items是undefinded不传
             isUndefined(items) 

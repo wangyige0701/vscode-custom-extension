@@ -1,6 +1,6 @@
 import { Uri, Webview} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
-import { $undefined, createExParamPromise, getNonce } from "..";
+import { createExParamPromise, getNonce } from "..";
 import { contextInter, webFileType } from "./type";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
@@ -327,7 +327,7 @@ export class FileMerge {
 
 /** 保存context数据 */
 export const contextContainer: contextInter = {
-    instance: $undefined()
+    instance: void 0
 }
 
 /**

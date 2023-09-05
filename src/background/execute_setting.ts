@@ -38,7 +38,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
                         message: '设置成功',
                         increment: 100
                     });
-                    return delay(1500);
+                    return delay(500);
                 }).then(() => {
                     isWindowReloadToLoadBackimage();
                 }).finally(() => {

@@ -532,7 +532,7 @@ function createInstance () {
             if (loading !== this.imageInfoLoading) {
                 this.imageInfoLoading = loading;
                 // 加载状态不同，empty属性相同也可能有不同语句，需要重置状态
-                this.imageInfoEmpty = undefined;
+                this.imageInfoEmpty = void 0;
                 /** @type {HTMLElement} */
                 let loadingTarget = $query(queryNames.imageListInfoIcon);
                 if (loading) {
@@ -694,7 +694,7 @@ function createInstance () {
             if (el && objectHas(el.dataset, queryNames.imageContainerCode)) {
                 return el.dataset[queryNames.imageContainerCode];
             }
-            return undefined;
+            return void 0;
         }
 
         /**
@@ -703,7 +703,7 @@ function createInstance () {
          * @param {MouseEvent} e 
          * @returns 
          */
-        deleteOneImageIcon (data=undefined, e) {
+        deleteOneImageIcon (data = void 0, e) {
             e.stopPropagation();
             if (!canChange()) 
                 return;
@@ -718,7 +718,7 @@ function createInstance () {
          * @param {MouseEvent} e 
          * @returns 
          */
-        selectOneImageIcon (data=undefined, e) {
+        selectOneImageIcon (data = void 0, e) {
             e.stopPropagation();
             if (!canChange()) 
                 return;
@@ -732,7 +732,7 @@ function createInstance () {
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          * @param {{target:HTMLElement}} param
          */
-        imageClick (data=undefined, { target }) {
+        imageClick (data = void 0, { target }) {
             if (!canChange()) 
                 return;
             if (target.classList.contains(queryNames.imageClass)) 
@@ -752,7 +752,7 @@ function createInstance () {
          * @param {HTMLElement} el 
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
-        imageDeleteIconEventBind(el, remove=false, data=undefined) {
+        imageDeleteIconEventBind(el, remove = false, data = void 0) {
             if (!el) return;
             remove ? 
                 el.removeEventListener('click', this.deleteOneImageIcon.bind(this)) : 
@@ -764,7 +764,7 @@ function createInstance () {
          * @param {HTMLElement} el 
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
-        imageSelectIconEventBind(el, remove=false, data=undefined) {
+        imageSelectIconEventBind(el, remove = false, data = void 0) {
             if (!el) return;
             remove ? 
                 el.removeEventListener('click', this.selectOneImageIcon.bind(this)) : 
@@ -776,7 +776,7 @@ function createInstance () {
          * @param {HTMLElement} el 
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
         */
-        imageElementEventBind (el, remove=false, data=undefined) {
+        imageElementEventBind (el, remove = false, data = void 0) {
             if (!el) return;
             remove ? 
                 el.removeEventListener('click', this.imageClick.bind(this)) : 

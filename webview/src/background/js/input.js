@@ -58,7 +58,7 @@ function createInputEvent () {
     /** 清除按钮 @type {HTMLElement} */
     clear = getId(inputInfo.clear),
     /** 当前输入框类型 */
-    type = undefined,
+    type = void 0,
     /** 记录输入框文本的变量 */
     value = '',
     /** 监听输入框数据状态的对象 @type {{type:number,value:string}} */

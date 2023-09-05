@@ -12,14 +12,8 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
-			"debugWebviews": true,
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"
-			],
-			"skipFiles": [
-				"<node_internals>/**",
-				"**/node_modules/**",
-				"**/resources/app/out/vs/**"
 			],
 			"preLaunchTask": "${defaultBuildTask}",
 			"env": {

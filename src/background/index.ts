@@ -1,5 +1,5 @@
 import { Uri, FileType, Disposable } from "vscode";
-import { $undefined, createExParamPromise, delay, getHashCode, queueCreate } from "../utils";
+import { createExParamPromise, delay, getHashCode, queueCreate } from "../utils";
 import { 
     createBuffer, 
     imageToBase64, 
@@ -202,7 +202,9 @@ export function clearBackgroundConfigExecute () {
                 message: '清除成功',
                 increment: 100
             });
-            return delay(1500);
+            return delay(500);
+        }).then(() => {
+            isWindowReloadToLoadBackimage("背景图配置清除成功，是否重启窗口");
         }).catch(err => {
             errlog(err);
         }).finally(() => {
@@ -389,7 +391,7 @@ function codeAdd (code: string, data: string): Promise<void> {
             Promise.resolve(
                 backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
             ).then(() => {
-                copyBackImgCodeList = $undefined();
+                copyBackImgCodeList = void 0;
                 refreshImageCodeList();
             }).then(() => {
                 $res();
@@ -428,7 +430,7 @@ function codeDelete (code: string): Promise<void> {
                     backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
                 );
             }).then(() => {
-                copyBackImgCodeList = $undefined();
+                copyBackImgCodeList = void 0;
                 refreshImageCodeList();
             }).then(() => {
                 $res();

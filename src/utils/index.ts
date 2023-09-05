@@ -63,7 +63,7 @@ export function *range (end: number, start: number = 0, step: number = 1) {
 export function getNonce() {
 	let text = '';
 	const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-	for (let i = 0; i < 32; i++) {
+	for (const i of range(32)) {
 		text += possible.charAt(Math.floor(Math.random() * possible.length));
 	}
 	return text;
@@ -77,7 +77,7 @@ export function getNonce() {
 export function getRandomCode (length: number | string = 24): string {
     let str: string = '';
     length = Number(length) || 24 as number;
-    for (let i: number = 0; i < length; i++) {
+    for (const i of range(length)) {
         str += Math.floor(Math.random() * 36).toString(36);
     }
     return str;

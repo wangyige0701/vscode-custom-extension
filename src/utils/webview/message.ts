@@ -79,8 +79,7 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
         const { execute, extra, queue = false } = config[name as K] as ExecuteType<F> & { execute: Array<ExecuteFunction<F>> };
         // 额外函数执行
         extra?.();
-        for (let i = 0; i < execute.length; i++) {
-            const target = execute[i];
+        for (const target of execute) {
             const { func, data = false, noneParam = false, param = void 0 } = target;
             if (!func || typeof func !== 'function') continue;
             // 是否需要传参并且参数有值

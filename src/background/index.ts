@@ -1,5 +1,5 @@
 import { Uri, FileType, Disposable } from "vscode";
-import { createExParamPromise, delay, getHashCode, queueCreate } from "../utils";
+import { createExParamPromise, delay, getHashCode, queueCreate, range } from "../utils";
 import { 
     createBuffer, 
     imageToBase64, 
@@ -528,7 +528,7 @@ function refreshBackgroundImageList (data: string[]): Promise<string[]> {
  * @param short 短一点的数组
  */
 async function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): Promise<void> {
-    for (let i = 0; i < long.length; i++) {
+    for (const i of range(long.length)) {
         const item = long[i], index = short.findIndex(i => i === item);
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
         if (index < 0) {
@@ -550,11 +550,12 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
     return new Promise((resolve, reject) => {
         try {
             const fileRequest: Array<Promise<{ buffer: Uint8Array, code: string }>> = [];
+            const searchRegexp = /(.*?).back.wyg$/;
             let checkArray: number[] = [];
-            for (let i = 0; i < files.length; i++) {
+            for (const i of range(files.length)) {
                 const file = files[i][0];
                 // 对满足要求的文件进行文件数据读取
-                const reg = file.match(/(.*?).back.wyg$/);
+                const reg = file.match(searchRegexp);
                 if (reg) {
                     const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
                     // 需要加一个index为-1的判断，防止递归死循环

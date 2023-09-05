@@ -9,14 +9,22 @@ import type { GetChecksumsData } from "./types/index";
 /** 捕获校验和数据位置 */
 const getChecksumsPositionRegexp = /^([\w\W]*"checksums"\s*:\s*\{)([^\{\}]*)(\}[\w\W]*)$/;
 
+/** 依次获取校验和所有数据 */
 const getChecksumsDataRegexp = /(?:"(.*)"\s*:\s*"(.*)")/g;
 
 /**
  * 计算文件校验和
  * @param content 需要计算的文件
  */
-export function computeFileChecksums (content: string) {
-    return createHash('md5').update(content).digest('base64').replace(/=+$/, '');
+export function computeFileChecksums (content: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        try {
+            const result = createHash('md5').update(content).digest('base64').replace(/=+$/, '');
+            resolve(result);
+        } catch (error) {
+            reject(promiseReject(error, 'computeFileChecksums'));
+        }
+    });
 }
 
 /** 获取product.json文件的位置 */
@@ -48,8 +56,8 @@ export function getCheckRoot (): Promise<string> {
     });
 }
 
-/** 获取当前所有校验和数据 */
-export function getChecksumsData (): Promise<void|Array<GetChecksumsData>> {
+/** 读取校验和文件的数据 */
+export function readChecksumsData (): Promise<string> {
     return new Promise((resolve, reject) => {
         getProduceRoot().then(path => {
             const uri = createUri(pathjoin(path, 'product.json'));
@@ -61,12 +69,21 @@ export function getChecksumsData (): Promise<void|Array<GetChecksumsData>> {
             }
         }).then(value => {
             if (value) {
-                return Promise.resolve(value.toString());
+                resolve(value.toString());
+                return;
             }
-        }).then(str => {
-            if (str) {
-                return Promise.resolve(str.match(getChecksumsPositionRegexp));
-            }
+            resolve('');
+        }).catch(err => {
+            reject(promiseReject(err, 'readChecksumsData'));
+        });
+    });
+}
+
+/** 获取当前所有校验和数据 */
+export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
+    return new Promise((resolve, reject) => {
+        readChecksumsData().then(str => {
+            return Promise.resolve(str.match(getChecksumsPositionRegexp));
         }).then(reg => {
             if (reg) {
                 return Promise.resolve(reg[2].matchAll(getChecksumsDataRegexp));
@@ -84,12 +101,26 @@ export function getChecksumsData (): Promise<void|Array<GetChecksumsData>> {
             }
         }).then(allContent => {
             if (!allContent || allContent.length <= 0) {
-                resolve();
+                resolve([]);
                 return;
             }
             resolve(allContent);
         }).catch(err => {
             reject(promiseReject(err, 'getChecksumsData'));
+        });
+    });
+}
+
+/**
+ * 获取所有校验和文件内路径属性的完整路径
+ */
+export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        getCheckRoot().then(root => {
+            const result = paths.map(path => pathjoin(root, path));
+            resolve(result);
+        }).catch(err => {
+            reject(promiseReject(err, 'getFullPathOfChecksum'));
         });
     });
 }

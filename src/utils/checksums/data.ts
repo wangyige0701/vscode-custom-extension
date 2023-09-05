@@ -1,66 +1,45 @@
-import type { CheckSumsData } from "./types/index";
+import type { CheckSumsData, ChecksumsDataOperation } from "./types/index";
 
-/** 校验和数据记录 */
-const mapData: Map<string, CheckSumsData> = new Map();
 
-export const checksumsMap = {
+export const checksumsMap: ChecksumsDataOperation<Map<string, CheckSumsData>> = new class {
+    /** 校验和数据记录 */
+    private mapData: Map<string, CheckSumsData> = new Map();
+
     /** 插入一条数据 */
-    set (path: string, data: CheckSumsData) {
-        mapData.set(path, data);
-    },
+    set (name: string, data: CheckSumsData) {
+        this.mapData.set(name, data);
+    }
 
     /** 获取数据 */
-    get (path: string): undefined | CheckSumsData {
-        return mapData.get(path);
-    },
+    get (name: string): undefined | CheckSumsData {
+        return this.mapData.get(name);
+    }
 
     /** 移除数据 */
-    delete (path: string) {
-        mapData.delete(path);
-    },
-
-    clear () {
-        mapData.clear();
-    },
-
-    origin () {
-        return mapData;
+    delete (name: string) {
+        this.mapData.delete(name);
     }
-}
 
-/** 文件校验和数组 */
-const arrayData: string[] = [];
+    /** map中是否含有指定数据 */
+    has (name: string) {
+        return this.mapData.has(name);
+    }
 
-export const checksumsArray = {
-    push (value: string) {
-        arrayData.push(value);
-    },
+    /** 清空map */
+    clear () {
+        this.mapData.clear();
+    }
 
-    shift () {
-        return arrayData.shift();
-    },
+    /** 更新校验和哈希值 */
+    update (name: string, hash: string) {
+        if (this.has(name)) {
+            const value = this.get(name)!;
+            value.value = hash;
+            this.set(name, value);
+        }
+    }
 
-    unshift (value: string) {
-        arrayData.unshift(value);
-    },
-
-    pop () {
-        return arrayData.pop();
-    },
-
-    length () {
-        return arrayData.length;
-    },
-
-    index (target: string) {
-        return arrayData.indexOf(target);
-    },
-
-    splice (start: number, deleteCount?: number) {
-        return arrayData.splice(start, deleteCount);
-    },
-
-    origin () {
-        return arrayData;
+    get origin () {
+        return this.mapData;
     }
 }

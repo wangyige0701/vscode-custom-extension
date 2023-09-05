@@ -69,12 +69,11 @@ export function readFileDir (): {list:string[], root:string} | undefined {
  * 判断生产环境压缩包是否存在
  */
 export function packageFileExits (): string[] | false {
-    let file_param: file_suffix[] = ['css', 'js'];
     try {
         let result: string[] = [];
         readFileDir()?.list.forEach(file => {
-            for (let i = 0; i < file_param.length; i++) {
-                let name = file_param[i], folder_path = path.join(file, name);
+            for (const name of (['css', 'js'] as file_suffix[])) {
+                let folder_path = path.join(file, name);
                 if (!(existsSync(folder_path) && readdirSync(folder_path).length > 0)) {
                     continue;
                 }

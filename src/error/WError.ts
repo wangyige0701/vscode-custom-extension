@@ -1,4 +1,4 @@
-import { isString } from "../utils";
+import { $undefined, isString } from "../utils";
 
 type Errorposition = 'Function' | 'Class' | 'Parameter';
 
@@ -35,16 +35,16 @@ export default class WError extends Error {
         /** 用于记录换行数 */
         let wrap = 1;
         
-        let position:Errorposition|undefined = undefined;
-        let ClassName:string|undefined = undefined;
-        let FunctionName:string|undefined = undefined;
-        let ParameterName:string|undefined = undefined;
+        let position:Errorposition|undefined = $undefined();
+        let ClassName:string|undefined = $undefined();
+        let FunctionName:string|undefined = $undefined();
+        let ParameterName:string|undefined = $undefined();
 
         // 错误详细信息
-        this.has(options, 'position') ? position = options.position : undefined;
-        this.has(options, 'ClassName') ? ClassName = options.ClassName : undefined;
-        this.has(options, 'FunctionName') ? FunctionName = options.FunctionName : undefined;
-        this.has(options, 'ParameterName') ? ParameterName = options.ParameterName : undefined;
+        this.has(options, 'position') ? position = options.position : $undefined();
+        this.has(options, 'ClassName') ? ClassName = options.ClassName : $undefined();
+        this.has(options, 'FunctionName') ? FunctionName = options.FunctionName : $undefined();
+        this.has(options, 'ParameterName') ? ParameterName = options.ParameterName : $undefined();
 
         wrap += this.checkPosition({position, ClassName, FunctionName, ParameterName});
 
@@ -61,7 +61,7 @@ export default class WError extends Error {
         if (this.stack) {
             let file = this.stack.split('\n').splice(wrap, 1)[0];
             if (file) this.message += `\n >> In File: ${file}\n`;
-            this.stack = undefined;
+            this.stack = $undefined();
         }
 
         // 获取具体原因并输出

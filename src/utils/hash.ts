@@ -18,7 +18,7 @@ export function selfHex (s: string) {
     let l = ((data.length + 8) >>> 6 << 4) + 16, u8: Uint8Array | undefined = new Uint8Array(l << 2);
     u8.set(new Uint8Array(data.buffer))
     let u32 = new Uint32Array(u8.buffer);
-    u8 = undefined;
+    u8 = void 0;
     let t: DataView = new DataView(u32.buffer)
     for (let i = 0; i < l; i++) {
         u32[i] = t.getUint32(i << 2);
@@ -76,7 +76,7 @@ function encodeUTF8 (s: string): number[] {
             r.push(0xC0 + (c >> 6 & 0x1F), 0x80 + (c & 0x3F));
         } else {
             // ^ 二进制异或运算
-            if ((x = c ^ 0x800) >> 10 == 0) {
+            if ((x = c ^ 0x800) >> 10 === 0) {
                 // 四字节UTF-16转为unicode
                 c = (x << 10) + (s.charCodeAt(++i) ^ 0xDC00) + 0x10000;
                 r.push(0xF0 + (c >> 18 & 0x7), 0x80 + (c >> 12 & 0x3F));

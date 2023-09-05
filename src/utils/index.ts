@@ -16,13 +16,13 @@ export function check (str: string, reg: RegExp = /^.*$/): boolean {
  * @param format {String} 时间内容展示格式
  * @returns 格式化日期字符串
  */
-export function getDate(date: Date | undefined = undefined, format: string = "YYYY-MM-DD hh:mm:ss"): string {
+export function getDate(date: Date | undefined = void 0, format: string = "YYYY-MM-DD hh:mm:ss"): string {
     let legal = '[^a-zA-Z0-9\\n\\f\\r\\t\\v]'; // 合法连接符
     let reg = new RegExp(`^YYYY(${legal}{1})MM(${legal}{1})DD(${legal}{1})hh(${legal}{1})mm(${legal}{1})ss$`);
     // 校验时间格式
     if (!format || !check(format, reg)) throw new Error("时间格式错误");
     // 判断是否传入日期
-    if (date === undefined) date = new Date();
+    if (isUndefined(date)) date = new Date();
     const formatCode = format.match(reg)?.slice(1, 6);
     // 获取时间连接符
     const [f1, f2, f3, f4, f5] = formatCode!;
@@ -221,17 +221,24 @@ export function firstUpperCase (data: string) {
  */
 export function queueCreate (immediately: boolean = true) {
     let executeing: boolean = false;
-    const queue: Function[] = [];
+    const queue: Array<Function|Promise<any>> = [];
     /** 插入队列 */
-    function set (func: Function) {
-        if (!func || typeof func !== 'function') return;
+    function set (func: Function|Promise<any>) {
+        if (!func || typeof func !== 'function' || !(func instanceof Promise)) return;
         queue.push(func);
         if (immediately && !executeing) execute();
     }
     /** 执行队列 */
     function execute () {
+        if (queue.length <= 0) {
+            executeing = false;
+            return;
+        }
         executeing = true;
-        Promise.resolve(queue.shift()?.()).then(() => {
+        const executeTarget = queue.shift();
+        Promise.resolve(
+            typeof executeTarget === 'function' ? executeTarget() : executeTarget
+        ).then(() => {
             if (queue.length === 0) {
                 executeing = false;
             } else {
@@ -264,4 +271,11 @@ export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, 
             reject(err);
         });
     });
+}
+
+/**
+ * 创建一个undefined
+ */
+export function $undefined (): undefined {
+    return void 0;
 }

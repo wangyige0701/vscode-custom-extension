@@ -36,7 +36,7 @@ export function minifyCss (content: string): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
             // 将process第二个参数的from设置为undefinded,防止生成错误的源映射
-            postcss([cssnano]).process(content, { from: undefined }).then(res => {
+            postcss([cssnano]).process(content, { from: void 0 }).then(res => {
                 if (res.css) {
                     resolve(res.css);
                 } else {

@@ -10,7 +10,7 @@ import {
     callbackType
 } from "./type";
 import { errlog } from "../../error";
-import { firstUpperCase } from "..";
+import { firstUpperCase, isUndefined } from "..";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
@@ -73,7 +73,7 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
             target.execute = [target.execute];
         }
     }
-    return <K extends GetName<T>, F = Extract<T, { name: GetName<T> }>["value"]>(name: string, value: any = undefined) => {
+    return <K extends GetName<T>, F = Extract<T, { name: GetName<T> }>["value"]>(name: string, value: any = void 0) => {
         if (!name || !(name in config)) return;
         /** 获取执行函数和是否队列执行判断 */
         const { execute, extra, queue = false } = config[name as K] as ExecuteType<F> & { execute: Array<ExecuteFunction<F>> };
@@ -81,12 +81,12 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
         extra?.();
         for (let i = 0; i < execute.length; i++) {
             const target = execute[i];
-            const { func, data = false, noneParam = false, param = undefined } = target;
+            const { func, data = false, noneParam = false, param = void 0 } = target;
             if (!func || typeof func !== 'function') continue;
             // 是否需要传参并且参数有值
-            if (data && value === undefined && param === undefined) continue;
-            const executeFunction = (param === undefined) // 当局部传参有数据时默认传局部参数
-            ? (value !== undefined && !noneParam) // 全局传参是否有数据并且需要参数
+            if (data && isUndefined(value) && isUndefined(param)) continue;
+            const executeFunction = isUndefined(param) // 当局部传参有数据时默认传局部参数
+            ? (!isUndefined(value) && !noneParam) // 全局传参是否有数据并且需要参数
                 ? (func as (value: any) => void).bind(null, value) 
                 : (func as () => void).bind(null) 
             : (func as (value: any) => void).bind(null, param);

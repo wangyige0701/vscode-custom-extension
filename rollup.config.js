@@ -5,31 +5,47 @@ const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
 const path = require('path');
 
-module.exports = {
-    input: ['src/extension.ts', 'src/uninstall.ts'],
-    output: [{
-        file: 'dist/extension.js',
-        format: 'cjs'
-    }, {
-        file: 'dist/uninstall.js',
-        format: 'cjs'
-    }],
-    external: ["vscode"],
-    plugins: [
-        typescript({ 
-            tsconfig: './tsconfig.json',
-            compilerOptions: {
-                module: "ESNext",
-                moduleResolution: "Node",
-                sourceMap: false
-            }
-        }),
-        resolve(),
-        json(),
-        commonjs(),
-        terser(),
-        changeRequire('..')
-    ]
+module.exports = [
+    bundle({
+        input: 'src/extension.ts',
+        output: {
+            file: 'dist/extension.js',
+            format: 'cjs'
+        }
+    }),
+    bundle({
+        input: 'src/uninstall.ts',
+        output: {
+            file: 'dist/uninstall.js',
+            format: 'cjs'
+        }
+    })
+]
+
+/**
+ * 多输出文件配置
+ * @param {Object} config
+ */
+function bundle (config) {
+    return {
+        ...config,
+        external: ["vscode"],
+        plugins: [
+            typescript({
+                tsconfig: './tsconfig.json',
+                compilerOptions: {
+                    module: "ESNext",
+                    moduleResolution: "Node",
+                    sourceMap: false
+                }
+            }),
+            resolve(),
+            json(),
+            commonjs(),
+            terser(),
+            changeRequire('..')
+        ]
+    };
 }
 
 /**

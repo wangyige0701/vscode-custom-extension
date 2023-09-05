@@ -528,8 +528,8 @@ function refreshBackgroundImageList (data: string[]): Promise<string[]> {
  * @param short 短一点的数组
  */
 async function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): Promise<void> {
-    for (const i of range(long.length)) {
-        const item = long[i], index = short.findIndex(i => i === item);
+    for (const item of long) {
+        const index = short.findIndex(i => i === item);
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
         if (index < 0) {
             await backgroundImageConfiguration.setBackgroundAllImageCodes(item, type).catch(err => {
@@ -549,9 +549,12 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
 function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferAndCode[]> {
     return new Promise((resolve, reject) => {
         try {
-            const fileRequest: Array<Promise<{ buffer: Uint8Array, code: string }>> = [];
-            const searchRegexp = /(.*?).back.wyg$/;
-            let checkArray: number[] = [];
+            /** 异步处理数组 */
+            const fileRequest: Array<Promise<{ buffer: Uint8Array, code: string }>> = [],
+            /** 匹配文件正则 */
+            searchRegexp = /(.*?).back.wyg$/,
+            /** 辅助检测数组 */
+            checkArray: number[] = [];
             for (const i of range(files.length)) {
                 const file = files[i][0];
                 // 对满足要求的文件进行文件数据读取

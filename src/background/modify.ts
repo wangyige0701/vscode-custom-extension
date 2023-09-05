@@ -7,13 +7,7 @@ import { createExParamPromise, getDate } from "../utils";
 import { createBuffer, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { Disposable, Uri, version } from "vscode";
-import { 
-    changeLoadState, 
-    getNewBackgroundOpacity, 
-    imageStoreUri, 
-    isWindowReloadToLoadBackimage, 
-    setBackgroundImageSuccess 
-} from "./utils";
+import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../version";
 import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../utils/interactive";
@@ -169,7 +163,6 @@ export function deletebackgroundCssFileModification (): Promise<void> {
             return deleteConfiguration();
         }).then(() => {
             setBackgroundImageSuccess("背景图配置删除成功");
-            isWindowReloadToLoadBackimage("背景图配置删除成功，是否重启窗口");
             resolve();
         }).catch(err => {
             reject(promiseReject(err, 'deletebackgroundCssFileModification'));

@@ -1,7 +1,6 @@
 import type { ExtensionContext } from 'vscode';
 import { registBackground } from './background/regist';
 import { contextContainer } from './utils/webview/index';
-import { $undefined } from './utils';
 
 export function activate(context: ExtensionContext) {
 	contextContainer.instance = context;
@@ -12,5 +11,5 @@ export function activate(context: ExtensionContext) {
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-	contextContainer.instance = $undefined();
+	contextContainer.instance = void 0;
 }

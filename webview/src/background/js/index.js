@@ -319,7 +319,7 @@ function initImageData (array) {
  * @param {string[]} array 
  * @param {Function} callback 
  */
-function firstLoadImages (array, callback=undefined) {
+function firstLoadImages (array, callback = void 0) {
     for (let i = 0; i < array.length; i++) {
         const code = array[i]
         publicData.imageRenderList?.push({

@@ -224,7 +224,7 @@ export function queueCreate (immediately: boolean = true) {
     const queue: Array<Function|Promise<any>> = [];
     /** 插入队列 */
     function set (func: Function|Promise<any>) {
-        if (!func || typeof func !== 'function' || !(func instanceof Promise)) return;
+        if (!func || (typeof func !== 'function' && !(func instanceof Promise))) return;
         queue.push(func);
         if (immediately && !executeing) execute();
     }
@@ -271,11 +271,4 @@ export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, 
             reject(err);
         });
     });
-}
-
-/**
- * 创建一个undefined
- */
-export function $undefined (): undefined {
-    return void 0;
 }

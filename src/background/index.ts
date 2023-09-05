@@ -180,6 +180,15 @@ export function deleteImage (...code: string[]) {
 /** 清除背景图相关设置 */
 export function clearBackgroundConfig () {
     isChangeBackgroundImage('是否清除背景图配置').then(() => {
+        const nowCode = backgroundImageConfiguration.getBackgroundNowImageCode();
+        if (nowCode) {
+            // 发送settingBackgroundSuccess数据通知webview侧关闭当前图片的选中样式
+            backgroundSendMessage({
+                name: 'settingBackgroundSuccess',
+                value: nowCode
+            });
+        }
+    }).then(() => {
         return Promise.resolve(clearBackgroundConfigExecute());
     }).then(() => {
         if (backgroundImageConfiguration.getBackgroundIsRandom()) {

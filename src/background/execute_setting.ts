@@ -1,5 +1,5 @@
 import { modifyCssFileForBackground } from "./modify";
-import { showProgress } from "../utils/interactive";
+import { showMessage, showProgress } from "../utils/interactive";
 import { delay } from "../utils";
 import { backgroundImageConfiguration } from "../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
@@ -24,30 +24,43 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
     }
     // 如果不是随机切换背景图，则表示当前需要弹出提示
     isChangeBackgroundImage().then(() => {
-        showProgress({
-            location: 'Notification',
-            title: '背景图设置中'
-        }, (progress) => {
-            return <Promise<void>> new Promise(resolve => {
-                setting(code, false).then(() => {
-                    backgroundSendMessage({
-                        name: 'settingBackgroundSuccess',
-                        value: index!
-                    });
-                    progress.report({
-                        message: '设置成功',
-                        increment: 100
-                    });
-                    return delay(500);
-                }).then(() => {
-                    isWindowReloadToLoadBackimage();
-                }).finally(() => {
-                    resolve();
-                });
-            }); 
+        // 判断需要设置的图片哈希码是否和当前背景图哈希码不相同
+        return Promise.resolve(code !== backgroundImageConfiguration.getBackgroundNowImageCode());
+    }).then(state => {
+        if (state) {
+            return Promise.resolve(settingProgress(code, index!));
+        }
+        showMessage({
+            message: `此图片当前已设置为背景图`
         });
     }).catch((error) => {
         errlog(error);
+    });
+}
+
+/** 执行设置背景图方法 */
+function settingProgress (code: string, index: number) {
+    return showProgress({
+        location: 'Notification',
+        title: '背景图设置中'
+    }, (progress) => {
+        return <Promise<void>> new Promise(resolve => {
+            setting(code, false).then(() => {
+                backgroundSendMessage({
+                    name: 'settingBackgroundSuccess',
+                    value: index!
+                });
+                progress.report({
+                    message: '设置成功',
+                    increment: 100
+                });
+                return delay(500);
+            }).then(() => {
+                isWindowReloadToLoadBackimage();
+            }).finally(() => {
+                resolve();
+            });
+        }); 
     });
 }
 

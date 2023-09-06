@@ -21,7 +21,7 @@
 		"src/**/*"
 	],
 	"exclude": [
-		"src/filePackage",
+		"src/package",
 		"src/uninstall.ts"
 	]
 }

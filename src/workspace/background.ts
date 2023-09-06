@@ -7,7 +7,7 @@ import { contextContainer } from "../utils/webview";
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
 
-/** 背景图配置项对象 */
+/** 背景图配置项实例 */
 export class BackgroundConfiguration {
     /** 命名空间 */
     static namespace = 'wangyige.background';

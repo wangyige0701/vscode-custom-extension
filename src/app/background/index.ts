@@ -11,7 +11,7 @@ import {
 } from "../../utils/file";
 import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";
 import { WError, errlog, promiseReject } from "../../error";
-import { backgroundImageConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration } from "../../workspace/background";
 import { 
     changeLoadState, 
     imageStoreUri, 
@@ -35,7 +35,7 @@ const backgroundImageCodeList: string[] = [];
 refreshImageCodeList();
 
 /** 选择文件的默认路径 */
-var selectFileDefaultPath = backgroundImageConfiguration.getBackgroundSelectDefaultPath();
+var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;
 
 /** 储存哈希码和图片base64数据的键值对 */
 const repositoryData: { [key: string]: string } = {};
@@ -60,7 +60,7 @@ const backImgCodeSetQueue = queueCreate();
 /** 从工作区中获取储存的哈希码数据并更新至缓存数组中 */
 function refreshImageCodeList () {
     // 更新储存列表数据
-    let cache: string[] | null = backgroundImageConfiguration.getBackgroundAllImageCodes();
+    let cache: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
     backgroundImageCodeList.length = cache.length;
     cache.forEach((item, index) => {
         if (backgroundImageCodeList[index] !== item) {
@@ -97,7 +97,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             message: '背景图文件校验中'
         });
         Promise.resolve(<Promise<void>>new Promise((resolve) => {
-            const isBack = backgroundImageConfiguration.getBackgroundIsSetBackground();
+            const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
             if (!isBack) {
                 // 当前没有设置背景图，则直接跳出检测
                 throw { jump: true, data: false };
@@ -180,7 +180,7 @@ export function deleteImage (...code: string[]) {
 /** 清除背景图相关设置 */
 export function clearBackgroundConfig () {
     isChangeBackgroundImage('是否清除背景图配置').then(() => {
-        const nowCode = backgroundImageConfiguration.getBackgroundNowImageCode();
+        const nowCode = BackgroundConfiguration.getBackgroundNowImageCode;
         if (nowCode) {
             // 发送settingBackgroundSuccess数据通知webview侧关闭当前图片的选中样式
             backgroundSendMessage({
@@ -191,7 +191,7 @@ export function clearBackgroundConfig () {
     }).then(() => {
         return Promise.resolve(clearBackgroundConfigExecute());
     }).then(() => {
-        if (backgroundImageConfiguration.getBackgroundIsRandom()) {
+        if (BackgroundConfiguration.getBackgroundIsRandom) {
             // 如果当前设置了随机切换，需要关闭
             randomSettingBackground(false, false);
         }
@@ -235,7 +235,7 @@ export function selectImage () {
         return <Promise<Uri[]>>new Promise((resolve, reject) => {
             // 选择一次文件后保存默认选择路径
             Promise.resolve(
-                backgroundImageConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName)
+                BackgroundConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName)
             ).then(() => {
                 resolve(uri);
             }).catch(err => {
@@ -306,18 +306,18 @@ export function backgroundImageDataInit () {
         length = str.length;
     }).then(() => {
         // 通过缓存获取图片哈希码发送
-        const state = backgroundImageConfiguration.getBackgroundIsSetBackground();
+        const state = BackgroundConfiguration.getBackgroundIsSetBackground;
         if (state) {
             backgroundSendMessage({
                 name: 'settingBackgroundSuccess',
-                value: backgroundImageConfiguration.getBackgroundNowImageCode()
+                value: BackgroundConfiguration.getBackgroundNowImageCode
             });
         }
     }).then(() => {
         // 发送当前透明度
         backgroundSendMessage({
             name: 'nowBackgroundOpacity',
-            value: backgroundImageConfiguration.getBackgroundOpacity()
+            value: BackgroundConfiguration.getBackgroundOpacity
         });
     }).catch(err => {
         errlog(err);
@@ -332,8 +332,8 @@ export function backgroundImageDataInit () {
         // 获取当前随机设置背景图的状态，发送响应消息
         backgroundSendMessage({
             name: 'backgroundRandomList',
-            value: backgroundImageConfiguration.getBackgroundIsRandom() ? 
-                backgroundImageConfiguration.getBackgroundRandomList() : 
+            value: BackgroundConfiguration.getBackgroundIsRandom ? 
+                BackgroundConfiguration.getBackgroundRandomList : 
                 false
         });
         statusBarTarget?.dispose();
@@ -400,7 +400,7 @@ function codeAdd (code: string, data: string): Promise<void> {
         let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
         backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
             Promise.resolve(
-                backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
+                BackgroundConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
             ).then(() => {
                 copyBackImgCodeList = void 0;
                 refreshImageCodeList();
@@ -432,17 +432,17 @@ function codeDelete (code: string): Promise<void> {
         backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
             Promise.resolve().then(() => {
                 // 判断删除图片是否在随机切换数组中
-                const randomList = backgroundImageConfiguration.getBackgroundRandomList();
+                const randomList = BackgroundConfiguration.getBackgroundRandomList;
                 if (randomList.length > 0 && randomList.includes(code)) {
                     // 如果在，则更新随机数组，将删除掉的哈希码去除
-                    return Promise.resolve(backgroundImageConfiguration.setBackgroundRandomList(
+                    return Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(
                         randomList.splice(randomList.findIndex(item => item === code, 1))
                     ));
                 }
             }).then(() => {
                 // 如果对储存数据进行了修改则更新当前缓存对象
                 return Promise.resolve(
-                    backgroundImageConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
+                    BackgroundConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
                 );
             }).then(() => {
                 copyBackImgCodeList = void 0;
@@ -511,7 +511,7 @@ function hasHashCode (code: string): boolean {
  */
 function refreshBackgroundImageList (data: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        let cacheData: string[] | null = backgroundImageConfiguration.getBackgroundAllImageCodes();
+        let cacheData: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
         if (data.length === cacheData.length) {
             resolve(data);
             return;
@@ -547,7 +547,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
         const index = short.findIndex(i => i === item);
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
         if (index < 0) {
-            await backgroundImageConfiguration.setBackgroundAllImageCodes(item, type).catch(err => {
+            await BackgroundConfiguration.setBackgroundAllImageCodes(item, type).catch(err => {
                 return Promise.reject(promiseReject(err, 'compareCodeList'));
             });
         }

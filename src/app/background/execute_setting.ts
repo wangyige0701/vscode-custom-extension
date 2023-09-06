@@ -1,7 +1,7 @@
 import { modifyCssFileForBackground } from "./modify";
 import { showMessage, showProgress } from "../../utils/interactive";
 import { delay } from "../../utils";
-import { backgroundImageConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { isChangeBackgroundImage, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
 import { errlog, promiseReject } from "../../error";
@@ -25,7 +25,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
     // 如果不是随机切换背景图，则表示当前需要弹出提示
     isChangeBackgroundImage().then(() => {
         // 判断需要设置的图片哈希码是否和当前背景图哈希码不相同
-        return Promise.resolve(code !== backgroundImageConfiguration.getBackgroundNowImageCode());
+        return Promise.resolve(code !== BackgroundConfiguration.getBackgroundNowImageCode);
     }).then(state => {
         if (state) {
             return Promise.resolve(settingProgress(code, index!));
@@ -75,10 +75,10 @@ function setting (code: string, random: boolean): Promise<void> {
         let close = false;
         modifyCssFileForBackground(code, random).then(() => {
             // 如果传入random参数为true，则不会关闭随机切换背景图状态
-            if (!random && backgroundImageConfiguration.getBackgroundIsRandom()) {
+            if (!random && BackgroundConfiguration.getBackgroundIsRandom) {
                 // 如果选中背景图设置则会关闭随机切换背景图
                 close = true;
-                return backgroundImageConfiguration.setBackgroundIsRandom(false);
+                return BackgroundConfiguration.setBackgroundIsRandom(false);
             }
         }).then(() => {
             if (close) {

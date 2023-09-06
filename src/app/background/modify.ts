@@ -5,7 +5,7 @@
 import { dirname, join as pathjoin } from "path";
 import { createExParamPromise, getDate } from "../../utils";
 import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
-import { backgroundImageConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration } from "../../workspace/background";
 import { Disposable, Uri, version } from "vscode";
 import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "./utils";
 import { getVersion } from "../../version";
@@ -318,16 +318,16 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
             return;
         }
         Promise.resolve(
-            backgroundImageConfiguration.setBackgroundIsSetBackground(true)
+            BackgroundConfiguration.setBackgroundIsSetBackground(true)
         ).then(() => {
             // 当不是随机切换时，将code存入当前图片缓存，否则存入随机切换图片缓存
             if (!random) {
                 return Promise.resolve(
-                    backgroundImageConfiguration.setBackgroundNowImageCode(options.ImageCode)
+                    BackgroundConfiguration.setBackgroundNowImageCode(options.ImageCode)
                 );
             }
             return Promise.resolve(
-                backgroundImageConfiguration.setBackgroundRandomCode(options.ImageCode)
+                BackgroundConfiguration.setBackgroundRandomCode(options.ImageCode)
             );
         }).then(() => {
             resolve();
@@ -341,10 +341,10 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
 function deleteConfiguration (): Promise<void> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
-            backgroundImageConfiguration.setBackgroundNowImageCode("")
+            BackgroundConfiguration.setBackgroundNowImageCode("")
         ).then(() => {
             return Promise.resolve(
-                backgroundImageConfiguration.setBackgroundIsSetBackground(false)
+                BackgroundConfiguration.setBackgroundIsSetBackground(false)
             );
         }).then(() => {
             resolve();
@@ -463,7 +463,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
             }
             return readFileUri(newUri(uri, `${codeValue}.back.wyg`));
         }).then(image => {
-            const opacity = getNewBackgroundOpacity(backgroundImageConfiguration.getBackgroundOpacity());
+            const opacity = getNewBackgroundOpacity(BackgroundConfiguration.getBackgroundOpacity);
             const delay = 2; // 动画延迟的时间
             resolve([
                 `${importStart+'\n'
@@ -505,7 +505,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
 function getNowSettingCode (): Promise<string | false> {
     return new Promise((resolve, reject) => {
         try {
-            const storageCode = backgroundImageConfiguration.getBackgroundNowImageCode();
+            const storageCode = BackgroundConfiguration.getBackgroundNowImageCode;
             if (!storageCode) {
                 resolve(false);
             } else {

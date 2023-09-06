@@ -2,7 +2,7 @@ import { Disposable, commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
 import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
-import { backgroundImageConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
 import { bindMessageCallback } from "../../utils/webview/message";
 import { backgroundExecute } from "./execute";
@@ -49,21 +49,21 @@ export function registBackground (): void {
 /** 检测当前状态是否为背景随机切换，是则更新随机图片缓存到当前图片缓存中 */
 function checkRandomCode (): Promise<boolean> {
 	return new Promise((resolve, reject) => {
-		if (!backgroundImageConfiguration.getBackgroundIsRandom()) {
+		if (!BackgroundConfiguration.getBackgroundIsRandom) {
 			resolve(false);
 			return;
 		}
 		// 当状态为随机切换时，更新当前选择图片数据
-		const code = backgroundImageConfiguration.getBackgroundRandomCode();
+		const code = BackgroundConfiguration.getBackgroundRandomCode;
 		if (!code) {
 			resolve(false);
 			return;
 		}
 		Promise.resolve(
-			backgroundImageConfiguration.setBackgroundNowImageCode(code)
+			BackgroundConfiguration.setBackgroundNowImageCode(code)
 		).then(() => {
 			return Promise.resolve(
-				backgroundImageConfiguration.setBackgroundRandomCode('')
+				BackgroundConfiguration.setBackgroundRandomCode('')
 			);
 		}).then(() => {
 			resolve(true);

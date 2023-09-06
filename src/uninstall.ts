@@ -1,4 +1,4 @@
-import { clearBackgroundConfigExecute } from "./background/index";
+import { clearBackgroundConfigExecute } from "./app/background/index";
 
 /** 清除配置 */
 function uninstall () {

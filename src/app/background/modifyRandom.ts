@@ -1,7 +1,7 @@
-import { errlog } from "../error";
-import { getRandom } from "../utils";
-import { showMessage } from "../utils/interactive";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { errlog } from "../../error";
+import { getRandom } from "../../utils";
+import { showMessage } from "../../utils/interactive";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { closeRandomBackground, isChangeBackgroundImage } from "./utils";
 import { settingImage } from "./execute_setting";

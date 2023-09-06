@@ -1,10 +1,10 @@
 import { createFileStore } from ".";
-import { WError, errlog, promiseReject } from "../error";
-import { base64ByFiletypeAndData, imageToBase64Type } from "../utils/file";
-import { showMessage } from "../utils/interactive";
-import { imageUrl } from "../utils/regexp";
-import { GetImage } from "../utils/request/utils";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { WError, errlog, promiseReject } from "../../error";
+import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
+import { showMessage } from "../../utils/interactive";
+import { imageUrl } from "../../utils/regexp";
+import { GetImage } from "../../utils/request/utils";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { 
     getExternalCssModifyOpacityContent, 

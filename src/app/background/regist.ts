@@ -1,15 +1,15 @@
 import { Disposable, commands } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
-import { registWebviewProvider } from "../utils/webview/provider";
+import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
-import { bindMessageCallback } from "../utils/webview/message";
+import { bindMessageCallback } from "../../utils/webview/message";
 import { backgroundExecute } from "./execute";
-import { copyFileWhenVersionChange } from "../version/versionChange";
-import { setStatusBarResolve } from "../utils/interactive";
-import { errlog, promiseReject } from "../error";
-import { createExParamPromise } from "../utils";
+import { copyFileWhenVersionChange } from "../../version/versionChange";
+import { setStatusBarResolve } from "../../utils/interactive";
+import { errlog, promiseReject } from "../../error";
+import { createExParamPromise } from "../../utils";
 
 /** 注册背景图设置功能 */
 export function registBackground (): void {

@@ -1,11 +1,11 @@
-import { createDirectoryUri, isFileExits, joinPathUri } from "../utils/file";
-import { showMessage, setStatusBar } from "../utils/interactive";
-import { windowReload } from "../utils/system";
-import { contextContainer } from "../utils/webview/index";
+import { createDirectoryUri, isFileExits, joinPathUri } from "../../utils/file";
+import { showMessage, setStatusBar } from "../../utils/interactive";
+import { windowReload } from "../../utils/system";
+import { contextContainer } from "../../utils/webview/index";
 import { Uri } from "vscode";
-import { backgroundImageConfiguration, defaultPath } from "../workspace/background";
-import { WError, errlog, promiseReject } from "../error";
-import { minmax } from "../utils";
+import { backgroundImageConfiguration, defaultPath } from "../../workspace/background";
+import { WError, errlog, promiseReject } from "../../error";
+import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */

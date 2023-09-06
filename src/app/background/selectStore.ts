@@ -1,5 +1,5 @@
-import { errlog } from "../error";
-import { selectFile, showMessage } from "../utils/interactive";
+import { errlog } from "../../error";
+import { selectFile, showMessage } from "../../utils/interactive";
 import { resetImageStorePath } from "./utils";
 
 /** 选择文件夹作为背景图数据储存路径 */

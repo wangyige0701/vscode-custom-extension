@@ -4,6 +4,6 @@
 		"strict": true,   /* enable all strict type-checking options */
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"moduleResolution": "Node",
+		"moduleResolution": "Node"
 	}
 }

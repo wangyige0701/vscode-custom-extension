@@ -2,6 +2,8 @@ import { ExtensionContext, Webview } from "vscode";
 
 /* 扩展侧和webview侧通信的类型 */
 
+type ExternalFile = 'css' | 'js';
+
 /** 所有的通信组 */
 export type MessageGroup = 'background' | 'viewImage';
 

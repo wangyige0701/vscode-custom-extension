@@ -1,5 +1,5 @@
 import { existsSync, readdir } from "fs";
-import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent, consoleByColor } from ".";
+import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent, consoleByColor, createExParamPromise } from ".";
 import { bisectionAsce } from '../utils/algorithm';
 import path from "path";
 
@@ -27,20 +27,36 @@ if (!process.env.NODE_ENV) {
     console.log(consoleByColor('blue', '开始预发布webview相关文件打包...'));
     let file_param: file_suffix[] = ['css', 'js'];
     let root = getRoot();
-    const ext_css: string[] = [], ext_js: string[] = [];
+    /** 文件路径存放 */
+    const ext_files: {
+        css: string[];
+        js: string[];
+    } = {
+        css: [],
+        js: []
+    };
     const now_version = now_ver();
     var ver_text = `/* version: ${now_version} */`;
     // 获取公共css、js文件
-    dir_content(root).then(res => {
-        res.forEach(item => {
-            const type = path.extname(item);
-            if (type === '.js') {
-                ext_js.push(path.join(root, item));
-            } else if (type === '.css') {
-                ext_css.push(path.join(root, item));
+    const getAllExternalFile: Promise<[string[], file_suffix]>[] = file_param.map(item => {
+        return createExParamPromise(dir_content(path.join(root, item)), item);
+    });
+    Promise.all(getAllExternalFile).then((datas) => {
+        for (const data of datas) {
+            const [files, name] = data;
+            for (const file of files) {
+                if (!(name in ext_files)) {
+                    continue;
+                }
+                // 判断文件后缀名是否相同
+                if (!file.endsWith(name)) {
+                    continue;
+                }
+                // 文件数据插入数组
+                ext_files[name].push(path.join(root, name, file));
             }
-        });
-        return toPackage(file_param, { css: ext_css, js: ext_js });
+        }
+        return toPackage(file_param, { css: ext_files.css, js: ext_files.js });
     }).then(() => {
         ProcessExit(consoleByColor('green', `\n打包完成   （预发布版本：v${now_version}）\n`), 0);
     }).catch(err => {

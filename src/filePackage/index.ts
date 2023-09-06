@@ -159,3 +159,19 @@ export function consoleByColor (color: 'red'|'green'|'blue'|'yellow', content: s
             return content;
     }
 }
+
+/** 将第一个类型和数组中的类型合并 */
+type MergeTypes<T, P extends Array<any>> = [T, ...P];
+
+/**
+ * 创建带有额外参数的promise
+ */
+export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, ...params: P): Promise<MergeTypes<T, P>> {
+    return new Promise((resolve, reject) => {
+        Promise.resolve(prom).then(data => {
+            resolve([data, ...params]);
+        }).catch(err => {
+            reject(err);
+        });
+    });
+}

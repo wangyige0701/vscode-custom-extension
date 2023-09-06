@@ -15,7 +15,7 @@ const viewImageWebviewFuncs: {
 } = {
     didDispose: null,
     didChange: null
-}
+};
 
 /** 调用方法的webview对象 */
 var webviewTarget: Webview | null = null;
@@ -44,7 +44,9 @@ export function toViewImage (code: string, image: string | Function, title: stri
 
 /** webview实例处理 */
 function viewInstanceCreate (code: string, title: string, useWebView: Webview) {
-    if (!code) return;
+    if (!code) {
+        return;
+    }
     // 实例判断
     if (!viewImageWebviewInstance) {
         // 注册webview页面
@@ -140,7 +142,9 @@ const messageReceiver = messageExecute<viewImageMessageData>({
         execute: {
             func: (value) => {
                 // webview侧清除旧图片数据成功，执行图片数据加载方法
-                if (value) imageDataQueue.execute();
+                if (value) {
+                    imageDataQueue.execute();
+                }
             }
         }
     }

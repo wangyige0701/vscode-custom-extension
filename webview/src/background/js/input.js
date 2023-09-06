@@ -32,7 +32,7 @@ const inputInfo = {
         regexp: /^(1)$|^(0\.[1-9]+([0-9]*[1-9])?)$/,
         message: '只能输入0.1~1的数字'
     }],
-}
+};
 
 /** 输入框事件绑定 */
 const inputDataWatcher = createInputEvent();
@@ -87,8 +87,14 @@ function createInputEvent () {
             set (newValue) {
                 // 输入框只限制text类型，数字校验手动进行，数字类型输入框删除加减按钮失败
                 if (typeof newValue === 'string') {
-                    if (newValue && isNumber(this.type) && inputInfo.inputType[this.type] === 'number' 
-                    && (!newValue.match(/^(?!\.)/) || (newValue.match(/\./g) && newValue.match(/\./g).length > 1))) {
+                    if (
+                        newValue 
+                        && isNumber(this.type) && inputInfo.inputType[this.type] === 'number' 
+                        && (
+                            !newValue.match(/^(?!\.)/) 
+                            || (newValue.match(/\./g) && newValue.match(/\./g).length > 1)
+                        )
+                    ) {
                         // 数字校验，number类型转换float类型后不能为NaN，小数点不能出现在开头并且不能出现两个以上
                         value = isNaN(parseFloat(newValue)) ? value : String(parseFloat(newValue));
                     } else {
@@ -112,23 +118,23 @@ function createInputEvent () {
     // 文本框输入更新对象属性
     inputTarget.oninput = function ({ target: { value } }) {
         inputDataWatcher.value = value;
-    }
+    };
     inputTarget.onfocus = function () {
         box.classList.add(inputInfo.focus);
-    }
+    };
     inputTarget.onblur = function () {
         box.classList.remove(inputInfo.focus);
-    }
+    };
     // 回车
     inputTarget.onkeydown = function ({ code }) {
         if (code === 'Enter') {
             inputSendInfo.call(inputDataWatcher);
         }
-    }
+    };
     // 清除按钮
     clear.onclick = function () {
         inputDataWatcher.value = "";
-    }
+    };
     // 确认按钮
     confirm.onclick = inputSendInfo.bind(inputDataWatcher);
     // 切换按钮绑定
@@ -136,14 +142,16 @@ function createInputEvent () {
         item.onclick = function () {
             inputDataWatcher.type = index;
             inputDataWatcher.value = "";
-        }
+        };
     });
     // 输入框操作按钮统一方法
     operation.forEach(item => {
         // 统一阻止冒泡
         item.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (lockSet.inputConfirm) return;
+            if (lockSet.inputConfirm) {
+                return;
+            }
             inputTarget.focus();
         });
     });
@@ -182,15 +190,15 @@ function createInputSelection (target) {
  * @param {boolean} empty 是否需要校验空值
  */
 function inputStartCheck (index, value, empty=false) {
-    let box = getId(inputInfo.box);
-    let reg = inputInfo.match[index];
-    let state;
+    let box = getId(inputInfo.box),
+    reg = inputInfo.match[index],
+    state;
     if (reg && (value || (!value && empty))) {
         state = inputWarnignState(box, reg.message, !getRegExpContent(reg.regexp).test(value));
     } else {
         state = inputWarnignState(box, '', false);
     }
-    reg = null;box = null;
+    reg = null, box = null;
     return state;
 }
 
@@ -228,9 +236,15 @@ function getRegExpContent (data) {
 
 /** 发送输入框数据进行处理 */
 function inputSendInfo () {
-    if (this.type === 1) backOpacityRange(this);
-    if (!canChange()) return;
-    if (inputStartCheck(this.type, this.value, true)) return;
+    if (this.type === 1) {
+        backOpacityRange(this);
+    }
+    if (!canChange()) {
+        return;
+    }
+    if (inputStartCheck(this.type, this.value, true)) {
+        return;
+    }
     lockSet.inputConfirm = true;
     switch (this.type) {
         case 0:
@@ -303,7 +317,9 @@ function inputSelectionClass (ellist, index) {
  */
 function inputConfirmButtonLock (value) {
     const icon = getId(inputInfo.confirm);
-    if (!icon) return;
+    if (!icon) {
+        return;
+    }
     if (value) {
         // 为true上锁，添加加载图标
         icon.innerHTML = iconCode.loadingSingle;

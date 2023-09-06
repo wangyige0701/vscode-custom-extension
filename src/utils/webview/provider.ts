@@ -9,7 +9,7 @@ import {
 import { errlog } from "../../error";
 import { options } from "./type";
 import { messageHandle } from "./message";
-import { FileMerge, contextContainer } from './index'
+import { FileMerge, contextContainer } from "./index";
 
 /** 通过html文件插入webview */
 export class webviewCreateProvider implements WebviewViewProvider {
@@ -26,7 +26,7 @@ export class webviewCreateProvider implements WebviewViewProvider {
                 enableCommandUris: true,
                 enableScripts: true, // 允许加载js脚本
                 enableForms: true
-            }
+            };
             webviewView.title = this.newFile!.title;
             this.newFile!.setHtml(webviewView.webview).then(html => {
                 // html赋值

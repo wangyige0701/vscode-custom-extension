@@ -31,12 +31,15 @@ export function checkVersion (id: string, checkVsc: boolean = true): boolean {
 }
 
 /** 更新版本信息 */
-export function refreshVersion (id: string, refreshVsc: boolean = true) {
-    return Promise.resolve(
+export async function refreshVersion (id: string, refreshVsc: boolean = true) {
+    await Promise.resolve(
         setWorkSpace("wangyige."+id, "ExtensionVersion", getVersion())
     ).then(() => {
-        if (refreshVsc) 
+        if (refreshVsc) {
             return Promise.resolve(setWorkSpace("wangyige."+id, "VSCodeVersion", vscVersion));
+        }
+    }).then(() => {
+        return Promise.resolve();
     }).catch(err => {
         errlog(err);
     });

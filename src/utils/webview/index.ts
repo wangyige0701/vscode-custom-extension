@@ -11,7 +11,7 @@ const webFile: webFileType = {
     html: 'index.html',
     css: 'css',
     js: 'js'
-}
+};
 
 /** 当前版本号是否有变化，判断是否需要重新合并文件 */
 const isVersionSame = checkVersion('webview');
@@ -49,7 +49,9 @@ export class FileMerge {
     private env: 'development' | 'production' = 'development';
 
     constructor (path: string, title:string = '') {
-        if (!contextContainer.instance) return;
+        if (!contextContainer.instance) {
+            return;
+        }
         this.baseUri = Uri.joinPath(contextContainer.instance.extensionUri, path);
         this.title = title;
         if (isDev()) {
@@ -102,17 +104,21 @@ export class FileMerge {
     private async start (dev: boolean) {
         await readDirectoryUri(this.publicFileUri!).then(res => {
             // 整理所有外部公共文件的Uri，开发环境下需要整合公共文件
-            if (dev) res.filter(([name, type]) => type === 1).forEach(([fileName, fileType]) => {
-                if (fileName.endsWith('css')) {
-                    this.externalCssUri.push(newUri(this.publicFileUri!, fileName));
-                } else if (fileName.endsWith('js')) {
-                    this.externalJsUri.push(newUri(this.publicFileUri!, fileName));
-                }
-            });
+            if (dev) {
+                res.filter(([name, type]) => type === 1).forEach(([fileName, fileType]) => {
+                    if (fileName.endsWith('css')) {
+                        this.externalCssUri.push(newUri(this.publicFileUri!, fileName));
+                    } else if (fileName.endsWith('js')) {
+                        this.externalJsUri.push(newUri(this.publicFileUri!, fileName));
+                    }
+                });
+            }
             return readDirectoryUri(this.baseUri!);
         }).then(async (res) => {
             for (let name in webFile) {
-                if (!res.find(item => item[0] === webFile[name])) continue;
+                if (!res.find(item => item[0] === webFile[name])) {
+                    continue;
+                }
                 const searchUri = newUri(this.baseUri!, webFile[name]);
                 if (name === 'html') {
                     // 获取html文本内容
@@ -328,7 +334,7 @@ export class FileMerge {
 /** 保存context数据 */
 export const contextContainer: contextInter = {
     instance: void 0
-}
+};
 
 /**
  * 将不同文件下的Uint8Array数据转为字符串，按序合并返回
@@ -338,8 +344,9 @@ export function mergeWebviewFile (data: string[] | Uint8Array[]): string {
     let list: string[] = [];
     const position: number[] = [];
     data.forEach((str: Uint8Array | string) => {
-        if (str instanceof Uint8Array) 
+        if (str instanceof Uint8Array) {
             str = str.toString();
+        }
         let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
         index = index ? parseFloat(index[1]) : 0;
         // 二分插入定位

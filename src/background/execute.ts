@@ -19,7 +19,11 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 初始化背景图数据 value: false | true */
     backgroundInit: {
         execute: {
-            func: data => { if (data) backgroundImageDataInit(); },
+            func: data => {
+                if (data) {
+                    backgroundImageDataInit();
+                }
+            },
             data: true
         }
     },
@@ -33,14 +37,22 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 选择图片 value: false | true */
     selectImage: {
         execute: {
-            func: data => { if (data) selectImage(); },
+            func: data => {
+                if (data) {
+                    selectImage();
+                }
+            },
             data: true
         }
     },
     /** 删除图片 value: string[] */
     deleteImage: {
         execute: {
-            func: data => { if (data && data.length > 0) deleteImage(...data); },
+            func: data => {
+                if (data && data.length > 0) {
+                    deleteImage(...data);
+                }
+            },
             data: true
         }
     },
@@ -61,7 +73,11 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 设置背景透明度 */
     backgroundOpacity: {
         execute: {
-            func: data => { if (data >= 0.1 && data <= 1) backgroundOpacityModify(data); },
+            func: data => { 
+                if (data >= 0.1 && data <= 1) {
+                    backgroundOpacityModify(data);
+                }
+            },
             data: true
         }
     },
@@ -89,7 +105,9 @@ const messageReceiver = messageExecute<backgroundMessageData>({
  * @param webview 
  */
 export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
-    if (!webviewInstance.value) webviewInstance.value = webview;
+    if (!webviewInstance.value) {
+        webviewInstance.value = webview;
+    }
     // 执行对应方法
     messageReceiver(name, value);
 }

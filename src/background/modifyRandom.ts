@@ -34,7 +34,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
             // 清除随机背景图哈希码数据
             return Promise.resolve(
 				backgroundImageConfiguration.setBackgroundRandomCode('')
-			)
+			);
         }).then(() => {
             closeRandomBackground();
         }).catch(err => {

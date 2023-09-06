@@ -59,7 +59,9 @@ export const backgroundImageConfiguration = {
         const data = this.getBackgroundAllImageObject();
         // 整理数据，去除没有数据的索引
         const result: { [key: string]: string[] } = {};
-        if (value.length > 0) result[path] = value;
+        if (value.length > 0) {
+            result[path] = value;
+        }
         for (let name in data) {
             if (data[name] && data[name].length > 0 && name !== path) {
                 result[name] = data[name];
@@ -73,7 +75,9 @@ export const backgroundImageConfiguration = {
         const path = this.getSettingStorePath()??this.getDefaultPath();
         const data = this.getBackgroundAllImageObject();
         // 没有对应属性则新创建一个
-        if (!data.hasOwnProperty(path)) data[path] = [];
+        if (!data.hasOwnProperty(path)) {
+            data[path] = [];
+        }
         return data[path];
     },
 
@@ -88,10 +92,12 @@ export const backgroundImageConfiguration = {
             // 添加一个图片数据
             list.unshift(value);
         } else if (state === 'delete') {
-            if (isString(value)) 
+            if (isString(value)) {
                 value = list.findIndex(item => item === value);
-            if (value < 0) 
+            }
+            if (value < 0) {
                 return Promise.resolve();
+            }
             list.splice(value, 1);
         }
         await this.setBackgroundAllImageObject(list).then(() => {
@@ -226,4 +232,4 @@ export const backgroundImageConfiguration = {
     setBackgroundRandomCode (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('randomCode', value);
     }
-}
+};

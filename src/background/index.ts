@@ -52,7 +52,7 @@ const isBackgroundCheckComplete: {
     check: false,
     init: false,
     running: false
-}
+};
 
 /** 设置图片哈希码缓存数据的执行队列对象 */
 const backImgCodeSetQueue = queueCreate();
@@ -339,7 +339,9 @@ export function backgroundImageDataInit () {
         statusBarTarget?.dispose();
         statusBarTarget = null;
         // 延迟指定时间后修改状态栏信息，仅当图片数量大于0时显示
-        if (length > 0) setBackgroundImageSuccess('背景图列表初始化成功');
+        if (length > 0) {
+            setBackgroundImageSuccess('背景图列表初始化成功');
+        }
         isBackgroundCheckComplete.running = false;
         executeInitFunc();
     });
@@ -418,9 +420,13 @@ function codeDelete (code: string): Promise<void> {
         // 删除判断是否存在索引
         let index = backgroundImageCodeList.findIndex(item => item === code);
         // 删除缓存数组内的数据
-        if (index >= 0) backgroundImageCodeList.splice(index, 1);
+        if (index >= 0) {
+            backgroundImageCodeList.splice(index, 1);
+        }
         // 删除存储对象中的base64数据
-        if (repositoryData.hasOwnProperty(code)) delete repositoryData[code];
+        if (repositoryData.hasOwnProperty(code)) {
+            delete repositoryData[code];
+        }
         // 更新缓存数组
         let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
         backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {

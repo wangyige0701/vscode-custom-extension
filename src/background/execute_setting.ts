@@ -9,7 +9,7 @@ import { errlog, promiseReject } from "../error";
 type settingImageData = {
     code: string;
     index?: number;
-}
+};
 /**
  * webview端点击图片设置背景图处理方法
  * @param options 传入点击图片的哈希码和在webview列表中的索引位置，如果是随机设置背景图则不需要传index

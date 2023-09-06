@@ -27,7 +27,7 @@ export function imageStoreUri (): Promise<Uri | void> {
             }
             if (!uri) {
                 resolve();
-                return
+                return;
             }
             imageStoreUriExits(uri).then(uri => {
                 resolve(uri);

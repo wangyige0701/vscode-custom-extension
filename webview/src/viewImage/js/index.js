@@ -7,12 +7,12 @@ const imageContainerId = 'image';
 
 /** 图片标签实例 @type {HTMLImageElement} */
 var imageInstance = null,
-    window_width = 0,
-    window_heigth = 0,
-    image_width = 0,
-    image_height = 0,
-    re_image_width = 0,
-    re_image_height = 0;
+window_width = 0,
+window_heigth = 0,
+image_width = 0,
+image_height = 0,
+re_image_width = 0,
+re_image_height = 0;
 
 /** 是否正则执行 */
 var isRunning = false;
@@ -46,14 +46,14 @@ const operationTarge = {
     maxTop: 0,
     /** 位移极限的最大比率 */
     translateRate: 0.3
-}
+};
 
 Object.defineProperty(operationTarge, 'scale', {
     set (newValue) {
         // 缩放时防止超出边界
         this.value = newValue;
         let rate = (newValue - 1) / 2,
-           change = true;
+        change = true;
         if (this.top < (this.minTop - (rate * image_height))) {
             this.top = this.minTop - (rate * image_height);
         } else if (this.top > (this.maxTop + (rate * image_height))) {
@@ -68,7 +68,9 @@ Object.defineProperty(operationTarge, 'scale', {
         } else {
             change = false;
         }
-        if (!change) return;
+        if (!change) {
+            return;
+        }
         changeCss(document.getElementById(imageContainerId));
     },
     get () {
@@ -120,7 +122,9 @@ const messageReceiver = messageDataExecute({
 
 /** 接收扩展侧发送的消息 */
 function receiveMessage ({ data }) {
-    if (data.group !== 'viewImage') return;
+    if (data.group !== 'viewImage') {
+        return;
+    }
     // 执行通讯传递数据
     messageReceiver(data.name, data.value);
 }
@@ -170,10 +174,10 @@ function changeImageStyle (src) {
  */
 function changeAnimation (state = true) {
     /** @type {HTMLElement} */
-    const target = $query('#'+imageContainerId);
-    const names = ['loading', 'iconfont'];
+    const target = $query('#'+imageContainerId),
+    names = ['loading', 'iconfont'],
     /** 是否含有指定类名 */
-    const check = names.every(item => target.classList.contains(item));
+    check = names.every(item => target.classList.contains(item));
     if (state && !check) {
         target.classList.add('loading', 'iconfont');
         return;
@@ -187,10 +191,10 @@ function changeAnimation (state = true) {
 
 /** 计算图片显示尺寸 */
 function complete_size () {
-    let window_rate = decimal(window_width / window_heigth), 
-        image_rate = decimal(re_image_width / re_image_height),
-        max_width = decimal(window_width * 0.9),
-        max_height = decimal(window_heigth * 0.9);
+    const window_rate = decimal(window_width / window_heigth), 
+    image_rate = decimal(re_image_width / re_image_height),
+    max_width = decimal(window_width * 0.9),
+    max_height = decimal(window_heigth * 0.9);
     if (image_rate > window_rate) {
         // 图片宽高比大于窗口，取最大宽度
         image_width = decimal(Math.min(max_width, re_image_width));
@@ -212,7 +216,7 @@ function complete_size () {
 function loadImage (src, callback) {
     imageInstance.onload = function (e) {
         callback?.call(this, e);
-    }
+    };
     imageInstance.src = src;
 }
 
@@ -235,7 +239,9 @@ function clearOldImage (data) {
     removeImage();
     changeAnimation(true);
     clearBlobData();
-    if (!data) return;
+    if (!data) {
+        return;
+    }
     sendMessage({
         name: 'clearImageSuccess',
         value: true
@@ -246,7 +252,9 @@ function clearOldImage (data) {
 function setQueue (src) {
     clearOldImage(false);
     imageSetStack.push(base64ToBlob(src));
-    if (!isRunning) executeQueue();
+    if (!isRunning) {
+        executeQueue();
+    }
 }
 
 /** 释放blob数据 */
@@ -292,7 +300,9 @@ function window_size (type = false) {
 
 /** 图片定位中间 */
 function image_position () {
-    if (!imageInstance || image_width <= 0 || image_height <= 0) return;
+    if (!imageInstance || image_width <= 0 || image_height <= 0) {
+        return;
+    }
     let left = decimal((window_width - image_width) / 2), top = decimal((window_heigth - image_height) / 2);
     document.getElementById(imageContainerId).style.cssText = `left: ${left}px; top: ${top}px; width: ${image_width}px; heigth: ${image_height}px;`;
     // 数据设置

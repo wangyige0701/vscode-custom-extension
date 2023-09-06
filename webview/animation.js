@@ -10,7 +10,9 @@
  * @param options.inline 水平方向的对齐
  */
 function elementScrollIntoView (target, options) {
-    if (!target || !(target instanceof Element)) return;
+    if (!target || !(target instanceof Element)) {
+        return;
+    }
     const block = options?.block??'start',
     inline = options?.inline??'nearest',
     behavior = options?.behavior??'auto';
@@ -27,7 +29,9 @@ function elementScrollIntoView (target, options) {
  * @param {{top:number,left:number,behavior:'smooth'|'auto'|'instant'}} options 
  */
 function elementScrollTo (target, options) {
-    if (!target || !(target instanceof Element)) return;
+    if (!target || !(target instanceof Element)) {
+        return;
+    }
     const top = options?.top??0,
     left = options.left??0,
     behavior = options?.behavior??'auto';
@@ -45,12 +49,16 @@ function elementScrollTo (target, options) {
  * @param {number} stopTimestamp 调用的时间，超出则停止调用，单位为毫秒，默认十秒
  */
 function animationFrameResult (handleCallback, runCallback, stopTimestamp = 10*1000) {
-    if (!handleCallback || !runCallback || typeof handleCallback !== 'function' || typeof runCallback !== 'function') return;
+    if (!handleCallback || !runCallback || typeof handleCallback !== 'function' || typeof runCallback !== 'function') {
+        return;
+    }
     let start;
     function _step (timestamp) {
         start = timestamp;
         const result = handleCallback();
-        if (typeof result !== 'boolean' || (timestamp - start) >= stopTimestamp) return;
+        if (typeof result !== 'boolean' || (timestamp - start) >= stopTimestamp) {
+            return;
+        }
         if (result === true) {
             // 为true则执行调用函数
             runCallback();

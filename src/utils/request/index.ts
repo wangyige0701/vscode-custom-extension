@@ -6,7 +6,10 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
  */
 function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
-        if (!data) reject(new Error('Null Resoponse'));
+        if (!data) {
+            reject(new Error('Null Resoponse'));
+            return;
+        }
         if (data.status < 300) {
             resolve(data);
         } else {
@@ -57,4 +60,4 @@ function post (url: string, data: any, options?: AxiosRequestConfig): Promise<Ax
 export default {
     get,
     post
-}
+};

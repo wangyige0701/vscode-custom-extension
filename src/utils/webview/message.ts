@@ -16,27 +16,35 @@ import { firstUpperCase, isUndefined } from "..";
 const messageCallback: MessageGroupCallback = {
     onBackground: null,
     onViewImage: null
-}
+};
 
 /** 绑定webview侧通信数据接收回调函数 */
 export function bindMessageCallback (name: MessageGroupCallbackName, callback: callbackType) {
-    if (callback && name in messageCallback) messageCallback[name] = callback;
+    if (callback && name in messageCallback) {
+        messageCallback[name] = callback;
+    }
 }
 
 /** 解除webview侧通信数据接收回调函数 */
 export function unbindMessageCallback (name: MessageGroupCallbackName) {
-    if (name in messageCallback) messageCallback[name] = null;
+    if (name in messageCallback) {
+        messageCallback[name] = null;
+    }
 }
 
 /** webview侧通信事件接收统一处理 */
 export function messageHandle (webview: Webview) {
     webview.onDidReceiveMessage((message: MessageData) => {
         const groupName = message.group;
-        if (!groupName) return;
+        if (!groupName) {
+            return;
+        }
         /** 执行函数名 */
         const executeName = 'on' + firstUpperCase(groupName) as MessageGroupCallbackName;
         // 是否有对应函数
-        if (!(executeName in messageCallback)) return;
+        if (!(executeName in messageCallback)) {
+            return;
+        }
         messageCallback[executeName]?.({
             name: message.name, 
             value: message.value
@@ -64,7 +72,7 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
             funcs.forEach(func => {
                 func?.();
             });
-        }
+        };
     }
     // 配置信息整理
     for (let t in config) {
@@ -74,16 +82,22 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
         }
     }
     return <K extends GetName<T>, F = Extract<T, { name: GetName<T> }>["value"]>(name: string, value: any = void 0) => {
-        if (!name || !(name in config)) return;
+        if (!name || !(name in config)) {
+            return;
+        }
         /** 获取执行函数和是否队列执行判断 */
         const { execute, extra, queue = false } = config[name as K] as ExecuteType<F> & { execute: Array<ExecuteFunction<F>> };
         // 额外函数执行
         extra?.();
         for (const target of execute) {
             const { func, data = false, noneParam = false, param = void 0 } = target;
-            if (!func || typeof func !== 'function') continue;
+            if (!func || typeof func !== 'function') {
+                continue;
+            }
             // 是否需要传参并且参数有值
-            if (data && isUndefined(value) && isUndefined(param)) continue;
+            if (data && isUndefined(value) && isUndefined(param)) {
+                continue;
+            }
             const executeFunction = isUndefined(param) // 当局部传参有数据时默认传局部参数
             ? (!isUndefined(value) && !noneParam) // 全局传参是否有数据并且需要参数
                 ? (func as (value: any) => void).bind(null, value) 

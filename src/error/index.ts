@@ -21,13 +21,14 @@ const environment = isDev();
  * @param isThrow 是否抛出错误不进行弹框打印
  */
 function errlog (e: any, isThrow: boolean = !environment) {
-    if (!e) return;
+    if (!e) {
+        return;
+    }
     if (isThrow) {
         console.log(e);
         return;
     }
-    if (environment) console.error(e);
-    if (!e) return;
+    environment && console.error(e);
     if (isString(e) || isNumber(e)) {
         showMessage({
             type: 'error',
@@ -78,4 +79,4 @@ export {
     WError,
     errlog,
     promiseReject
-}
+};

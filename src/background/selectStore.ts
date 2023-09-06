@@ -12,13 +12,17 @@ export function selectFolderForBackgroundStore (): void {
             title: '确认'
         }]
     }).then(res => {
-        if (res) return selectFile({
-            files: false,
-            folders: true,
-            title: '选择背景图储存文件夹'
-        });
+        if (res) {
+            return selectFile({
+                files: false,
+                folders: true,
+                title: '选择背景图储存文件夹'
+            });
+        }
     }).then(data => {
-        if (data) return resetImageStorePath(data.dirName);
+        if (data) {
+            return resetImageStorePath(data.dirName);
+        }
     }).catch(err => {
         errlog(err, true);
     });
@@ -35,7 +39,9 @@ export function resetBackgroundStorePath (): void {
             title: '确认'
         }]
     }).then(res => {
-        if (res) return resetImageStorePath('', true);
+        if (res) {
+            return resetImageStorePath('', true);
+        }
     }).catch(err => {
         errlog(err, true);
     });

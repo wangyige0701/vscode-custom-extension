@@ -6,6 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.5.2] - 2023-9-6
+ - 优化：背景图切换、清除交互优化
+ - 新增：添加卸载扩展时清除背景图配置功能
+ - 测试：修改背景图后更新校验和，需要测试能否满足避免警告弹出
+
 ## 0.5.1 - 2023-9-2
  - 修复：多选图片上传时缓存数组数据不正确bug修复
  - 优化：侧栏图片列表懒加载判断优化
@@ -89,6 +94,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.5.2]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.2
 [0.5.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.0
 [0.4.7]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.7
 [0.4.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.0

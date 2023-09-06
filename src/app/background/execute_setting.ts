@@ -1,10 +1,10 @@
 import { modifyCssFileForBackground } from "./modify";
-import { showMessage, showProgress } from "../utils/interactive";
-import { delay } from "../utils";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { showMessage, showProgress } from "../../utils/interactive";
+import { delay } from "../../utils";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { isChangeBackgroundImage, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
-import { errlog, promiseReject } from "../error";
+import { errlog, promiseReject } from "../../error";
 
 type settingImageData = {
     code: string;

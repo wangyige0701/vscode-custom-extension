@@ -1,5 +1,5 @@
 import { Uri, FileType, Disposable } from "vscode";
-import { createExParamPromise, delay, getHashCode, queueCreate, range } from "../utils";
+import { createExParamPromise, delay, getHashCode, queueCreate, range } from "../../utils";
 import { 
     createBuffer, 
     imageToBase64, 
@@ -8,10 +8,10 @@ import {
     readFileUri, 
     uriDelete, 
     writeFileUri
-} from "../utils/file";
-import { selectFile, setStatusBarResolve, showProgress } from "../utils/interactive";
-import { WError, errlog, promiseReject } from "../error";
-import { backgroundImageConfiguration } from "../workspace/background";
+} from "../../utils/file";
+import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";
+import { WError, errlog, promiseReject } from "../../error";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { 
     changeLoadState, 
     imageStoreUri, 
@@ -22,7 +22,7 @@ import {
 import { backgroundSendMessage } from "./execute_webview";
 import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
 import { bufferAndCode, codeChangeType } from "./type";
-import { bisectionAsce } from "../utils/algorithm";
+import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 
 /** 图片类型过滤规则 */

@@ -9,10 +9,10 @@ import {
 import { backgroundMessageData } from "./type";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
-import { toViewImage } from "../utils/viewImage";
+import { toViewImage } from "../viewImage";
 import { webviewInstance } from './execute_webview';
 import { settingImage } from './execute_setting';
-import { messageExecute } from "../utils/webview/message";
+import { messageExecute } from "../../utils/webview/message";
 
 /** 创建通信数据对应函数执行配置 */
 const messageReceiver = messageExecute<backgroundMessageData>({

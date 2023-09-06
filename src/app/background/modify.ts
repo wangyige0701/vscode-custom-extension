@@ -3,17 +3,17 @@
 */
 
 import { dirname, join as pathjoin } from "path";
-import { createExParamPromise, getDate } from "../utils";
-import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { backgroundImageConfiguration } from "../workspace/background";
+import { createExParamPromise, getDate } from "../../utils";
+import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
+import { backgroundImageConfiguration } from "../../workspace/background";
 import { Disposable, Uri, version } from "vscode";
 import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "./utils";
-import { getVersion } from "../version";
+import { getVersion } from "../../version";
 import { ContentAndUri, info } from "./type";
-import { setStatusBarResolve } from "../utils/interactive";
-import { WError, promiseReject } from "../error";
-import { getNodeModulePath } from "../utils/system";
-import { reChecksum } from "../utils/checksums";
+import { setStatusBarResolve } from "../../utils/interactive";
+import { WError, promiseReject } from "../../error";
+import { getNodeModulePath } from "../../utils/system";
+import { reChecksum } from "../../utils/checksums";
 
 /** vscode的源css文件名 */
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';

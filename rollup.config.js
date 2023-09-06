@@ -20,7 +20,7 @@ module.exports = [
             format: 'cjs'
         }
     })
-]
+];
 
 /**
  * 多输出文件配置
@@ -73,7 +73,7 @@ function changeRequire (root = '.') {
                 return null;
             }
         }
-    }
+    };
 }
 
 /**
@@ -82,7 +82,9 @@ function changeRequire (root = '.') {
  * @param {string} filePath
  */
 function checkPosition (requirePath, filePath) {
-    if (!requirePath) return '';
+    if (!requirePath) {
+        return '';
+    }
     filePath = path.resolve(filePath, '..');
     let paths = [];
     requirePath.split('/').forEach((item, index) => {

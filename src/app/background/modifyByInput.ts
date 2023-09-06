@@ -4,7 +4,7 @@ import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
 import { showMessage } from "../../utils/interactive";
 import { imageUrl } from "../../utils/regexp";
 import { GetImage } from "../../utils/request/utils";
-import { backgroundImageConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { 
     getExternalCssModifyOpacityContent, 
@@ -64,12 +64,12 @@ function getImageBase64ByRequest (url: string): Promise<string> {
  * @param opacity 透明度数据
  */
 export function backgroundOpacityModify (opacity: number) {
-    let sendOpacity: number = backgroundImageConfiguration.getBackgroundOpacity();
+    let sendOpacity: number = BackgroundConfiguration.getBackgroundOpacity;
     changeBackgroundFileOpacity(opacity).then(state => {
         if (state) {
             sendOpacity = opacity;
             isWindowReloadToLoadBackimage('透明度设置完成，是否重启窗口应用');
-            return backgroundImageConfiguration.setBackgroundOpacity(opacity);
+            return BackgroundConfiguration.setBackgroundOpacity(opacity);
         } else {
             // state为false，和当前透明度相同，不进行修改
             showMessage({
@@ -93,7 +93,7 @@ export function backgroundOpacityModify (opacity: number) {
  */
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        if (opacity === backgroundImageConfiguration.getBackgroundOpacity()) {
+        if (opacity === BackgroundConfiguration.getBackgroundOpacity) {
             resolve(false);
             return;
         }

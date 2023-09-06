@@ -3,7 +3,7 @@ import { showMessage, setStatusBar } from "../../utils/interactive";
 import { windowReload } from "../../utils/system";
 import { contextContainer } from "../../utils/webview/index";
 import { Uri } from "vscode";
-import { backgroundImageConfiguration, defaultPath } from "../../workspace/background";
+import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { WError, errlog, promiseReject } from "../../error";
 import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./execute_webview";
@@ -12,7 +12,7 @@ import { backgroundSendMessage } from "./execute_webview";
 export function imageStoreUri (): Promise<Uri | void> {
     return new Promise((resolve, reject) => {
         try {
-            let uri: string | Uri | undefined = backgroundImageConfiguration.getBackgroundStorePath();
+            let uri: string | Uri | undefined = BackgroundConfiguration.getBackgroundStorePath;
             if (uri) {
                 // 缓存内有路径数据
                 uri = Uri.file(uri);
@@ -74,14 +74,14 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
  */
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
     if (reset) {
-        if (!backgroundImageConfiguration.getBackgroundStorePath()) {
+        if (!BackgroundConfiguration.getBackgroundStorePath) {
             showMessage({
                 message: '当前储存路径已为默认路径'
             });
             return Promise.resolve();
         }
         await Promise.resolve(
-            backgroundImageConfiguration.setBackgroundStorePath("")
+            BackgroundConfiguration.setBackgroundStorePath("")
         ).catch(err => {
             return Promise.reject(promiseReject(err, 'resetImageStorePath'));
         });
@@ -95,7 +95,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
     if (path && uri) {
         // 缓存数据
         await Promise.resolve(
-            backgroundImageConfiguration.setBackgroundStorePath(uri.fsPath)
+            BackgroundConfiguration.setBackgroundStorePath(uri.fsPath)
         ).catch(err => {
             return Promise.reject(promiseReject(err, 'resetImageStorePath'));
         });
@@ -196,7 +196,7 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
 
 /** 更改缓存中的加载状态属性 */
 export function changeLoadState () {
-    backgroundImageConfiguration.setBackgroundLoad(true);
+    BackgroundConfiguration.setBackgroundLoad(true);
 }
 
 /**

@@ -47,7 +47,7 @@ export const checksumsMap: ChecksumsDataOperation<Map<string, CheckSumsData>> = 
     get origin () {
         return this.mapData;
     }
-}
+};
 
 /** 校验和数据的状态 */
 export class ChecksumsState {

@@ -43,7 +43,7 @@ const ans = '\\S\*';
 /** 任意字符不包括换行 */
 const ant = '\.\*'; 
 /** 非空格开头非空格结尾，中间允许有空格，必须以非空格结尾 */
-const asa = '\\S\*\.\*\\S\{1\,\}' 
+const asa = '\\S\*\.\*\\S\{1\,\}';
 /** 任意数字 */
 const n = '\\d\*'; 
 /** 任意单词 */
@@ -113,10 +113,12 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
                 throw { jump: true };
             }
             // 状态栏提示文字
-            if (tip) statusBarTarget = setStatusBarResolve({
-                icon: 'loading~spin',
-                message: `${random?'随机':''}背景图设置中`
-            });
+            if (tip) {
+                statusBarTarget = setStatusBarResolve({
+                    icon: 'loading~spin',
+                    message: `${random?'随机':''}背景图设置中`
+                });
+            }
             return createExParamPromise(writeExternalCssFile(res[0]), res[1]);
         }).then(([_, infoContent]) => {
             return settingConfiguration(infoContent, random);
@@ -124,7 +126,9 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             return setSourceCssImportInfo();
         }).then(() => {
             statusBarTarget?.dispose();
-            if (tip) setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
+            if (tip) {
+                setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
+            }
             resolve();
         }).catch(err => {
             // 传递了jump属性就resolve
@@ -549,7 +553,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:st
             if (reg) {
                 resolve({ content, uri, exits: true });
             } else {
-                resolve({ content, uri, exits: false })
+                resolve({ content, uri, exits: false });
             }
         } catch (error) {
             reject(promiseReject(error, 'isSourceCssFileModify'));

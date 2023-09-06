@@ -89,8 +89,9 @@ function right_dir (name: file_suffix, file_path: string, root: string): Promise
         dir_content(file_path).then(res => {
             // 获取具体后缀文件路径
             res.forEach(item => {
-                if (item && checkReg.test(item))
+                if (item && checkReg.test(item)) {
                     list.push(path.join(file_path, item));
+                }
             });
             resolve({list, root, name});
         }).catch(err => {
@@ -128,21 +129,24 @@ function mergeFile (list: string[], pathName: string, type: file_suffix, externa
         })).then(res => {
             return mergeWebviewFile(res);
         }).then(res => {
-            if (type === 'css')
+            if (type === 'css') {
                 // css导入外部全局样式
                 return Promise.resolve(external_content + '\n' + res);
-            else
+            } else {
                 // js文本写入局部作用域内
                 return Promise.resolve(`(function () {${external_content + '\n' + res}})();`);
+            }
         }).then(res => {
-            if (type === 'css')
+            if (type === 'css') {
                 return minifyCss(res);
-            else
+            } else {
                 return minifyJs(res);
+            }
         }).then(res => {
             // 文件内容不为空则写入
-            if (res)
+            if (res) {
                 return writeContent(pathName, ver_text+res);
+            }
         }).then(() => {
             resolve(type);
         }).catch(err => {
@@ -212,8 +216,9 @@ function mergeWebviewFile (data: string[] | Uint8Array[]): string {
     let list: string[] = [];
     const position: number[] = [];
     data.forEach((str: Uint8Array | string) => {
-        if (str instanceof Uint8Array) 
+        if (str instanceof Uint8Array) {
             str = str.toString();
+        }
         let index: number | RegExpMatchArray | null  = str.match(/\/\* index\((\d*)\) \*\//);
         index = index ? parseFloat(index[1]) : 0;
         // 二分插入定位

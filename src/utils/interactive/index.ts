@@ -55,10 +55,18 @@ export function selectFile ({
 }: SelectFileParams): Promise<{uri:Uri[], file:boolean, dirName:string}> {
     return new Promise((resolve, reject) => {
         try {
-            if (files && folders) folders = false;
-            if (!files && !folders) files = true;
-            if (folders && many) many = false;
-            if (folders && filters) filters = void 0;
+            if (files && folders) {
+                folders = false;
+            }
+            if (!files && !folders) {
+                files = true;
+            }
+            if (folders && many) {
+                many = false;
+            }
+            if (folders && filters) {
+                filters = void 0;
+            }
             if (isString(defaultUri) && defaultUri.length > 0) {
                 defaultUri = Uri.file(defaultUri);
             } else {
@@ -106,7 +114,9 @@ export function showMessage<T extends MessageItem> ({
 }: MessageBoxType<T>): Promise<T | undefined> {
     return new Promise((resolve, reject) => {
         try {
-            if (!type) type = 'information';
+            if (!type) {
+                type = 'information';
+            }
             if (!message) {
                 reject('Null message for MessageBox');
                 return;
@@ -146,7 +156,7 @@ function getMessageBoxAllData () {
         information: window.showInformationMessage,
         warning: window.showWarningMessage,
         error: window.showErrorMessage
-    }
+    };
 }
 
 /**
@@ -174,7 +184,7 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
             } catch (error) {
                 reject(new Error('Catch Error', { cause: error }));
             }
-        })
+        });
     } else {
         thenable = option;
     }
@@ -198,8 +208,9 @@ export function setStatusBarResolve (message: string | StatusBarIconMessage): Di
  * @param task 
  */
 export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>) {
-    if (isString(options.location)) 
+    if (isString(options.location)) {
         options.location = getProgressLocation(options.location as ProgressLocationData);
+    }
     return window.withProgress(options as ProgressOptions, task);
 }
 

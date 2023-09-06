@@ -14,7 +14,7 @@ type ErrorOptions = {
     ParameterName?:string;
     /** 错误描述 */
     description?:string;
-}
+};
 
 /**
  * 自定义错误输出类型，只输出指定的错误信息和追踪栈内第一个追踪函数的信息
@@ -51,7 +51,7 @@ export default class WError extends Error {
         // 错误描述
         if (this.has(options, 'description')) {
             if (this.message) {
-                this.message += '\n'
+                this.message += '\n';
                 wrap++;
             }
             this.message += 'description: ' + options.description;
@@ -60,13 +60,16 @@ export default class WError extends Error {
         // 获取栈信息，并输出第一个文件
         if (this.stack) {
             let file = this.stack.split('\n').splice(wrap, 1)[0];
-            if (file) this.message += `\n >> In File: ${file}\n`;
+            if (file) {
+                this.message += `\n >> In File: ${file}\n`;
+            }
             this.stack = void 0;
         }
 
         // 获取具体原因并输出
-        if (this.has(options, 'cause'))
+        if (this.has(options, 'cause')) {
             this.message += this.causeHandle(options.cause);
+        }
     }
 
     /** cause数据处理 */
@@ -92,7 +95,9 @@ export default class WError extends Error {
     private checkPosition ({position, ClassName, FunctionName, ParameterName}: ErrorOptions): number {
         let msg = '', wrap = 0;
         if (position) {
-            if (this.message) this.message += ' >> ';
+            if (this.message) {
+                this.message += ' >> ';
+            }
             msg += `Error of ${position}`;
         }
         if (ClassName) {

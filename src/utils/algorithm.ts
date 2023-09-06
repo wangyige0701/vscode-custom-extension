@@ -2,7 +2,9 @@
 /** 二分降序查找 */
 export function bisectionDesc<T> (array: T[], target: T): number {
     let length = array.length;
-    if (length === 0) return length;
+    if (length === 0) {
+        return length;
+    }
     if (target > array[0]) {
         return 0;
     } else if (target < array[length - 1]) {
@@ -15,7 +17,9 @@ export function bisectionDesc<T> (array: T[], target: T): number {
 /** 二分升序查找 */
 export function bisectionAsce<T> (array: T[], target: T): number {
     let length = array.length;
-    if (length === 0) return length;
+    if (length === 0) {
+        return length;
+    }
     if (target < array[0]) {
         return 0;
     } else if (target > array[length - 1]) {
@@ -34,7 +38,9 @@ export function bisectionAsce<T> (array: T[], target: T): number {
  * @param type 
  */
 function bisection<T> (array: T[], target: T, start: number, length: number, type: 'desc' | 'asce'): number {
-    if (length === 2) return start + 1;
+    if (length === 2) {
+        return start + 1;
+    }
     let odd = length % 2 > 0; // 是否是奇数
     length = parseInt((length / 2)+'');
     let middle = start + length; // 二分中位

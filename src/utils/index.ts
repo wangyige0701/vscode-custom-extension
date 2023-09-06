@@ -20,9 +20,13 @@ export function getDate(date: Date | undefined = void 0, format: string = "YYYY-
     let legal = '[^a-zA-Z0-9\\n\\f\\r\\t\\v]'; // 合法连接符
     let reg = new RegExp(`^YYYY(${legal}{1})MM(${legal}{1})DD(${legal}{1})hh(${legal}{1})mm(${legal}{1})ss$`);
     // 校验时间格式
-    if (!format || !check(format, reg)) throw new Error("时间格式错误");
+    if (!format || !check(format, reg)) {
+        throw new Error("时间格式错误");
+    }
     // 判断是否传入日期
-    if (isUndefined(date)) date = new Date();
+    if (isUndefined(date)) {
+        date = new Date();
+    }
     const formatCode = format.match(reg)?.slice(1, 6);
     // 获取时间连接符
     const [f1, f2, f3, f4, f5] = formatCode!;
@@ -226,9 +230,13 @@ export function queueCreate (immediately: boolean = true) {
     const queue: Array<Function|Promise<any>> = [];
     /** 插入队列 */
     function set (func: Function|Promise<any>) {
-        if (!func || (typeof func !== 'function' && !(func instanceof Promise))) return;
+        if (!func || (typeof func !== 'function' && !(func instanceof Promise))) {
+            return;
+        }
         queue.push(func);
-        if (immediately && !executeing) execute();
+        if (immediately && !executeing) {
+            execute();
+        }
     }
     /** 执行队列 */
     function execute () {
@@ -244,7 +252,7 @@ export function queueCreate (immediately: boolean = true) {
             if (queue.length === 0) {
                 executeing = false;
             } else {
-                if (immediately) execute();
+                immediately && execute();
             }
         }).catch(err => {
             executeing = false;
@@ -259,7 +267,7 @@ export function queueCreate (immediately: boolean = true) {
         set,
         execute,
         clear
-    }
+    };
 }
 
 /**

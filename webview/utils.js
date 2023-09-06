@@ -25,7 +25,9 @@ function checkMediaType (type) {
 */
 function dataToBlob (data, type) {
     try {
-        if (!checkMediaType(type)) throw new Error('Illegal type');
+        if (!checkMediaType(type)) {
+            throw new Error('Illegal type');
+        }
         return URL.createObjectURL(
             new Blob(isArray(data)?data:[data], { type })
         );
@@ -40,7 +42,9 @@ function dataToBlob (data, type) {
  */
 function revokeBlobData (data) {
     try {
-        if (data) URL.revokeObjectURL(data);
+        if (data) {
+            URL.revokeObjectURL(data);
+        }
     } catch (error) {
         throw new Error(error);
     }
@@ -84,7 +88,7 @@ function debounce (callback, time, param) {
             clearTimeout(timeout);
         }
         timeout = setTimeout(callback.bind(null, ...[param, ...params]), time);
-    }
+    };
 }
 
 /**
@@ -103,11 +107,17 @@ function $create (name) {
  * @returns {string[] | {[key: string]: string}}
  */
 function complexGetAttr (target, options, list = true) {
-    if (!isArray(options)) options = isString(options) ? [options] : [];
-    if (!target || !target instanceof HTMLElement) return list ? new Array(options.length).fill(void 0) : options.reduce((obj, value) => {
-        obj[value] = void 0;
-        return obj;
-    }, {});
+    if (!isArray(options)) {
+        options = isString(options) ? [options] : [];
+    }
+    if (!target || !target instanceof HTMLElement) {
+        return list 
+        ? new Array(options.length).fill(void 0) 
+        : options.reduce((obj, value) => {
+            obj[value] = void 0;
+            return obj;
+        }, {});
+    }
     /** @type {string[]|{[key: string]: string}} */
     let result = list ? [] : {};
     options.forEach(key => {
@@ -126,7 +136,9 @@ function complexGetAttr (target, options, list = true) {
  * @returns {HTMLElement}
  */
 function complexSetAttr (target, options, type) {
-    if (!target || !target instanceof HTMLElement) return;
+    if (!target || !target instanceof HTMLElement) {
+        return;
+    }
     if (isString(options)) {
         if (type === 'text') {
             // 设置文本
@@ -137,18 +149,24 @@ function complexSetAttr (target, options, type) {
             return target;
         }
     }
-    if (!isObject(options)) return target;
+    if (!isObject(options)) {
+        return target;
+    }
     for (let key in options) {
-        if (!key) continue;
+        if (!key) {
+            continue;
+        }
         let value = options[key];
         // 如果属性有style，走css属性
         if (key === 'style' && isObject(value)) {
             complexSetAttr(target, value, 'css');
             continue;
         }
-        if (isArray(value)) value = value.reduce((pre, curr, currIndex) => {
-            return pre + (isString(curr) ? `${currIndex>0&&curr?' ':''}${curr}` : '');
-        }, '');
+        if (isArray(value)) {
+            value = value.reduce((pre, curr, currIndex) => {
+                return pre + (isString(curr) ? `${currIndex>0&&curr?' ':''}${curr}` : '');
+            }, '');
+        }
         // 数据类型改为字符串
         value = String(value);
         if (type === 'css') {
@@ -173,16 +191,20 @@ function complexSetAttr (target, options, type) {
  * @returns {Element}
  */
 function complexAppendChild (target, childs) {
-    if (!target || !target instanceof Element || !target instanceof ShadowRoot) return;
+    if (!target || !target instanceof Element || !target instanceof ShadowRoot) {
+        return;
+    }
     if (!Array.isArray(childs)) {
         if (childs && childs instanceof Element) {
             childs = [childs];
         } else {
-            return target
+            return target;
         }
     };
     for (const dom of childs) {
-        if (!dom || !dom instanceof Element) continue;
+        if (!dom || !dom instanceof Element) {
+            continue;
+        }
         target.appendChild(dom);
     }
     return target;
@@ -196,7 +218,9 @@ function complexAppendChild (target, childs) {
  * @returns {Element|Element[]|null}
  */
 function $query (target, options = false) {
-    if (!isString(target)) return null;
+    if (!isString(target)) {
+        return null;
+    }
     target = target.trim();
     let all = false;
     /** @type {Element} */
@@ -231,9 +255,13 @@ function $query (target, options = false) {
  * @returns {any[]}
  */
 function changeToArray (item) {
-    if (!item) return item;
+    if (!item) {
+        return item;
+    }
     const iterator = item[Symbol.iterator];
-    if (typeof iterator !== 'function') return item;
+    if (typeof iterator !== 'function') {
+        return item;
+    }
     return Array.from(item);
 }
 
@@ -300,14 +328,18 @@ function isNull (target) {
  * @returns {(options: {name: string, value: any}) => any}
  */
 function createSendMessage (groupName, vscodeApi) {
-    if (!groupName) throw new Error('Need Group Name');
-    if (!vscodeApi) throw new Error('None Vscode Api');
+    if (!groupName) {
+        throw new Error('Need Group Name');
+    }
+    if (!vscodeApi) {
+        throw new Error('None Vscode Api');
+    }
     return function (options={}) {
         if (options && isObject(options)) {
             options.group = groupName;
             vscodeApi.postMessage(options);
         }
-    }
+    };
 }
 
 /**
@@ -322,7 +354,7 @@ function messageDataExecute (config) {
             funcs.forEach(func => {
                 func?.();
             });
-        }
+        };
     }
     for (let t in config) {
         const target = config[t];
@@ -331,16 +363,22 @@ function messageDataExecute (config) {
         }
     }
     return (name, value = void 0) => {
-        if (!name || !(name in config)) return;
+        if (!name || !(name in config)) {
+            return;
+        }
         /** @type {{execute: exeFunc[], extra?: Function, queue: boolean}} 获取执行函数和是否队列执行判断 */
         const { execute, extra, queue = false } = config[name];
         // 额外函数执行
         extra?.();
         for (const target of execute) {
             const { func, data = false, noneParam = false, param = void 0 } = target;
-            if (!func || typeof func !== 'function') continue;
+            if (!func || typeof func !== 'function') {
+                continue;
+            }
             // 是否需要传参并且参数有值
-            if (data && isUndefined(value) && isUndefined(param)) continue;
+            if (data && isUndefined(value) && isUndefined(param)) {
+                continue;
+            }
             const executeFunction = isUndefined(param) 
             ? (!isUndefined(value) && !noneParam) 
                 ? func.bind(null, value) 

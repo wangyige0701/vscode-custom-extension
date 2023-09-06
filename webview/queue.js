@@ -10,7 +10,7 @@ class Queue {
     #running = false;
 
     /** 是否在插入后立即执行，默认立即执行 */
-    #immediately = false
+    #immediately = false;
 
     /** @param {boolean} immediately 是否在插入数据后立即执行队列函数 */
     constructor (immediately=true) {
@@ -21,13 +21,21 @@ class Queue {
      * @param {...Function} funcs 入队列等待执行的函数
      */
     set (...funcs) {
-        if (funcs.length <= 0) return;
+        if (funcs.length <= 0) {
+            return;
+        }
         for (const func of funcs) {
-            if (!func || typeof func !== 'function') continue;
+            if (!func || typeof func !== 'function') {
+                continue;
+            }
             this.#queue.push(func);
         }
-        if (this.#running) return;
-        if (this.#immediately) this.execute();
+        if (this.#running) {
+            return;
+        }
+        if (this.#immediately) {
+            this.execute();
+        }
     }
 
     /** 
@@ -44,19 +52,25 @@ class Queue {
             this.#queue.shift()?.()
         ).then(() => {
             // 立即执行
-            if (immediately) this.execute(immediately);
+            if (immediately) {
+                this.execute(immediately);
+            }
         }).catch(err => {
             throw new Error('Queue Execute Error', { cause: err });
         });
     }
 
     #end () {
-        if (!this.#running) return;
+        if (!this.#running) {
+            return;
+        }
         this.#running = false;
     }
 
     #start () {
-        if (this.#running) return;
+        if (this.#running) {
+            return;
+        }
         this.#running = true;
     }
 }

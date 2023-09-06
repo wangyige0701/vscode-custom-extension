@@ -87,8 +87,9 @@ export function packageFileExits (): string[] | false {
         });
         return result;
     } catch (error: any) {
-        if (!process.env.NODE_ENV)
+        if (!process.env.NODE_ENV) {
             console.error(error.message);
+        }
         return false;
     }
 }
@@ -136,7 +137,7 @@ export function getContent (path: string): Promise<string> {
                 resolve(data);
             }
         });
-    })
+    });
 }
 
 /**

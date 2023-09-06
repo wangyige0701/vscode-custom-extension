@@ -8,11 +8,15 @@ document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) =
     while (target && target.id !== queryNames.listId && !target.classList.contains(queryNames.listImageClass)) {
         target = target.parentElement;
     }
-    if (!target || !target.classList.contains(queryNames.listImageClass)) return;
+    if (!target || !target.classList.contains(queryNames.listImageClass)) {
+        return;
+    }
     e.preventDefault();
     // 判断点击的图片是否已经显示大图
     let code = target.dataset?.code??'';
-    if (code === nowSelectViewImage) return;
+    if (code === nowSelectViewImage) {
+        return;
+    }
     sendMessage({
         name: 'viewBigImage',
         value: code
@@ -99,7 +103,9 @@ function createInstance () {
                     if (top > (0 - height) && bottom < (windowHeight + height)) {
                         // 目标不在已注册元素列表中
                         let index = this.#recordMap.findIndex((item) => item.target === entry.target);
-                        if (index < 0) continue;
+                        if (index < 0) {
+                            continue;
+                        }
                         const value = this.#recordMap[index];
                         registLazyLoadImage(
                             complexGetAttr(value.target, queryNames.imageContainerCodeName)[0], 
@@ -122,7 +128,9 @@ function createInstance () {
 
         /** 延迟触发懒加载开启函数 */
         #initToLazyLoadImage = debounce(() => {
-            if (this.#lazyObserve) return
+            if (this.#lazyObserve) {
+                return;
+            }
             this.#lazyObserve = true;
             // 开始监听是否懒加载图片
             this.#scrollDebounce?.();
@@ -145,10 +153,11 @@ function createInstance () {
                         case 'unshift':
                             // 新增
                             args.forEach(arg => {
-                                if (objectHas(arg, 'init', 'code'))
+                                if (objectHas(arg, 'init', 'code')) {
                                     arg.target = _this.#addImageItem(arg, method==='unshift', true);
-                                else if (objectHas(arg, 'src', 'code')) 
+                                } else if (objectHas(arg, 'src', 'code')) {
                                     arg.target = _this.#addImageItem(arg, method==='unshift'); // 元素对象
+                                }
                             });
                             break;
                         case 'pop':
@@ -169,7 +178,7 @@ function createInstance () {
                             break;
                     }
                     return oldMethods[method].apply(this, args);
-                }
+                };
             });
             methods = null;
             return newMethods;
@@ -239,20 +248,25 @@ function createInstance () {
         renderBySelectListLength (isAdd) {
             const array = [];
             this.getChild()?.forEach(child => {
-                if (child.classList.contains(queryNames.selectButtonToContainerClass)) 
+                if (child.classList.contains(queryNames.selectButtonToContainerClass)) {
                     array.push(child.dataset[queryNames.imageContainerCode]);
+                }
             });
             let operation, codes = [];
             if (isAdd) {
                 // 新增数据
                 this.selectImageList.forEach(n => {
-                    if (!array.includes(n)) codes.push(n);
+                    if (!array.includes(n)) {
+                        codes.push(n);
+                    }
                 });
                 operation = 'add';
             } else {
                 // 删减数据
                 array.forEach(o => {
-                    if (!this.selectImageList.includes(o)) codes.push(o);
+                    if (!this.selectImageList.includes(o)) {
+                        codes.push(o);
+                    }
                 });
                 operation = 'remove';
             }
@@ -332,7 +346,7 @@ function createInstance () {
          * @returns {HTMLElement}
          */
         #loadImageLazy (data, code, head) {
-            if (!code) return;
+            if (!code) { return; }
             /** 外层容器 @type {HTMLElement} */
             let el = complexAppendChild(complexSetAttr($create('div'), { 
                 class: [queryNames.listImageClass, this.settingRandomButtonTextState === 1 ? queryNames.imageIsRandomClass : '', 'init-image'],
@@ -357,7 +371,7 @@ function createInstance () {
          * @returns {HTMLElement}
          */
         #loadImageDirect (data, src, code, head) {
-            if (!src || !code) return;
+            if (!src || !code) { return; }
             /** 遮罩容器 @type {HTMLElement} */
             let el = complexAppendChild(complexSetAttr($create('div'), { 
                 class: [queryNames.listImageClass, this.settingRandomButtonTextState === 1 ? queryNames.imageIsRandomClass : ''], 
@@ -380,7 +394,9 @@ function createInstance () {
          */
         #createImage (container, data, src) {
             // 如果没有src属性，就将数据赋值进对象中
-            if (!data.hasOwnProperty('src')) data.src = src;
+            if (!data.hasOwnProperty('src')) {
+                data.src = src;
+            }
             complexSetAttr(container, { animation: true });
             const img = new Image();
             img.onload = () => {
@@ -405,7 +421,7 @@ function createInstance () {
                 selectBut = null, deleteBut = null;
                 // 图片加载完成再次执行监测函数
                 this.#scrollDebounce?.();
-            }
+            };
             img.src = src;
         }
 
@@ -416,7 +432,9 @@ function createInstance () {
          * @param {boolean} head
          */
         insert (target, el, head) {
-            if (!target || (!target instanceof HTMLElement)) return;
+            if (!target || (!target instanceof HTMLElement)) {
+                return;
+            }
             /** @type {NodeListOf<ChildNode>} */
             const childs = target.childNodes;
             if (childs.length === 0 || !head) {
@@ -425,7 +443,9 @@ function createInstance () {
                 /** @type {ChildNode[]} */
                 const checkTarget = [];
                 childs.forEach(child => {
-                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) checkTarget.push(child);
+                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) {
+                        checkTarget.push(child);
+                    }
                 });
                 if (checkTarget.length === 0) {
                     target.appendChild(el);
@@ -443,14 +463,16 @@ function createInstance () {
          */
         #deleteImageItem (target, blobUrl) {
             // 释放blob缓存
-            if (blobUrl) revokeBlobData(blobUrl);
-            if (!target) return;
+            if (blobUrl) { revokeBlobData(blobUrl); }
+            if (!target) { return; }
             const { time: $time, class: $class, multiple=false, delayTime=0 } = this.#deleteImageData();
-            if (multiple) target.style.setProperty('--delay-time', delayTime/1000+'s');
+            if (multiple) {
+                target.style.setProperty('--delay-time', delayTime/1000+'s');
+            }
             // 添加删除类名动画，同时删除多张图片需要额外添加类名
             classListOperation(target, 'add', queryNames.imageDeleteClass, $class);
             let selectBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
-                deleteBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageDeleteButtonClass}`, target);
+            deleteBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageDeleteButtonClass}`, target);
             // 解除事件绑定
             this.imageSelectIconEventBind(selectBut, true);
             this.imageDeleteIconEventBind(deleteBut, true);
@@ -483,7 +505,7 @@ function createInstance () {
                 };
             }
             // 删除一张或者重置列表
-            this.#deleteCount = 0
+            this.#deleteCount = 0;
             if (this.#deleteByAnimation === 0) {
                 return { time: queryNames.imageAnimationTime, class: '' };
             } else if (this.#deleteByAnimation === 1) {
@@ -496,12 +518,15 @@ function createInstance () {
          * @param {string[]} array 
          */
         changeImageStyleToRandomSelect (array) {
-            if (!this.isRandomBackground || !array) return;
+            if (!this.isRandomBackground || !array) {
+                return;
+            }
             if (array.length <= 0) {
                 // 小于等于0，所有图片全部设置被选中为随机设置
                 this.getChild()?.forEach(child => {
-                    if (!child.classList.contains(queryNames.imageIsRandomClass))
+                    if (!child.classList.contains(queryNames.imageIsRandomClass)) {
                         child.classList.add(queryNames.imageIsRandomClass);
+                    }
                 });
             } else {
                 // 设置传入的数据
@@ -517,8 +542,9 @@ function createInstance () {
         /** 清除所有图片的随机设置状态类名 */
         deleteAllRandomSelectClass () {
             this.getChild()?.forEach(child => {
-                if (child.classList.contains(queryNames.imageIsRandomClass))
+                if (child.classList.contains(queryNames.imageIsRandomClass)) {
                     child.classList.remove(queryNames.imageIsRandomClass);
+                }
             });
         }
 
@@ -550,7 +576,7 @@ function createInstance () {
                 let containerTarget = getId(queryNames.imageListInfoId);
                 if (empty) {
                     // 数组为空，根据加载情况显示文字
-                    classListOperation(containerTarget, 'add', queryNames.imageListInfoShowClass)
+                    classListOperation(containerTarget, 'add', queryNames.imageListInfoShowClass);
                     complexSetAttr(infoTarget, loading ? queryNames.imageListInfoEmptyLoading : queryNames.imageListInfoEmpty, 'text');
                 } else {
                     // 数组不为空，隐藏文字区域
@@ -562,7 +588,9 @@ function createInstance () {
 
         /** 检查是否有元素 */
         check () {
-            if (this.element) return;
+            if (this.element) {
+                return;
+            }
             throw new Error('没有对应元素');
         }
 
@@ -588,16 +616,18 @@ function createInstance () {
          * @returns 
          */
         changeSelectImageIcon (operation, ...codes) {
-            if (codes.length <= 0) 
+            if (codes.length <= 0) {
                 return;
+            }
             codes.forEach(code => {
                 /** @type {HTMLElement} */
                 const target = $query(`.${queryNames.listImageClass}#${queryNames.imageContainerCode}-${code}`),
                 /** @type {Element} */
                 childTarget = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
                 classList = childTarget?.classList;
-                if (!classList) 
+                if (!classList) {
                     return;
+                }
                 if (operation === 'add' && !classList.contains(queryNames.ImageSelectStateClass)) {
                     classList.add(queryNames.ImageSelectStateClass);
                     target.classList.add(queryNames.selectButtonToContainerClass);
@@ -627,12 +657,15 @@ function createInstance () {
          */
         imageClickHandle (value) {
             const { select, index } = this.hasSelect();
-            if (select) 
+            if (select) {
                 this.cancelSelect(index);
-            if (typeof value === 'string') 
+            }
+            if (typeof value === 'string') {
                 value = this.isCodeContain(value);
-            if (index === value) 
+            }
+            if (index === value) {
                 return;
+            }
             let target = this.getChild()[value];
             classListOperation(target, 'add', queryNames.selectClass);
             setTimeout(() => {
@@ -682,7 +715,7 @@ function createInstance () {
                     break;
                 }
             }
-            return { select: type, index }
+            return { select: type, index };
         }
 
         /**
@@ -704,11 +737,13 @@ function createInstance () {
          */
         deleteOneImageIcon (data = void 0, e) {
             e.stopPropagation();
-            if (!canChange()) 
+            if (!canChange()) {
                 return;
+            }
             // 通过哈希码删除
-            if (objectHas(data, 'code')) 
+            if (objectHas(data, 'code')) {
                 iconClickDeleteImage(data.code);
+            }
         }
 
         /**
@@ -719,11 +754,13 @@ function createInstance () {
          */
         selectOneImageIcon (data = void 0, e) {
             e.stopPropagation();
-            if (!canChange()) 
+            if (!canChange()) {
                 return;
+            }
             // 通过索引设置选中
-            if (objectHas(data, 'code')) 
+            if (objectHas(data, 'code')) {
                 this.clickToChangeSelectImageIcon(data.code);
+            }
         }
 
         /**
@@ -732,14 +769,19 @@ function createInstance () {
          * @param {{target:HTMLElement}} param
          */
         imageClick (data = void 0, { target }) {
-            if (!canChange()) 
+            if (!canChange()) {
                 return;
-            if (target.classList.contains(queryNames.imageClass)) 
+            }
+            if (target.classList.contains(queryNames.imageClass)) {
                 target = target.parentElement;
-            if (target.classList.contains(queryNames.selectClass)) 
+            }
+            if (target.classList.contains(queryNames.selectClass)) {
                 return;
+            }
             // 通过哈希码和索引选择背景图
-            if (!objectHas(data, 'code', 'index')) return;
+            if (!objectHas(data, 'code', 'index')) {
+                return;
+            }
             settingBackground({
                 code: data.code,
                 index: data.index
@@ -752,7 +794,7 @@ function createInstance () {
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
         imageDeleteIconEventBind(el, remove = false, data = void 0) {
-            if (!el) return;
+            if (!el) { return; }
             remove ? 
                 el.removeEventListener('click', this.deleteOneImageIcon.bind(this)) : 
                 el.addEventListener('click', this.deleteOneImageIcon.bind(this, data));
@@ -764,7 +806,7 @@ function createInstance () {
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
          */
         imageSelectIconEventBind(el, remove = false, data = void 0) {
-            if (!el) return;
+            if (!el) { return; }
             remove ? 
                 el.removeEventListener('click', this.selectOneImageIcon.bind(this)) : 
                 el.addEventListener('click', this.selectOneImageIcon.bind(this, data));
@@ -776,7 +818,7 @@ function createInstance () {
          * @param {{code:string,src:string,index:number,target?:HTMLElement|undefined}|undefined} data
         */
         imageElementEventBind (el, remove = false, data = void 0) {
-            if (!el) return;
+            if (!el) { return; }
             remove ? 
                 el.removeEventListener('click', this.imageClick.bind(this)) : 
                 el.addEventListener('click', this.imageClick.bind(this, data));
@@ -802,7 +844,9 @@ function settingBackground (code) {
  * @returns 
  */
 function iconClickDeleteImage (code) {
-    if (!canChange()) return;
+    if (!canChange()) {
+        return;
+    }
     sendMessage({
         name: 'deleteImage',
         value: [code]
@@ -815,7 +859,9 @@ function iconClickDeleteImage (code) {
  * @param {Function} callback 
  */
 function registLazyLoadImage (code, callback) {
-    if (!code || !callback) return;
+    if (!code || !callback) {
+        return;
+    }
     lazyLoadImageList.push({ code, callback });
     // 发送编码获取base64数据
     sendMessage({

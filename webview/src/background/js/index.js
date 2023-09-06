@@ -14,7 +14,7 @@ const publicData = {
     backgroundOpacity: 0,
     /** @type {{src:string,code:string,init:boolean}[] | null} 图片列表渲染数组 */
     imageRenderList: null
-}
+};
 
 /** 图标编码 */
 const iconCode = {
@@ -24,7 +24,7 @@ const iconCode = {
     confirm: '&#xe616;',
     delete: '&#xe601;',
     select: '&#xe640;'
-}
+};
 
 /** 按钮锁集合 */
 const lockSet = {
@@ -109,8 +109,9 @@ function changeState (state) {
         publicData.canSelect = true;
         // 如果数组长度小于等于0，则展示空列表提示内容
         let length = publicData.imageRenderList?.length??0;
-        if (length <= 0)
+        if (length <= 0) {
             listInstance.changeImageListInfo(true, false);
+        }
     }
 }
 
@@ -206,7 +207,9 @@ function receiveMessage ({ data }) {
         nowSelectViewImage = null;
         return;
     }
-    if (data.group !== 'background') return;
+    if (data.group !== 'background') {
+        return;
+    }
     // 执行消息触发函数
     messageReceiver(data.name, data.value);
     // 将对应函数插入队列后，根据canSelect的值判断是否可以执行
@@ -234,7 +237,9 @@ function onDataLoad (reload=false) {
  * @param {boolean} state 是否立即执行的状态，为false则代表当前不能立刻执行队列函数
  */
 function queueExecute (state=false) {
-    if (!state) return;
+    if (!state) {
+        return;
+    }
     changeState(state);
     // 当canChange()为false后不再继续执行下一个函数
     operationQueue.execute(canChange());
@@ -242,7 +247,9 @@ function queueExecute (state=false) {
 
 /** 选择图片按钮点击 */
 function buttonClickSelectImage () {
-    if (!canChange() || lockSet.selectFile) return;
+    if (!canChange() || lockSet.selectFile) {
+        return;
+    }
     lockSet.selectFile = true;
     sendMessage({
         name: 'selectImage',
@@ -252,7 +259,9 @@ function buttonClickSelectImage () {
 
 /** 根据能否点击变量判断是否触发函数 */
 function canChangeForButton (callback) {
-    if (!canChange()) return;
+    if (!canChange()) {
+        return;
+    }
     callback?.();
 }
 
@@ -282,8 +291,8 @@ function buttonClickRandomBackground () {
 /** 选中列表所有图片 */
 function buttonClickSelectAll () {
     listInstance.getChild()?.forEach(child => {
-        let code;
-        if ((code = listInstance.getCodeValue(child)) && !listInstance.selectImageList.includes(code)) {
+        const code = listInstance.getCodeValue(child);
+        if (code && !listInstance.selectImageList.includes(code)) {
             listInstance.selectImageList.push(code);
         }
     });
@@ -337,7 +346,9 @@ function getBase64DataToLoad ({ code, data, type }) {
     if (type === 'lazyLoad') {
         // 懒加载图片
         let index = lazyLoadImageList.findIndex(item => item.code === code);
-        if (index < 0) return;
+        if (index < 0) {
+            return;
+        }
         // 加载后移除数组元素并执行回调函数
         let target = lazyLoadImageList.splice(index, 1)?.[0];
         target?.callback?.(base64ToBlob(data));
@@ -356,7 +367,7 @@ function getBase64DataToLoad ({ code, data, type }) {
 /** 删除所有图片 */
 function deleteAllImage () {
     // 提前赋值，防止操作数组时长度实时改变
-    let length = publicData.imageRenderList?.length??0;
+    const length = publicData.imageRenderList?.length??0;
     publicData.imageRenderList.splice(0, length);
 }
 
@@ -370,7 +381,7 @@ function deleteImageHandle (value) {
             value.forEach((item) => {
                 deleteImage(item);
             });
-        }
+        };
         // 根据长度判断是否需要滚动动画
         value.length > 1 ? listInstance.deleteMultipleImages(call, value.length) : call();
     } else {
@@ -535,7 +546,9 @@ function registLock (property, setback) {
 function selectFileButtonLock (value) {
     const button = getId(queryNames.selectButtonId);
     const icon = button.querySelector('.'+queryNames.selectButtonLoadingClass);
-    if (!icon) return;
+    if (!icon) {
+        return;
+    }
     if (value) {
         // 为true上锁，添加加载图标
         button.classList.add(queryNames.judgeLoading);
@@ -557,11 +570,15 @@ function selectFileButtonLock (value) {
  * @returns 
  */
 function classListOperation (target, operation, ...name) {
-    if (!target) return;
+    if (!target) {
+        return;
+    }
     const list = target?.classList;
     if (list) {
         name.forEach(item => {
-            if (item) list[operation]?.(item);
+            if (item) {
+                list[operation]?.(item);
+            }
         });
     }
     return list;
@@ -574,7 +591,9 @@ function classListOperation (target, operation, ...name) {
  * @returns {boolean}
  */
 function objectHas (object, ...property) {
-    if (!object || typeof object !== 'object') return false;
+    if (!object || typeof object !== 'object') {
+        return false;
+    }
     let result = true;
     for (const val of property) {
         if (!object.hasOwnProperty(val)) {

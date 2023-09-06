@@ -16,10 +16,10 @@ export function selfHex (s: string) {
     let data = new Uint8Array(encodeUTF8(s));
     // >>> 无符号右移
     let l = ((data.length + 8) >>> 6 << 4) + 16, u8: Uint8Array | undefined = new Uint8Array(l << 2);
-    u8.set(new Uint8Array(data.buffer))
+    u8.set(new Uint8Array(data.buffer));
     let u32 = new Uint32Array(u8.buffer);
     u8 = void 0;
-    let t: DataView = new DataView(u32.buffer)
+    let t: DataView = new DataView(u32.buffer);
     for (let i = 0; i < l; i++) {
         u32[i] = t.getUint32(i << 2);
         u32[data.length >> 2] = 0x80 << (24 - (data.length & 3) * 8);

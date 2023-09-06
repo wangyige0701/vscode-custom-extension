@@ -19,7 +19,7 @@ webview/src/*/*.development.*
 webview/css
 webview/js
 test/**
-filePackage/**
+package/**
 out/**
 dist/**
 !dist/extension.js

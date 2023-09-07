@@ -12,14 +12,14 @@ const getChecksumsPositionRegexp = /^([\w\W]*"checksums"\s*:\s*\{)([^\{\}]*)(\}[
 /** 依次获取校验和所有数据 */
 const getChecksumsDataRegexp = /(?:"(.*)"\s*:\s*"(.*)")/g;
 
-/** 获取具体文件路径 */
+/** 通过根路径获取product.json文件的实际路径 */
 export function getProductFileName (root: string) {
     return pathjoin(root, 'product.json');
 }
 
 /**
  * 计算文件校验和
- * @param content 需要计算的文件
+ * @param content 需要计算的文件内容
  */
 export function computeFileChecksums (content: string): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -116,6 +116,8 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
 
 /**
  * 获取所有校验和文件内路径属性的完整路径
+ * @param paths 配置文件中所有校验和文件的相对路径
+ * @returns 根据根路径生成的所有需要计算校验和文件的绝队路径
  */
 export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {

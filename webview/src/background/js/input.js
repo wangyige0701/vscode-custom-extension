@@ -1,4 +1,4 @@
-/* index(2) */
+/* index(20) */
 
 /** 输入框文本、选择器信息 */
 const inputInfo = {

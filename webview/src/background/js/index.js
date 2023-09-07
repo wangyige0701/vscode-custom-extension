@@ -1,4 +1,4 @@
-/* index(1) */
+/* index(10) */
 
 /** vscode api */
 const vscode = acquireVsCodeApi();

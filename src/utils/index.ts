@@ -177,6 +177,14 @@ export function isSymbol (value: any): value is symbol {
 }
 
 /**
+ * 是否是Promise
+ * @param value
+ */
+export function isPromise (value: any): boolean {
+    return value && typeof value.then === 'function';
+}
+
+/**
  * 输出在一个最小最大范围内的值
  * @param min 最小值
  * @param max 最大值
@@ -230,7 +238,7 @@ export function queueCreate (immediately: boolean = true) {
     const queue: Array<Function|Promise<any>> = [];
     /** 插入队列 */
     function set (func: Function|Promise<any>) {
-        if (!func || (typeof func !== 'function' && !(func instanceof Promise))) {
+        if (!func || (!isFunction(func) && !isPromise(func))) {
             return;
         }
         queue.push(func);
@@ -247,7 +255,7 @@ export function queueCreate (immediately: boolean = true) {
         executeing = true;
         const executeTarget = queue.shift();
         Promise.resolve(
-            typeof executeTarget === 'function' ? executeTarget() : executeTarget
+            isFunction(executeTarget) ? executeTarget() : executeTarget
         ).then(() => {
             if (queue.length === 0) {
                 executeing = false;

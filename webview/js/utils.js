@@ -330,6 +330,14 @@ function isFunction (target) {
 }
 
 /**
+ * 是否是Promise
+ * @param {any} target 
+ */
+function isPromise (target) {
+    return target && typeof target.then === 'function';
+}
+
+/**
  * 创建一个发送webview通讯的实例
  * @param {string} groupName
  * @param {Object} vscodeApi

@@ -4,11 +4,15 @@
 document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) => {
     /** @type {{target:Element}} */
     let { target } = e;
+    if (elementContainClass(target, queryNames.imageButtonClass)) {
+        e.preventDefault();
+        return;
+    }
     // 遍历获取目标元素
-    while (target && target.id !== queryNames.listId && !target.classList.contains(queryNames.listImageClass)) {
+    while (target && target.id !== queryNames.listId && !elementContainClass(target, queryNames.listImageClass)) {
         target = target.parentElement;
     }
-    if (!target || !target.classList.contains(queryNames.listImageClass)) {
+    if (!target || !elementContainClass(target, queryNames.listImageClass)) {
         return;
     }
     e.preventDefault();
@@ -149,8 +153,7 @@ function createInstance () {
             methods.forEach(method => {
                 newMethods[method] = function (...args) {
                     switch (method) {
-                        case 'push':
-                        case 'unshift':
+                        case 'push':case 'unshift':
                             // 新增
                             args.forEach(arg => {
                                 if (objectHas(arg, 'init', 'code')) {
@@ -247,7 +250,7 @@ function createInstance () {
          */
         renderBySelectListLength (isAdd) {
             const array = [];
-            this.getChild()?.forEach(child => {
+            this.getChild.forEach(child => {
                 if (child.classList.contains(queryNames.selectButtonToContainerClass)) {
                     array.push(child.dataset[queryNames.imageContainerCode]);
                 }
@@ -330,7 +333,7 @@ function createInstance () {
         #addImageItem (data, head=true, init=false) {
             if (init) {
                 // 异步调用懒加载触发函数
-                setTimeout(this.#initToLazyLoadImage);
+                $_nextTick(this.#initToLazyLoadImage);
                 const { code } = data;
                 return this.#loadImageLazy(data, code, head);
             } else {
@@ -439,20 +442,21 @@ function createInstance () {
             const childs = target.childNodes;
             if (childs.length === 0 || !head) {
                 target.appendChild(el);
-            } else {
-                /** @type {ChildNode[]} */
-                const checkTarget = [];
-                childs.forEach(child => {
-                    if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) {
-                        checkTarget.push(child);
-                    }
-                });
-                if (checkTarget.length === 0) {
-                    target.appendChild(el);
-                } else {
-                    // 在开头插入元素
-                    target.insertBefore(el, checkTarget[0]);
+                return;
+            }
+            /** 所有图片容器元素，排除加载文字容器 @type {ChildNode[]} */
+            const checkTarget = [];
+            for (const child of childs) {
+                if (!(child instanceof Text) && child.id !== queryNames.imageListInfoId) {
+                    checkTarget.push(child);
                 }
+            }
+            // 新插入的图片需要在加载文字元素后
+            if (checkTarget.length === 0) {
+                target.appendChild(el);
+            } else {
+                // 在开头插入元素
+                target.insertBefore(el, checkTarget[0]);
             }
         }
 
@@ -465,24 +469,27 @@ function createInstance () {
             // 释放blob缓存
             if (blobUrl) { revokeBlobData(blobUrl); }
             if (!target) { return; }
-            const { time: $time, class: $class, multiple=false, delayTime=0 } = this.#deleteImageData();
-            if (multiple) {
-                target.style.setProperty('--delay-time', delayTime/1000+'s');
-            }
-            // 添加删除类名动画，同时删除多张图片需要额外添加类名
-            classListOperation(target, 'add', queryNames.imageDeleteClass, $class);
-            let selectBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
-            deleteBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageDeleteButtonClass}`, target);
-            // 解除事件绑定
-            this.imageSelectIconEventBind(selectBut, true);
-            this.imageDeleteIconEventBind(deleteBut, true);
-            this.imageElementEventBind(target, true);
-            selectBut = null, deleteBut = null;
-            setTimeout(() => {
-                target.remove();
-                // 开始检测懒加载元素
-                this.#scrollDebounce?.();
-            }, $time);
+            const { time: $time, class: $class, delayTime=0 } = this.#deleteImageData();
+            raf(() => {
+                // 设置css变量
+                complexSetAttr(target, {
+                    '--animation-time': $time+'ms'
+                }, 'cssProperty');
+                // 添加删除类名动画，同时删除多张图片需要额外添加类名
+                classListOperation(target, 'add', queryNames.imageDeleteClass, $class);
+                let selectBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageSelectButtonClass}`, target),
+                deleteBut = $query(`.${queryNames.imageButtonClass}.${queryNames.imageDeleteButtonClass}`, target);
+                // 解除事件绑定
+                this.imageSelectIconEventBind(selectBut, true);
+                this.imageDeleteIconEventBind(deleteBut, true);
+                this.imageElementEventBind(target, true);
+                selectBut = null, deleteBut = null;
+                raf(() => {
+                    target.remove();
+                    // 开始检测懒加载元素
+                    this.#scrollDebounce?.();
+                }, $time);
+            }, delayTime);
         }
 
         /** 删除的图片计数 */
@@ -490,18 +497,18 @@ function createInstance () {
 
         /**
          * 返回删除图片时对应的类名和动画时间
-         * @returns {{time:number, class:string, multiple:boolean, delayTime:number}}
+         * @returns {{time:number, class:string, delayTime:number}}
         */
         #deleteImageData () {
             if (this.#deleteCount >= this.#deleteByAnimation) {
                 this.#deleteCount = 0;
             }
             if (this.#deleteByAnimation > 1) {
+                const time = queryNames.imageAnimationTime / 3 * 2;
                 return { 
-                    delayTime: this.#deleteCount * (queryNames.imageAnimationTime/2), 
-                    time: ((this.#deleteCount++) + 1) * (queryNames.imageAnimationTime/2), 
-                    class: queryNames.imageDeletMultipleScrollClass, 
-                    multiple: true 
+                    delayTime: this.#deleteCount * time, 
+                    time: ((this.#deleteCount++) + 1) * time, 
+                    class: ''
                 };
             }
             // 删除一张或者重置列表
@@ -509,7 +516,7 @@ function createInstance () {
             if (this.#deleteByAnimation === 0) {
                 return { time: queryNames.imageAnimationTime, class: '' };
             } else if (this.#deleteByAnimation === 1) {
-                return { time: queryNames.imageAnimationTime/2, class: queryNames.imageDeletMultipleClass };
+                return { time: queryNames.imageAnimationTime, class: queryNames.imageDeletMultipleClass };
             }
         }
 
@@ -523,7 +530,7 @@ function createInstance () {
             }
             if (array.length <= 0) {
                 // 小于等于0，所有图片全部设置被选中为随机设置
-                this.getChild()?.forEach(child => {
+                this.getChild.forEach(child => {
                     if (!child.classList.contains(queryNames.imageIsRandomClass)) {
                         child.classList.add(queryNames.imageIsRandomClass);
                     }
@@ -541,7 +548,7 @@ function createInstance () {
         
         /** 清除所有图片的随机设置状态类名 */
         deleteAllRandomSelectClass () {
-            this.getChild()?.forEach(child => {
+            this.getChild.forEach(child => {
                 if (child.classList.contains(queryNames.imageIsRandomClass)) {
                     child.classList.remove(queryNames.imageIsRandomClass);
                 }
@@ -598,7 +605,7 @@ function createInstance () {
          * 获取子元素所有节点
          * @returns {Element[]}
          */
-        getChild () {
+        get getChild () {
             this.check();
             return $query('.'+queryNames.listImageClass, { all: true, element: this.element });
         }
@@ -606,7 +613,7 @@ function createInstance () {
         /** 子节点长度是否满足 */
         isChildLength (length = 0) {
             this.check();
-            return this.getChild().length > length;
+            return this.getChild.length > length;
         }
 
         /**
@@ -666,7 +673,7 @@ function createInstance () {
             if (index === value) {
                 return;
             }
-            let target = this.getChild()[value];
+            let target = this.getChild[value];
             classListOperation(target, 'add', queryNames.selectClass);
             setTimeout(() => {
                 // 滚动到可视区域
@@ -680,7 +687,7 @@ function createInstance () {
          */
         cancelSelect (index) {
             if (index >= 0) {
-                classListOperation(this.getChild()[index], 'remove', queryNames.selectClass);
+                classListOperation(this.getChild[index], 'remove', queryNames.selectClass);
             }
         }
 
@@ -690,11 +697,10 @@ function createInstance () {
          */
         isCodeContain (code) {
             this.check();
-            const list = this.getChild();
             let index = -1;
-            for (const i of range(list.length)) {
-                if (this.getCodeValue(list[i]) === code) {
-                    index = i;
+            for (const element of this.getChild) {
+                index++;
+                if (this.getCodeValue(element) === code) {
                     break;
                 }
             }
@@ -708,7 +714,7 @@ function createInstance () {
         hasSelect () {
             this.check();
             let type = false, index = -1;
-            const child = this.getChild();
+            const child = this.getChild;
             for (const i of range(child.length)) {
                 if (child[i].classList.contains(queryNames.selectClass)) {
                     index = i, type = true;

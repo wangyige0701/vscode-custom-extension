@@ -3,7 +3,7 @@
 /* 队列执行方法 */
 
 class Queue {
-    /** 存放队列执行函数的数组 @type {Function[]} */
+    /** 存放队列执行函数的数组 @type {Array<Function|Promise<any>>} */
     #queue = [];
 
     /** 队列函数是否正则执行 */
@@ -25,7 +25,7 @@ class Queue {
             return;
         }
         for (const func of funcs) {
-            if (!func || typeof func !== 'function') {
+            if (!func || (typeof func !== 'function' && !(func instanceof Promise))) {
                 continue;
             }
             this.#queue.push(func);
@@ -48,8 +48,9 @@ class Queue {
             return;
         }
         this.#start();
+        const now = this.#queue.shift();
         Promise.resolve(
-            this.#queue.shift()?.()
+            typeof now === 'function' ? now() : now
         ).then(() => {
             // 立即执行
             if (immediately) {

@@ -120,39 +120,66 @@ nav.list > img {
 /* 图片列表容器 */
 div.image-container {
 	--blur-number: 5px;
+	/* 表格布局 */
+	display: grid;
+	grid-template-rows: 0fr;
+	justify-items: center;
+	/* 尺寸 */
     width: 95%;
 	max-width: 333px;
     border-radius: 5px;
     margin: 0 auto;
 	text-align: center;
-    padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+	padding: 0 var(--input-padding-horizontal);
     border: 2px solid transparent;
 	overflow: hidden;
-	transition: border .3s ease;
+	transition: border .3s ease, margin-bottom .3s linear;
 	position: relative;
 	animation: opacity-show .5s ease;
 }
 
+div.image-container.init-image {
+	grid-template-rows: 1fr;
+	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+}
+
+/* 图片容器外边距 */
+div.image-container.init-image:not(:last-child),
+div.image-container:not(.init-image, :last-child) {
+	margin-bottom: 10px;
+}
+
+/* 图片加载时的样式 */
+div.image-container:not(.init-image) {
+	grid-template-rows: 1fr;
+	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+}
+
+/* 新插入的图片添加一个展开动画 */
+div.image-container[init=false] {
+	animation: image-add .3s linear;
+}
+
 /* 加载完成的图片在删除时添加删除动画 */
-div.image-container.image-delete {
+div.image-container.image-delete[loaded=true]:not(.multiple-images-delete) {
 	opacity: 0;
-	animation: image-delete .5s cubic-bezier(0.5, 0, 0.5, 1);
+	grid-template-rows: 0fr;
+	padding: 0 var(--input-padding-horizontal);
+	margin-bottom: 0;
+	animation: image-delete var(--animation-time) linear;
 }
 
-/* 同时删除多张图片的透明度动画 */
+/* 重置储存路径时图片全部删除的透明度动画 */
 div.image-container.image-delete.multiple-images-delete {
-	animation: opacity-hide .25s ease;
-}
-
-/* 删除多张图片的滚动动画 */
-div.image-container.image-delete.multiple-images-delete-scroll {
-	animation: image-delete .25s linear var(--delay-time);
+	opacity: 0;
+	animation: opacity-hide var(--animation-time) ease!important;
 }
 
 div.image-container:hover {
 	cursor: pointer;
 }
 
+/* 边框样式 */
 nav.list div.image-container:not(.select):hover {
 	border-color: var(--vscode-imagePreview-border);
 }
@@ -165,15 +192,6 @@ div.image-container.random {
 	border-color: var(--vscode-tab-unfocusedActiveModifiedBorder);
 }
 
-div.image-container:not(:last-child) {
-	margin-bottom: 10px;
-}
-
-/* 新插入的图片添加一个展开动画 */
-.image-container[init=false] {
-	animation: image-add .5s cubic-bezier(0.5, 0, 0.5, 1);
-}
-
 /* 图片遮罩容器 */
 div.image-container > div.image-popup {
 	display: inline-block;
@@ -183,14 +201,23 @@ div.image-container > div.image-popup {
 	line-height: 1em;
 	border-radius: 5px;
 	position: relative;
-	text-align: center;
+	overflow: hidden;
 }
 
+/* 图片未加载完成的遮罩层 */
 div.image-container[loaded=false] > div.image-popup {
 	pointer-events: none;
 	aspect-ratio: 1.7;
 }
 
+/* 加载完成，图片遮罩过渡关闭，内容模糊显现 */
+div.image-container[loaded=true] > div.image-popup {
+	background: transparent;
+	overflow: hidden;
+	animation: blur-transition .5s linear;
+}
+
+/* 加载状态下的遮罩层 */
 div.image-container[loaded=false] > div.image-popup.loading-gradient > * {
 	display: none!important;
 }
@@ -217,6 +244,7 @@ div.image-container > div.image-popup > img.image {
 	max-width: 90%;
 	max-height: 150px;
 	position: relative;
+	border-radius: 5px;
 	transition: opacity .3s ease;
 }
 
@@ -228,13 +256,6 @@ div.image-container[loaded=false] > div.image-popup > img.image {
 /* 图片加载完成时的透明度 */
 div.image-container[loaded=true] > div.image-popup > img.image {
 	opacity: 1;
-}
-
-/* 加载完成，图片遮罩过渡关闭 */
-div.image-container[loaded=true] > div.image-popup {
-	background: transparent;
-	overflow: hidden;
-	animation: blur-transition .5s ease;
 }
 
 /* 图片操作 */

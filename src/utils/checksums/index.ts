@@ -8,7 +8,7 @@ import { modifyChecksum } from "./modify";
 
 /** 校验和相关数据初始化 */
 export function checksumsInit () {
-    if (ChecksumsState.isInitial()) {
+    if (ChecksumsState.isInitial) {
         return;
     }
     getChecksumsData().then(data => {
@@ -37,7 +37,7 @@ export function checksumsInit () {
 
 /** 重新检测指定目录文件 */
 export function reChecksum (path: Uri): Promise<void> {
-    if (ChecksumsState.isInitial() && ChecksumsState.get() && path) {
+    if (ChecksumsState.isInitial && ChecksumsState.canChange && path) {
         return modifyChecksum(path);
     }
     return Promise.resolve();

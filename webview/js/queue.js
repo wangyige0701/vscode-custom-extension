@@ -25,7 +25,7 @@ class Queue {
             return;
         }
         for (const func of funcs) {
-            if (!func || (typeof func !== 'function' && !(func instanceof Promise))) {
+            if (!func || (!isFunction(func) && !isPromise(func))) {
                 continue;
             }
             this.#queue.push(func);
@@ -50,7 +50,7 @@ class Queue {
         this.#start();
         const now = this.#queue.shift();
         Promise.resolve(
-            typeof now === 'function' ? now() : now
+            isFunction(now) ? now() : now
         ).then(() => {
             // 立即执行
             if (immediately) {

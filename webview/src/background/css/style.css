@@ -141,6 +141,7 @@ div.image-container {
 div.image-container.init-image {
 	grid-template-rows: 1fr;
 	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+	will-change: opacity;
 }
 
 /* 图片容器外边距 */
@@ -153,6 +154,7 @@ div.image-container:not(.init-image, :last-child) {
 div.image-container:not(.init-image) {
 	grid-template-rows: 1fr;
 	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+	will-change: grid-template-rows, opacity, padding;
 }
 
 /* 新插入的图片添加一个展开动画 */

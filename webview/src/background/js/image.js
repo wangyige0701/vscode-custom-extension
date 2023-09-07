@@ -1,4 +1,4 @@
-/* index(3) */
+/* index(30) */
 
 /** 监听右键点击，点击图片发送数据查看大图 */
 document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) => {

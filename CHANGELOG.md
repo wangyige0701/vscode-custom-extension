@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## [0.5.3] - 2023-9-7
+ - 优化：侧栏列表图片加载、删除动画优化
+
 ## [0.5.2] - 2023-9-6
  - 优化：背景图切换、清除交互优化
  - 新增：添加卸载扩展时清除背景图配置功能
@@ -94,6 +97,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 > end
 - Initial release
 
+[0.5.3]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.3
 [0.5.2]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.2
 [0.5.0]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.5.0
 [0.4.7]: https://github.com/wangyige0701/vscode-custom-extension/releases/tag/v0.4.7

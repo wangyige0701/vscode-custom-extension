@@ -4,25 +4,26 @@
 @keyframes image-delete {
 	from {
 		opacity: 1;
-		max-height: 150px;
+		grid-template-rows: 1fr;
+		padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	}
 	to {
 		opacity: 0;
-		max-height: 0;
-		margin-bottom: 0;
+		grid-template-rows: 0fr;
+		padding: 0 var(--input-padding-horizontal);
 	}
 }
 
 @keyframes image-add {
 	from {
 		opacity: 0;
-		max-height: 0;
-		overflow: hidden;
+		grid-template-rows: 0fr;
+		padding: 0 var(--input-padding-horizontal);
 	}
 	to {
 		opacity: 1;
-		max-height: 150px;
-		overflow: visible;
+		grid-template-rows: 1fr;
+		padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	}
 }
 

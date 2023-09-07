@@ -69,11 +69,9 @@ const queryNames = {
     /** 背景图数据加载中 */
     imageListInfoEmptyLoading: '背景图数据加载中',
     /** 图片加载删除动画时间 */
-    imageAnimationTime: 500,
+    imageAnimationTime: 300,
     /** 图片删除时的类名 */
     imageDeleteClass: 'image-delete',
     /** 删除复数图片时的类名 */
-    imageDeletMultipleClass: 'multiple-images-delete',
-    /** 删除复数图片时的滚动动画类名 */
-    imageDeletMultipleScrollClass: 'multiple-images-delete-scroll',
+    imageDeletMultipleClass: 'multiple-images-delete'
 };

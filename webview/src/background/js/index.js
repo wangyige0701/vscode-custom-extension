@@ -290,7 +290,7 @@ function buttonClickRandomBackground () {
 
 /** 选中列表所有图片 */
 function buttonClickSelectAll () {
-    listInstance.getChild()?.forEach(child => {
+    listInstance.getChild.forEach(child => {
         const code = listInstance.getCodeValue(child);
         if (code && !listInstance.selectImageList.includes(code)) {
             listInstance.selectImageList.push(code);
@@ -442,7 +442,7 @@ function addImage (src, code) {
                 // 已经在顶部
                 isScrollToTopAndAddImage = false;
                 publicData.imageRenderList?.unshift({ code, src });
-                resolve();
+                raf(resolve, 300);
                 return;
             }
             // 数据插入数组
@@ -460,7 +460,7 @@ function addImage (src, code) {
                 isScrollToTopAndAddImage = false;
                 const { src: $src, code: $code } = listForAddImage.shift();
                 publicData.imageRenderList?.unshift({ code: $code, src: $src });
-                resolve();
+                raf(resolve, 300);
             });
         } catch (error) {
             reject(error);

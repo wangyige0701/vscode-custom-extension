@@ -256,11 +256,11 @@ function $query (target, options = false) {
  */
 function changeToArray (item) {
     if (!item) {
-        return item;
+        return [];
     }
     const iterator = item[Symbol.iterator];
     if (typeof iterator !== 'function') {
-        return item;
+        return [item];
     }
     return Array.from(item);
 }
@@ -319,6 +319,14 @@ function isUndefined (target) {
  */
 function isNull (target) {
     return target === null;
+}
+
+/**
+ * 是否是function
+ * @param {any} target 
+ */
+function isFunction (target) {
+    return typeof target === 'function';
 }
 
 /**
@@ -397,4 +405,103 @@ function *range (end, start = 0, step = 1) {
     for (let i = start; compare ? i < end : i > end; compare ? i += step : i -= step) {
         yield i;
     }
+}
+
+/**
+ * 获取时间，优先performance
+*/
+function getComputerTime () {
+    if (window.performance) {
+        return performance.now();
+    }
+    return Date.now();
+}
+
+/**
+ * 微任务队列执行
+ * @param {Function} func
+ * @param {...any} params
+ */
+function $_nextTick (func, ...params) {
+    if (!func || typeof func !== 'function') {
+        return;
+    }
+    if (typeof Promise.resolve === 'function') {
+        Promise.resolve().then(func.bind(null, ...params));
+        return;
+    }
+    if (typeof MutationObserver === 'function') {
+        let ob = new MutationObserver(func.bind(null, ...params));
+        let node = document.createTextNode('');
+        ob.observe(node, { characterData: true });
+        node.data = '1';
+        return;
+    }
+    // node环境
+    if (process && typeof process.nextTick === 'function') {
+        process.nextTick(func.bind(null, ...params));
+        return;
+    }
+    if (typeof setImmediate === 'function') {
+        setImmediate(func.bind(null, ...params));
+        return;
+    }
+    setTimeout(func.bind(null, ...params));
+}
+
+/** 
+ * 使用requestAnimationFrame执行函数
+ * @param {Function} callback 回调函数
+ * @param {number} time 延迟时间
+ */
+const raf = (function () {
+    if (!window.requestAnimationFrame) {
+        return function (callback, time = 0) {
+            if (!callback || !isFunction(callback)) {
+                return;
+            }
+            const theTime = getComputerTime();
+            function f () {
+                const nowTime = getComputerTime();
+                if ((nowTime - theTime) >= time) {
+                    $_nextTick(callback.bind(null, nowTime));
+                } else {
+                    $_nextTick(f);
+                }
+            }
+            $_nextTick(f);
+        };
+    }
+    return function (callback, time = 0) {
+        if (!callback || !isFunction(callback)) {
+            return;
+        }
+        // 浏览器有requestAnimationFrame，使用以下方法
+        const theTime = performance.now();
+        function f (timestamp) {
+            if ((timestamp - theTime) >= time) {
+                window.requestAnimationFrame(callback.bind(null, timestamp));
+            } else {
+                window.requestAnimationFrame(f);
+            }
+        }
+        window.requestAnimationFrame(f);
+    };
+})();
+
+/**
+ * 判断元素中是否有指定类名
+ * @param {HTMLElement} target
+ * @param {string[]} classnames
+ */
+function elementContainClass (target, ...classnames) {
+    if (!target || !(target instanceof HTMLElement)) {
+        return false;
+    }
+    for (const name of classnames) {
+        if (!target.classList.contains(name)) {
+            return false;
+        }
+    }
+    return true;
 }

@@ -218,15 +218,16 @@ function createInstance () {
         #resetSelectImageList (_this) {
             this.selectImageList = new Proxy([], {
                 set (target, property, value, receiver) {
-                    const hasPro = target.hasOwnProperty(property);
-                    const oldData = target[property];
-                    const res = Reflect.set(target, property, value, receiver);
-                    if (!hasPro) {
-                        _this.renderBySelectListLength(true);
-                    } else if (property === 'length' && oldData !== value) {
-                        _this.renderBySelectListLength(false);
-                    }
+                    const oldData = target[property],
+                    res = Reflect.set(target, property, value, receiver);
                     if (property === 'length') {
+                        if (oldData !== value) {
+                            // 取消选中
+                            _this.renderBySelectListLength(false);
+                        } else {
+                            // 选中
+                            _this.renderBySelectListLength(true);
+                        }
                         /** @type {HTMLElement} 判断是否需要展示删除按钮 */
                         const batchButton = $query(`.${queryNames.batchButtonContainerClass}`);
                         if (value > 0) {
@@ -650,12 +651,56 @@ function createInstance () {
          * @param {string} code 
          */
         clickToChangeSelectImageIcon (code) {
+            // 取消选中
             if (this.selectImageList.includes(code)) {
                 const index = this.selectImageList.findIndex(item => item === code);
                 this.selectImageList.splice(index, 1);
-            } else {
-                this.selectImageList.push(code);
+                return;
             }
+            if (this.selectImageList.length === 0) {
+                // 没有元素直接push
+                this.selectImageList.push(code);
+                return;
+            }
+            // 选中
+            const selIndex = publicData.imageRenderList.findIndex(({ code: $code }) => $code === code);
+            if (selIndex < 0) {
+                return;
+            }
+            const firstIndex = publicData.imageRenderList.findIndex(({ code: $code }) => $code === this.selectImageList[0]);
+            if (selIndex < firstIndex) {
+                // 当前元素位置在选中数组第一位之前
+                this.selectImageList.unshift(code);
+                return;
+            }
+            const length = this.selectImageList.length;
+            const lastIndex = publicData.imageRenderList.findIndex(({ code: $code }) => $code === this.selectImageList[length - 1]);
+            if (selIndex > lastIndex) {
+                // 当前元素在选中数组最后一位之后
+                this.selectImageList.push(code);
+                return;
+            }
+            /** 二分查找 */
+            function handle (target, start, list) {
+                const thelen = list.length;
+                if (thelen <= 2) {
+                    return start + 1;
+                }
+                const len = thelen / 2;
+                const index = publicData.imageRenderList.findIndex(({ code: $code }) => $code === list[len]);
+                if (target < index) {
+                    // 向左查找
+                    return handle(target, start, list.slice(start, len + 1));
+                } else {
+                    // 向右查找
+                    return handle(target, start + len, list.slice(len, thelen));
+                }
+            }
+            const insertIndex = handle(selIndex, 0, this.selectImageList);
+            if (insertIndex < 0) {
+                return;
+            }
+            this.selectImageList.splice(insertIndex, 0, code);
         }
 
         /**

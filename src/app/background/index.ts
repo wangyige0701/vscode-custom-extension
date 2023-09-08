@@ -76,7 +76,7 @@ export async function WindowInitCheckCssModifyCompleteness () {
 	await checkImageCssDataIsRight().then(state => {
 		if (state) {
             // 需要重启应用背景
-			isWindowReloadToLoadBackimage('背景图设置文件被修改或删除，需要重启窗口以应用背景');
+			isWindowReloadToLoadBackimage('背景图配置文件被修改或删除，如果当前背景样式消失请选择确认重启窗口');
         }
 	}).catch(err => {
 		errlog(err);
@@ -96,15 +96,17 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             icon: 'loading~spin',
             message: '背景图文件校验中'
         });
-        Promise.resolve(<Promise<void>>new Promise((resolve) => {
+        Promise.resolve(<Promise<void>>new Promise($resolve => {
             const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
             if (!isBack) {
                 // 当前没有设置背景图，则直接跳出检测
                 throw { jump: true, data: false };
             } else {
-                resolve();
+                // promise完成
+                $resolve();
             }
         })).then(() => {
+            // 设置了背景图则校验源文件是否写入了背景图导入语句
             return setSourceCssImportInfo(true);
         }).then((res) => {
             return createExParamPromise(checExternalDataIsRight(), false || res.modify);

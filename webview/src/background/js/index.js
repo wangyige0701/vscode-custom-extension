@@ -408,8 +408,7 @@ function addImageHandle (datas) {
         });
     }
     // 倒序插入
-    for (const i of range(-1, datas.length - 1)) {
-        const code = datas[i];
+    for (const code of datas) {
         addImageQueue.set(req.bind(null, code));
     }
     // 队列执行，每一步函数执行结束不会立刻执行下一个，等待触发

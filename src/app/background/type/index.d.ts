@@ -213,3 +213,9 @@ export interface ContentAndUri {
     content: string;
     uri: Uri;
 }
+
+export interface CodeRefreshType {
+    addData?: string;
+    compressData?: string;
+    uri?: Uri;
+}

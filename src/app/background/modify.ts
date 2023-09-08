@@ -186,12 +186,12 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
                 throw { jump: true, modify: false };
             }
         }).then(data => {
-            const state = data!.state;
+            const state = data.state;
             if (state === true) {
                 // 当前不需要更新背景图css数据设置文件
                 throw { jump: true, modify: false };
             }
-            if (data && data.code) {
+            if (data.code) {
                 // 哈希码校验失败或者没有css文件，重新写入
                 return modifyCssFileForBackground(data.code);
             } else {
@@ -229,6 +229,7 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             if (exits === true) {
                 // 修改过源文件需要更换路径后的时间戳，去除缓存
                 if (!init) {
+                    // 不是初始化校验更新时间戳
                     resContent = createBuffer(content.replace(findSourceCssVersionContentRegexp, `$1${nowDate}$3`));
                 } else {
                     // 源文件满足修改格式并且当前是初始化校验调用，则不进行文件改写并且通知外部函数当前未修改
@@ -277,11 +278,11 @@ function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<vo
  */
 export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
     return new Promise((resolve, reject) => {
-        Promise.resolve(<Promise<void>>new Promise(resolve => {
+        Promise.resolve(<Promise<void>>new Promise($resolve => {
             if (!codeValue) {
                 throw { jump: true, state: false };
             } else {
-                resolve();
+                $resolve();
             }
         })).then(() => {
             return getExternalFileContent();

@@ -32,9 +32,6 @@ const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 /** 背景图片哈希码数据列表 */
 const backgroundImageCodeList: string[] = [];
 
-// 初始化缓存数组数据
-refreshImageCodeList();
-
 /** 选择文件的默认路径 */
 var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;
 
@@ -54,9 +51,6 @@ const isBackgroundCheckComplete: {
     init: false,
     running: false
 };
-
-/** 设置图片哈希码缓存数据的执行队列对象 */
-const backImgCodeSetQueue = queueCreate();
 
 /** 从工作区中获取储存的哈希码数据并更新至缓存数组中 */
 function refreshImageCodeList () {

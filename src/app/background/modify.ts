@@ -423,14 +423,6 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
     return new Promise((resolve, reject) => {
         const extensionVer = getVersion(), date = getDate();
         imageStoreUri().then(uri => {
-            if (!uri) {
-                return Promise.reject(new WError('Undefined Uri', {
-                    position: 'Parameter',
-                    FunctionName: 'getExternalCssContent > imageStoreUri.then',
-                    ParameterName: 'uri',
-                    description: 'The Uri of image folder is undefined'
-                }));
-            }
             return createExParamPromise(getExternalFileContent(), uri);
         }).then(([content, uri]) => {
             return createExParamPromise(findInfo(content[0]), uri);

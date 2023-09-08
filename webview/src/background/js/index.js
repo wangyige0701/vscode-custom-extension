@@ -404,7 +404,7 @@ function addImageHandle (datas) {
     function req (code) {
         sendMessage({
             name: 'getBackgroundBase64Data',
-            value: { code, type: 'addImage' }
+            value: { code, type: 'addImage', thumbnail: true }
         });
     }
     // 倒序插入

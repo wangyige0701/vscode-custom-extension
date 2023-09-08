@@ -9,7 +9,7 @@ import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
-export function imageStoreUri (): Promise<Uri | void> {
+export function imageStoreUri (): Promise<Uri> {
     return new Promise((resolve, reject) => {
         Promise.resolve().then(() => {
             const path: string = BackgroundConfiguration.getBackgroundStorePath;
@@ -26,16 +26,18 @@ export function imageStoreUri (): Promise<Uri | void> {
             }
         }).then(uri => {
             if (!uri) {
-                return Promise.reject({ jump: true });
+                return Promise.reject(new WError('Undefined Uri', {
+                    position: 'Function',
+                    FunctionName: imageStoreUri.name,
+                    ParameterName: 'uri',
+                    description: 'The Uri for image respository is undefined'
+                }));
             }
             return imageStoreUriExits(uri);
         }).then(uri => {
             resolve(uri);
         }).catch(err => {
-            if (err.jump) {
-                return resolve();
-            }
-            reject(promiseReject(err, 'imageStoreUri'));
+            reject(promiseReject(err, imageStoreUri.name));
         });
     });
 }

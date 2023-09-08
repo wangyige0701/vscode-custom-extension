@@ -923,6 +923,6 @@ function registLazyLoadImage (code, callback) {
     // 发送编码获取base64数据
     sendMessage({
         name: 'getBackgroundBase64Data',
-        value: { code, type: 'lazyLoad' }
+        value: { code, type: 'lazyLoad', thumbnail: true }
     });
 }

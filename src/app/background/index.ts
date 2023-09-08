@@ -24,6 +24,7 @@ import { checExternalDataIsRight, deletebackgroundCssFileModification, setSource
 import { bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
+import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";
 
 /** 图片类型过滤规则 */
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
@@ -38,7 +39,7 @@ refreshImageCodeList();
 var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;
 
 /** 储存哈希码和图片base64数据的键值对 */
-const repositoryData: { [key: string]: string } = {};
+const repositoryData: { [key: string]: { origin: string, thumbnail: string } } = {};
 
 /** 背景图是否校验完成判断，完成后才能进行列表初始化 */
 const isBackgroundCheckComplete: {
@@ -293,8 +294,11 @@ export function backgroundImageDataInit () {
     for (let name in repositoryData) {
         delete repositoryData[name];
     }
-    // 检索数据
-    selectAllImage().then(({ files, uri }) => {
+    // 判断压缩文件夹
+    createCompressDirectory().then(() => {
+        // 检索数据
+        return selectAllImage();
+    }).then(({ files, uri }) => {
         return checkImageFile(files, uri);
     }).then(buffers => {
         return changeToString(buffers);
@@ -352,19 +356,27 @@ export function backgroundImageDataInit () {
  * 根据传入的哈希码发送对应图片base64数据
  * @param options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用 
  */
-export function getBase64DataByCode ({ code, type }: { code: string, type: string }): void {
+export function getBase64DataByCode ({ code, type, thumbnail = false }: { code: string, type: string, thumbnail: boolean }): void {
     if (repositoryData.hasOwnProperty(code)) {
         backgroundSendMessage({
             name: 'backgroundSendBase64Data',
-            value: { code, data: repositoryData[code], type }
+            value: {
+                code, 
+                data: thumbnail ? repositoryData[code].thumbnail : repositoryData[code].origin, 
+                type
+            }
         });
     }
 }
 
-/** 从储存对象中根据哈希码获取base64数据 */
-export function getBase64DataFromObject (code: string): string {
+/**
+ * 从储存对象中根据哈希码获取base64数据
+ * @param code 图片哈希码
+ * @param thumbnail 是否需要缩略图数据
+ */
+export function getBase64DataFromObject (code: string, thumbnail: boolean = false): string {
     if (repositoryData.hasOwnProperty(code)) {
-        return repositoryData[code];
+        return thumbnail ? repositoryData[code].thumbnail : repositoryData[code].origin;
     } else {
         return '';
     }
@@ -377,13 +389,16 @@ export function getBase64DataFromObject (code: string): string {
 function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
         Promise.resolve().then(() => {
-            const result: string[] = [];
-            buffers.forEach(buff => {
-                result.push(buff.code);
+            return imageStoreUri();
+        }).then(uri => {
+            const result: Promise<string>[] = [];
+            for (const { code, buffer } of buffers) {
                 // 校验当前哈希码是否存在于缓存列表中
-                codeListRefresh(buff.code, 'check', buff.buffer.toString());
-            });
-            resolve(result);
+                result.push(codeListRefresh(code, 'check', { addData: buffer.toString(), uri }));
+            }
+            return Promise.all(result);
+        }).then(codes => {
+            resolve(codes);
         }).catch(err => {
             reject(promiseReject(err, 'changeToString'));
         });
@@ -391,15 +406,18 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
 }
 
 /** 缓存哈希码新增操作 */
-function codeAdd (code: string, data: string): Promise<void> {
+function codeAdd (code: string, originData: string, thumbnailData: string): Promise<string> {
     return new Promise(resolve => {
         // 新增，创建code时进行检验，现在一定不会重复
         backgroundImageCodeList.unshift(code);
         // 储存对象添加一条数据
-        repositoryData[code] = data??'';
+        repositoryData[code] = {
+            origin: originData??'',
+            thumbnail: thumbnailData??''
+        };
         // 放入队列待执行
         let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
-        backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
+        backImgCodeSetQueue.set(new Promise<void>(($res, $rej) => {
             Promise.resolve(
                 BackgroundConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
             ).then(() => {
@@ -411,12 +429,12 @@ function codeAdd (code: string, data: string): Promise<void> {
                 $rej(promiseReject(err, 'codeDelete'));
             });
         }));
-        resolve();
+        resolve(code);
     });
 }
 
 /** 缓存哈希码删除操作 */
-function codeDelete (code: string): Promise<void> {
+function codeDelete (code: string): Promise<string> {
     return new Promise(resolve => {
         // 删除判断是否存在索引
         let index = backgroundImageCodeList.findIndex(item => item === code);
@@ -430,7 +448,7 @@ function codeDelete (code: string): Promise<void> {
         }
         // 更新缓存数组
         let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
-        backImgCodeSetQueue.set((): Promise<void> => new Promise(($res, $rej) => {
+        backImgCodeSetQueue.set(new Promise<void>(($res, $rej) => {
             Promise.resolve().then(() => {
                 // 判断删除图片是否在随机切换数组中
                 const randomList = BackgroundConfiguration.getBackgroundRandomList;
@@ -454,23 +472,26 @@ function codeDelete (code: string): Promise<void> {
                 $rej(promiseReject(err, 'codeDelete'));
             });
         }));
-        resolve();
+        resolve(code);
     });
 }
 
 /** 缓存哈希码检查操作 */
-function codeCheck (code: string, data: string): Promise<void> {
+function codeCheck (code: string, data: string, uri: Uri): Promise<string> {
     return new Promise((resolve, reject) => {
         let index = backgroundImageCodeList.findIndex(item => item === code);
-        Promise.resolve().then(() => {     
+        Promise.resolve(getCompressImage(code, data, uri)).then(({ data: $data }) => {
             if (index < 0) {
                 // 缓存数组中不存在，需要添加
-                return codeListRefresh(code, 'add', data);
+                return codeListRefresh(code, 'add', { addData: data, compressData: $data });
             }
             // 否则直接在储存对象添加一条数据
-            repositoryData[code] = data??'';
+            repositoryData[code] = {
+                origin: data??'',
+                thumbnail: $data??''
+            };
         }).then(() => {
-            resolve();
+            resolve(code);
         }).catch(err => {
             reject(promiseReject(err, 'codeCheck'));
         });
@@ -482,15 +503,19 @@ function codeCheck (code: string, data: string): Promise<void> {
  * @param code 
  * @param state 
  */
-function codeListRefresh (code: string, state: codeChangeType = 'add', addData: string|undefined = void 0): Promise<void> {
+function codeListRefresh (
+    code: string, 
+    state: codeChangeType = 'add', 
+    { addData = void 0, compressData = void 0, uri = void 0 }: { addData?: string, compressData?: string, uri?: Uri }
+): Promise<string> {
     if (state === 'add') {
-        return codeAdd(code, addData!);
+        return codeAdd(code, addData!, compressData!);
     } else if (state === 'delete') {
         return codeDelete(code);
     } else if (state === 'check') {
-        return codeCheck(code, addData!);
+        return codeCheck(code, addData!, uri!);
     } else {
-        return Promise.resolve();
+        return Promise.resolve(code);
     }
 }
 
@@ -613,14 +638,6 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
 function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
         imageStoreUri().then(uri => {
-            if (!uri) {
-                return Promise.reject(new WError('Undefined Uri', {
-                    position: 'Parameter',
-                    FunctionName: 'selectAllImage > imageStoreUri.then',
-                    ParameterName: 'uri',
-                    description: 'The Uri of image folder is undefined'
-                }));
-            }
             return createExParamPromise(readDirectoryUri(uri), uri);
         }).then(([res, uri]) => {
             resolve({ files: res, uri });
@@ -644,18 +661,14 @@ export function createFileStore (base64: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const code: string = newHashCode();
         imageStoreUri().then(uri => {
-            if (!uri) {
-                return Promise.reject(new WError('Undefined Uri', {
-                    position: 'Parameter',
-                    FunctionName: 'createFileStore > imageStoreUri.then',
-                    ParameterName: 'uri',
-                    description: 'The Uri of image folder is undefined'
-                }));
-            }
-            return writeFileUri(newUri(uri, code+'.back.wyg'), createBuffer(base64));
-        }).then(() => {
+            // 原文件写入
+            return createExParamPromise(writeFileUri(newUri(uri, `${code}.back.wyg`), createBuffer(base64)), uri);
+        }).then(([_, uri]) => {
+            // 写入压缩图
+            return getCompressImage(code, base64, uri);
+        }).then(({ data }) => {
             // 新增一个哈希码数据
-            return codeListRefresh(code, 'add', base64.toString());
+            return codeListRefresh(code, 'add', { addData: base64.toString(), compressData: data });
         }).then(() => {
             resolve(code);
         }).catch(err => {
@@ -679,17 +692,13 @@ function deleteFileStore (code: string): Promise<string> {
             }));
         }
         imageStoreUri().then(uri => {
-            if (!uri) {
-                return Promise.reject(new WError('Undefined Uri', {
-                    position: 'Parameter',
-                    FunctionName: 'deleteFileStore > imageStoreUri.then',
-                    ParameterName: 'uri',
-                    description: 'The Uri of image folder is undefined'
-                }));
-            }
+            // 原图删除
             return uriDelete(newUri(uri, `${code}.back.wyg`));
         }).then(() => {
-            return codeListRefresh(code, 'delete');
+            // 删除压缩图
+            return deleteCompressByCode(code);
+        }).then(() => {
+            return codeListRefresh(code, 'delete', {});
         }).then(() => {
             resolve(code);
         }).catch(err => {

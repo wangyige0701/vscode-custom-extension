@@ -14,17 +14,14 @@ type file_suffix = 'css' | 'js';
  */
 export function minifyJs (content: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        try {
-            minify(content).then((res) => {
-                if (res.code) {
-                    resolve(res.code);
-                } else {
-                    resolve('');
-                }
-            });
-        } catch (error) {
-            reject(error);
-        }
+        minify(content).then((res) => {
+            if (res.code) {
+                return resolve(res.code);
+            }
+            resolve('');
+        }).catch(err => {
+            reject(err);
+        });
     });
 }
 
@@ -34,18 +31,15 @@ export function minifyJs (content: string): Promise<string> {
  */
 export function minifyCss (content: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        try {
-            // 将process第二个参数的from设置为undefinded,防止生成错误的源映射
-            postcss([cssnano]).process(content, { from: void 0 }).then(res => {
-                if (res.css) {
-                    resolve(res.css);
-                } else {
-                    resolve('');
-                }
-            });
-        } catch (error) {
-            reject(error);
-        }
+        // 将process第二个参数的from设置为undefinded,防止生成错误的源映射
+        postcss([cssnano]).process(content, { from: void 0 }).then(res => {
+            if (res.css) {
+                return resolve(res.css);
+            }
+            resolve('');
+        }).catch(err => {
+            reject(err);
+        });
     });
 }
 

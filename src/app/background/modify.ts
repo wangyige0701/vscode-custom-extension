@@ -98,19 +98,18 @@ const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 export function modifyCssFileForBackground (codeValue: string, random: boolean = false, tip: boolean = true): Promise<void> {
     return new Promise((resolve, reject) => {
         if (!codeValue) {
-            reject(new WError('Undefined Hash Code', {
+            return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
                 FunctionName: 'modifyCssFileForBackground',
                 ParameterName: 'codeValue',
                 description: 'The hash code to get image data is undefined'
             }));
-            return;
         }
-        let statusBarTarget: Disposable | null;
+        let statusBarTarget: Disposable;
         getExternalCssContent(codeValue).then(res => {
             if (res === false) {
                 // 不需要更新，直接跳出
-                throw { jump: true };
+                return Promise.reject({ jump: true });
             }
             // 状态栏提示文字
             if (tip) {
@@ -133,13 +132,11 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
         }).catch(err => {
             // 传递了jump属性就resolve
             if (err.jump) {
-                resolve();
-            } else {
-                reject(promiseReject(err, 'modifyCssFileForBackground'));
+                return resolve();
             }
+            reject(promiseReject(err, 'modifyCssFileForBackground'));
         }).finally(() => {
             statusBarTarget?.dispose();
-            statusBarTarget = null;
         });
     });
 }
@@ -181,30 +178,26 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
         getNowSettingCode().then(res => {
             if (res) {
                 return checkCurentImageIsSame(res);
-            } else {
-                changeLoadState();
-                throw { jump: true, modify: false };
             }
+            changeLoadState();
+            return Promise.reject({ jump: true, modify: false });
         }).then(data => {
-            const state = data.state;
-            if (state === true) {
+            if (data.state === true) {
                 // 当前不需要更新背景图css数据设置文件
-                throw { jump: true, modify: false };
+                return Promise.reject({ jump: true, modify: false });
             }
             if (data.code) {
                 // 哈希码校验失败或者没有css文件，重新写入
                 return modifyCssFileForBackground(data.code);
-            } else {
-                throw { jump: true, modify: true };
             }
+            return Promise.reject({ jump: true, modify: true });
         }).then(() => {
             resolve({ modify:true });
         }).catch(err => {
             if (err.jump) {
-                resolve({ modify: err.modify });
-            } else {
-                reject(promiseReject(err, 'checExternalDataIsRight'));
+                return resolve({ modify: err.modify });
             }
+            reject(promiseReject(err, 'checExternalDataIsRight'));
         });
     });
 }
@@ -219,22 +212,20 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             if (data) {
                 // 有数据，进行修改
                 return isSourceCssFileModify(...data);
-            } else {
-                // 没有数据返回false
-                throw { jump: true, modify: false };
             }
+            // 没有数据返回false
+            return Promise.reject({ jump: true, modify: false });
         }).then(({ content, uri, exits }) => {
             const nowDate = Date.now();
             let resContent: Buffer;
             if (exits === true) {
                 // 修改过源文件需要更换路径后的时间戳，去除缓存
-                if (!init) {
-                    // 不是初始化校验更新时间戳
-                    resContent = createBuffer(content.replace(findSourceCssVersionContentRegexp, `$1${nowDate}$3`));
-                } else {
+                if (init) {
                     // 源文件满足修改格式并且当前是初始化校验调用，则不进行文件改写并且通知外部函数当前未修改
-                    throw { jump: true, modify: false };
+                    return Promise.reject({ jump: true, modify: false });
                 }
+                // 不是初始化校验更新时间戳
+                resContent = createBuffer(content.replace(findSourceCssVersionContentRegexp, `$1${nowDate}$3`));
             } else {
                 // 没有修改过源文件直接修改
                 resContent = createBuffer(`${importStart+'\n'
@@ -247,10 +238,9 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             resolve({ modify: true });
         }).catch(err => {
             if (err.jump) {
-                resolve({ modify: err.modify });
-            } else {
-                reject(promiseReject(err, 'setSourceCssImportInfo'));
+                return resolve({ modify: err.modify });
             }
+            reject(promiseReject(err, 'setSourceCssImportInfo'));
         });
     });
 }
@@ -278,12 +268,11 @@ function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<vo
  */
 export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
     return new Promise((resolve, reject) => {
-        Promise.resolve(<Promise<void>>new Promise($resolve => {
+        Promise.resolve(<Promise<void>>new Promise(($res, $rej) => {
             if (!codeValue) {
-                throw { jump: true, state: false };
-            } else {
-                $resolve();
+                return $rej({ jump: true, state: false });
             }
+            $res();
         })).then(() => {
             return getExternalFileContent();
         }).then(content => {
@@ -293,16 +282,15 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
                 const { ImageCode } = data;
                 // 如果和上一次是一个哈希值，不再更新数据
                 if (ImageCode === codeValue) {
-                    throw { jump: true, state: true, code: ImageCode };
+                    return Promise.reject({ jump: true, state: true, code: ImageCode });
                 }
             }
             resolve({ state: false, code: codeValue });
         }).catch(err => {
             if (err.jump) {
-                resolve({ state: err.state, code: err.code??void 0 });
-            } else {
-                reject(promiseReject(err, 'checkCurentImageIsSame'));
+                return resolve({ state: err.state, code: err.code??void 0 });
             }
+            reject(promiseReject(err, 'checkCurentImageIsSame'));
         });
     });
 }
@@ -315,8 +303,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
 function settingConfiguration (options: info, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
         if (!options) {
-            resolve();
-            return;
+            return resolve();
         }
         Promise.resolve(
             BackgroundConfiguration.setBackgroundIsSetBackground(true)
@@ -363,40 +350,34 @@ function deleteConfiguration (): Promise<void> {
 function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
     return new Promise((resolve, reject) => {
         if (!name) {
-            resolve();
-            return;
+            return resolve();
         }
         const modulePath = getNodeModulePath();
         if (!modulePath) {
-            throw new WError('NodeModule is Undefined', {
+            return reject(new WError('NodeModule is Undefined', {
                 position: 'Function',
                 FunctionName: 'getCssUri',
                 description: 'Current Module is not main module. This data is needed to get Css File Path'
-            });
+            }));
         }
         const uri = createUri(pathjoin(dirname(modulePath), 'vs', 'workbench', name));
         isFileExits(uri).then(res => {
             if (res) {
                 // 有指定路径
-                throw { jump: true, uri };
+                return Promise.reject({ jump: true, uri });
             }
             if (!create) {
                 // 不创建文件，直接返回
-                throw { jump: true };
+                return Promise.reject({ jump: true });
             }
             return writeFileUri(uri, createBuffer(""));
         }).then(() => {
             resolve(uri);
         }).catch(err => {
             if (err.jump) {
-                if (err.uri) {
-                    resolve(err.uri);
-                } else {
-                    resolve();
-                }
-            } else {
-                reject(promiseReject(err, 'getCssUri'));
+                return resolve(err.uri??void 0);
             }
+            reject(promiseReject(err, 'getCssUri'));
         });
     });
 }
@@ -440,16 +421,15 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
  */
 function getExternalCssContent (codeValue: string): Promise<[string, info] | false> {
     return new Promise((resolve, reject) => {
-        const extensionVer = getVersion(),
-        date = getDate();
+        const extensionVer = getVersion(), date = getDate();
         imageStoreUri().then(uri => {
             if (!uri) {
-                throw new WError('Undefined Uri', {
+                return Promise.reject(new WError('Undefined Uri', {
                     position: 'Parameter',
-                    FunctionName: 'getExternalCssContent > imageStoreUri',
+                    FunctionName: 'getExternalCssContent > imageStoreUri.then',
                     ParameterName: 'uri',
                     description: 'The Uri of image folder is undefined'
-                });
+                }));
             }
             return createExParamPromise(getExternalFileContent(), uri);
         }).then(([content, uri]) => {
@@ -459,7 +439,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
                 const { ImageCode, VSCodeVersion, ExtensionVersion } = data;
                 // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
                 if (ImageCode === codeValue && VSCodeVersion === version && ExtensionVersion === extensionVer) {
-                    throw { jump: true, data: false };
+                    return Promise.reject({ jump: true, data: false });
                 }
             }
             return readFileUri(newUri(uri, `${codeValue}.back.wyg`));
@@ -494,10 +474,9 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
             ]);
         }).catch(err => {
             if (err.jump) {
-                resolve(err.data);
-            } else {
-                reject(promiseReject(err, 'getExternalCssContent'));
+                return resolve(err.data);
             }
+            reject(promiseReject(err, 'getExternalCssContent'));
         });
     });
 }
@@ -505,16 +484,15 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
 /** 获取缓存中的当前设置的背景图哈希码数据，如果没有缓存数据，返回false */
 function getNowSettingCode (): Promise<string | false> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             const storageCode = BackgroundConfiguration.getBackgroundNowImageCode;
-            if (!storageCode) {
-                resolve(false);
-            } else {
-                resolve(storageCode);
+            if (storageCode) {
+                return resolve(storageCode);
             }
-        } catch (error) {
-            reject(promiseReject(error, 'getNowSettingCode'));
-        }
+            resolve(false);
+        }).catch(err => {
+            reject(promiseReject(err, 'getNowSettingCode'));
+        });
     });
 }
 
@@ -526,17 +504,16 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
         getCssUri(cssName, false).then(uri => {
             if (!uri) {
-                throw { jump: true };
+                return Promise.reject({ jump: true });
             }
             return createExParamPromise(readFileUri(uri), uri);
         }).then(([res, uri]) => {
             resolve([res!.toString(), uri]);
         }).catch(err => {
             if (err.jump) {
-                resolve();
-            } else {
-                reject(promiseReject(err, 'getSourceCssFileContent'));
+                return resolve();
             }
+            reject(promiseReject(err, 'getSourceCssFileContent'));
         });
     });
 }
@@ -548,17 +525,16 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
  */
 function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:string, uri:Uri, exits:boolean }> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             const reg = content.match(findSourceCssPositionRegexp);
             // 有匹配项返回，exits字段为true
             if (reg) {
-                resolve({ content, uri, exits: true });
-            } else {
-                resolve({ content, uri, exits: false });
+                return resolve({ content, uri, exits: true });
             }
-        } catch (error) {
-            reject(promiseReject(error, 'isSourceCssFileModify'));
-        }
+            resolve({ content, uri, exits: false });
+        }).catch(err => {
+            reject(promiseReject(err, 'isSourceCssFileModify'));
+        });
     });
 }
 
@@ -568,22 +544,21 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:st
  */
 function findInfo (content: string): Promise<info | false> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             const reg = content.match(findExternalCssPositionRegexp);
             // 有匹配项返回信息
             if (reg) {
-                resolve({
+                return resolve({
                     VSCodeVersion: reg[1],
                     ExtensionVersion: reg[2],
                     Date: reg[3],
                     ImageCode: reg[4]
                 });
-            } else {
-                resolve(false);
             }
-        } catch (error) {
-            reject(promiseReject(error, 'findInfo'));
-        }
+            resolve(false);
+        }).catch(err => {
+            reject(promiseReject(err, 'findInfo'));
+        });
     });
 }
 
@@ -605,16 +580,15 @@ function getReg (name: string, catchData: boolean = true): string {
  */
 function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndUri> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             if (!content) {
-                resolve({content:"", uri});
-                return;
+                return resolve({content:"", uri});
             }
             content = content.replace(findSourceCssPositionRegexp, "");
             resolve({content, uri});
-        } catch (error) {
-            reject(promiseReject(error, 'deleteContentByTagName'));
-        }
+        }).catch(err => {
+            reject(promiseReject(err, 'deleteContentByTagName'));
+        });
     });
 }
 

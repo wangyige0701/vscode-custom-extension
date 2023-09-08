@@ -7,14 +7,12 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
         if (!data) {
-            reject(new Error('Null Resoponse'));
-            return;
+            return reject(new Error('Null Resoponse'));
         }
         if (data.status < 300) {
-            resolve(data);
-        } else {
-            reject(data);
+            return resolve(data);
         }
+        reject(data);
     });
 }
 

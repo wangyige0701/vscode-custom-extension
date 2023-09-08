@@ -1,6 +1,6 @@
 import { modifyCssFileForBackground } from "./modify";
 import { showMessage, showProgress } from "../../utils/interactive";
-import { delay } from "../../utils";
+import { createExParamPromise, delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
@@ -72,16 +72,15 @@ function settingProgress (code: string, index: number) {
  */
 function setting (code: string, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
-        let close = false;
         modifyCssFileForBackground(code, random).then(() => {
             // 如果传入random参数为true，则不会关闭随机切换背景图状态
             if (!random && BackgroundConfiguration.getBackgroundIsRandom) {
                 // 如果选中背景图设置则会关闭随机切换背景图
-                close = true;
-                return BackgroundConfiguration.setBackgroundIsRandom(false);
+                return createExParamPromise(Promise.resolve(BackgroundConfiguration.setBackgroundIsRandom(false)), true);
             }
-        }).then(() => {
-            if (close) {
+            return createExParamPromise(Promise.resolve(), false);
+        }).then(([_, close]) => {
+            if (close === true) {
                 closeRandomBackground();
             }
             resolve();

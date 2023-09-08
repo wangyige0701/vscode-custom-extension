@@ -60,14 +60,13 @@ const backImgCodeSetQueue = queueCreate();
 /** 从工作区中获取储存的哈希码数据并更新至缓存数组中 */
 function refreshImageCodeList () {
     // 更新储存列表数据
-    let cache: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
+    const cache: string[] = BackgroundConfiguration.getBackgroundAllImageCodes;
     backgroundImageCodeList.length = cache.length;
     cache.forEach((item, index) => {
         if (backgroundImageCodeList[index] !== item) {
             backgroundImageCodeList[index] = item;
         }
     });
-    cache = null;
 }
 
 /** vscode初始化后检测背景配置是否完整 */
@@ -92,19 +91,18 @@ export async function WindowInitCheckCssModifyCompleteness () {
 export function checkImageCssDataIsRight (): Promise<boolean> {
     return new Promise((resolve, reject) => {
         isBackgroundCheckComplete.check = true;
-        let statusBarTarget: Disposable | null = setStatusBarResolve({
+        const statusBarTarget: Disposable = setStatusBarResolve({
             icon: 'loading~spin',
             message: '背景图文件校验中'
         });
-        Promise.resolve(<Promise<void>>new Promise($resolve => {
+        Promise.resolve(<Promise<void>>new Promise(($res, $rej) => {
             const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
             if (!isBack) {
                 // 当前没有设置背景图，则直接跳出检测
-                throw { jump: true, data: false };
-            } else {
-                // promise完成
-                $resolve();
+                return $rej({ jump: true, data: false });
             }
+            // promise完成
+            $res();
         })).then(() => {
             // 设置了背景图则校验源文件是否写入了背景图导入语句
             return setSourceCssImportInfo(true);
@@ -119,13 +117,11 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             resolve(state);
         }).catch(err => {
             if (err.jump) {
-                resolve(err.data);
-            } else {
-                reject(promiseReject(err, 'checkImageCssDataIsRight'));
+                return resolve(err.data);
             }
+            reject(promiseReject(err, 'checkImageCssDataIsRight'));
         }).finally(() => {
             statusBarTarget?.dispose();
-            statusBarTarget = null;
             // 状态栏提示信息
             setBackgroundImageSuccess('背景图文件校验完成');
             isBackgroundCheckComplete.check = false;
@@ -148,35 +144,40 @@ function executeInitFunc () {
  * @param code 
  */
 export function deleteImage (...code: string[]) {
-    showMessageByModal(code.length > 0 ? '是否删除选中图片' : '是否删除此图片').then(() => {
-        showProgress({
-            location: 'Notification',
-            title: '图片删除中'
-        }, (progress) => <Promise<void>>new Promise(resolve => {
-            const array: Promise<string>[] = [];
-            code.forEach(item => {
-                array.push(deleteFileStore(item));
-            });
-            Promise.all(array).then(target => {
-                backgroundSendMessage({
-                    name: 'deleteImageSuccess',
-                    value: target
-                });
-                progress.report({
-                    message: '删除成功',
-                    increment: 100
-                });
-                // 延迟关闭进度条
-                return delay(1500);
-            }).catch(err => {
-                errlog(err);
-            }).finally(() => {
-                resolve();
-            });
-        }));
-    }).catch(error => {
-        error && errlog(error);
+    showMessageByModal(code.length > 1 ? '是否删除选中图片' : '是否删除此图片').then(() => {
+        return Promise.resolve(deleteImageProgress(...code));
+    }).catch(err => {
+        err && errlog(err);
     });
+}
+
+/** 图片删除的进度条 */
+function deleteImageProgress (...code: string[]) {
+    return showProgress({
+        location: 'Notification',
+        title: '图片删除中'
+    }, (progress) => <Promise<void>>new Promise(resolve => {
+        const array: Promise<string>[] = [];
+        code.forEach(item => {
+            array.push(deleteFileStore(item));
+        });
+        Promise.all(array).then(target => {
+            backgroundSendMessage({
+                name: 'deleteImageSuccess',
+                value: target
+            });
+            progress.report({
+                message: '删除成功',
+                increment: 100
+            });
+            // 延迟关闭进度条
+            return delay(1500);
+        }).catch(err => {
+            errlog(err);
+        }).finally(() => {
+            resolve();
+        });
+    }));
 }
 
 /** 清除背景图相关设置 */
@@ -197,8 +198,8 @@ export function clearBackgroundConfig () {
             // 如果当前设置了随机切换，需要关闭
             randomSettingBackground(false, false);
         }
-    }).catch(error => {
-        error && errlog(error);
+    }).catch(err => {
+        err && errlog(err);
     });
 }
 
@@ -281,9 +282,9 @@ export function backgroundImageDataInit () {
     // 关闭状态
     isBackgroundCheckComplete.init = false;
     let length: number = 0,
-    success: boolean = false,
+    success: boolean = false;
     /** 状态栏显示提示 */
-    statusBarTarget: Disposable|null = setStatusBarResolve({
+    const statusBarTarget: Disposable = setStatusBarResolve({
         icon: 'loading~spin',
         message: '侧栏列表初始化中'
     });
@@ -304,8 +305,7 @@ export function backgroundImageDataInit () {
             name: 'backgroundInitData',
             value: str
         });
-        success = true;
-        length = str.length;
+        success = true, length = str.length;
     }).then(() => {
         // 通过缓存获取图片哈希码发送
         const state = BackgroundConfiguration.getBackgroundIsSetBackground;
@@ -339,10 +339,9 @@ export function backgroundImageDataInit () {
                 false
         });
         statusBarTarget?.dispose();
-        statusBarTarget = null;
         // 延迟指定时间后修改状态栏信息，仅当图片数量大于0时显示
         if (length > 0) {
-            setBackgroundImageSuccess('背景图列表初始化成功');
+            setBackgroundImageSuccess('侧栏列表初始化成功');
         }
         isBackgroundCheckComplete.running = false;
         executeInitFunc();
@@ -377,7 +376,7 @@ export function getBase64DataFromObject (code: string): string {
  */
 function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             const result: string[] = [];
             buffers.forEach(buff => {
                 result.push(buff.code);
@@ -385,9 +384,9 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
                 codeListRefresh(buff.code, 'check', buff.buffer.toString());
             });
             resolve(result);
-        } catch (error) {
-            reject(promiseReject(error, 'changeToString'));
-        }
+        }).catch(err => {
+            reject(promiseReject(err, 'changeToString'));
+        });
     });
 }
 
@@ -467,10 +466,9 @@ function codeCheck (code: string, data: string): Promise<void> {
             if (index < 0) {
                 // 缓存数组中不存在，需要添加
                 return codeListRefresh(code, 'add', data);
-            } else {
-                // 否则直接在储存对象添加一条数据
-                repositoryData[code] = data??'';
             }
+            // 否则直接在储存对象添加一条数据
+            repositoryData[code] = data??'';
         }).then(() => {
             resolve();
         }).catch(err => {
@@ -515,8 +513,7 @@ function refreshBackgroundImageList (data: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
         let cacheData: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
         if (data.length === cacheData.length) {
-            resolve(data);
-            return;
+            return resolve(data);
         }
         Promise.resolve().then(() => {
             // 新数组长度等于缓存数组长度，直接返回
@@ -565,7 +562,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
  */
 function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferAndCode[]> {
     return new Promise((resolve, reject) => {
-        try {
+        Promise.resolve().then(() => {
             /** 异步处理数组 */
             const fileRequest: Array<Promise<{ buffer: Uint8Array, code: string }>> = [],
             /** 匹配文件正则 */
@@ -576,22 +573,21 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
                 const file = files[i][0];
                 // 对满足要求的文件进行文件数据读取
                 const reg = file.match(searchRegexp);
-                if (reg) {
-                    const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
-                    // 需要加一个index为-1的判断，防止递归死循环
-                    const posi = index >= 0 ? bisectionAsce(checkArray, index) : 0;
-                    checkArray.splice(posi, 0, index);
-                    fileRequest.splice(posi, 0, getFileAndCode(newUri(uri, file), reg[1]));
+                if (!reg) {
+                    continue;
                 }
+                const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
+                // 需要加一个index为-1的判断，防止递归死循环
+                const posi = index >= 0 ? bisectionAsce(checkArray, index) : 0;
+                checkArray.splice(posi, 0, index);
+                fileRequest.splice(posi, 0, getFileAndCode(newUri(uri, file), reg[1]));
             }
-            Promise.all(fileRequest).then(res => {
-                resolve(res);
-            }).catch(err => {
-                reject(promiseReject(err, 'checkImageFile'));
-            });
-        } catch (error) {
-            reject(promiseReject(error, 'checkImageFile'));
-        }
+            return Promise.all(fileRequest);
+        }).then(res => {
+            resolve(res);
+        }).catch(err => {
+            reject(promiseReject(err, 'checkImageFile'));
+        });
     });
 }
 
@@ -618,12 +614,12 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
     return new Promise((resolve, reject) => {
         imageStoreUri().then(uri => {
             if (!uri) {
-                throw new WError('Undefined Uri', {
+                return Promise.reject(new WError('Undefined Uri', {
                     position: 'Parameter',
-                    FunctionName: 'selectAllImage > imageStoreUri',
+                    FunctionName: 'selectAllImage > imageStoreUri.then',
                     ParameterName: 'uri',
                     description: 'The Uri of image folder is undefined'
-                });
+                }));
             }
             return createExParamPromise(readDirectoryUri(uri), uri);
         }).then(([res, uri]) => {
@@ -649,15 +645,14 @@ export function createFileStore (base64: string): Promise<string> {
         const code: string = newHashCode();
         imageStoreUri().then(uri => {
             if (!uri) {
-                throw new WError('Undefined Uri', {
+                return Promise.reject(new WError('Undefined Uri', {
                     position: 'Parameter',
-                    FunctionName: 'createFileStore > imageStoreUri',
+                    FunctionName: 'createFileStore > imageStoreUri.then',
                     ParameterName: 'uri',
                     description: 'The Uri of image folder is undefined'
-                });
+                }));
             }
-            uri = newUri(uri, code+'.back.wyg');
-            return writeFileUri(uri, createBuffer(base64));
+            return writeFileUri(newUri(uri, code+'.back.wyg'), createBuffer(base64));
         }).then(() => {
             // 新增一个哈希码数据
             return codeListRefresh(code, 'add', base64.toString());
@@ -676,25 +671,23 @@ export function createFileStore (base64: string): Promise<string> {
 function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (!hasHashCode(code)) {
-            reject(new WError('Undefined Hash Code', {
+            return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
                 FunctionName: 'deleteFileStore',
                 ParameterName: 'code',
                 description: 'The hash code to delete image is undefined'
             }));
-            return;
         }
         imageStoreUri().then(uri => {
             if (!uri) {
-                throw new WError('Undefined Uri', {
+                return Promise.reject(new WError('Undefined Uri', {
                     position: 'Parameter',
-                    FunctionName: 'deleteFileStore > imageStoreUri',
+                    FunctionName: 'deleteFileStore > imageStoreUri.then',
                     ParameterName: 'uri',
                     description: 'The Uri of image folder is undefined'
-                });
+                }));
             }
-            uri = newUri(uri, `${code}.back.wyg`);
-            return uriDelete(uri);
+            return uriDelete(newUri(uri, `${code}.back.wyg`));
         }).then(() => {
             return codeListRefresh(code, 'delete');
         }).then(() => {

@@ -24,12 +24,11 @@ if (!process.env.NODE_ENV) {
 function check_ver (file_path: string, n_v: string): Promise<string> {
     return new Promise((resolve, reject) => {
         getContent(file_path).then(res => {
-            let l_v = latest_ver(res);
+            const l_v = latest_ver(res);
             if (!l_v || l_v !== n_v) {
-                reject(file_path + ' ---> 版本错误 >>> ' + `预发布版本：v${n_v}；打包文件版本：${l_v?'v'+l_v:'不存在'};`);
-            } else {
-                resolve(file_path);
+                return reject(file_path + ' ---> 版本错误 >>> ' + `预发布版本：v${n_v}；打包文件版本：${l_v?'v'+l_v:'不存在'};`);
             }
+            resolve(file_path);
         }).catch(err => {
             reject(err);
         });

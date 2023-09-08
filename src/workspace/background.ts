@@ -100,9 +100,9 @@ export class BackgroundConfiguration {
             }
             list.splice(value, 1);
         }
-        await this.setBackgroundAllImageObject(list).then(() => {
+        await Promise.resolve(this.setBackgroundAllImageObject(list)).then(() => {
             return Promise.resolve();
-        }, err => {
+        }).catch(err => {
             return Promise.reject(err);
         });
     }

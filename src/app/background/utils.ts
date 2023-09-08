@@ -11,32 +11,32 @@ import { backgroundSendMessage } from "./execute_webview";
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri | void> {
     return new Promise((resolve, reject) => {
-        try {
-            let uri: string | Uri | undefined = BackgroundConfiguration.getBackgroundStorePath;
-            if (uri) {
+        Promise.resolve().then(() => {
+            const path: string = BackgroundConfiguration.getBackgroundStorePath;
+            if (path) {
                 // 缓存内有路径数据
-                uri = Uri.file(uri);
+                return Uri.file(path);
             } else {
                 // 没有缓存数据则获取插件路径
-                uri = contextContainer.instance?.extensionUri;
+                const uri = contextContainer.instance?.extensionUri;
                 if (uri) {
-                    uri = joinPathUri(uri, ...defaultPath);
-                } else {
-                    uri = void 0;
+                    return joinPathUri(uri, ...defaultPath);
                 }
+                return void 0;
             }
+        }).then(uri => {
             if (!uri) {
-                resolve();
-                return;
+                return Promise.reject({ jump: true });
             }
-            imageStoreUriExits(uri).then(uri => {
-                resolve(uri);
-            }).catch(err => {
-                reject(promiseReject(err, 'imageStoreUri'));
-            });
-        } catch (error) {
-            reject(promiseReject(error, 'imageStoreUri'));
-        }
+            return imageStoreUriExits(uri);
+        }).then(uri => {
+            resolve(uri);
+        }).catch(err => {
+            if (err.jump) {
+                return resolve();
+            }
+            reject(promiseReject(err, 'imageStoreUri'));
+        });
     });
 }
 
@@ -47,12 +47,11 @@ export function imageStoreUri (): Promise<Uri | void> {
 export function imageStoreUriExits (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
         if (!uri) {
-            reject(new WError('Undefined Uri', {
+            return reject(new WError('Undefined Uri', {
                 position: 'Parameter',
                 FunctionName: 'imageStoreUriExits',
                 ParameterName: 'uri'
             }));
-            return;
         }
         isFileExits(uri).then(res => {
             if (!res) {
@@ -132,8 +131,7 @@ export function showMessageByModal (message: string = '是否设置此背景图'
         }).then(res => {
             if (res && res.id === 0) {
                 // 返回true
-                resolve();
-                return;
+                return resolve();
             }
             // 选择取消返回reject
             reject();

@@ -20,21 +20,23 @@ import {
  */
 export function getInputInfo (title: string, placeHolder: string, reg: RegExp = /^[a-zA-Z0-9]*$/): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
-        window.showInputBox({
-            password: false,
-            ignoreFocusOut: true,
-            placeHolder: placeHolder,
-            prompt: title,
-            validateInput: function (text: string): string {
-                if (check(text, reg)) {
-                    return "";
-                } else {
-                    return "Illegal input";
+        Promise.resolve(
+            window.showInputBox({
+                password: false,
+                ignoreFocusOut: true,
+                placeHolder: placeHolder,
+                prompt: title,
+                validateInput: function (text: string): string {
+                    if (check(text, reg)) {
+                        return "";
+                    } else {
+                        return "Illegal input";
+                    }
                 }
-            }
-        }).then((msg: string | undefined) => {
+            })
+        ).then(msg => {
             resolve(msg);
-        }, err => {
+        }).catch(err => {
             reject(new Error('InputBox Error', { cause: err }));
         });
     });
@@ -54,24 +56,24 @@ export function selectFile ({
     defaultUri
 }: SelectFileParams): Promise<{uri:Uri[], file:boolean, dirName:string}> {
     return new Promise((resolve, reject) => {
-        try {
-            if (files && folders) {
-                folders = false;
-            }
-            if (!files && !folders) {
-                files = true;
-            }
-            if (folders && many) {
-                many = false;
-            }
-            if (folders && filters) {
-                filters = void 0;
-            }
-            if (isString(defaultUri) && defaultUri.length > 0) {
-                defaultUri = Uri.file(defaultUri);
-            } else {
-                defaultUri = void 0;
-            }
+        if (files && folders) {
+            folders = false;
+        }
+        if (!files && !folders) {
+            files = true;
+        }
+        if (folders && many) {
+            many = false;
+        }
+        if (folders && filters) {
+            filters = void 0;
+        }
+        if (isString(defaultUri) && defaultUri.length > 0) {
+            defaultUri = Uri.file(defaultUri);
+        } else {
+            defaultUri = void 0;
+        }
+        Promise.resolve(
             window.showOpenDialog({
                 defaultUri: defaultUri as Uri | undefined,
                 canSelectFiles: files,
@@ -80,26 +82,30 @@ export function selectFile ({
                 filters,
                 title,
                 openLabel
-            }).then(res => {
-                if (res) {
-                    let dirName;
-                    if (files) {
-                        dirName = dirname(res[0].fsPath);
-                    } else {
-                        dirName = res[0].path;
-                    }
-                    resolve({ uri: res, file: files, dirName });
+            })
+        ).then(res => {
+            if (res) {
+                let dirName;
+                if (files) {
+                    dirName = dirname(res[0].fsPath);
                 } else {
-                    reject();
+                    dirName = res[0].path;
                 }
-            }, err => {
-                reject(new Error('ShowOpenDialog Error', { cause: err }));
-            });
-        } catch (error) {
-            reject(new Error('Catch Error', { cause: error }));
-        }
+                return resolve({ uri: res, file: files, dirName });
+            }
+            reject();
+        }).catch(err => {
+            reject(new Error('ShowOpenDialog Error', { cause: err }));     
+        });
     });
 }
+
+/** 获取消息弹框所有方法 */
+const getMessageBoxAllData = {
+    information: window.showInformationMessage,
+    warning: window.showWarningMessage,
+    error: window.showErrorMessage
+};
 
 /**
  * 设置消息弹框
@@ -113,50 +119,32 @@ export function showMessage<T extends MessageItem> ({
     items
 }: MessageBoxType<T>): Promise<T | undefined> {
     return new Promise((resolve, reject) => {
-        try {
-            if (!type) {
-                type = 'information';
-            }
-            if (!message) {
-                reject('Null message for MessageBox');
-                return;
-            }
-            if (!modal) {
-                detail = void 0;
-            }
-            // items是undefinded不传
-            if (isUndefined(items)) {
-                getMessageBoxAllData()[type](message, {
-                    modal,
-                    detail
-                }).then(res => {
-                    resolve(res as undefined);
-                }, err => {
-                    reject(new Error('MessageBox Error', { cause: err }));
-                });
-            } else {
-                getMessageBoxAllData()[type](message, {
-                    modal,
-                    detail
-                }, ...items).then(res => {
-                    resolve(res);
-                }, err => {
-                    reject(new Error('MessageBox Error', { cause: err }));
-                });
-            }
-        } catch (error) {
-            reject(new Error('Catch Error', { cause: error }));
+        if (!type) {
+            type = 'information';
         }
+        if (!message) {
+            return reject('Null message for MessageBox');
+        }
+        if (!modal) {
+            detail = void 0;
+        }
+        Promise.resolve(
+            // items是undefinded不传
+            isUndefined(items) 
+            ? getMessageBoxAllData[type]<T>(message, {
+                modal,
+                detail
+            })
+            : getMessageBoxAllData[type]<T>(message, {
+                modal,
+                detail
+            }, ...items)
+        ).then(res => {
+            resolve(res);
+        }).catch(err => {
+            reject(new Error('MessageBox Error', { cause: err }));
+        });
     });
-}
-
-/** 获取消息弹框所有方法 */
-function getMessageBoxAllData () {
-    return {
-        information: window.showInformationMessage,
-        warning: window.showWarningMessage,
-        error: window.showErrorMessage
-    };
 }
 
 /**
@@ -176,14 +164,14 @@ export function setStatusBar (message: string | StatusBarIconMessage, option?:St
     let thenable: Thenable<any>;
     if (isNumber(option)) {
         thenable = <Promise<void>>new Promise((resolve, reject) => {
-            try {
+            Promise.resolve().then(() => {
                 setTimeout(() => {
                     callback?.(...callbackParam);
                     resolve();
                 }, option);
-            } catch (error) {
-                reject(new Error('Catch Error', { cause: error }));
-            }
+            }).catch(err => {
+                reject(new Error('Catch Error', { cause: err }));
+            });
         });
     } else {
         thenable = option;

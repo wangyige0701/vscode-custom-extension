@@ -13,9 +13,9 @@ import { createExParamPromise } from "../../utils";
 
 /** 注册背景图设置功能 */
 export function registBackground (): void {
-	let statusBarTarget: Disposable | null = setStatusBarResolve({
+	const statusBarTarget: Disposable = setStatusBarResolve({
 		icon: 'loading~spin',
-		message: '默认路径图片数据确认'
+		message: '默认路径图片数据检测'
 	});
 	copyFileWhenVersionChange('resources/background').then(() => {
 		statusBarTarget?.dispose();
@@ -42,7 +42,6 @@ export function registBackground (): void {
 		errlog(err);
 	}).finally(() => {
 		statusBarTarget?.dispose();
-		statusBarTarget = null;
 	});
 }
 
@@ -50,14 +49,12 @@ export function registBackground (): void {
 function checkRandomCode (): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		if (!BackgroundConfiguration.getBackgroundIsRandom) {
-			resolve(false);
-			return;
+			return resolve(false);
 		}
 		// 当状态为随机切换时，更新当前选择图片数据
 		const code = BackgroundConfiguration.getBackgroundRandomCode;
 		if (!code) {
-			resolve(false);
-			return;
+			return resolve(false);
 		}
 		Promise.resolve(
 			BackgroundConfiguration.setBackgroundNowImageCode(code)

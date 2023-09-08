@@ -3,7 +3,7 @@ import { showMessage, showProgress } from "../../utils/interactive";
 import { delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
-import { isChangeBackgroundImage, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
+import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
 import { errlog, promiseReject } from "../../error";
 
 type settingImageData = {
@@ -23,7 +23,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
         return setting(code, true);
     }
     // 如果不是随机切换背景图，则表示当前需要弹出提示
-    isChangeBackgroundImage().then(() => {
+    showMessageByModal().then(() => {
         // 判断需要设置的图片哈希码是否和当前背景图哈希码不相同
         return Promise.resolve(code !== BackgroundConfiguration.getBackgroundNowImageCode);
     }).then(state => {
@@ -34,7 +34,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
             message: `此图片当前已设置为背景图`
         });
     }).catch((error) => {
-        errlog(error);
+        error && errlog(error);
     });
 }
 

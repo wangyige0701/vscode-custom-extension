@@ -116,10 +116,10 @@ function sendStoreChangeMessage () {
 }
 
 /**
- * 打开系统弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
+ * 打开系统默认样式的弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
  * @param message 弹框文本
  */
-export function isChangeBackgroundImage (message: string = '是否设置此背景图'): Promise<void> {
+export function showMessageByModal (message: string = '是否设置此背景图'): Promise<void> {
     return new Promise((resolve, reject) => {
         showMessage({
             message: '提示',
@@ -138,7 +138,7 @@ export function isChangeBackgroundImage (message: string = '是否设置此背�
             // 选择取消返回reject
             reject();
         }).catch((err) => {
-            reject(promiseReject(err, 'isChangeBackgroundImage'));
+            reject(promiseReject(err, 'showMessageByModal'));
         });
     });
 }

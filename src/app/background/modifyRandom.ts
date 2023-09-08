@@ -3,7 +3,7 @@ import { getRandom } from "../../utils";
 import { showMessage } from "../../utils/interactive";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
-import { closeRandomBackground, isChangeBackgroundImage } from "./utils";
+import { closeRandomBackground, showMessageByModal } from "./utils";
 import { settingImage } from "./execute_setting";
 import { modifyCssFileForBackground } from "./modify";
 
@@ -17,7 +17,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         // 根据tip参数判断是否需要显示弹框提示
         Promise.resolve().then(() => {
             if (tip) {
-                return isChangeBackgroundImage('是否关闭背景图随机切换？');
+                return showMessageByModal('是否关闭背景图随机切换？');
             }
         }).then(() => {
             let code: string = '';
@@ -38,7 +38,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         }).then(() => {
             closeRandomBackground();
         }).catch(err => {
-            errlog(err);
+            err && errlog(err);
         });
         return;
     }
@@ -47,7 +47,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
         showMessage({ message: '设置随机切换背景请选择两张以上图片' });
         return;
     }
-    isChangeBackgroundImage('是否设置背景图随机切换？每次打开软件会随机切换一张背景图。').then(() => {
+    showMessageByModal('是否设置背景图随机切换？每次打开软件会随机切换一张背景图。').then(() => {
         return Promise.resolve(
             BackgroundConfiguration.setBackgroundIsRandom(true)
         );
@@ -67,7 +67,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
             value
         });
     }).catch(err => {
-        errlog(err);
+        err && errlog(err);
     });
 }
 

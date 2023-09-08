@@ -293,7 +293,7 @@ function buttonClickSelectAll () {
     listInstance.getChild.forEach(child => {
         const code = listInstance.getCodeValue(child);
         if (code && !listInstance.selectImageList.includes(code)) {
-            listInstance.selectImageList.push(code);
+            listInstance.clickToChangeSelectImageIcon(code);
         }
     });
 }
@@ -351,7 +351,7 @@ function getBase64DataToLoad ({ code, data, type }) {
         }
         // 加载后移除数组元素并执行回调函数
         let target = lazyLoadImageList.splice(index, 1)?.[0];
-        target?.callback?.(base64ToBlob(data));
+        target?.callback?.(base64ToBlob(data), code);
     } else if (type === 'addImage') {
         // 新增图片的数据获取
         Promise.resolve(

@@ -112,7 +112,7 @@ function createInstance () {
                         }
                         const value = this.#recordMap[index];
                         registLazyLoadImage(
-                            complexGetAttr(value.target, queryNames.imageContainerCodeName)[0], 
+                            complexGetAttr(value.target, queryNames.imageContainerCodeName)[0],
                             this.#createImage.bind(this, value.target, value.data)
                         );
                         this.#recordMap.splice(index, 1);
@@ -385,7 +385,7 @@ function createInstance () {
                 init: false,
                 animation: false
             }), complexSetAttr($create('div'), { class: 'image-popup loading-gradient' }));
-            this.#createImage(el, data,  src);
+            this.#createImage(el, data, src);
             // 插入元素
             this.insert(this.element, el, head);
             return el;
@@ -396,16 +396,20 @@ function createInstance () {
          * @param {HTMLElement} container 图片容器
          * @param {string} src
          */
-        #createImage (container, data, src) {
+        #createImage (container, data, src, code = void 0) {
             // 如果没有src属性，就将数据赋值进对象中
             if (!data.hasOwnProperty('src')) {
                 data.src = src;
             }
             complexSetAttr(container, { animation: true });
-            const img = new Image();
+            let img = new Image();
             img.onload = () => {
                 // 设置完节点属性后选择子节点
-                let popup = $query('.image-popup', complexSetAttr(container, { loaded: true }));
+                const isIconSelect = code && this.selectImageList.includes(code);
+                let popup = $query('.image-popup', complexSetAttr(container, {
+                    class: [container.className, isIconSelect ? queryNames.selectButtonToContainerClass : ''],
+                    loaded: true
+                }));
                 // 图片本体
                 complexAppendChild(popup, complexSetAttr(img, { 
                     class: queryNames.imageClass, 
@@ -414,7 +418,9 @@ function createInstance () {
                 }));
                 // 操作按钮
                 let selectBut, deleteBut;
-                complexAppendChild(container, selectBut = complexSetAttr($create('span'), { class: queryNames.imageButtonClass }));
+                complexAppendChild(container, selectBut = complexSetAttr($create('span'), {
+                    class: [queryNames.imageButtonClass, isIconSelect ? queryNames.ImageSelectStateClass : '']
+                }));
                 complexAppendChild(container, deleteBut = complexSetAttr($create('span'), { class: queryNames.imageButtonClass }));
                 classListOperation(selectBut, 'add', queryNames.imageSelectButtonClass, queryNames.circleBackIconClass);
                 classListOperation(deleteBut, 'add', queryNames.imageDeleteButtonClass, queryNames.deleteIconClass);
@@ -422,7 +428,7 @@ function createInstance () {
                 this.imageSelectIconEventBind(selectBut, false, data);
                 this.imageDeleteIconEventBind(deleteBut, false, data);
                 this.imageElementEventBind(container, false, data);
-                selectBut = null, deleteBut = null;
+                selectBut = null, deleteBut = null, img = null;
                 // 图片加载完成再次执行监测函数
                 this.#scrollDebounce?.();
             };

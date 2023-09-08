@@ -15,7 +15,7 @@ import { BackgroundConfiguration } from "../../workspace/background";
 import { 
     changeLoadState, 
     imageStoreUri, 
-    isChangeBackgroundImage, 
+    showMessageByModal, 
     isWindowReloadToLoadBackimage, 
     setBackgroundImageSuccess 
 } from "./utils";
@@ -148,7 +148,7 @@ function executeInitFunc () {
  * @param code 
  */
 export function deleteImage (...code: string[]) {
-    isChangeBackgroundImage(code.length > 0 ? '是否删除选中图片' : '是否删除此图片').then(() => {
+    showMessageByModal(code.length > 0 ? '是否删除选中图片' : '是否删除此图片').then(() => {
         showProgress({
             location: 'Notification',
             title: '图片删除中'
@@ -175,13 +175,13 @@ export function deleteImage (...code: string[]) {
             });
         }));
     }).catch(error => {
-        errlog(error);
+        error && errlog(error);
     });
 }
 
 /** 清除背景图相关设置 */
 export function clearBackgroundConfig () {
-    isChangeBackgroundImage('是否清除背景图配置').then(() => {
+    showMessageByModal('是否清除背景图配置').then(() => {
         const nowCode = BackgroundConfiguration.getBackgroundNowImageCode;
         if (nowCode) {
             // 发送settingBackgroundSuccess数据通知webview侧关闭当前图片的选中样式
@@ -198,7 +198,7 @@ export function clearBackgroundConfig () {
             randomSettingBackground(false, false);
         }
     }).catch(error => {
-        errlog(error);
+        error && errlog(error);
     });
 }
 

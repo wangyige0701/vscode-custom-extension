@@ -135,7 +135,7 @@ div.image-container {
 	overflow: hidden;
 	transition: border .3s ease, margin-bottom .3s linear;
 	position: relative;
-	animation: opacity-show .5s ease;
+	animation: opacity-show .3s ease;
 }
 
 div.image-container.init-image {

@@ -126,7 +126,7 @@ export class FileMerge {
                 // 过滤外部公用文件的文件夹
                 const external_files_get: Promise<[[ExternalFile, FileType][], ExternalFile]>[] = res.filter(([name, type]) => {
                     return type === 2 && external_files.includes(name as ExternalFile);
-                }).map(([name, type]) => {
+                }).map(([name]) => {
                     return createExParamPromise(readDirectoryUri(newUri(this.publicFileUri!, name)), name) as Promise<[[ExternalFile, FileType][], ExternalFile]>;
                 });
                 return Promise.all(external_files_get);
@@ -148,7 +148,7 @@ export class FileMerge {
             }
             return readDirectoryUri(this.baseUri!);
         }).then(async (res) => {
-            for (let name in webFile) {
+            for (const name in webFile) {
                 if (!res.find(item => item[0] === webFile[name])) {
                     continue;
                 }
@@ -216,18 +216,17 @@ export class FileMerge {
         return new Promise((resolve, reject) => {
             if (isVersionSame) {
                 // 版本相同，不需要更新
-                resolve();
-            } else {
-                readFileUri(this.newCssUri!).then((css: Uint8Array) => {
-                    return Promise.resolve(this.cssIconfontPath(css.toString(), webview));
-                }).then(css => {
-                    return writeFileUri(this.newCssUri!, createBuffer(css));
-                }).then(() => {
-                    resolve();
-                }).catch(err => {
-                    reject(promiseReject(err, 'refreshCssIconfont', 'FileMerge'));
-                });
+                return resolve();
             }
+            readFileUri(this.newCssUri!).then((css: Uint8Array) => {
+                return Promise.resolve(this.cssIconfontPath(css.toString(), webview));
+            }).then(css => {
+                return writeFileUri(this.newCssUri!, createBuffer(css));
+            }).then(() => {
+                resolve();
+            }).catch(err => {
+                reject(promiseReject(err, 'refreshCssIconfont', 'FileMerge'));
+            });
         });
     }
 
@@ -265,15 +264,11 @@ export class FileMerge {
         return new Promise((resolve, reject) => {
             readDirectoryUri(newUri(uri)).then(res => {
                 const list: Uri[] = [], checkReg = new RegExp(`\\.${fileType}$`);
-                res.forEach(item => {
-                    try {
-                        if (item[1] === 1 && checkReg.test(item[0])) {
-                            list.push(newUri(uri, item[0]));
-                        }
-                    } catch (error) {
-                        throw error;
+                for (const item of res) {
+                    if (item[1] === 1 && checkReg.test(item[0])) {
+                        list.push(newUri(uri, item[0]));
                     }
-                });
+                }
                 resolve(list);
             }).catch(err => {
                 reject(promiseReject(err, 'readDirectoryFile', 'FileMerge'));
@@ -288,8 +283,7 @@ export class FileMerge {
     private mergeAllFile (fileUri: Uri[]): Promise<string> {
         return new Promise((resolve, reject) => {
             if (fileUri.length <= 0) {
-                resolve('');
-                return;
+                return resolve('');
             }
             readFileUriList(fileUri).then(res => {
                 resolve(mergeWebviewFile(res));
@@ -303,8 +297,7 @@ export class FileMerge {
     private cssFileMerge (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.cssUri) {
-                resolve();
-                return;
+                return resolve();
             }
             // 外部统一样式处理
             this.externalFileMerge('css').then(res => {
@@ -336,8 +329,7 @@ export class FileMerge {
     private jsFileMerge (): Promise<void> {
         return new Promise((resolve, reject) => {
             if (!this.jsUri) {
-                resolve();
-                return; 
+                return resolve();
             }
             this.externalFileMerge('js').then(res => {
                 return createExParamPromise(this.readDirectoryFile(this.jsUri!, 'js'), res);

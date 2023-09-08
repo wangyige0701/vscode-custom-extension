@@ -21,28 +21,26 @@ export function copyFileWhenVersionChange (path: string): Promise<void> {
     return new Promise((resolve, reject) => {
         // 开发环境不进行检测，没有路径或者版本未改变同样跳出
         if (isDev() || !path || !isExtensionVersionChange) {
-            resolve();
-            return;
+            return resolve();
         }
         // 存放扩展的根路径，由于只在生产环境下执行，所以，只需要获取到向上两层根目录
-        const rootPath = createUri(pathResolve(__dirname, '../..'));
+        const rootPath = createUri(pathResolve(__dirname, '../..')),
         // 获取文件名
-        const { publisher, name } = require('../../package.json');
-        const lastExtensionVersion = getVersionById('global', 'ExtensionVersion');
-        const extensionVersion = getVersion();
+        { publisher, name } = require('../../package.json'),
+        lastExtensionVersion = getVersionById('global', 'ExtensionVersion'),
+        extensionVersion = getVersion(),
         // 获取扩展文件夹名称
-        const extensionName = `${publisher}.${name}-${extensionVersion}`;
-        const lastExtenstionName = `${publisher}.${name}-${lastExtensionVersion}`;
+        extensionName = `${publisher}.${name}-${extensionVersion}`,
+        lastExtenstionName = `${publisher}.${name}-${lastExtensionVersion}`,
         // 创建uri
-        const nowUri = newUri(rootPath, extensionName, path);
-        const lastUri = newUri(rootPath, lastExtenstionName, path);
+        nowUri = newUri(rootPath, extensionName, path),
+        lastUri = newUri(rootPath, lastExtenstionName, path);
         Promise.all([
             isFileExits(lastUri),
             isFileExits(newUri(rootPath, extensionName))
         ]).then(([res1, res2]) => {
+            // 文件之一路径不存在
             if (!res1 || !res2) {
-                // 文件之一路径不存在
-                resolve();
                 return;
             }
             // 复制文件

@@ -42,12 +42,11 @@ function getImageBase64ByRequest (url: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const reg = url.match(imageUrl);
         if (!reg) {
-            reject(new WError('Illegal Image URL', {
+            return reject(new WError('Illegal Image URL', {
                 position: 'Parameter',
                 FunctionName: 'getImageBase64ByRequest',
                 ParameterName: 'url'
             }));
-            return;
         }
         GetImage(url).then(res => {
             return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
@@ -69,13 +68,12 @@ export function backgroundOpacityModify (opacity: number) {
         if (state) {
             sendOpacity = opacity;
             isWindowReloadToLoadBackimage('透明度设置完成，是否重启窗口应用');
-            return BackgroundConfiguration.setBackgroundOpacity(opacity);
-        } else {
-            // state为false，和当前透明度相同，不进行修改
-            showMessage({
-                message: `当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`
-            });
+            return Promise.resolve(BackgroundConfiguration.setBackgroundOpacity(opacity));
         }
+        // state为false，和当前透明度相同，不进行修改
+        showMessage({
+            message: `当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`
+        });
     }).catch(err => {
         errlog(err);
     }).finally(() => {
@@ -94,8 +92,7 @@ export function backgroundOpacityModify (opacity: number) {
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
         if (opacity === BackgroundConfiguration.getBackgroundOpacity) {
-            resolve(false);
-            return;
+            return resolve(false);
         }
         getExternalFileContent().then(data => {
             const content = getExternalCssModifyOpacityContent(data[0], getNewBackgroundOpacity(opacity));

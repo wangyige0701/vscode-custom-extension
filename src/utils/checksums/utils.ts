@@ -37,12 +37,11 @@ export function getProductRoot (): Promise<string> {
     return new Promise((resolve, reject) => {
         const modulePath = getNodeModulePath();
         if (!modulePath) {
-            reject(new WError('NodeModule is Undefined', {
+            return reject(new WError('NodeModule is Undefined', {
                 position: 'Function',
                 FunctionName: 'getProducePosition',
                 description: 'Current Module is not main module.'
             }));
-            return;
         }
         resolve(pathjoin(dirname(modulePath), '..'));
     });
@@ -72,8 +71,7 @@ export function readChecksumsData (): Promise<string> {
             }
         }).then(value => {
             if (value) {
-                resolve(value.toString());
-                return;
+                return resolve(value.toString());
             }
             resolve('');
         }).catch(err => {
@@ -104,8 +102,7 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
             }
         }).then(allContent => {
             if (!allContent || allContent.length <= 0) {
-                resolve([]);
-                return;
+                return resolve([]);
             }
             resolve(allContent);
         }).catch(err => {

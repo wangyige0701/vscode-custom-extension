@@ -20,7 +20,7 @@ const environment = isDev();
  * @param e 
  * @param isThrow 是否抛出错误不进行弹框打印
  */
-function errlog (e: any, isThrow: boolean = !environment) {
+function errlog (e: any, isThrow: boolean = !environment): void {
     if (!e) {
         return;
     }

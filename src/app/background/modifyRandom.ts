@@ -75,8 +75,7 @@ export function randomSettingBackground (value: string[] | false, tip: boolean =
 export function setRandomBackground (): Promise<void> {
     return new Promise((resolve, reject) => {
         if (!BackgroundConfiguration.getBackgroundIsRandom) {
-            resolve();
-            return;
+            return resolve();
         }
         /** 允许随机设置背景图的哈希码列表 */
         let list = BackgroundConfiguration.getBackgroundRandomList;
@@ -86,8 +85,7 @@ export function setRandomBackground (): Promise<void> {
         }
         // 当此时图片列表仍为空，则跳出方法
         if (list.length <= 0) {
-            resolve();
-            return;
+            return resolve();
         }
         const code: string = list[getRandom(0, list.length)];
         settingImage({ code }, true).then(() => {

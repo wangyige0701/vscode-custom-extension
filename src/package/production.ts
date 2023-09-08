@@ -20,22 +20,24 @@ type external_file = {
 
 type dir_check = {list:string[],root:string,name:file_suffix};
 
+type ExtFiles = {
+    css: string[];
+    js: string[];
+};
+
 /**
  * 在生产环境发布前，需要对所有webview的js、css文件进行压缩合并，
 */
 if (!process.env.NODE_ENV) {
     console.log(consoleByColor('blue', '开始预发布webview相关文件打包...'));
-    let file_param: file_suffix[] = ['css', 'js'];
-    let root = getRoot();
+    const file_param: file_suffix[] = ['css', 'js'],
+    root = getRoot(),
     /** 文件路径存放 */
-    const ext_files: {
-        css: string[];
-        js: string[];
-    } = {
+    ext_files: ExtFiles = {
         css: [],
         js: []
-    };
-    const now_version = now_ver();
+    },
+    now_version = now_ver();
     var ver_text = `/* version: ${now_version} */`;
     // 获取公共css、js文件
     const getAllExternalFile: Promise<[string[], file_suffix]>[] = file_param.map(item => {
@@ -120,15 +122,13 @@ function right_dir (name: file_suffix, file_path: string, root: string): Promise
 function dir_content (pathName: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
         if (!pathName) {
-            reject('Undefinded Path');
-            return;
+            return reject('Undefinded Path');
         }
         readdir(pathName, 'utf-8', (err, files) => {
             if (err) {
-                reject(err);
-            } else {
-                resolve(files);
+                return reject(err);
             }
+            resolve(files);
         });
     });
 }
@@ -137,8 +137,7 @@ function dir_content (pathName: string): Promise<string[]> {
 function mergeFile (list: string[], pathName: string, type: file_suffix, external_content: string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (!list || list.length <= 0) {
-            resolve(type);
-            return;
+            return resolve(type);
         }
         Promise.all(list.map(file => {
             return getContent(file);
@@ -181,8 +180,7 @@ function external_merge (file_path: external_file, returnValue: dir_check[]): Pr
         const result: Promise<{type:string,content:string}>[] = [];
         for (let name in file_path) {
             result.push(new Promise(($resolve, $reject) => {
-                let paths: string[] = file_path[name];
-                external_merge_work(paths).then(res => {
+                external_merge_work(file_path[name]).then(res => {
                     $resolve({ type: name, content: res });
                 }).catch(err => {
                     $reject(err);
@@ -208,8 +206,7 @@ function external_merge (file_path: external_file, returnValue: dir_check[]): Pr
 function external_merge_work (paths: string[]): Promise<string> {
     return new Promise((resolve, reject) => {
         if (paths.length <= 0) {
-            resolve('');
-            return;
+            return resolve('');
         }
         Promise.all(paths.map(item => {
             return getContent(item);

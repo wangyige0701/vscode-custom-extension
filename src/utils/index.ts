@@ -17,8 +17,8 @@ export function check (str: string, reg: RegExp = /^.*$/): boolean {
  * @returns 格式化日期字符串
  */
 export function getDate(date: Date | undefined = void 0, format: string = "YYYY-MM-DD hh:mm:ss"): string {
-    let legal = '[^a-zA-Z0-9\\n\\f\\r\\t\\v]'; // 合法连接符
-    let reg = new RegExp(`^YYYY(${legal}{1})MM(${legal}{1})DD(${legal}{1})hh(${legal}{1})mm(${legal}{1})ss$`);
+    const legal = '[^a-zA-Z0-9\\n\\f\\r\\t\\v]', // 合法连接符
+    reg = new RegExp(`^YYYY(${legal}{1})MM(${legal}{1})DD(${legal}{1})hh(${legal}{1})mm(${legal}{1})ss$`);
     // 校验时间格式
     if (!format || !check(format, reg)) {
         throw new Error("时间格式错误");
@@ -27,15 +27,15 @@ export function getDate(date: Date | undefined = void 0, format: string = "YYYY-
     if (isUndefined(date)) {
         date = new Date();
     }
-    const formatCode = format.match(reg)?.slice(1, 6);
+    const formatCode = format.match(reg)?.slice(1, 6),
     // 获取时间连接符
-    const [f1, f2, f3, f4, f5] = formatCode!;
-    let y = date.getFullYear();
-    let m = addZero(date.getMonth() + 1);
-    let d = addZero(date.getDate());
-    let h = addZero(date.getHours());
-    let mm = addZero(date.getMinutes());
-    let s = addZero(date.getSeconds());
+    [f1, f2, f3, f4, f5] = formatCode!,
+    y = date.getFullYear(),
+    m = addZero(date.getMonth() + 1),
+    d = addZero(date.getDate()),
+    h = addZero(date.getHours()),
+    mm = addZero(date.getMinutes()),
+    s = addZero(date.getSeconds());
     return `${y}${f1}${m}${f2}${d}${f3}${h}${f4}${mm}${f5}${s}`;
 }
 

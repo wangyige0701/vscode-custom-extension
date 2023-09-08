@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.5.4 - 2023-9-8
+ - 修复：侧栏图片列表全选状态下懒加载的图片未选中修复
+
 ## [0.5.3] - 2023-9-7
  - 优化：侧栏列表图片加载、删除动画优化
 

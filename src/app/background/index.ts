@@ -21,7 +21,7 @@ import {
 } from "./utils";
 import { backgroundSendMessage } from "./execute_webview";
 import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
-import { bufferAndCode, codeChangeType } from "./type";
+import { CodeRefreshType, bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";
@@ -153,19 +153,38 @@ export function deleteImage (...code: string[]) {
 }
 
 /** 图片删除的进度条 */
-function deleteImageProgress (...code: string[]) {
+function deleteImageProgress (...codes: string[]) {
     return showProgress({
         location: 'Notification',
         title: '图片删除中'
     }, (progress) => <Promise<void>>new Promise(resolve => {
-        const array: Promise<string>[] = [];
-        code.forEach(item => {
-            array.push(deleteFileStore(item));
-        });
-        Promise.all(array).then(target => {
+        Promise.all(codes.map(code => {
+            return deleteFileStore(code);
+        })).then(codes => {
+            const randomList = BackgroundConfiguration.getBackgroundRandomList;
+            for (const code of codes) {
+                // 删除随机数组缓存的数据
+                if (randomList.includes(code)) {
+                    randomList.splice(randomList.indexOf(code), 1);
+                }
+                // 删除缓存数组内的数据
+                if (hasHashCode(code)) {
+                    backgroundImageCodeList.splice(backgroundImageCodeList.indexOf(code), 1);
+                }
+            }
+            return createExParamPromise(
+                Promise.all([
+                    Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(randomList)),
+                    Promise.resolve(BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeList))
+                ]),
+                codes
+            );
+        }).then(([_, codes]) => {
+            refreshImageCodeList();
+            // 发送数据
             backgroundSendMessage({
                 name: 'deleteImageSuccess',
-                value: target
+                value: codes
             });
             progress.report({
                 message: '删除成功',
@@ -254,10 +273,17 @@ export function selectImage () {
         return Promise.all(
             base64s.map(base64 => createFileStore(base64))
         );
-    }).then(datas => {
-        datas.forEach(hashCode => {
-            sendMsg.push(hashCode);
-        });
+    }).then(codes => {
+        for (const index of range(-1, codes.length - 1)) {
+            const code = codes[index];
+            sendMsg.push(code);
+            backgroundImageCodeList.unshift(code);
+        }
+        return Promise.resolve(
+            BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
+        );
+    }).then(() => {
+        refreshImageCodeList();
     }).catch(err => {
         errlog(err, true);
     }).finally(() => {
@@ -302,15 +328,19 @@ export function backgroundImageDataInit () {
         return checkImageFile(files, uri);
     }).then(buffers => {
         return changeToString(buffers);
-    }).then(str => {
-        return refreshBackgroundImageList(str);
-    }).then(str => {
+    }).then(codes => {
+        return refreshBackgroundImageList(codes);
+    }).then(codes => {
         backgroundSendMessage({
             name: 'backgroundInitData',
-            value: str
+            value: codes
         });
-        success = true, length = str.length;
+        success = true, length = codes.length;
+        return Promise.resolve(
+            BackgroundConfiguration.refreshBackgroundImagePath(codes)
+        );
     }).then(() => {
+        refreshImageCodeList();
         // 通过缓存获取图片哈希码发送
         const state = BackgroundConfiguration.getBackgroundIsSetBackground;
         if (state) {
@@ -391,109 +421,60 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
         Promise.resolve().then(() => {
             return imageStoreUri();
         }).then(uri => {
-            const result: Promise<string>[] = [];
-            for (const { code, buffer } of buffers) {
-                // 校验当前哈希码是否存在于缓存列表中
-                result.push(codeListRefresh(code, 'check', { addData: buffer.toString(), uri }));
+            // 校验当前哈希码是否存在于缓存列表中以及获取缩略图
+            return Promise.all(buffers.map(({ code, buffer }) => {
+                return codeListRefresh(code, 'check', { addData: buffer.toString(), uri });
+            }));
+        }).then(codes => {
+            // 判断哪些数据不存在，不存在则插入缓存
+            for (const index of range(-1, codes.length - 1)) {
+                const { exist, code } = codes[index];
+                if (!exist) {
+                    backgroundImageCodeList.unshift(code);
+                }
             }
-            return Promise.all(result);
+            return codes.map(item => item.code);
         }).then(codes => {
             resolve(codes);
         }).catch(err => {
-            reject(promiseReject(err, 'changeToString'));
+            reject(promiseReject(err, changeToString.name));
         });
     });
 }
 
 /** 缓存哈希码新增操作 */
 function codeAdd (code: string, originData: string, thumbnailData: string): Promise<string> {
-    return new Promise(resolve => {
-        // 新增，创建code时进行检验，现在一定不会重复
-        backgroundImageCodeList.unshift(code);
-        // 储存对象添加一条数据
-        repositoryData[code] = {
-            origin: originData??'',
-            thumbnail: thumbnailData??''
-        };
-        // 放入队列待执行
-        let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
-        backImgCodeSetQueue.set(new Promise<void>(($res, $rej) => {
-            Promise.resolve(
-                BackgroundConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
-            ).then(() => {
-                copyBackImgCodeList = void 0;
-                refreshImageCodeList();
-            }).then(() => {
-                $res();
-            }).catch(err => {
-                $rej(promiseReject(err, 'codeDelete'));
-            });
-        }));
-        resolve(code);
-    });
+    // 储存对象添加一条数据
+    repositoryData[code] = {
+        origin: originData??'',
+        thumbnail: thumbnailData??''
+    };
+    return Promise.resolve(code);
 }
 
 /** 缓存哈希码删除操作 */
 function codeDelete (code: string): Promise<string> {
-    return new Promise(resolve => {
-        // 删除判断是否存在索引
-        let index = backgroundImageCodeList.findIndex(item => item === code);
-        // 删除缓存数组内的数据
-        if (index >= 0) {
-            backgroundImageCodeList.splice(index, 1);
-        }
-        // 删除存储对象中的base64数据
-        if (repositoryData.hasOwnProperty(code)) {
-            delete repositoryData[code];
-        }
-        // 更新缓存数组
-        let copyBackImgCodeList: undefined | string[] = [...backgroundImageCodeList];
-        backImgCodeSetQueue.set(new Promise<void>(($res, $rej) => {
-            Promise.resolve().then(() => {
-                // 判断删除图片是否在随机切换数组中
-                const randomList = BackgroundConfiguration.getBackgroundRandomList;
-                if (randomList.length > 0 && randomList.includes(code)) {
-                    // 如果在，则更新随机数组，将删除掉的哈希码去除
-                    return Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(
-                        randomList.splice(randomList.findIndex(item => item === code, 1))
-                    ));
-                }
-            }).then(() => {
-                // 如果对储存数据进行了修改则更新当前缓存对象
-                return Promise.resolve(
-                    BackgroundConfiguration.refreshBackgroundImagePath(copyBackImgCodeList!)
-                );
-            }).then(() => {
-                copyBackImgCodeList = void 0;
-                refreshImageCodeList();
-            }).then(() => {
-                $res();
-            }).catch(err => {
-                $rej(promiseReject(err, 'codeDelete'));
-            });
-        }));
-        resolve(code);
-    });
+    // 删除存储对象中的base64数据
+    if (repositoryData.hasOwnProperty(code)) {
+        delete repositoryData[code];
+    }
+    return Promise.resolve(code);
 }
 
 /** 缓存哈希码检查操作 */
-function codeCheck (code: string, data: string, uri: Uri): Promise<string> {
+function codeCheck (code: string, data: string, uri: Uri): Promise<{ code: string; exist: boolean; }> {
     return new Promise((resolve, reject) => {
-        let index = backgroundImageCodeList.findIndex(item => item === code);
-        Promise.resolve(getCompressImage(code, data, uri)).then(({ data: $data }) => {
-            if (index < 0) {
+        getCompressImage(code, data, uri).then(({ data: $data }) => {
+            let exist = true;
+            if (backgroundImageCodeList.indexOf(code) < 0) {
                 // 缓存数组中不存在，需要添加
-                return codeListRefresh(code, 'add', { addData: data, compressData: $data });
+                exist = false;
             }
-            // 否则直接在储存对象添加一条数据
-            repositoryData[code] = {
-                origin: data??'',
-                thumbnail: $data??''
-            };
-        }).then(() => {
-            resolve(code);
+            return createExParamPromise(codeAdd(code, data, $data), exist);
+        }).then(([$code, exist]) => {
+            resolve({ code: $code, exist });
         }).catch(err => {
-            reject(promiseReject(err, 'codeCheck'));
+            reject(promiseReject(err, codeCheck.name));
         });
     });
 }
@@ -503,11 +484,13 @@ function codeCheck (code: string, data: string, uri: Uri): Promise<string> {
  * @param code 
  * @param state 
  */
+function codeListRefresh(code: string,state: 'check',options: CodeRefreshType): Promise<{ code: string; exist: boolean; }>;
+function codeListRefresh(code: string,state: 'add' | 'delete',options: CodeRefreshType): Promise<string>;
 function codeListRefresh (
     code: string, 
-    state: codeChangeType = 'add', 
-    { addData = void 0, compressData = void 0, uri = void 0 }: { addData?: string, compressData?: string, uri?: Uri }
-): Promise<string> {
+    state: codeChangeType,
+    { addData = void 0, compressData = void 0, uri = void 0 }: CodeRefreshType
+): Promise<string | { code: string, exist: boolean }> {
     if (state === 'add') {
         return codeAdd(code, addData!, compressData!);
     } else if (state === 'delete') {
@@ -534,29 +517,27 @@ function hasHashCode (code: string): boolean {
  * 所以如果此时两个数组长度不同，则一定是缓存数组长于新数组，有数据被删除。
  * 但在此方法中，对缓存数组长度大于和小于新数组长度都进行处理
  */
-function refreshBackgroundImageList (data: string[]): Promise<string[]> {
+function refreshBackgroundImageList (codes: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        let cacheData: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
-        if (data.length === cacheData.length) {
-            return resolve(data);
+        const cacheData: string[] | null = BackgroundConfiguration.getBackgroundAllImageCodes;
+        if (codes.length === cacheData.length) {
+            return resolve(codes);
         }
         Promise.resolve().then(() => {
             // 新数组长度等于缓存数组长度，直接返回
-            if (data.length > cacheData!.length) {
+            if (codes.length > cacheData!.length) {
                 // 比缓存数组长则需要添加数据（一般不会出现）
-                return compareCodeList(data, cacheData!, 'add');
-            } else if (data.length < cacheData!.length) {
+                return compareCodeList(codes, cacheData!, 'add');
+            } else if (codes.length < cacheData!.length) {
                 // 短则需要删除数据
-                return compareCodeList(cacheData!, data, 'delete');
+                return compareCodeList(cacheData!, codes, 'delete');
             } else {
                 return Promise.resolve();
             }
         }).then(() => {
-            resolve(data);
+            resolve(codes);
         }).catch(err => {
             reject(promiseReject(err, 'refreshBackgroundImageList'));
-        }).finally(() => {
-            cacheData = null;
         });
     });
 }
@@ -576,7 +557,6 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
             });
         }
     }
-    refreshImageCodeList();
     return Promise.resolve();
 }
 
@@ -601,7 +581,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
                 if (!reg) {
                     continue;
                 }
-                const index = backgroundImageCodeList.findIndex(item => item === reg[1]);
+                const index = backgroundImageCodeList.indexOf(reg[1]);
                 // 需要加一个index为-1的判断，防止递归死循环
                 const posi = index >= 0 ? bisectionAsce(checkArray, index) : 0;
                 checkArray.splice(posi, 0, index);

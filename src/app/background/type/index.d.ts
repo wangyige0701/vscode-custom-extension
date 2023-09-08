@@ -27,7 +27,11 @@ interface backgroundInitType extends MessageDataType {
  */
 interface getBackgroundBase64DataType extends MessageDataType {
     name: 'getBackgroundBase64Data';
-    value: { code: string, type: string };
+    value: {
+        code: string;
+        type: string;
+        thumbnail: boolean;
+    };
 }
 
 /**

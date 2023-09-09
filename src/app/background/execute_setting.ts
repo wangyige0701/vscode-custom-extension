@@ -85,7 +85,7 @@ function setting (code: string, random: boolean): Promise<void> {
             }
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'setting'));
+            reject(promiseReject(err, setting.name));
         });
     });
 }

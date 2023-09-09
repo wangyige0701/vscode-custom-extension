@@ -87,22 +87,22 @@ const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);
 
 /**
  * 修改外部css文件的背景图属性
- * @param codeValue 图片的哈希码
+ * @param code 图片的哈希码
  * @param random 是否为随机设置背景图状态
  * @param tip 是否需要显示提示文本
  */
-export function modifyCssFileForBackground (codeValue: string, random: boolean = false, tip: boolean = true): Promise<void> {
+export function modifyCssFileForBackground (code: string, random: boolean = false, tip: boolean = true): Promise<void> {
     return new Promise((resolve, reject) => {
-        if (!codeValue) {
+        if (!code) {
             return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
-                FunctionName: 'modifyCssFileForBackground',
-                ParameterName: 'codeValue',
+                FunctionName: modifyCssFileForBackground.name,
+                ParameterName: 'code',
                 description: 'The hash code to get image data is undefined'
             }));
         }
         let statusBarTarget: Disposable;
-        getExternalCssContent(codeValue).then(res => {
+        getExternalCssContent(code).then(res => {
             if (res === false) {
                 // 不需要更新，直接跳出
                 return Promise.reject({ jump: true });
@@ -130,7 +130,7 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
             if (err.jump) {
                 return resolve();
             }
-            reject(promiseReject(err, 'modifyCssFileForBackground'));
+            reject(promiseReject(err, modifyCssFileForBackground.name));
         }).finally(() => {
             statusBarTarget?.dispose();
         });
@@ -138,7 +138,7 @@ export function modifyCssFileForBackground (codeValue: string, random: boolean =
 }
 
 /** 删除外部和源css文件中背景图的相关设置内容 */
-export function deletebackgroundCssFileModification (): Promise<void> {
+export function deleteBackgroundCssFileModification (): Promise<void> {
     return new Promise((resolve, reject) => {
         getSourceCssFileContent().then(data => {
             if (data) {
@@ -163,7 +163,7 @@ export function deletebackgroundCssFileModification (): Promise<void> {
             setBackgroundImageSuccess("背景图配置删除成功");
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'deletebackgroundCssFileModification'));
+            reject(promiseReject(err, deleteBackgroundCssFileModification.name));
         });
     });
 }
@@ -193,7 +193,7 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
             if (err.jump) {
                 return resolve({ modify: err.modify });
             }
-            reject(promiseReject(err, 'checExternalDataIsRight'));
+            reject(promiseReject(err, checExternalDataIsRight.name));
         });
     });
 }
@@ -236,7 +236,7 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             if (err.jump) {
                 return resolve({ modify: err.modify });
             }
-            reject(promiseReject(err, 'setSourceCssImportInfo'));
+            reject(promiseReject(err, setSourceCssImportInfo.name));
         });
     });
 }
@@ -252,7 +252,7 @@ function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<vo
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'sourceCeeFileChangeChecksum'));
+            reject(promiseReject(err, sourceCeeFileChangeChecksum.name));
         });
     });
 }
@@ -286,7 +286,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
             if (err.jump) {
                 return resolve({ state: err.state, code: err.code??void 0 });
             }
-            reject(promiseReject(err, 'checkCurentImageIsSame'));
+            reject(promiseReject(err, checkCurentImageIsSame.name));
         });
     });
 }
@@ -316,7 +316,7 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'settingConfiguration'));
+            reject(promiseReject(err, settingConfiguration.name));
         });
     });
 }
@@ -333,7 +333,7 @@ function deleteConfiguration (): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'deleteConfiguration'));
+            reject(promiseReject(err, deleteConfiguration.name));
         });
     });
 }
@@ -352,7 +352,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
         if (!modulePath) {
             return reject(new WError('NodeModule is Undefined', {
                 position: 'Function',
-                FunctionName: 'getCssUri',
+                FunctionName: getCssUri.name,
                 description: 'Current Module is not main module. This data is needed to get Css File Path'
             }));
         }
@@ -373,7 +373,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
             if (err.jump) {
                 return resolve(err.uri??void 0);
             }
-            reject(promiseReject(err, 'getCssUri'));
+            reject(promiseReject(err, getCssUri.name));
         });
     });
 }
@@ -391,7 +391,7 @@ export function writeExternalCssFile (content: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'writeExternalCssFile'));
+            reject(promiseReject(err, writeExternalCssFile.name));
         });
     });
 }
@@ -405,7 +405,7 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
         }).then(([content, uri]) => {
             resolve([content.toString(), uri]);
         }).catch(err => {
-            reject(promiseReject(err, 'getExternalFileContent'));
+            reject(promiseReject(err, getExternalFileContent.name));
         });
     });
 }
@@ -464,7 +464,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
             if (err.jump) {
                 return resolve(err.data);
             }
-            reject(promiseReject(err, 'getExternalCssContent'));
+            reject(promiseReject(err, getExternalCssContent.name));
         });
     });
 }
@@ -479,7 +479,7 @@ function getNowSettingCode (): Promise<string | false> {
             }
             resolve(false);
         }).catch(err => {
-            reject(promiseReject(err, 'getNowSettingCode'));
+            reject(promiseReject(err, getNowSettingCode.name));
         });
     });
 }
@@ -501,7 +501,7 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
             if (err.jump) {
                 return resolve();
             }
-            reject(promiseReject(err, 'getSourceCssFileContent'));
+            reject(promiseReject(err, getSourceCssFileContent.name));
         });
     });
 }
@@ -521,7 +521,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:st
             }
             resolve({ content, uri, exits: false });
         }).catch(err => {
-            reject(promiseReject(err, 'isSourceCssFileModify'));
+            reject(promiseReject(err, isSourceCssFileModify.name));
         });
     });
 }
@@ -545,7 +545,7 @@ function findInfo (content: string): Promise<info | false> {
             }
             resolve(false);
         }).catch(err => {
-            reject(promiseReject(err, 'findInfo'));
+            reject(promiseReject(err, findInfo.name));
         });
     });
 }
@@ -575,7 +575,7 @@ function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndU
             content = content.replace(findSourceCssPositionRegexp, "");
             resolve({content, uri});
         }).catch(err => {
-            reject(promiseReject(err, 'deleteContentByTagName'));
+            reject(promiseReject(err, deleteContentByTagName.name));
         });
     });
 }

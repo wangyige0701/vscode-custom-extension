@@ -26,7 +26,7 @@ export function modifyChecksum (path: Uri): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'modifyChecksums'));
+            reject(promiseReject(err, modifyChecksum.name));
         });
     });
 }
@@ -39,7 +39,7 @@ function createNewChecksum (path: Uri): Promise<string> {
         }).then(checksum => {
             resolve(checksum);
         }).catch(err => {
-            reject(promiseReject(err, 'createNewChecksum'));
+            reject(promiseReject(err, createNewChecksum.name));
         });
     });
 }
@@ -60,7 +60,7 @@ function modifySourceFile (pathHash: string, value: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, 'modifySourceFile'));
+            reject(promiseReject(err, modifySourceFile.name));
         });
     });
 }

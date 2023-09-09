@@ -20,7 +20,7 @@ import {
     setBackgroundImageSuccess 
 } from "./utils";
 import { backgroundSendMessage } from "./execute_webview";
-import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
+import { checExternalDataIsRight, deleteBackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
 import { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
@@ -115,7 +115,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             if (err.jump) {
                 return resolve(err.data);
             }
-            reject(promiseReject(err, 'checkImageCssDataIsRight'));
+            reject(promiseReject(err, checkImageCssDataIsRight.name));
         }).finally(() => {
             statusBarTarget?.dispose();
             // 状态栏提示信息
@@ -224,7 +224,7 @@ export function clearBackgroundConfigExecute () {
         location: 'Notification',
         title: '清除中'
     }, (progress) => <Promise<void>>new Promise(resolve => {
-        deletebackgroundCssFileModification().then(() => {
+        deleteBackgroundCssFileModification().then(() => {
             progress.report({
                 message: '清除成功',
                 increment: 100
@@ -257,7 +257,7 @@ export function selectImage () {
             ).then(() => {
                 resolve(uri);
             }).catch(err => {
-                reject(promiseReject(err, 'selectImage > selectFile'));
+                reject(promiseReject(err, selectImage.name + ' > ' + selectFile.name));
             });
         });
     }).then(uris => {
@@ -530,7 +530,7 @@ function refreshBackgroundImageList (codes: string[]): Promise<string[]> {
         }).then(() => {
             resolve(codes);
         }).catch(err => {
-            reject(promiseReject(err, 'refreshBackgroundImageList'));
+            reject(promiseReject(err, refreshBackgroundImageList.name));
         });
     });
 }
@@ -546,7 +546,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
         if (index < 0) {
             await BackgroundConfiguration.setBackgroundAllImageCodes(item, type).catch(err => {
-                return Promise.reject(promiseReject(err, 'compareCodeList'));
+                return Promise.reject(promiseReject(err, compareCodeList.name));
             });
         }
     }
@@ -584,7 +584,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
         }).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(promiseReject(err, 'checkImageFile'));
+            reject(promiseReject(err, checkImageFile.name));
         });
     });
 }
@@ -602,7 +602,7 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
                 code
             });
         }).catch(err => {
-            reject(promiseReject(err, 'getFileAndCode'));
+            reject(promiseReject(err, getFileAndCode.name));
         });
     });
 }
@@ -615,7 +615,7 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
         }).then(([res, uri]) => {
             resolve({ files: res, uri });
         }).catch(err => {
-            reject(promiseReject(err, 'selectAllImage'));
+            reject(promiseReject(err, selectAllImage.name));
         });
     });
 }
@@ -645,7 +645,7 @@ export function createFileStore (base64: string): Promise<string> {
         }).then(() => {
             resolve(code);
         }).catch(err => {
-            reject(promiseReject(err, 'createFileStore'));
+            reject(promiseReject(err, createFileStore.name));
         });
     });
 }
@@ -659,7 +659,7 @@ function deleteFileStore (code: string): Promise<string> {
         if (!hasHashCode(code)) {
             return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
-                FunctionName: 'deleteFileStore',
+                FunctionName: deleteFileStore.name,
                 ParameterName: 'code',
                 description: 'The hash code to delete image is undefined'
             }));
@@ -675,7 +675,7 @@ function deleteFileStore (code: string): Promise<string> {
         }).then(() => {
             resolve(code);
         }).catch(err => {
-            reject(promiseReject(err, 'deleteFileStore'));
+            reject(promiseReject(err, deleteFileStore.name));
         });
     });
 }

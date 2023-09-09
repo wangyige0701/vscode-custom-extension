@@ -76,7 +76,7 @@ function checkRandomCode (): Promise<boolean> {
 		}).then(() => {
 			resolve(true);
 		}).catch(err => {
-			reject(promiseReject(err, 'checkRandomCode'));
+			reject(promiseReject(err, checkRandomCode.name));
 		});
 	});
 }

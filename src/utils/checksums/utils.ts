@@ -27,7 +27,7 @@ export function computeFileChecksums (content: string): Promise<string> {
             const result = createHash('md5').update(content).digest('base64').replace(/=+$/, '');
             resolve(result);
         } catch (error) {
-            reject(promiseReject(error, 'computeFileChecksums'));
+            reject(promiseReject(error, computeFileChecksums.name));
         }
     });
 }
@@ -39,7 +39,7 @@ export function getProductRoot (): Promise<string> {
         if (!modulePath) {
             return reject(new WError('NodeModule is Undefined', {
                 position: 'Function',
-                FunctionName: 'getProducePosition',
+                FunctionName: getProductRoot.name,
                 description: 'Current Module is not main module.'
             }));
         }
@@ -53,7 +53,7 @@ export function getCheckRoot (): Promise<string> {
         getProductRoot().then(path => {
             resolve(pathjoin(path, 'out'));
         }).catch(err => {
-            reject(promiseReject(err, 'getCheckRoot'));
+            reject(promiseReject(err, getCheckRoot.name));
         });
     });
 }
@@ -75,7 +75,7 @@ export function readChecksumsData (): Promise<string> {
             }
             resolve('');
         }).catch(err => {
-            reject(promiseReject(err, 'readChecksumsData'));
+            reject(promiseReject(err, readChecksumsData.name));
         });
     });
 }
@@ -106,7 +106,7 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
             }
             resolve(allContent);
         }).catch(err => {
-            reject(promiseReject(err, 'getChecksumsData'));
+            reject(promiseReject(err, getChecksumsData.name));
         });
     });
 }
@@ -122,7 +122,7 @@ export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
             const result = paths.map(path => createUri(pathjoin(root, path)).toString());
             resolve(result);
         }).catch(err => {
-            reject(promiseReject(err, 'getFullPathOfChecksum'));
+            reject(promiseReject(err, getFullPathOfChecksum.name));
         });
     });
 }

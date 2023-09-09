@@ -51,7 +51,7 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
         if (!uri) {
             return reject(new WError('Undefined Uri', {
                 position: 'Parameter',
-                FunctionName: 'imageStoreUriExits',
+                FunctionName: imageStoreUriExits.name,
                 ParameterName: 'uri'
             }));
         }
@@ -63,7 +63,7 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
         }).then(() => {
             resolve(uri);
         }).catch(err => {
-            reject(promiseReject(err, 'imageStoreUriExits'));
+            reject(promiseReject(err, imageStoreUriExits.name));
         });
     });
 }
@@ -84,7 +84,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         await Promise.resolve(
             BackgroundConfiguration.setBackgroundStorePath("")
         ).catch(err => {
-            return Promise.reject(promiseReject(err, 'resetImageStorePath'));
+            return Promise.reject(promiseReject(err, resetImageStorePath.name));
         });
         showMessage({
             message: '背景图储存路径已切换为默认路径'
@@ -98,7 +98,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         await Promise.resolve(
             BackgroundConfiguration.setBackgroundStorePath(uri.fsPath)
         ).catch(err => {
-            return Promise.reject(promiseReject(err, 'resetImageStorePath'));
+            return Promise.reject(promiseReject(err, resetImageStorePath.name));
         });
         showMessage({
             message: '背景图储存路径已切换为：'+uri.fsPath
@@ -138,7 +138,7 @@ export function showMessageByModal (message: string = '是否设置此背景图'
             // 选择取消返回reject
             reject();
         }).catch((err) => {
-            reject(promiseReject(err, 'showMessageByModal'));
+            reject(promiseReject(err, showMessageByModal.name));
         });
     });
 }

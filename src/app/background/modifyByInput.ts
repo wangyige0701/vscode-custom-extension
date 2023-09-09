@@ -44,7 +44,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
         if (!reg) {
             return reject(new WError('Illegal Image URL', {
                 position: 'Parameter',
-                FunctionName: 'getImageBase64ByRequest',
+                FunctionName: getImageBase64ByRequest.name,
                 ParameterName: 'url'
             }));
         }
@@ -53,7 +53,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
         }).then(data => {
             resolve(data);
         }).catch(err => {
-            reject(promiseReject(err, 'getImageBase64ByRequest'));
+            reject(promiseReject(err, getImageBase64ByRequest.name));
         });
     });
 }
@@ -102,7 +102,7 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
         }).then(() => {
             resolve(true);
         }).catch(err => {
-            reject(promiseReject(err, 'changeBackgroundFileOpacity'));
+            reject(promiseReject(err, changeBackgroundFileOpacity.name));
         });
     });
 }

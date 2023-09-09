@@ -13,7 +13,7 @@ export function imageCompression (input: InputType, style: CompressStyle = { qua
         sharp(checkInput(input)).resize(style.size).webp({ quality: style.quality }).toBuffer().then(buffer => {
             resolve(buffer);
         }).catch(err => {
-            reject(promiseReject(err, 'imageCompression'));
+            reject(promiseReject(err, imageCompression.name));
         });
     });
 }

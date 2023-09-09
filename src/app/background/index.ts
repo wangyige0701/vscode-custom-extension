@@ -57,6 +57,18 @@ function refreshImageCodeList () {
     });
 }
 
+/** 获取缓存中的图片数据 */
+function getRepositoryDataByCode (code: string, thumbnail: boolean = false): string {
+    if (!repositoryData.has(code)) {
+        return '';
+    }
+    const value = repositoryData.get(code);
+    if (!thumbnail || (thumbnail && !value!.thumbnail)) {
+        return value!.origin??'';
+    }
+    return value!.thumbnail??'';
+}
+
 /** 删除缓存 */
 export function clearRepositoryWhenUninstall () {
     // 图片base64数据清除
@@ -385,7 +397,7 @@ export function getBase64DataByCode ({ code, type, thumbnail = false }: { code: 
             name: 'backgroundSendBase64Data',
             value: {
                 code, 
-                data: repositoryData.get(code)![thumbnail?'thumbnail':'origin'], 
+                data: getRepositoryDataByCode(code, thumbnail), 
                 type
             }
         });
@@ -398,11 +410,7 @@ export function getBase64DataByCode ({ code, type, thumbnail = false }: { code: 
  * @param thumbnail 是否需要缩略图数据
  */
 export function getBase64DataFromObject (code: string, thumbnail: boolean = false): string {
-    if (repositoryData.has(code)) {
-        return repositoryData.get(code)![thumbnail?'thumbnail':'origin'];
-    } else {
-        return '';
-    }
+    return getRepositoryDataByCode(code, thumbnail);
 }
 
 /**

@@ -1,5 +1,5 @@
 import { Uri, FileType, Disposable } from "vscode";
-import { createExParamPromise, delay, getHashCode, queueCreate, range } from "../../utils";
+import { createExParamPromise, delay, getHashCode, range } from "../../utils";
 import { 
     createBuffer, 
     imageToBase64, 
@@ -21,7 +21,7 @@ import {
 } from "./utils";
 import { backgroundSendMessage } from "./execute_webview";
 import { checExternalDataIsRight, deletebackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
-import { CodeRefreshType, bufferAndCode, codeChangeType } from "./type";
+import { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./type";
 import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";
@@ -29,24 +29,17 @@ import { createCompressDirectory, deleteCompressByCode, getCompressImage } from 
 /** 图片类型过滤规则 */
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
 
-/** 背景图片哈希码数据列表 */
-const backgroundImageCodeList: string[] = [];
-
 /** 选择文件的默认路径 */
 var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;
 
+/** 背景图片哈希码数据数组 */
+const backgroundImageCodeArray: string[] = [];
+
 /** 储存哈希码和图片base64数据的键值对 */
-const repositoryData: { [key: string]: { origin: string, thumbnail: string } } = {};
+const repositoryData = new Map<string, { origin: string; thumbnail: string; }>();
 
 /** 背景图是否校验完成判断，完成后才能进行列表初始化 */
-const isBackgroundCheckComplete: {
-    /** 是否校验完成 */
-    check: boolean;
-    /** 是否需要初始化 */
-    init: boolean;
-    /** 是否正在初始化中 */
-    running: boolean
-} = {
+const isBackgroundCheckComplete: BackCheckComplete = {
     check: false,
     init: false,
     running: false
@@ -56,12 +49,20 @@ const isBackgroundCheckComplete: {
 function refreshImageCodeList () {
     // 更新储存列表数据
     const cache: string[] = BackgroundConfiguration.getBackgroundAllImageCodes;
-    backgroundImageCodeList.length = cache.length;
+    backgroundImageCodeArray.length = cache.length;
     cache.forEach((item, index) => {
-        if (backgroundImageCodeList[index] !== item) {
-            backgroundImageCodeList[index] = item;
+        if (backgroundImageCodeArray[index] !== item) {
+            backgroundImageCodeArray[index] = item;
         }
     });
+}
+
+/** 删除缓存 */
+export function clearRepositoryWhenUninstall () {
+    // 图片base64数据清除
+    repositoryData.clear();
+    // 图片哈希码数组清除
+    backgroundImageCodeArray.splice(0, backgroundImageCodeArray.length);
 }
 
 /** vscode初始化后检测背景配置是否完整 */
@@ -163,13 +164,13 @@ function deleteImageProgress (...codes: string[]) {
                 }
                 // 删除缓存数组内的数据
                 if (hasHashCode(code)) {
-                    backgroundImageCodeList.splice(backgroundImageCodeList.indexOf(code), 1);
+                    backgroundImageCodeArray.splice(backgroundImageCodeArray.indexOf(code), 1);
                 }
             }
             return createExParamPromise(
                 Promise.all([
                     Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(randomList)),
-                    Promise.resolve(BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeList))
+                    Promise.resolve(BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray))
                 ]),
                 codes
             );
@@ -271,10 +272,10 @@ export function selectImage () {
         for (const index of range(-1, codes.length - 1)) {
             const code = codes[index];
             sendMsg.push(code);
-            backgroundImageCodeList.unshift(code);
+            backgroundImageCodeArray.unshift(code);
         }
         return Promise.resolve(
-            BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeList)
+            BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
         );
     }).then(() => {
         refreshImageCodeList();
@@ -311,9 +312,7 @@ export function backgroundImageDataInit () {
     });
     refreshImageCodeList();
     // 重置repositoryData数据
-    for (let name in repositoryData) {
-        delete repositoryData[name];
-    }
+    repositoryData.clear();
     // 判断压缩文件夹
     createCompressDirectory().then(() => {
         // 检索数据
@@ -381,12 +380,12 @@ export function backgroundImageDataInit () {
  * @param options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用 
  */
 export function getBase64DataByCode ({ code, type, thumbnail = false }: { code: string, type: string, thumbnail: boolean }): void {
-    if (repositoryData.hasOwnProperty(code)) {
+    if (repositoryData.has(code)) {
         backgroundSendMessage({
             name: 'backgroundSendBase64Data',
             value: {
                 code, 
-                data: thumbnail ? repositoryData[code].thumbnail : repositoryData[code].origin, 
+                data: repositoryData.get(code)![thumbnail?'thumbnail':'origin'], 
                 type
             }
         });
@@ -399,8 +398,8 @@ export function getBase64DataByCode ({ code, type, thumbnail = false }: { code: 
  * @param thumbnail 是否需要缩略图数据
  */
 export function getBase64DataFromObject (code: string, thumbnail: boolean = false): string {
-    if (repositoryData.hasOwnProperty(code)) {
-        return thumbnail ? repositoryData[code].thumbnail : repositoryData[code].origin;
+    if (repositoryData.has(code)) {
+        return repositoryData.get(code)![thumbnail?'thumbnail':'origin'];
     } else {
         return '';
     }
@@ -424,7 +423,7 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
             for (const index of range(-1, codes.length - 1)) {
                 const { exist, code } = codes[index];
                 if (!exist) {
-                    backgroundImageCodeList.unshift(code);
+                    backgroundImageCodeArray.unshift(code);
                 }
             }
             return codes.map(item => item.code);
@@ -438,19 +437,19 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
 
 /** 缓存哈希码新增操作 */
 function codeAdd (code: string, originData: string, thumbnailData: string): Promise<string> {
-    // 储存对象添加一条数据
-    repositoryData[code] = {
+    // 储存Map添加一条数据
+    repositoryData.set(code, {
         origin: originData??'',
         thumbnail: thumbnailData??''
-    };
+    });
     return Promise.resolve(code);
 }
 
 /** 缓存哈希码删除操作 */
 function codeDelete (code: string): Promise<string> {
     // 删除存储对象中的base64数据
-    if (repositoryData.hasOwnProperty(code)) {
-        delete repositoryData[code];
+    if (repositoryData.has(code)) {
+        repositoryData.delete(code);
     }
     return Promise.resolve(code);
 }
@@ -460,7 +459,7 @@ function codeCheck (code: string, data: string, uri: Uri): Promise<{ code: strin
     return new Promise((resolve, reject) => {
         getCompressImage(code, data, uri).then(({ data: $data }) => {
             let exist = true;
-            if (backgroundImageCodeList.indexOf(code) < 0) {
+            if (backgroundImageCodeArray.indexOf(code) < 0) {
                 // 缓存数组中不存在，需要添加
                 exist = false;
             }
@@ -478,8 +477,8 @@ function codeCheck (code: string, data: string, uri: Uri): Promise<{ code: strin
  * @param code 
  * @param state 
  */
-function codeListRefresh(code: string,state: 'check',options: CodeRefreshType): Promise<{ code: string; exist: boolean; }>;
-function codeListRefresh(code: string,state: 'add' | 'delete',options: CodeRefreshType): Promise<string>;
+function codeListRefresh(code: string, state: 'check', options: CodeRefreshType): Promise<{ code: string; exist: boolean; }>;
+function codeListRefresh(code: string, state: 'add' | 'delete', options: CodeRefreshType): Promise<string>;
 function codeListRefresh (
     code: string, 
     state: codeChangeType,
@@ -501,7 +500,7 @@ function codeListRefresh (
  * @param code 
  */
 function hasHashCode (code: string): boolean {
-    return backgroundImageCodeList.includes(code);
+    return backgroundImageCodeArray.includes(code);
 }
 
 /**
@@ -575,7 +574,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
                 if (!reg) {
                     continue;
                 }
-                const index = backgroundImageCodeList.indexOf(reg[1]);
+                const index = backgroundImageCodeArray.indexOf(reg[1]);
                 // 需要加一个index为-1的判断，防止递归死循环
                 const posi = index >= 0 ? bisectionAsce(checkArray, index) : 0;
                 checkArray.splice(posi, 0, index);

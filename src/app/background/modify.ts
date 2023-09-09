@@ -57,14 +57,12 @@ const findSourceCssPosition = `${importStartMatch}(${a})${importEndMatch}`;
 const findSourceCssPositionRegexp = new RegExp(findSourceCssPosition);
 
 /** 捕获源css文件引用文本中的问号后接内容 */
-const findSourceCssVersionContent = 
-    `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
+const findSourceCssVersionContent = `(${importStartMatch}${a}@import${s}url\\(${s}"${a}\\.css\\?)(${nw})("${s}\\);${a}${importEndMatch})`;
 /** 捕获源css文件引用文本中的问号后接内容的正则对象 */
 const findSourceCssVersionContentRegexp = new RegExp(findSourceCssVersionContent);
 
 /** 匹配外部css文件并捕获注释信息正则字符串 */
-const findExternalCssPosition = 
-    `${importStartMatch}${a}${
+const findExternalCssPosition = `${importStartMatch}${a}${
         getReg('VSCodeVersion')
     }${a}${
         getReg('ExtensionVersion')
@@ -77,14 +75,12 @@ const findExternalCssPosition =
 const findExternalCssPositionRegexp = new RegExp(findExternalCssPosition);
 
 /** 获取外部css文件中的透明度值正则字符串 */
-const findExternalCssOpacityData = 
-    `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
+const findExternalCssOpacityData = `${importStartMatch}${a}body${s}\{${a}opacity${s}\:${s}(${ans})${s};${a}\}${a}${importEndMatch}`;
 /** 获取外部css文件中的透明度值的正则对象 */
 const findExternalCssOpacityDataRegexp = new RegExp(findExternalCssOpacityData);
 
 /** 对外部css文件的透明度进行修改的正则，包括动画样式内的透明度 */
-const externalCssOpacityModify = 
-    `(${importStartMatch}${a}vscode-body-opacity-wyg${s}\{${a}to${s}\{${a
+const externalCssOpacityModify = `(${importStartMatch}${a}vscode-body-opacity-wyg${s}\{${a}to${s}\{${a
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}body${s}\{${a
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}${importEndMatch})`;
 const externalCssOpacityModifyRegexp = new RegExp(externalCssOpacityModify);

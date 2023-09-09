@@ -1,9 +1,6 @@
 import { Uri } from "vscode";
 
-/**
- * 接收通信数据类型
- */
-
+/** 接收通信数据类型 */
 export type backgroundMessageData = backgroundInitType 
 | getBackgroundBase64DataType 
 | selectImageType 
@@ -14,17 +11,13 @@ export type backgroundMessageData = backgroundInitType
 | randomBackgroundType 
 | viewBigImageType;
 
-/**
- * 脚本侧通知初始化背景图信息
- */
+/** 脚本侧通知初始化背景图信息 */
 interface backgroundInitType extends MessageDataType {
     name: 'backgroundInit';
     value: boolean;
 }
 
-/**
- * webview脚本侧通过code获取具体的base64数据
- */
+/** webview脚本侧通过code获取具体的base64数据 */
 interface getBackgroundBase64DataType extends MessageDataType {
     name: 'getBackgroundBase64Data';
     value: {
@@ -34,26 +27,19 @@ interface getBackgroundBase64DataType extends MessageDataType {
     };
 }
 
-/**
- * 脚本侧通知打开文件夹选择图片
- */
+/** 脚本侧通知打开文件夹选择图片 */
 interface selectImageType extends MessageDataType {
     name: 'selectImage';
     value: boolean;
 }
 
-/**
- * 脚本侧传递图片哈希码数组通知删除图片
- */
+/** 脚本侧传递图片哈希码数组通知删除图片 */
 interface deleteImageType extends MessageDataType {
     name: 'deleteImage';
     value: string[];
 }
 
-/**
- * 脚本侧传递哈希码和索引通知设置此图片为背景图，
- * 需要响应索引
- */
+/** 脚本侧传递哈希码和索引通知设置此图片为背景图， 需要响应索引 */
 interface settingBackgroundType extends MessageDataType {
     name: 'settingBackground';
     value: {
@@ -62,36 +48,28 @@ interface settingBackgroundType extends MessageDataType {
     };
 }
 
-/**
- * 脚本侧发送字符串通知下载外部图片储存
- */
+/** 脚本侧发送字符串通知下载外部图片储存 */
 interface externalImageType extends MessageDataType {
     name: 'externalImage';
     value: string;
 }
 
-/**
- * 脚本侧发送数字通知修改透明度
- */
+/** 脚本侧发送数字通知修改透明度 */
 interface backgroundOpacityType extends MessageDataType {
     name: 'backgroundOpacity';
     value: number;
 }
 
-/**
- * 脚本侧发送字符串数组通知开启背景图随机设置，为空表示从所有图片中随机选择，为false表示关闭随机切换
- */
+/** 脚本侧发送字符串数组通知开启背景图随机设置，为空表示从所有图片中随机选择，为false表示关闭随机切换 */
 interface randomBackgroundType extends MessageDataType {
     name: 'randomBackground';
     value: string[] | false;
 }
 
-/**
- * 查看大图发送图片数据和编码
-*/
+/** 查看大图发送图片数据和编码 */
 interface viewBigImageType extends MessageDataType {
-    name: 'viewBigImage',
-    value: string
+    name: 'viewBigImage';
+    value: string;
 }
 
 /**
@@ -214,8 +192,19 @@ export interface ContentAndUri {
     uri: Uri;
 }
 
+/** 缓存刷新函数选项类型 */
 export interface CodeRefreshType {
     addData?: string;
     compressData?: string;
     uri?: Uri;
+}
+
+/** 判断背景图校验是否完成 */
+export interface BackCheckComplete {
+    /** 是否校验完成 */
+    check: boolean;
+    /** 是否需要初始化 */
+    init: boolean;
+    /** 是否正在初始化中 */
+    running: boolean
 }

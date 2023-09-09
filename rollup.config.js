@@ -4,6 +4,7 @@ const typescript = require('@rollup/plugin-typescript');
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
 const path = require('path');
+const fs = require("fs");
 
 module.exports = [
     bundle({
@@ -12,7 +13,7 @@ module.exports = [
             file: 'dist/extension.js',
             format: 'cjs'
         }
-    }),
+    }, [copySharp()]),
     bundle({
         input: 'src/uninstall.ts',
         output: {
@@ -26,7 +27,7 @@ module.exports = [
  * 多输出文件配置
  * @param {Object} config
  */
-function bundle (config) {
+function bundle (config, plugins = []) {
     return {
         ...config,
         external: ["vscode"],
@@ -43,7 +44,8 @@ function bundle (config) {
             json(),
             commonjs(),
             terser(),
-            changeRequire('..')
+            changeRequire('..'),
+            ...plugins
         ]
     };
 }
@@ -103,4 +105,51 @@ function checkPosition (requirePath, filePath) {
         path: requirePath,
         root: false
     };
+}
+
+function copySharp () {
+    return {
+        name: "copySharp",
+        async generateBundle () {
+            const rootPath = process.cwd();
+            const sourcePath = path.join(rootPath, 'node_modules/sharp/build');
+            const targetPath = path.join(rootPath, 'build');
+            recursionFolder(sourcePath, targetPath, async (s, p) => {
+                if (fs.existsSync(p)) {
+                    fs.unlinkSync(p);
+                } else {
+                    fs.copyFileSync(s, p);
+                }
+            }, async (s, p) => {
+                if (!fs.existsSync(p)) {
+                    fs.mkdirSync(p);
+                }
+            });
+        }
+    };
+}
+
+/** 递归文件夹 */
+async function recursionFolder (source, target, isFile, isFolder) {
+    const folder = await handleFolder(source);
+    if (folder) {
+        await isFolder?.(source, target);
+        fs.readdirSync(source).forEach(async item => {
+            await recursionFolder(path.join(source, item), path.join(target, item), isFile, isFolder);
+        });
+    } else {
+        await isFile?.(source, target);
+    }
+}
+
+/** 判断是否是文件夹 */
+function handleFolder (path) {
+    return new Promise((resolve, reject) => {
+        fs.stat(path, (err, data) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(data.isDirectory());
+        });
+    });
 }

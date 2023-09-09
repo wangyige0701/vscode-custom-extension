@@ -133,7 +133,7 @@ div.image-container {
 	padding: 0 var(--input-padding-horizontal);
     border: 2px solid transparent;
 	overflow: hidden;
-	transition: border .3s ease, margin-bottom .3s linear;
+	transition: border .3s ease, margin-bottom .3s ease;
 	position: relative;
 	animation: opacity-show .3s ease;
 }
@@ -159,7 +159,7 @@ div.image-container:not(.init-image) {
 
 /* 新插入的图片添加一个展开动画 */
 div.image-container[init=false] {
-	animation: image-add .3s linear;
+	animation: image-add .3s ease;
 }
 
 /* 加载完成的图片在删除时添加删除动画 */
@@ -168,7 +168,7 @@ div.image-container.image-delete[loaded=true]:not(.multiple-images-delete) {
 	grid-template-rows: 0fr;
 	padding: 0 var(--input-padding-horizontal);
 	margin-bottom: 0;
-	animation: image-delete var(--animation-time) linear;
+	animation: image-delete var(--animation-time) ease;
 }
 
 /* 重置储存路径时图片全部删除的透明度动画 */

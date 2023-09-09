@@ -30,10 +30,10 @@ export interface MessageData {
     value?: any;
 }
 
-interface options {
-    readonly webviewOptions?: {
-        readonly retainContextWhenHidden?: boolean;
-    } | undefined;
+export interface RegistWebviewProviderOptions {
+    retainContextWhenHidden?: boolean;
+    /** 页面隐藏时触发的回调函数 */
+    visibleHiddenCallback?: (e: void) => any;
 }
 
 interface contextInter {

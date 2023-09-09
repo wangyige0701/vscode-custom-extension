@@ -290,3 +290,12 @@ export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, 
         });
     });
 }
+
+/** 按序执行所有函数 */
+export async function executeAllFunctions (...funcs: Array<Function>) {
+    for (const item of funcs) {
+        if (item && isFunction(item)) {
+            item();
+        }
+    }
+}

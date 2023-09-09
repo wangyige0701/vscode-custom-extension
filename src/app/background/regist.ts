@@ -1,5 +1,5 @@
 import { Disposable, commands } from "vscode";
-import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig } from ".";
+import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
 import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { BackgroundConfiguration } from "../../workspace/background";
@@ -9,7 +9,7 @@ import { backgroundExecute } from "./execute";
 import { copyFileWhenVersionChange } from "../../version/versionChange";
 import { setStatusBarResolve } from "../../utils/interactive";
 import { errlog, promiseReject } from "../../error";
-import { createExParamPromise } from "../../utils";
+import { createExParamPromise, executeAllFunctions } from "../../utils";
 
 /** 注册背景图设置功能 */
 export function registBackground (): void {
@@ -31,7 +31,11 @@ export function registBackground (): void {
 		}
 	}).then(() => {
 		// 设置背景图的侧栏webview注册
-		registWebviewProvider('wangyige.custom.backgroundImage', { path: 'webview/src/background', title: '背景图片' });
+		registWebviewProvider(
+			'wangyige.custom.backgroundImage', 
+			{ path: 'webview/src/background', title: '背景图片' }, 
+			{ visibleHiddenCallback: executeWhenUninstall }
+		);
 		// 命令事件注册
 		commands.registerCommand('wangyige.background.selectStore', selectFolderForBackgroundStore);
 		commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
@@ -43,6 +47,13 @@ export function registBackground (): void {
 	}).finally(() => {
 		statusBarTarget?.dispose();
 	});
+}
+
+/** webview切换隐藏时，触发的销毁数据函数 */
+function executeWhenUninstall () {
+	executeAllFunctions(
+		clearRepositoryWhenUninstall
+	);
 }
 
 /** 检测当前状态是否为背景随机切换，是则更新随机图片缓存到当前图片缓存中 */

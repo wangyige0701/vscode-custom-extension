@@ -7,17 +7,19 @@ import {
     WebviewViewResolveContext 
 } from "vscode";
 import { errlog } from "../../error";
-import { options } from "./type";
+import { RegistWebviewProviderOptions } from "./type";
 import { messageHandle } from "./message";
 import { FileMerge, contextContainer } from "./index";
 
 /** 通过html文件插入webview */
 export class webviewCreateProvider implements WebviewViewProvider {
     private newFile: FileMerge | null;
+    private callback?: (e: void) => any;
 
-    constructor (path: string, title:string = '') {
+    constructor (path: string, title:string = '', visibleHiddenCallback?: (e: void) => any) {
         // 获取合并文件的实例
         this.newFile = new FileMerge(path, title);
+        this.callback = visibleHiddenCallback;
     }
 
     resolveWebviewView(webviewView: WebviewView, context: WebviewViewResolveContext<unknown>, token: CancellationToken): void | Thenable<void> {
@@ -28,6 +30,14 @@ export class webviewCreateProvider implements WebviewViewProvider {
                 enableForms: true
             };
             webviewView.title = this.newFile!.title;
+            if (this.callback) {
+                webviewView.onDidChangeVisibility(() => {
+                    if (!webviewView.visible) {
+                        this.callback?.();
+                    }
+                });
+            }
+            // 生成html文本
             this.newFile!.setHtml(webviewView.webview).then(html => {
                 // html赋值
                 webviewView.webview.html = html;
@@ -44,8 +54,18 @@ export class webviewCreateProvider implements WebviewViewProvider {
 }
 
 /** 注册webview provider */
-export function registWebviewProvider (viewId: string, provider: { path: string, title: string }, options?: options | undefined): Disposable {
-    const dispose = window.registerWebviewViewProvider(viewId, new webviewCreateProvider(provider.path, provider.title), options);
+export function registWebviewProvider (
+    viewId: string, 
+    provider: { path: string, title: string }, 
+    { retainContextWhenHidden = false, visibleHiddenCallback = void 0 }: RegistWebviewProviderOptions
+): Disposable {
+    const dispose = window.registerWebviewViewProvider(
+        viewId, 
+        new webviewCreateProvider(provider.path, provider.title, visibleHiddenCallback), 
+        {
+            webviewOptions: { retainContextWhenHidden }
+        }
+    );
     contextContainer.instance!.subscriptions.push(dispose);
     return dispose;
 }

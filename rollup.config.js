@@ -117,9 +117,8 @@ function copySharp () {
             recursionFolder(sourcePath, targetPath, async (s, p) => {
                 if (fs.existsSync(p)) {
                     fs.unlinkSync(p);
-                } else {
-                    fs.copyFileSync(s, p);
                 }
+                fs.copyFileSync(s, p);
             }, async (s, p) => {
                 if (!fs.existsSync(p)) {
                     fs.mkdirSync(p);

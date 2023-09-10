@@ -111,9 +111,7 @@ function imageToCompressedPath (code: string, uri?: Uri): Promise<Uri> {
         Promise.resolve(
             uri ? isUriFolder(uri) : imageStoreUri()
         ).then(uri => {
-            return newUri(uri, compressFolderName, `${code}.${compressFileName}`);
-        }).then(uri => {
-            resolve(uri);
+            resolve(newUri(uri, compressFolderName, `${code}.${compressFileName}`));
         }).catch(err => {
             reject(promiseReject(err, imageToCompressedPath.name));
         });

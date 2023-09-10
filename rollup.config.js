@@ -19,8 +19,6 @@ module.exports = [
         }
     }, [
         changeRequire('..'),
-        changeSharpJsRequire(),
-        copyFiles(['node_modules/sharp/build'], ['dist/build'], ['node'])
     ], {
         dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
         ignoreDynamicRequires: true
@@ -44,7 +42,7 @@ module.exports = [
 function bundle (config, plugins = [], commonjsOpt = {}) {
     return {
         ...config,
-        external: ["vscode"],
+        external: ["vscode", "share"],
         plugins: [
             typescript({
                 tsconfig: './tsconfig.json',
@@ -55,7 +53,9 @@ function bundle (config, plugins = [], commonjsOpt = {}) {
                 }
             }),
             resolve(),
-            json(),
+            json({
+                preferConst: true
+            }),
             commonjs(commonjsOpt),
             terser(),
             ...plugins
@@ -102,26 +102,7 @@ function copyFiles (source = [], target = [], suffix = []) {
     const plugin = {
         name: "copySharp",
         async generateBundle () {
-            const rootPath = process.cwd();
-            for (let i = 0; i < source.length; i++) {
-                const s = source[i];
-                const t = target[i];
-                const sourcePath = path.join(rootPath, s);
-                const targetPath = path.join(rootPath, t);
-                await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
-                    if (fs.existsSync(tp)) {
-                        fs.unlinkSync(tp);
-                    }
-                    // 判断是否有后缀并校验
-                    if (suffix.length <= 0 || !!suffix.find(i => sp.endsWith(i))) {
-                        fs.copyFileSync(sp, tp);
-                    }
-                }, async (sp, tp) => {
-                    if (!fs.existsSync(tp)) {
-                        fs.mkdirSync(tp, { recursive: true });
-                    }
-                });
-            }
+            await copyFilesFunc(source, target, suffix);
         }
     };
     return plugin;
@@ -135,7 +116,7 @@ function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
         transform (code, id) {
             try {
                 if (id.endsWith('sharp.js')) {
-                    const reg = new RegExp(`([\\w\\W]*require\\s*\\(.*?)(${target})(.*?\\.node.*?\\)[\\w\\W]*)`);
+                    const reg = new RegExp(`(^[\\w\\W]*require\\s*\\(.*?)(${target})(.*?\\.node.*?\\)[\\w\\W]*$)`);
                     return code.replace(reg, `$1${replace}$3`);
                 }
             } catch (error) {
@@ -144,6 +125,61 @@ function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
         }
     };
     return plugin;
+}
+
+const checkJsonFiles = /(^[\w\W]*require\s*\()(`[^`]*\.json`|'[^']*\.json'|"[^"]*\.json")(\)[\w\W]*$)/;
+const checkJsonFilesGlobal = /(^[\w\W]*require\s*\()(`[^`]*\.json`|'[^']*\.json'|"[^"]*\.json")(\)[\w\W]*$)/g;
+const getJsonContent = /(')([^']*)(')|(")([^"]*)(")|(`)([^`]*)(`)/;
+
+function changeModulesJsonFiles () {
+    /** @type {RollupPlugin} */
+    const plugin = {
+        name: 'changeModulesJsonFiles',
+        transform (code, id) {
+            try {
+                if (id.includes('\\node_modules\\') && checkJsonFiles.test(code)) {
+                    const match = code.matchAll(checkJsonFilesGlobal);
+                    for (const t of match) {
+                        console.log(t[2], id);
+                        console.log('==========================');
+                    }
+                }
+            } catch (error) {
+                this.error({ message: 'Change Modules JsonFiles Error', id: id, cause: error });
+            }
+        },
+        resolveId (code, id) {
+            if (id && id.includes('\\node_modules\\') && code.endsWith('.json')) {
+                console.log(code, id);
+            }
+        }
+    };
+    return plugin;
+}
+
+/** 拷贝文件的执行方法 */
+async function copyFilesFunc (source = [], target = [], suffix = []) {
+    const rootPath = process.cwd();
+    for (let i = 0; i < source.length; i++) {
+        const s = source[i];
+        const t = target[i];
+        const sourcePath = path.join(rootPath, s);
+        const targetPath = path.join(rootPath, t);
+        await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
+            if (fs.existsSync(tp)) {
+                fs.unlinkSync(tp);
+            }
+            // 判断是否有后缀并校验
+            if (suffix.length <= 0 || !!suffix.find(i => sp.endsWith(i))) {
+                fs.copyFileSync(sp, tp);
+            }
+        }, async (sp, tp) => {
+            if (!fs.existsSync(tp)) {
+                fs.mkdirSync(tp, { recursive: true });
+            }
+        });
+    }
+    return Promise.resolve();
 }
 
 /**

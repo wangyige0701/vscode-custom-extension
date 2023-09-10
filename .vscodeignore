@@ -1,6 +1,6 @@
 .vscode/**
 .vscode-test/**
-node_modules/**
+# node_modules/**
 src/**
 .gitignore
 .yarnrc
@@ -24,6 +24,10 @@ out/**
 dist/**
 !dist/extension.js
 !dist/uninstall.js
-!dist/build
+# !dist/build
 # 主题文件夹不进行发布
 resources/theme/**
+# sharp发布
+# node_modules/**/{*.c,*.cc,*.cpp,*.md,LIECNSE,*.gyp,*.h}
+node_modules/**
+!node_modules/{sharp,color,detect-libc,semver,node-addon-api,prebuild-install,simple-get,tar-fs,tunnel-agent}/**/{*.js,*.node,*.json}

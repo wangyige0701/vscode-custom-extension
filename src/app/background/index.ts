@@ -219,7 +219,9 @@ export function clearBackgroundConfig () {
             });
         }
     }).then(() => {
-        return Promise.resolve(clearBackgroundConfigExecute());
+        return Promise.resolve(
+            clearBackgroundConfigExecute()
+        );
     }).then(() => {
         if (BackgroundConfiguration.getBackgroundIsRandom) {
             // 如果当前设置了随机切换，需要关闭
@@ -245,7 +247,7 @@ export function clearBackgroundConfigExecute () {
         }).then(() => {
             isWindowReloadToLoadBackimage("背景图配置清除成功，是否重启窗口");
         }).catch(err => {
-            errlog(err);
+            return Promise.reject(err);
         }).finally(() => {
             resolve();
         });

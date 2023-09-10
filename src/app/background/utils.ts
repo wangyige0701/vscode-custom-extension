@@ -190,7 +190,7 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
             windowReload();
         }
     }).catch(err => {
-        errlog(err);
+        return Promise.reject(err);
     });
 }
 

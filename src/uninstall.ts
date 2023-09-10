@@ -3,10 +3,10 @@ import fs from 'fs';
 
 const base = process.cwd();
 // 文件路径
-const cssName: string = 'workbench.desktop.main.css';
+const cssName = 'workbench.desktop.main.css';
 /** 写背景图样式的外部css文件名 */
 const externalFileName = 'backgroundImageInfo.css';
-
+/** 根路径 */
 const root = path.join(base, 'resources', 'app', 'out', 'vs', 'workbench');
 
 const sourceFilePath = path.join(root, cssName);

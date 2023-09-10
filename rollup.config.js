@@ -18,9 +18,13 @@ module.exports = [
             format: 'cjs'
         }
     }, [
+        changeRequire('..'),
         changeSharpJsRequire(),
         copyFiles(['node_modules/sharp/build'], ['dist/build'], ['node'])
-    ]),
+    ], {
+        dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
+        ignoreDynamicRequires: true
+    }),
     bundle({
         input: 'src/uninstall.ts',
         output: {
@@ -34,14 +38,10 @@ module.exports = [
  * 多输出文件配置
  * @param {RollupInput} config
  * @param {RollupPlugin[]} plugins
+ * @param {CommonJsOptions} commonjsOpt
  * @returns {RollupInput}
  */
-function bundle (config, plugins = []) {
-    /** @type {CommonJsOptions} */
-    const commonjsOpt = {
-        dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
-        ignoreDynamicRequires: true
-    };
+function bundle (config, plugins = [], commonjsOpt = {}) {
     return {
         ...config,
         external: ["vscode"],
@@ -58,7 +58,6 @@ function bundle (config, plugins = []) {
             json(),
             commonjs(commonjsOpt),
             terser(),
-            changeRequire('..'),
             ...plugins
         ]
     };

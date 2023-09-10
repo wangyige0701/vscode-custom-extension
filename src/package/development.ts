@@ -20,7 +20,7 @@ async function copy (ignore: string[] = []) {
             if (fs.existsSync(tp)) {
                 fs.unlinkSync(tp);
             }
-            if (ignore.every(item => !sp.endsWith(item))) {
+            if (ignore.length <= 0 || !ignore.find(item => sp.endsWith(item))) {
                 fs.copyFileSync(sp, tp);
             }
         }, async (sp, tp) => {

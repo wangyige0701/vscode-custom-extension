@@ -210,9 +210,12 @@ export function imageToBase64 (path: string): Promise<string> {
  * @param fileType 
  * @param data 
  */
-export function base64ByFiletypeAndData (type: string, fileType: string, data: string | Uint8Array | readonly number[]): Promise<string> {
+export function base64ByFiletypeAndData (type: string, fileType: string, data: string | Uint8Array | Buffer | readonly number[]): Promise<string> {
     return new Promise((resolve, reject) => {
         try {
+            if (data instanceof Buffer) {
+                return resolve(`data:${type}/${fileType};base64,${data.toString('base64')}`);
+            }
             resolve(`data:${type}/${fileType};base64,${createBuffer(data).toString('base64')}`);
         } catch (error) {
             reject(new Error('Error when Merge Base64 Data', { cause: error }));

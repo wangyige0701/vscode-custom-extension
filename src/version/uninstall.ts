@@ -2,37 +2,40 @@
  * 卸载时清除配置
  */
 
-import { errlog } from "../error";
-import { BackgroundConfiguration } from "../workspace/background";
+import { setWorkSpace } from "../workspace";
 import { refreshVersion } from "./utils";
 
+const backgroundNamespace = 'wangyige.background';
+
+function setConf (name: string, value: any) {
+    return setWorkSpace(backgroundNamespace, name, value);
+}
+
 /** 卸载时调用 */
-export function clearConfiguration () {
+export function clearConfiguration (): Promise<void> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
-            BackgroundConfiguration.refreshBackgroundImagePath([])
+            setConf('allImageCodes', {})
         ).then(() => {
             return Promise.resolve(
-                BackgroundConfiguration.setBackgroundNowImageCode("")
+                setConf('nowImageCode', "")
             );
         }).then(() => {
             return Promise.resolve(
-                BackgroundConfiguration.setBackgroundRandomCode("")
+                setConf('randomCode', "")
             );
         }).then(() => {
             return Promise.resolve(
-                BackgroundConfiguration.setBackgroundRandomList([])
-            );
-        }).then(() => {
-            return Promise.resolve(
-                BackgroundConfiguration.setBackgroundStorePath("")
+                setConf('randomList', [])
             );
         }).then(() => {
             return refreshVersion('webview', true, true);
         }).then(() => {
             return refreshVersion('global', false, true);
+        }).then(() => {
+            resolve();
         }).catch(err => {
-            errlog(err);
+            reject(err);
         });
     });
 }

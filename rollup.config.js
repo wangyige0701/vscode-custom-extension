@@ -119,7 +119,7 @@ function copyFiles (source = [], target = [], suffix = []) {
                     }
                 }, async (sp, tp) => {
                     if (!fs.existsSync(tp)) {
-                        fs.mkdirSync(tp);
+                        fs.mkdirSync(tp, { recursive: true });
                     }
                 });
             }

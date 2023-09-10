@@ -30,7 +30,7 @@ module.exports = [
 function bundle (config, plugins = []) {
     return {
         ...config,
-        external: ["vscode"],
+        external: ["vscode", "sharp"],
         plugins: [
             typescript({
                 tsconfig: './tsconfig.json',

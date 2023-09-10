@@ -1,3 +1,7 @@
+/** @typedef {import('rollup').InputOptions} RollupInput */
+/** @typedef {import('rollup').Plugin} RollupPlugin */
+/** @typedef {import('@rollup/plugin-commonjs').RollupCommonJSOptions} CommonJsOptions */
+
 const terser = require('@rollup/plugin-terser');
 const commonjs = require('@rollup/plugin-commonjs');
 const typescript = require('@rollup/plugin-typescript');
@@ -13,7 +17,10 @@ module.exports = [
             file: 'dist/extension.js',
             format: 'cjs'
         }
-    }),
+    }, [
+        changeSharpJsRequire(),
+        copyFiles(['node_modules/sharp/build'], ['dist/build'], ['node'])
+    ]),
     bundle({
         input: 'src/uninstall.ts',
         output: {
@@ -25,12 +32,19 @@ module.exports = [
 
 /**
  * 多输出文件配置
- * @param {Object} config
+ * @param {RollupInput} config
+ * @param {RollupPlugin[]} plugins
+ * @returns {RollupInput}
  */
 function bundle (config, plugins = []) {
+    /** @type {CommonJsOptions} */
+    const commonjsOpt = {
+        dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
+        ignoreDynamicRequires: true
+    };
     return {
         ...config,
-        external: ["vscode", "sharp"],
+        external: ["vscode"],
         plugins: [
             typescript({
                 tsconfig: './tsconfig.json',
@@ -42,7 +56,7 @@ function bundle (config, plugins = []) {
             }),
             resolve(),
             json(),
-            commonjs(),
+            commonjs(commonjsOpt),
             terser(),
             changeRequire('..'),
             ...plugins
@@ -53,10 +67,10 @@ function bundle (config, plugins = []) {
 /**
  * 将引用外部json文件的路径修改
  * @param {string} root 根路径
- * @returns 
  */
 function changeRequire (root = '.') {
-    return {
+    /** @type {RollupPlugin} */
+    const plugin = {
         name: 'changeRequire',
         /** @param {string} code */
         transform: function (code, id) {
@@ -72,10 +86,65 @@ function changeRequire (root = '.') {
                 }
             } catch (error) {
                 this.error({ message: 'Replace Require Path Error', id: id, cause: error });
-                return null;
             }
         }
     };
+    return plugin;
+}
+
+/**
+ * 拷贝文件
+ * @param {string[]} source
+ * @param {string[]} target
+ * @param {string[]} suffix 包含的后缀
+ */
+function copyFiles (source = [], target = [], suffix = []) {
+    /** @type {RollupPlugin} */
+    const plugin = {
+        name: "copySharp",
+        async generateBundle () {
+            const rootPath = process.cwd();
+            for (let i = 0; i < source.length; i++) {
+                const s = source[i];
+                const t = target[i];
+                const sourcePath = path.join(rootPath, s);
+                const targetPath = path.join(rootPath, t);
+                await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
+                    if (fs.existsSync(tp)) {
+                        fs.unlinkSync(tp);
+                    }
+                    // 判断是否有后缀并校验
+                    if (suffix.length <= 0 || !!suffix.find(i => sp.endsWith(i))) {
+                        fs.copyFileSync(sp, tp);
+                    }
+                }, async (sp, tp) => {
+                    if (!fs.existsSync(tp)) {
+                        fs.mkdirSync(tp);
+                    }
+                });
+            }
+        }
+    };
+    return plugin;
+}
+
+/** sharp模块中的导入路径调整 */
+function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
+    /** @type {RollupPlugin} */
+    const plugin = {
+        name: "changeSharoRequire",
+        transform (code, id) {
+            try {
+                if (id.endsWith('sharp.js')) {
+                    const reg = new RegExp(`([\\w\\W]*require\\s*\\(.*?)(${target})(.*?\\.node.*?\\)[\\w\\W]*)`);
+                    return code.replace(reg, `$1${replace}$3`);
+                }
+            } catch (error) {
+                this.error({ message: 'Change Sharp Require Error', id: id, cause: error });
+            }
+        }
+    };
+    return plugin;
 }
 
 /**
@@ -107,33 +176,13 @@ function checkPosition (requirePath, filePath) {
     };
 }
 
-/** 拷贝文件 */
-function copyFiles (source = [], target = []) {
-    return {
-        name: "copySharp",
-        async generateBundle () {
-            const rootPath = process.cwd();
-            for (let i = 0; i < source.length; i++) {
-                const s = source[i];
-                const t = target[i];
-                const sourcePath = path.join(rootPath, s);
-                const targetPath = path.join(rootPath, t);
-                await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
-                    if (fs.existsSync(tp)) {
-                        fs.unlinkSync(tp);
-                    }
-                    fs.copyFileSync(sp, tp);
-                }, async (sp, tp) => {
-                    if (!fs.existsSync(tp)) {
-                        fs.mkdirSync(tp);
-                    }
-                });
-            }
-        }
-    };
-}
-
-/** 递归文件夹 */
+/**
+ * 递归文件夹
+ * @param {string} source
+ * @param {string} target
+ * @param {(s:string, t:string) => Promise<any>} isFile
+ * @param {(s:string, t:string) => Promise<any>} isFolder
+ */
 async function recursionFolder (source, target, isFile, isFolder) {
     const folder = await handleFolder(source);
     if (folder) {

@@ -22,7 +22,7 @@ export class BackgroundConfiguration {
     }
 
     /** 获取背景图配置信息 */
-    static getBackgroundConfiguration (name: string): any {
+    private static getBackgroundConfiguration (name: string): any {
         return getWorkSpace(this.namespace).get<any>(name);
     }
 
@@ -31,12 +31,12 @@ export class BackgroundConfiguration {
      * @param name 
      * @param value 
      */
-    static setBackgroundConfiguration (name: string, value: any): Thenable<void> {
+    private static setBackgroundConfiguration (name: string, value: any): Thenable<void> {
         return setWorkSpace(this.namespace, name, value);
     }
 
     /** 获取当前储存路径，如果有则返回哈希值 */
-    static get getSettingStorePath (): string | undefined {
+    private static get getSettingStorePath (): string | undefined {
         const path = this.getBackgroundStorePath;
         if (path) {
             return cryHex(path);
@@ -46,7 +46,7 @@ export class BackgroundConfiguration {
     }
 
     /** 获取所有图片哈希码数组的储存数据 */
-    static get getBackgroundAllImageObject(): { [key: string]: string[] } {
+    private static get getBackgroundAllImageObject(): { [key: string]: string[] } {
         return this.getBackgroundConfiguration('allImageCodes');
     }
 
@@ -54,7 +54,7 @@ export class BackgroundConfiguration {
      * 设置当前路径下的哈希码数组缓存
      * @param value 
      */
-    static setBackgroundAllImageObject (value: string[]): Thenable<void> {
+    private static setBackgroundAllImageObject (value: string[]): Thenable<void> {
         const path = this.getSettingStorePath??this.getDefaultPath,
         data = this.getBackgroundAllImageObject,
         // 整理数据，去除没有数据的索引

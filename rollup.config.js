@@ -42,7 +42,7 @@ module.exports = [
 function bundle (config, plugins = [], commonjsOpt = {}) {
     return {
         ...config,
-        external: ["vscode", "share"],
+        external: ["vscode", "sharp"],
         plugins: [
             typescript({
                 tsconfig: './tsconfig.json',

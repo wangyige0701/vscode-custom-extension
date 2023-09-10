@@ -13,7 +13,7 @@ module.exports = [
             file: 'dist/extension.js',
             format: 'cjs'
         }
-    }, [copySharp()]),
+    }),
     bundle({
         input: 'src/uninstall.ts',
         output: {
@@ -107,23 +107,28 @@ function checkPosition (requirePath, filePath) {
     };
 }
 
-function copySharp () {
+/** 拷贝文件 */
+function copyFiles (source = [], target = []) {
     return {
         name: "copySharp",
         async generateBundle () {
             const rootPath = process.cwd();
-            const sourcePath = path.join(rootPath, 'node_modules/sharp/build');
-            const targetPath = path.join(rootPath, 'build');
-            recursionFolder(sourcePath, targetPath, async (s, p) => {
-                if (fs.existsSync(p)) {
-                    fs.unlinkSync(p);
-                }
-                fs.copyFileSync(s, p);
-            }, async (s, p) => {
-                if (!fs.existsSync(p)) {
-                    fs.mkdirSync(p);
-                }
-            });
+            for (let i = 0; i < source.length; i++) {
+                const s = source[i];
+                const t = target[i];
+                const sourcePath = path.join(rootPath, s);
+                const targetPath = path.join(rootPath, t);
+                await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
+                    if (fs.existsSync(tp)) {
+                        fs.unlinkSync(tp);
+                    }
+                    fs.copyFileSync(sp, tp);
+                }, async (sp, tp) => {
+                    if (!fs.existsSync(tp)) {
+                        fs.mkdirSync(tp);
+                    }
+                });
+            }
         }
     };
 }

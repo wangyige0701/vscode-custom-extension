@@ -214,17 +214,21 @@ export class FileMerge {
     /** 根据版本判断是否需要更新css文件内的icon图标路径 */
     private refreshCssIconfont (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
-            if (isVersionSame) {
-                // 版本相同，不需要更新
-                return resolve();
-            }
             readFileUri(this.newCssUri!).then((css: Uint8Array) => {
-                return Promise.resolve(this.cssIconfontPath(css.toString(), webview));
+                const cssContent = css.toString();
+                if (/(#iconfont)/.test(cssContent)) {
+                    return Promise.resolve(this.cssIconfontPath(cssContent, webview));
+                } else {
+                    return Promise.reject({ jump: true });
+                }
             }).then(css => {
                 return writeFileUri(this.newCssUri!, createBuffer(css));
             }).then(() => {
                 resolve();
             }).catch(err => {
+                if (err.jump) {
+                    return resolve();
+                }
                 reject(promiseReject(err, this.refreshCssIconfont.name, FileMerge.name));
             });
         });

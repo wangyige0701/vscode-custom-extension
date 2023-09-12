@@ -216,7 +216,7 @@ export class FileMerge {
         return new Promise((resolve, reject) => {
             readFileUri(this.newCssUri!).then((css: Uint8Array) => {
                 const cssContent = css.toString();
-                if (/(#iconfont)/.test(cssContent)) {
+                if (/^.*?#iconfont/.test(cssContent)) {
                     return Promise.resolve(this.cssIconfontPath(cssContent, webview));
                 } else {
                     return Promise.reject({ jump: true });

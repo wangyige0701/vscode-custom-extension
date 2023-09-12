@@ -19,16 +19,35 @@ module.exports = [
             format: 'cjs'
         },
         external: ["vscode"],
-    }, [
-        changeJsonRequire('..'),
-        chngeModuleRequirePath(["axios", "sharp"], ["./library/axios", "./library/sharp"])
-    ]),
+    }, {
+        font: [
+            removeDist(),
+            typescript({
+                tsconfig: './tsconfig.json',
+                compilerOptions: {
+                    module: "ESNext",
+                    moduleResolution: "Node",
+                    sourceMap: false
+                }
+            })
+        ],
+        back: [
+            changeJsonRequire('..'),
+            chngeModuleRequirePath(["axios", "sharp"], ["./library/axios", "./library/sharp"])
+        ]
+    }),
     bundle({
         input: 'src/uninstall.ts',
         output: {
             file: 'dist/uninstall.js',
             format: 'cjs'
         }
+    }, {
+        font: [
+            typescript({
+                tsconfig: './tsconfig.uninstall.json'
+            })
+        ]
     }),
     bundle({
         input: 'src/library/axios.ts',
@@ -58,31 +77,56 @@ module.exports = [
 /**
  * 多输出文件配置
  * @param {RollupInput} config
- * @param {RollupPlugin[]} plugins
+ * @param {{font:RollupPlugin[];back:RollupPlugin[]}|RollupPlugin[]} plugins font是覆盖在插件之前，back在之后，只传数组默认为back
  * @param {CommonJsOptions} commonjsOpt
  * @returns {RollupInput}
  */
-function bundle (config, plugins = [], commonjsOpt = {}) {
+function bundle (config, plugins = { font: [], back: [] }, commonjsOpt = {}) {
+    if (Array.isArray(plugins)) {
+        plugins = {
+            font: [],
+            back: plugins
+        };
+    } else {
+        if (typeof plugins !== 'object') {
+            plugins = {};
+        }
+        if (!('font' in plugins)) {
+            plugins.font = [];
+        }
+        if (!('back' in plugins)) {
+            plugins.back = [];
+        }
+    }
     return {
         ...config,
         plugins: [
-            typescript({
-                tsconfig: './tsconfig.json',
-                compilerOptions: {
-                    module: "ESNext",
-                    moduleResolution: "Node",
-                    sourceMap: false
-                }
-            }),
+            ...plugins.font,
             resolve(),
             json({
                 preferConst: true
             }),
             commonjs(commonjsOpt),
             terser(),
-            ...plugins
+            ...plugins.back
         ]
     };
+}
+
+/** 移除打包目录 */
+function removeDist () {
+    /** @type {RollupPlugin} */
+    const plugin = {
+        name: 'removeDist',
+        buildStart () {
+            const root = process.cwd();
+            const dist = path.join(root, 'dist');
+            if (fs.existsSync(dist)) {
+                fs.rmSync(dist, { recursive: true });
+            }
+        }
+    };
+    return plugin;
 }
 
 /**
@@ -162,9 +206,6 @@ function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
 
 /** 外部模块引用的json文件拷贝 */
 function changeModuleJsonFile () {
-    const checkJsonFiles = /(^[\w\W]*require\s*\()(`[^`]*\.json`|'[^']*\.json'|"[^"]*\.json")(\)[\w\W]*$)/;
-    const checkJsonFilesGlobal = /(^[\w\W]*require\s*\()(`[^`]*\.json`|'[^']*\.json'|"[^"]*\.json")(\)[\w\W]*$)/g;
-    const getJsonContent = /(')([^']*)(')|(")([^"]*)(")|(`)([^`]*)(`)/;
     /** 生成随机字符 */
     const random = {
         /** @type {string[]} */
@@ -195,19 +236,6 @@ function changeModuleJsonFile () {
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'changeModuleJsonFile',
-        transform (code, id) {
-            // try {
-            //     if (id.includes('\\node_modules\\') && checkJsonFiles.test(code)) {
-            //         const match = code.matchAll(checkJsonFilesGlobal);
-            //         for (const t of match) {
-            //             console.log(t[2], id);
-            //             console.log('==========================');
-            //         }
-            //     }
-            // } catch (error) {
-            //     this.error({ message: 'Change Modules JsonFiles Error', id: id, cause: error });
-            // }
-        },
         async resolveId (code, id) {
             if (id && /[\w\W]*\.(json|js|ts)\?[\w\W]*/.test(id)) {
                 // ?commonjs-external文件不处理

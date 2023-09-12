@@ -51,7 +51,7 @@ function computeChecksums (content: string) {
 }
 
 /** 清除配置 */
-export function uninstall () {
+function uninstall () {
     try {
         let cssContent: string = '';
         if (fs.existsSync(sourceFilePath)) {

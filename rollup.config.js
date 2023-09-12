@@ -68,7 +68,7 @@ module.exports = [
     }, [
         changeSharpJsRequire(),
         changeModuleJsonFile(),
-        copyFiles(['node_modules/sharp/build'], ['dist/library/build'], ['node'])
+        copyFiles(['node_modules/sharp/build'], ['dist/library/build'], ['node', 'dll'])
     ], {
         dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
         ignoreDynamicRequires: true

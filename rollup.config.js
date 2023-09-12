@@ -10,6 +10,7 @@ const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
 const path = require('path');
 const fs = require("fs");
+const { createHash } = require("crypto");
 
 module.exports = [
     bundle({
@@ -208,19 +209,23 @@ function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
 function changeModuleJsonFile () {
     /** 生成随机字符 */
     const random = {
-        /** @type {string[]} */
+        /** @type {{code:string;path:string;}[]} */
         folderNames: [],
         /** @returns {string} */
         create (len = 6) {
             const r = Math.random().toString(36).slice(2, len + 2).padEnd(len, '0');
-            if (this.folderNames.includes(r)) {
+            if (this.folderNames.find(item =>item.code === r)) {
                 return this.create(len);
             }
             return r;
         },
-        set () {
+        set (patName) {
+            const item = this.folderNames.find(item => item.path === patName);
+            if (item) {
+                return item.code;
+            }
             const r = this.create();
-            this.folderNames.push(r);
+            this.folderNames.push({ code: r, path: patName });
             return r;
         },
         get get () {
@@ -248,7 +253,7 @@ function changeModuleJsonFile () {
                     return false;
                 }
                 const fileName = path.basename(fullPath);
-                const folderName = random.set();
+                const folderName = random.set(createHash('md5').update(fullPath).digest('hex'));
                 const createPath = path.join(jsonFolder, folderName);
                 await copyFilesFunc(path.dirname(fullPath), createPath, fileName);
                 /** @type {RollupResolveIdResult} */

@@ -49,8 +49,8 @@ export class FileMerge {
     private mainUri?: Uri;
     /** 环境变量 */
     private env: 'development' | 'production' = 'development';
-    /** 开发环境判断是否已经合并过文件 */
-    private isMergeCompleteInDev = false;
+    /** 判断是否已经合并过文件 */
+    private isMergeComplete = false;
     /** 判断注册的webview页面是否已经创建过，创建过的文件不需要再次合并css、js文件 */
     private static isFileMerged: Set<string>;
 
@@ -63,20 +63,21 @@ export class FileMerge {
         if (isDev()) {
             // 开发环境
             this.env = 'development';
-            // 开发环境下创建set
-            if (!FileMerge.isFileMerged) {
-                FileMerge.isFileMerged = new Set();
-            }
-            // 判断文件是否合并过
-            const pathHash = cryHex(path);
-            if (FileMerge.isFileMerged.has(pathHash)) {
-                this.isMergeCompleteInDev = true;
-            } else {
-                FileMerge.isFileMerged.add(pathHash);
-            }
         } else {
             this.env = 'production';
         }
+        // 创建文件合并判断set
+        if (!FileMerge.isFileMerged) {
+            FileMerge.isFileMerged = new Set();
+        }
+        // 判断文件是否合并过
+        const pathHash = cryHex(path);
+        if (FileMerge.isFileMerged.has(pathHash)) {
+            this.isMergeComplete = true;
+        } else {
+            FileMerge.isFileMerged.add(pathHash);
+        }
+        // webview文件夹路径
         this.publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'webview');
         // 生产环境合成index.production.js/css，开发环境合成index.development.js/css
         this.newCssUri = newUri(this.baseUri!, `index.${this.env}.css`);
@@ -120,8 +121,8 @@ export class FileMerge {
      */
     private async start (dev: boolean) {
         await readDirectoryUri(this.publicFileUri!).then(res => {
-            // 整理所有外部公共文件的Uri，开发环境下需要整合公共文件
-            if (dev && !this.isMergeCompleteInDev) {
+            // 整理所有外部公共文件的Uri，开发环境下需要整合公共文件，已经整合过不会再执行
+            if (dev && !this.isMergeComplete) {
                 const external_files: ExternalFile[] = ['css', 'js'];
                 // 过滤外部公用文件的文件夹
                 const external_files_get: Promise<[[ExternalFile, FileType][], ExternalFile]>[] = res.filter(([name, type]) => {
@@ -190,6 +191,7 @@ export class FileMerge {
             // 开发环境
             return this.development(webview, dev);
         } else {
+            // 生产环境
             return this.production(webview, dev);
         }
     }
@@ -202,7 +204,9 @@ export class FileMerge {
     private production (webview: Webview, dev: boolean): Promise<void> {
         return new Promise((resolve, reject) => {
             this.start(dev).then(() => {
-                return this.refreshCssIconfont(webview);
+                if (!this.isMergeComplete) {
+                    return this.refreshCssIconfont(webview);
+                }
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -211,7 +215,7 @@ export class FileMerge {
         });
     }
 
-    /** 根据版本判断是否需要更新css文件内的icon图标路径 */
+    /** 根据是否合并过，判断是否需要执行更改css文件内的icon图标路径方法 */
     private refreshCssIconfont (webview: Webview): Promise<void> {
         return new Promise((resolve, reject) => {
             readFileUri(this.newCssUri!).then((css: Uint8Array) => {
@@ -244,11 +248,11 @@ export class FileMerge {
             // 查询指定html文件路径
             this.start(dev).then(() => {
                 // 将html文本内js和css替换为指定路径下的对应文件
-                if (!this.isMergeCompleteInDev) {
+                if (!this.isMergeComplete) {
                     return this.cssFileMerge(webview);
                 }
             }).then(() => {
-                if (!this.isMergeCompleteInDev) {
+                if (!this.isMergeComplete) {
                     return this.jsFileMerge();
                 }
             }).then(() => {

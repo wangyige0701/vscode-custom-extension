@@ -50,7 +50,7 @@ function errlog (e: any, isThrow: boolean = !environment): void {
  * @param FunctionName 
  * @returns 
  */
-function promiseReject(err: any, FunctionName: string, ClassName?:string): WError {
+function $rej(err: any, FunctionName: string, ClassName?:string): WError {
     return new WError('Promise rejected', {
         cause: err,
         position: 'Function',
@@ -62,5 +62,5 @@ function promiseReject(err: any, FunctionName: string, ClassName?:string): WErro
 export {
     WError,
     errlog,
-    promiseReject
+    $rej
 };

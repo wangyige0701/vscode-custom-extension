@@ -4,7 +4,7 @@ import { windowReload } from "../../utils/system";
 import { contextContainer } from "../../utils/webview/index";
 import { Uri } from "vscode";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
-import { WError, promiseReject } from "../../error";
+import { WError, $rej } from "../../error";
 import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
@@ -37,7 +37,7 @@ export function imageStoreUri (): Promise<Uri> {
         }).then(uri => {
             resolve(uri);
         }).catch(err => {
-            reject(promiseReject(err, imageStoreUri.name));
+            reject($rej(err, imageStoreUri.name));
         });
     });
 }
@@ -63,7 +63,7 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
         }).then(() => {
             resolve(uri);
         }).catch(err => {
-            reject(promiseReject(err, imageStoreUriExits.name));
+            reject($rej(err, imageStoreUriExits.name));
         });
     });
 }
@@ -82,7 +82,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         await Promise.resolve(
             BackgroundConfiguration.setBackgroundStorePath("")
         ).catch(err => {
-            return Promise.reject(promiseReject(err, resetImageStorePath.name));
+            return Promise.reject($rej(err, resetImageStorePath.name));
         });
         showMessageWithConfirm('背景图储存路径已切换为默认路径');
         sendStoreChangeMessage();
@@ -94,7 +94,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         await Promise.resolve(
             BackgroundConfiguration.setBackgroundStorePath(uri.fsPath)
         ).catch(err => {
-            return Promise.reject(promiseReject(err, resetImageStorePath.name));
+            return Promise.reject($rej(err, resetImageStorePath.name));
         });
         showMessageWithConfirm('背景图储存路径已切换为：'+uri.fsPath);
         sendStoreChangeMessage();
@@ -132,7 +132,7 @@ export function showMessageByModal (message: string = '是否设置此背景图'
             // 选择取消返回reject
             reject();
         }).catch((err) => {
-            reject(promiseReject(err, showMessageByModal.name));
+            reject($rej(err, showMessageByModal.name));
         });
     });
 }

@@ -10,7 +10,7 @@ import {
     writeFileUri
 } from "../../utils/file";
 import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";
-import { WError, errlog, promiseReject } from "../../error";
+import { WError, errlog, $rej } from "../../error";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { 
     changeLoadState, 
@@ -103,14 +103,14 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             icon: 'loading~spin',
             message: '背景图文件校验中'
         });
-        Promise.resolve(<Promise<void>>new Promise(($res, $rej) => {
+        Promise.resolve(<Promise<void>>new Promise(($resolve, $reject) => {
             const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
             if (!isBack) {
                 // 当前没有设置背景图，则直接跳出检测
-                return $rej({ jump: true, data: false });
+                return $reject({ jump: true, data: false });
             }
             // promise完成
-            $res();
+            $resolve();
         })).then(() => {
             // 设置了背景图则校验源文件是否写入了背景图导入语句
             return setSourceCssImportInfo(true);
@@ -127,7 +127,7 @@ export function checkImageCssDataIsRight (): Promise<boolean> {
             if (err.jump) {
                 return resolve(err.data);
             }
-            reject(promiseReject(err, checkImageCssDataIsRight.name));
+            reject($rej(err, checkImageCssDataIsRight.name));
         }).finally(() => {
             statusBarTarget?.dispose();
             // 状态栏提示信息
@@ -270,7 +270,7 @@ export function selectImage () {
             ).then(() => {
                 resolve(uri);
             }).catch(err => {
-                reject(promiseReject(err, selectImage.name + ' > ' + selectFile.name));
+                reject($rej(err, selectImage.name + ' > ' + selectFile.name));
             });
         });
     }).then(uris => {
@@ -309,7 +309,7 @@ export function addImageToStorage (imageDatas: string[]): Promise<string[]> {
             refreshImageCodeList();
             resolve(result);
         }).catch(err => {
-            reject(promiseReject(err, addImageToStorage.name));
+            reject($rej(err, addImageToStorage.name));
         });
     });
 }
@@ -447,7 +447,7 @@ function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
         }).then(codes => {
             resolve(codes);
         }).catch(err => {
-            reject(promiseReject(err, changeToString.name));
+            reject($rej(err, changeToString.name));
         });
     });
 }
@@ -484,7 +484,7 @@ function codeCheck (code: string, data: string, uri: Uri): Promise<{ code: strin
         }).then(([$code, exist]) => {
             resolve({ code: $code, exist });
         }).catch(err => {
-            reject(promiseReject(err, codeCheck.name));
+            reject($rej(err, codeCheck.name));
         });
     });
 }
@@ -547,7 +547,7 @@ function refreshBackgroundImageList (codes: string[]): Promise<string[]> {
         }).then(() => {
             resolve(codes);
         }).catch(err => {
-            reject(promiseReject(err, refreshBackgroundImageList.name));
+            reject($rej(err, refreshBackgroundImageList.name));
         });
     });
 }
@@ -563,7 +563,7 @@ async function compareCodeList (long: string[], short: string[], type: 'add' | '
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确
         if (index < 0) {
             await BackgroundConfiguration.setBackgroundAllImageCodes(item, type).catch(err => {
-                return Promise.reject(promiseReject(err, compareCodeList.name));
+                return Promise.reject($rej(err, compareCodeList.name));
             });
         }
     }
@@ -601,7 +601,7 @@ function checkImageFile (files: [string, FileType][], uri: Uri): Promise<bufferA
         }).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(promiseReject(err, checkImageFile.name));
+            reject($rej(err, checkImageFile.name));
         });
     });
 }
@@ -619,7 +619,7 @@ function getFileAndCode (uri: Uri, code: string): Promise<bufferAndCode> {
                 code
             });
         }).catch(err => {
-            reject(promiseReject(err, getFileAndCode.name));
+            reject($rej(err, getFileAndCode.name));
         });
     });
 }
@@ -632,7 +632,7 @@ function selectAllImage (): Promise<{ files: [string, FileType][], uri: Uri }> {
         }).then(([res, uri]) => {
             resolve({ files: res, uri });
         }).catch(err => {
-            reject(promiseReject(err, selectAllImage.name));
+            reject($rej(err, selectAllImage.name));
         });
     });
 }
@@ -662,7 +662,7 @@ export function createFileStore (base64: string): Promise<string> {
         }).then($code => {
             resolve($code);
         }).catch(err => {
-            reject(promiseReject(err, createFileStore.name));
+            reject($rej(err, createFileStore.name));
         });
     });
 }
@@ -692,7 +692,7 @@ function deleteFileStore (code: string): Promise<string> {
         }).then($code => {
             resolve($code);
         }).catch(err => {
-            reject(promiseReject(err, deleteFileStore.name));
+            reject($rej(err, deleteFileStore.name));
         });
     });
 }

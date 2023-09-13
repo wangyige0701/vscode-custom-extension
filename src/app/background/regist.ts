@@ -8,7 +8,7 @@ import { bindMessageCallback } from "../../utils/webview/message";
 import { backgroundExecute } from "./execute";
 import { copyFileWhenVersionChange } from "../../version/versionChange";
 import { setStatusBarResolve } from "../../utils/interactive";
-import { errlog, promiseReject } from "../../error";
+import { errlog, $rej } from "../../error";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { clearDynamicImport } from "../../library";
 
@@ -78,7 +78,7 @@ function checkRandomCode (): Promise<boolean> {
 		}).then(() => {
 			resolve(true);
 		}).catch(err => {
-			reject(promiseReject(err, checkRandomCode.name));
+			reject($rej(err, checkRandomCode.name));
 		});
 	});
 }

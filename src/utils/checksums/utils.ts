@@ -1,7 +1,7 @@
 import { createHash } from "crypto";
 import { join as pathjoin, dirname } from "path";
 import { getNodeModulePath } from "../system";
-import { WError, promiseReject } from "../../error";
+import { WError, $rej } from "../../error";
 import { createUri, isFileExits, readFileUri } from "../file";
 import { createExParamPromise } from "..";
 import type { GetChecksumsData } from "./types/index";
@@ -27,7 +27,7 @@ export function computeFileChecksums (content: string): Promise<string> {
             const result = createHash('md5').update(content).digest('base64').replace(/=+$/, '');
             resolve(result);
         } catch (error) {
-            reject(promiseReject(error, computeFileChecksums.name));
+            reject($rej(error, computeFileChecksums.name));
         }
     });
 }
@@ -53,7 +53,7 @@ export function getCheckRoot (): Promise<string> {
         getProductRoot().then(path => {
             resolve(pathjoin(path, 'out'));
         }).catch(err => {
-            reject(promiseReject(err, getCheckRoot.name));
+            reject($rej(err, getCheckRoot.name));
         });
     });
 }
@@ -75,7 +75,7 @@ export function readChecksumsData (): Promise<string> {
             }
             resolve('');
         }).catch(err => {
-            reject(promiseReject(err, readChecksumsData.name));
+            reject($rej(err, readChecksumsData.name));
         });
     });
 }
@@ -106,7 +106,7 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
             }
             resolve(allContent);
         }).catch(err => {
-            reject(promiseReject(err, getChecksumsData.name));
+            reject($rej(err, getChecksumsData.name));
         });
     });
 }
@@ -122,7 +122,7 @@ export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
             const result = paths.map(path => createUri(pathjoin(root, path)).toString());
             resolve(result);
         }).catch(err => {
-            reject(promiseReject(err, getFullPathOfChecksum.name));
+            reject($rej(err, getFullPathOfChecksum.name));
         });
     });
 }

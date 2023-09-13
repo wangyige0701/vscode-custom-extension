@@ -1,6 +1,6 @@
 import sharp from "../../library/importer/sharp";
 import type { CompressStyle, InputType } from "./type";
-import { promiseReject } from "../../error";
+import { $rej } from "../../error";
 import { isString } from "..";
 
 
@@ -10,11 +10,21 @@ import { isString } from "..";
  */
 export function imageCompression (input: InputType, style: CompressStyle = { quality: 100, size: 300 }): Promise<Buffer> {
     return new Promise((resolve, reject) => {
-        sharp(checkInput(input)).resize(style.size).webp({ quality: style.quality }).toBuffer().then(buffer => {
+        // 对sharp模块进行处理，对应模块出错则直接抛出
+        let sharpCreate: Promise<Buffer>;
+        try {
+            sharpCreate = sharp(checkInput(input)).resize(style.size).webp({ quality: style.quality }).toBuffer();
+        } catch (error) {
+            return reject($rej(error, imageCompression.name));
+        }
+        if (!sharpCreate) {
+            return reject($rej('Import Error', imageCompression.name));
+        }
+        sharpCreate.then(buffer => {
             resolve(buffer);
         }).catch(err => {
-            reject(promiseReject(err, imageCompression.name));
-        });
+            reject($rej(err, imageCompression.name));
+        }); 
     });
 }
 

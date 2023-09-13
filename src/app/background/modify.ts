@@ -11,7 +11,7 @@ import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundI
 import { getVersion } from "../../version";
 import { ContentAndUri, info } from "./type";
 import { setStatusBarResolve } from "../../utils/interactive";
-import { WError, promiseReject } from "../../error";
+import { WError, $rej } from "../../error";
 import { getNodeModulePath } from "../../utils/system";
 import { reChecksum } from "../../utils/checksums";
 
@@ -130,7 +130,7 @@ export function modifyCssFileForBackground (code: string, random: boolean = fals
             if (err.jump) {
                 return resolve();
             }
-            reject(promiseReject(err, modifyCssFileForBackground.name));
+            reject($rej(err, modifyCssFileForBackground.name));
         }).finally(() => {
             statusBarTarget?.dispose();
         });
@@ -163,7 +163,7 @@ export function deleteBackgroundCssFileModification (): Promise<void> {
             setBackgroundImageSuccess("背景图配置删除成功");
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, deleteBackgroundCssFileModification.name));
+            reject($rej(err, deleteBackgroundCssFileModification.name));
         });
     });
 }
@@ -193,7 +193,7 @@ export function checExternalDataIsRight (): Promise<{modify:boolean}> {
             if (err.jump) {
                 return resolve({ modify: err.modify });
             }
-            reject(promiseReject(err, checExternalDataIsRight.name));
+            reject($rej(err, checExternalDataIsRight.name));
         });
     });
 }
@@ -236,7 +236,7 @@ export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify
             if (err.jump) {
                 return resolve({ modify: err.modify });
             }
-            reject(promiseReject(err, setSourceCssImportInfo.name));
+            reject($rej(err, setSourceCssImportInfo.name));
         });
     });
 }
@@ -252,7 +252,7 @@ function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<vo
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, sourceCeeFileChangeChecksum.name));
+            reject($rej(err, sourceCeeFileChangeChecksum.name));
         });
     });
 }
@@ -264,11 +264,11 @@ function sourceCeeFileChangeChecksum (uri: Uri, content: Uint8Array): Promise<vo
  */
 export function checkCurentImageIsSame (codeValue: string): Promise<{ state:boolean, code?:string }> {
     return new Promise((resolve, reject) => {
-        Promise.resolve(<Promise<void>>new Promise(($res, $rej) => {
+        Promise.resolve(<Promise<void>>new Promise(($resolve, $reject) => {
             if (!codeValue) {
-                return $rej({ jump: true, state: false });
+                return $reject({ jump: true, state: false });
             }
-            $res();
+            $resolve();
         })).then(() => {
             return getExternalFileContent();
         }).then(content => {
@@ -286,7 +286,7 @@ export function checkCurentImageIsSame (codeValue: string): Promise<{ state:bool
             if (err.jump) {
                 return resolve({ state: err.state, code: err.code??void 0 });
             }
-            reject(promiseReject(err, checkCurentImageIsSame.name));
+            reject($rej(err, checkCurentImageIsSame.name));
         });
     });
 }
@@ -316,7 +316,7 @@ function settingConfiguration (options: info, random: boolean): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, settingConfiguration.name));
+            reject($rej(err, settingConfiguration.name));
         });
     });
 }
@@ -333,7 +333,7 @@ function deleteConfiguration (): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, deleteConfiguration.name));
+            reject($rej(err, deleteConfiguration.name));
         });
     });
 }
@@ -373,7 +373,7 @@ function getCssUri (name: string, create: boolean = true): Promise<Uri | void> {
             if (err.jump) {
                 return resolve(err.uri??void 0);
             }
-            reject(promiseReject(err, getCssUri.name));
+            reject($rej(err, getCssUri.name));
         });
     });
 }
@@ -391,7 +391,7 @@ export function writeExternalCssFile (content: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, writeExternalCssFile.name));
+            reject($rej(err, writeExternalCssFile.name));
         });
     });
 }
@@ -405,7 +405,7 @@ export function getExternalFileContent (): Promise<[string, Uri]> {
         }).then(([content, uri]) => {
             resolve([content.toString(), uri]);
         }).catch(err => {
-            reject(promiseReject(err, getExternalFileContent.name));
+            reject($rej(err, getExternalFileContent.name));
         });
     });
 }
@@ -464,7 +464,7 @@ function getExternalCssContent (codeValue: string): Promise<[string, info] | fal
             if (err.jump) {
                 return resolve(err.data);
             }
-            reject(promiseReject(err, getExternalCssContent.name));
+            reject($rej(err, getExternalCssContent.name));
         });
     });
 }
@@ -479,7 +479,7 @@ function getNowSettingCode (): Promise<string | false> {
             }
             resolve(false);
         }).catch(err => {
-            reject(promiseReject(err, getNowSettingCode.name));
+            reject($rej(err, getNowSettingCode.name));
         });
     });
 }
@@ -501,7 +501,7 @@ function getSourceCssFileContent (): Promise<[string, Uri] | void> {
             if (err.jump) {
                 return resolve();
             }
-            reject(promiseReject(err, getSourceCssFileContent.name));
+            reject($rej(err, getSourceCssFileContent.name));
         });
     });
 }
@@ -521,7 +521,7 @@ function isSourceCssFileModify (content: string, uri: Uri): Promise<{ content:st
             }
             resolve({ content, uri, exits: false });
         }).catch(err => {
-            reject(promiseReject(err, isSourceCssFileModify.name));
+            reject($rej(err, isSourceCssFileModify.name));
         });
     });
 }
@@ -545,7 +545,7 @@ function findInfo (content: string): Promise<info | false> {
             }
             resolve(false);
         }).catch(err => {
-            reject(promiseReject(err, findInfo.name));
+            reject($rej(err, findInfo.name));
         });
     });
 }
@@ -575,7 +575,7 @@ function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndU
             content = content.replace(findSourceCssPositionRegexp, "");
             resolve({content, uri});
         }).catch(err => {
-            reject(promiseReject(err, deleteContentByTagName.name));
+            reject($rej(err, deleteContentByTagName.name));
         });
     });
 }

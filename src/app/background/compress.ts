@@ -12,7 +12,7 @@ import {
     uriStat,
     writeFileUri
 } from "../../utils/file";
-import { promiseReject } from "../../error";
+import { $rej } from "../../error";
 import { createExParamPromise } from "../../utils";
 import { imageCompression } from "../../utils/compression/image";
 
@@ -29,7 +29,7 @@ const compressFolderName = 'compression';
  * @param uri 如果传入参数，必须是图片存放路径的根路径
  */
 export function getCompressImage (code: string, data: string, uri?: Uri): Promise<{ code: string, data: string }> {
-    return new Promise((resolve, reject) => {
+    return new Promise(resolve => {
         checkHasBeenCompressed(code, uri).then(({ exist, uri }) => {
             if (!exist) {
                 // 不存在进行创建
@@ -42,8 +42,8 @@ export function getCompressImage (code: string, data: string, uri?: Uri): Promis
                 code,
                 data: buffer.toString()
             });
-        }).catch(err => {
-            reject(promiseReject(err, getCompressImage.name));
+        }).catch(() => {
+            resolve({ code, data: '' });
         });
     });
 }
@@ -62,7 +62,7 @@ export function deleteCompressByCode (code: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, deleteCompressByCode.name));
+            reject($rej(err, deleteCompressByCode.name));
         });
     });
 }
@@ -81,7 +81,7 @@ export function createCompressDirectory (): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, createCompressDirectory.name));
+            reject($rej(err, createCompressDirectory.name));
         });
     });
 }
@@ -97,7 +97,7 @@ function isUriFolder (uri: Uri): Promise<Uri> {
         }).then(uri => {
             resolve(uri);
         }).catch(err => {
-            reject(promiseReject(err, isUriFolder.name));
+            reject($rej(err, isUriFolder.name));
         });
     });
 }
@@ -113,7 +113,7 @@ function imageToCompressedPath (code: string, uri?: Uri): Promise<Uri> {
         ).then(uri => {
             resolve(newUri(uri, compressFolderName, `${code}.${compressFileName}`));
         }).catch(err => {
-            reject(promiseReject(err, imageToCompressedPath.name));
+            reject($rej(err, imageToCompressedPath.name));
         });
     });
 }
@@ -129,7 +129,7 @@ function checkHasBeenCompressed (code: string, uri?: Uri): Promise<{ exist: bool
         }).then(([state, uri]) => {
             resolve({ exist: state, uri });
         }).catch(err => {
-            reject(promiseReject(err, checkHasBeenCompressed.name));
+            reject($rej(err, checkHasBeenCompressed.name));
         });
     });
 }
@@ -150,7 +150,7 @@ function createCompressImage (uri: Uri, data: string): Promise<Buffer> {
         }).then(([_, buffer]) => {
             resolve(buffer);
         }).catch(err => {
-            reject(promiseReject(err, createCompressImage.name));
+            reject($rej(err, createCompressImage.name));
         });
     });
 }

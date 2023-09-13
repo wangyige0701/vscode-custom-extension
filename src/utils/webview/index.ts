@@ -5,7 +5,7 @@ import { ExternalFile, contextInter, webFileType } from "./type";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
-import { WError, promiseReject } from "../../error";
+import { WError, $rej } from "../../error";
 import { cryHex } from "../hash";
 
 const webFile: webFileType = {
@@ -110,7 +110,7 @@ export class FileMerge {
             }).then(() => {
                 resolve(this.htmlContent);
             }).catch(err => {
-                reject(promiseReject(err, this.setHtml.name, FileMerge.name));
+                reject($rej(err, this.setHtml.name, FileMerge.name));
             });
         });
     }
@@ -177,7 +177,7 @@ export class FileMerge {
             }
             return Promise.resolve();
         }).catch(err => {
-            return Promise.reject(promiseReject(err, this.start.name, FileMerge.name));
+            return Promise.reject($rej(err, this.start.name, FileMerge.name));
         });
     }
 
@@ -210,7 +210,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(promiseReject(err, this.production.name, FileMerge.name));
+                reject($rej(err, this.production.name, FileMerge.name));
             });
         });
     }
@@ -233,7 +233,7 @@ export class FileMerge {
                 if (err.jump) {
                     return resolve();
                 }
-                reject(promiseReject(err, this.refreshCssIconfont.name, FileMerge.name));
+                reject($rej(err, this.refreshCssIconfont.name, FileMerge.name));
             });
         });
     }
@@ -258,7 +258,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(promiseReject(err, this.development.name, FileMerge.name));
+                reject($rej(err, this.development.name, FileMerge.name));
             });
         });
     }
@@ -279,7 +279,7 @@ export class FileMerge {
                 }
                 resolve(list);
             }).catch(err => {
-                reject(promiseReject(err, this.readDirectoryFile.name, FileMerge.name));
+                reject($rej(err, this.readDirectoryFile.name, FileMerge.name));
             });
         });
     }
@@ -296,7 +296,7 @@ export class FileMerge {
             readFileUriList(fileUri).then(res => {
                 resolve(mergeWebviewFile(res));
             }).catch(err => {
-                reject(promiseReject(err, this.mergeAllFile.name, FileMerge.name));
+                reject($rej(err, this.mergeAllFile.name, FileMerge.name));
             });
         });
     }
@@ -323,7 +323,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(promiseReject(err, this.cssFileMerge.name, FileMerge.name));
+                reject($rej(err, this.cssFileMerge.name, FileMerge.name));
             });
         });
     }
@@ -351,7 +351,7 @@ export class FileMerge {
             }).then(() => {
                 resolve();
             }).catch(err => {
-                reject(promiseReject(err, this.jsFileMerge.name, FileMerge.name));
+                reject($rej(err, this.jsFileMerge.name, FileMerge.name));
             });
         });
     }
@@ -362,7 +362,7 @@ export class FileMerge {
             this.mergeAllFile(this.externalFilesUri[type]).then(res => {
                 resolve(res);
             }).catch(err => {
-                reject(promiseReject(err, this.externalFileMerge.name, FileMerge.name));
+                reject($rej(err, this.externalFileMerge.name, FileMerge.name));
             });
         });
     }

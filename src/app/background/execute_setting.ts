@@ -4,7 +4,7 @@ import { createExParamPromise, delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
-import { errlog, promiseReject } from "../../error";
+import { errlog, $rej } from "../../error";
 
 type settingImageData = {
     code: string;
@@ -83,7 +83,7 @@ function setting (code: string, random: boolean): Promise<void> {
             }
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, setting.name));
+            reject($rej(err, setting.name));
         });
     });
 }

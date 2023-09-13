@@ -1,5 +1,5 @@
 import { addImageToStorage } from ".";
-import { errlog, promiseReject } from "../../error";
+import { errlog, $rej } from "../../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
 import { showMessageWithConfirm } from "../../utils/interactive";
 import { imageUrl } from "../../utils/regexp";
@@ -53,7 +53,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
                 showMessageWithConfirm(`${err.status??'Error'}: ${err.message??''} [ ${url} ]`, "error");
                 return reject();
             }
-            reject(promiseReject(err, getImageBase64ByRequest.name));
+            reject($rej(err, getImageBase64ByRequest.name));
         });
     });
 }
@@ -100,7 +100,7 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
         }).then(() => {
             resolve(true);
         }).catch(err => {
-            reject(promiseReject(err, changeBackgroundFileOpacity.name));
+            reject($rej(err, changeBackgroundFileOpacity.name));
         });
     });
 }

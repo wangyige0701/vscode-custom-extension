@@ -4,7 +4,7 @@ import { checksumsMap } from "./data";
 import { getProductRoot, getProductFileName, computeFileChecksums } from "./utils";
 import { createBuffer, createUri, readFileUri, writeFileUri } from "../file";
 import { createExParamPromise } from "..";
-import { promiseReject } from "../../error";
+import { $rej } from "../../error";
 
 /**
  * 修改校验和数据
@@ -26,7 +26,7 @@ export function modifyChecksum (path: Uri): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, modifyChecksum.name));
+            reject($rej(err, modifyChecksum.name));
         });
     });
 }
@@ -39,7 +39,7 @@ function createNewChecksum (path: Uri): Promise<string> {
         }).then(checksum => {
             resolve(checksum);
         }).catch(err => {
-            reject(promiseReject(err, createNewChecksum.name));
+            reject($rej(err, createNewChecksum.name));
         });
     });
 }
@@ -60,7 +60,7 @@ function modifySourceFile (pathHash: string, value: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject(promiseReject(err, modifySourceFile.name));
+            reject($rej(err, modifySourceFile.name));
         });
     });
 }

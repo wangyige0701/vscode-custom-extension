@@ -11,6 +11,7 @@ import {
     StatusBarIconMessage, 
     StatusBarParam 
 } from './type';
+import { errlog } from '../../error';
 
 /**
  * 调用输入框api获取输入内容
@@ -142,8 +143,19 @@ export function showMessage<T extends MessageItem> ({
         ).then(res => {
             resolve(res);
         }).catch(err => {
-            reject(new Error('MessageBox Error', { cause: err }));
+            errlog(new Error('MessageBox Error', { cause: err }), true);
         });
+    });
+}
+
+/** 带确认按钮的消息弹框 */
+export function showMessageWithConfirm (message: string) {
+    return showMessage({
+        message,
+        items: [{
+            id: 0,
+            title: '确认'
+        }]
     });
 }
 
@@ -195,7 +207,7 @@ export function setStatusBarResolve (message: string | StatusBarIconMessage): Di
  * @param options 
  * @param task 
  */
-export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>) {
+export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>): Thenable<R> {
     if (isString(options.location)) {
         options.location = getProgressLocation(options.location as ProgressLocationData);
     }

@@ -1,7 +1,7 @@
 import { addImageToStorage } from ".";
-import { WError, errlog, promiseReject } from "../../error";
+import { errlog, promiseReject } from "../../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
-import { showMessage } from "../../utils/interactive";
+import { showMessage, showMessageWithConfirm } from "../../utils/interactive";
 import { imageUrl } from "../../utils/regexp";
 import { GetImage } from "../../utils/request/utils";
 import { BackgroundConfiguration } from "../../workspace/background";
@@ -74,9 +74,7 @@ export function backgroundOpacityModify (opacity: number) {
             return Promise.resolve(BackgroundConfiguration.setBackgroundOpacity(opacity));
         }
         // state为false，和当前透明度相同，不进行修改
-        showMessage({
-            message: `当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`
-        });
+        showMessageWithConfirm(`当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`);
     }).catch(err => {
         errlog(err);
     }).finally(() => {

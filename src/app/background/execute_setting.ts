@@ -1,5 +1,5 @@
 import { modifyCssFileForBackground } from "./modify";
-import { showMessage, showProgress } from "../../utils/interactive";
+import { showMessageWithConfirm, showProgress } from "../../utils/interactive";
 import { createExParamPromise, delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./execute_webview";
@@ -30,9 +30,7 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
         if (state) {
             return Promise.resolve(settingProgress(code, index!));
         }
-        showMessage({
-            message: `此图片当前已设置为背景图`
-        });
+        showMessageWithConfirm('此图片当前已设置为背景图');
     }).catch((error) => {
         error && errlog(error);
     });

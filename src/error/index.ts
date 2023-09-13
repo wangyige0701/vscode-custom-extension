@@ -8,7 +8,7 @@
  */
 
 import { isNumber, isString } from "../utils";
-import { showMessage } from "../utils/interactive";
+import { showMessageWithConfirm } from "../utils/interactive";
 import { isDev } from "../version";
 import WError from "./WError";
 
@@ -30,34 +30,18 @@ function errlog (e: any, isThrow: boolean = !environment): void {
     }
     environment && console.error(e);
     if (isString(e) || isNumber(e)) {
-        showMessage({
-            type: 'error',
-            message: e.toString(),
-            modal: false
-        });
+        showMessageWithConfirm(e.toString(), "error");
         return;
     }
     if (e instanceof WError) {
-        showMessage({
-            type: 'error',
-            message: e.stack??`${e.name}: ${e.message}`,
-            modal: false
-        });
+        showMessageWithConfirm(e.stack??`${e.name}: ${e.message}`, "error");
         return;
     }
     if (e instanceof Error) {
-        showMessage({
-            type: 'error',
-            message: e.stack??`${e.name??'Error'}: ${e.message}`,
-            modal: false
-        });
+        showMessageWithConfirm(e.stack??`${e.name??'Error'}: ${e.message}`, "error");
         return;
     }
-    showMessage({
-        type: 'error',
-        message: String(e),
-        modal: false
-    });
+    showMessageWithConfirm(String(e), "error");
 }
 
 /**

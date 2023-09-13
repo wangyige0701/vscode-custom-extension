@@ -1,4 +1,4 @@
-import { createFileStore } from ".";
+import { addImageToStorage } from ".";
 import { WError, errlog, promiseReject } from "../../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
 import { showMessage } from "../../utils/interactive";
@@ -19,18 +19,10 @@ import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils"
  * @param url 
  */
 export function requestImageToBackground (url: string) {
-    let sendMsg: string[] = [];
     getImageBase64ByRequest(url).then(data => {
-        return createFileStore(data);
-    }).then(hashCode => {
-        sendMsg.push(hashCode);
+        return addImageToStorage([data], 'newImageNetwork');
     }).catch(err => {
         errlog(err);
-    }).finally(() => {
-        backgroundSendMessage({
-            name: 'newImageNetwork',
-            value: sendMsg
-        });
     });
 }
 

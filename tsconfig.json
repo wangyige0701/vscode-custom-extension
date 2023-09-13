@@ -23,6 +23,6 @@
 	"exclude": [
 		"src/package",
 		"src/uninstall.ts",
-		"src/library"
+		"src/library/external"
 	]
 }

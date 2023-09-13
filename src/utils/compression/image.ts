@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import sharp from "../../library/importer/sharp";
 import type { CompressStyle, InputType } from "./type";
 import { promiseReject } from "../../error";
 import { isString } from "..";

@@ -1,10 +1,10 @@
 import { createDirectoryUri, isFileExits, joinPathUri } from "../../utils/file";
-import { showMessage, setStatusBar } from "../../utils/interactive";
+import { showMessage, setStatusBar, showMessageWithConfirm } from "../../utils/interactive";
 import { windowReload } from "../../utils/system";
 import { contextContainer } from "../../utils/webview/index";
 import { Uri } from "vscode";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
-import { WError, errlog, promiseReject } from "../../error";
+import { WError, promiseReject } from "../../error";
 import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./execute_webview";
 
@@ -76,9 +76,7 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
 export async function resetImageStorePath (path: string, reset: boolean = false): Promise<void> {
     if (reset) {
         if (!BackgroundConfiguration.getBackgroundStorePath) {
-            showMessage({
-                message: '当前储存路径已为默认路径'
-            });
+            showMessageWithConfirm('当前储存路径已为默认路径');
             return Promise.resolve();
         }
         await Promise.resolve(
@@ -86,9 +84,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         ).catch(err => {
             return Promise.reject(promiseReject(err, resetImageStorePath.name));
         });
-        showMessage({
-            message: '背景图储存路径已切换为默认路径'
-        });
+        showMessageWithConfirm('背景图储存路径已切换为默认路径');
         sendStoreChangeMessage();
         return Promise.resolve();
     }
@@ -100,9 +96,7 @@ export async function resetImageStorePath (path: string, reset: boolean = false)
         ).catch(err => {
             return Promise.reject(promiseReject(err, resetImageStorePath.name));
         });
-        showMessage({
-            message: '背景图储存路径已切换为：'+uri.fsPath
-        });
+        showMessageWithConfirm('背景图储存路径已切换为：'+uri.fsPath);
         sendStoreChangeMessage();
     }
     return Promise.resolve();
@@ -209,9 +203,14 @@ export function getNewBackgroundOpacity (opacity: number): number {
     return opacity;
 }
 
-/** 关闭随机切换背景图后的消息提示 */
-export function closeRandomBackground () {
-    showMessage({ message: '已关闭背景图随机切换。' });
+/** 
+ * 关闭随机切换背景图后的消息提示
+ * @param time 指定多少时间后弹出消息弹框，用于和进度条错开
+ */
+export function closeRandomBackground (time: number = 0) {
+    setTimeout(() => {
+        showMessageWithConfirm('已关闭背景图随机切换');
+    }, time);
     backgroundSendMessage({
         name: 'backgroundRandomList',
         value: false

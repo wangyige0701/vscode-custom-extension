@@ -11,6 +11,10 @@ export function GetImage (url: string): Promise<Buffer> {
         }).then(res => {
             resolve(res.data);
         }).catch(err => {
+            const { cause: { response: { status }, message } } = err;
+            if (status) {
+                return reject({ status, warning: true, message });
+            }
             reject(new Error('Error when request Image Data', { cause: err }));
         });
     });

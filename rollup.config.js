@@ -12,6 +12,8 @@ const path = require('path');
 const fs = require("fs");
 const { createHash } = require("crypto");
 
+const rootPath = process.cwd();
+
 module.exports = [
     bundle({
         input: 'src/extension.ts',
@@ -120,8 +122,7 @@ function removeDist () {
     const plugin = {
         name: 'removeDist',
         buildStart () {
-            const root = process.cwd();
-            const dist = path.join(root, 'dist');
+            const dist = path.join(rootPath, 'dist');
             if (fs.existsSync(dist)) {
                 fs.rmSync(dist, { recursive: true });
             }
@@ -170,7 +171,7 @@ function copyFiles (source = [], target = [], suffix = []) {
     }
     // 先删除所有文件
     for(const p of target) {
-        const targetPath = path.join(process.cwd(), p);
+        const targetPath = path.join(rootPath, p);
         if (fs.existsSync(targetPath)) {
             fs.rmSync(targetPath, { recursive: true });
         }
@@ -233,8 +234,7 @@ function changeModuleJsonFile () {
         }
     };
     // 删除旧json文件夹
-    const procPath = process.cwd();
-    const jsonFolder = path.join(procPath, 'dist', 'library', 'json');
+    const jsonFolder = path.join(rootPath, 'dist', 'library', 'json');
     if (fs.existsSync(jsonFolder)) {
         fs.rmSync(jsonFolder, { recursive: true });
     }
@@ -272,6 +272,8 @@ function changeModuleJsonFile () {
 
 /** 修改全局引用的导入路径 */
 function chngeModuleRequirePath (from = [], to = []) {
+    const matchRequire = /(^[\w\W]*require\s*\(\s*[`'"])(.*)([`'"]\s*\)[\w\W]*$)/;
+    const checkPath = path.join(rootPath, 'src', 'library', 'importer');
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'chngeModuleRequirePath',
@@ -287,6 +289,16 @@ function chngeModuleRequirePath (from = [], to = []) {
                 };
                 return result;
             }
+        },
+        transform (code, id) {
+            // 对非直接引用的导入语句进行解析并修改
+            if (id.startsWith(checkPath)) {
+                const result = code.match(matchRequire);
+                if (result && from.includes(result[2])) {
+                    const index = from.indexOf(result[2]);
+                    return code.replace(matchRequire, `$1${to[index]}$3`);
+                }
+            }
         }
     };
     return plugin;
@@ -294,7 +306,6 @@ function chngeModuleRequirePath (from = [], to = []) {
 
 /** 拷贝文件的执行方法 */
 async function copyFilesFunc (source = [], target = [], suffix = []) {
-    const rootPath = process.cwd();
     [source, target,suffix] = [source, target,suffix].map(item => {
         if (!Array.isArray(item)) {
             return [item.toString()];

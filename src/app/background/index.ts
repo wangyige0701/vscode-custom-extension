@@ -182,7 +182,7 @@ function deleteImageProgress (...codes: string[]) {
             return createExParamPromise(
                 Promise.all([
                     Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(randomList)),
-                    Promise.resolve(BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray))
+                    BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
                 ]),
                 codes
             );
@@ -256,6 +256,7 @@ export function clearBackgroundConfigExecute () {
 
 /** 侧栏webview页面从本地文件选择背景图 */
 export function selectImage () {
+    const sendMsg: string[] = [];
     selectFile({
         many: true,
         files: true,
@@ -278,37 +279,37 @@ export function selectImage () {
         );
     }).then(base64s => {
         return addImageToStorage(base64s);
+    }).then(codes => {
+        sendMsg.push(...codes);
     }).catch(err => {
         errlog(err, true);
+    }).finally(() => {
+        backgroundSendMessage({
+            name: 'newImage',
+            value: sendMsg
+        });
     });
 }
 
 /** 新增的哈希码储存至缓存和储存空间 */
-export function addImageToStorage (imageDatas: string[], sendName: 'newImage' | 'newImageNetwork' = 'newImage'): Promise<void> {
+export function addImageToStorage (imageDatas: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
         /** 需要发送的数据 */
-        const sendMsg: string[] = [];
+        const result: string[] = [];
         Promise.all(
             imageDatas.map(imageData => createFileStore(imageData))
         ).then(codes => {
             for (const index of range(-1, codes.length - 1)) {
                 const code = codes[index];
-                sendMsg.push(code);
+                result.push(code);
                 backgroundImageCodeArray.unshift(code);
             }
-            return Promise.resolve(
-                BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
-            );
+            return BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray);
         }).then(() => {
             refreshImageCodeList();
-            resolve();
+            resolve(result);
         }).catch(err => {
             reject(promiseReject(err, addImageToStorage.name));
-        }).finally(() => {
-            backgroundSendMessage({
-                name: sendName,
-                value: sendMsg
-            });
         });
     });
 }
@@ -353,9 +354,7 @@ export function backgroundImageDataInit () {
             value: codes
         });
         success = true, length = codes.length;
-        return Promise.resolve(
-            BackgroundConfiguration.refreshBackgroundImagePath(codes)
-        );
+        return BackgroundConfiguration.refreshBackgroundImagePath(codes);
     }).then(() => {
         refreshImageCodeList();
         // 通过缓存获取图片哈希码发送

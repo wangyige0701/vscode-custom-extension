@@ -1,5 +1,6 @@
+import { existsSync } from "fs";
 import { getWorkSpace, setWorkSpace } from ".";
-import { isString } from "../utils";
+import { isFunction, isString } from "../utils";
 import { joinPathUri } from "../utils/file";
 import { cryHex } from '../utils/hash';
 import { contextContainer } from "../utils/webview";
@@ -7,18 +8,59 @@ import { contextContainer } from "../utils/webview";
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
 
+type ImageCodes = {
+    path: string;
+    value: string[];
+};
+
+type Res = (value?: any | PromiseLike<any>) => void;
+
+type Rej = (reason?: any) => void;
+
+type SetCodesQueue = {
+    func: () => Promise<any>;
+    resolve?: Res;
+    reject?: Rej;
+};
+
 /** 背景图配置项实例 */
 export class BackgroundConfiguration {
     /** 命名空间 */
     static namespace = 'wangyige.background';
 
-    /** 获取默认储存路径 */
-    static get getDefaultPath (): string {
-        let theDefaultPath = 'default';
-        if (contextContainer.instance && contextContainer.instance.extensionUri) {
-            theDefaultPath = cryHex(joinPathUri(contextContainer.instance.extensionUri, ...defaultPath).fsPath);
+    static queue: SetCodesQueue[] = [];
+
+    static isQueue: boolean = false;
+
+    /** 插入队列 */
+    private static queueSet (func: () => Promise<void>, resolve?: Res, reject?: Rej) {
+        if (isFunction(func) && (!resolve || isFunction(resolve)) && (!reject || isFunction(reject))) {
+            this.queue.push({ func, resolve, reject });
         }
-        return theDefaultPath;
+        if (!this.isQueue) {
+            this.queueExecute();
+        }
+    }
+
+    /** 队列执行 */
+    private static queueExecute () {
+        if (this.queue.length <= 0) {
+            this.isQueue = false;
+            return;
+        }
+        this.isQueue = true;
+        const target = this.queue.shift();
+        if (!target) {
+            this.queueExecute();
+            return;
+        }
+        const { func, resolve, reject } = target;
+        func()
+            .then(resolve)
+            .catch(reject)
+            .finally(() => {
+                this.queueExecute();
+            });
     }
 
     /** 获取背景图配置信息 */
@@ -35,50 +77,61 @@ export class BackgroundConfiguration {
         return setWorkSpace(this.namespace, name, value);
     }
 
+    /** 获取默认储存路径 */
+    static get getDefaultPath (): [string, string] {
+        if (contextContainer.instance && contextContainer.instance.extensionUri) {
+            const path = joinPathUri(contextContainer.instance.extensionUri, ...defaultPath).fsPath;
+            return [cryHex(path), path];
+        }
+        return ['default', ''];
+    }
+
     /** 获取当前储存路径，如果有则返回哈希值 */
-    private static get getSettingStorePath (): string | undefined {
+    private static get getSettingStorePath (): [string, string] | undefined {
         const path = this.getBackgroundStorePath;
         if (path) {
-            return cryHex(path);
+            return [cryHex(path), path];
         } else {
             return void 0;
         }
     }
 
-    /** 获取所有图片哈希码数组的储存数据 */
-    private static get getBackgroundAllImageObject(): { [key: string]: string[] } {
-        return this.getBackgroundConfiguration('allImageCodes');
+    /** 获取所有选择的图片哈希值数据 */
+    static get getBackgroundAllImageCodes (): string[] {
+        const [hash, path] = this.getSettingStorePath??this.getDefaultPath,
+        data = this.getBackgroundAllImageObject;
+        // 没有对应属性则新创建一个
+        if (!data.hasOwnProperty(hash)) {
+            data[hash] = { path, value: [] };
+        }
+        return data[hash].value;
     }
 
     /**
      * 设置当前路径下的哈希码数组缓存
      * @param value 
      */
-    private static setBackgroundAllImageObject (value: string[]): Thenable<void> {
-        const path = this.getSettingStorePath??this.getDefaultPath,
-        data = this.getBackgroundAllImageObject,
-        // 整理数据，去除没有数据的索引
-        result: { [key: string]: string[] } = {};
-        if (value.length > 0) {
-            result[path] = value;
-        }
-        for (let name in data) {
-            if (data[name] && data[name].length > 0 && name !== path) {
-                result[name] = data[name];
+    private static setBackgroundAllImageObject (value: string[]): Promise<void> {
+        return new Promise((resolve, reject) => {
+            // 获取路径哈希码和具体数据
+            const [hash, path] = this.getSettingStorePath??this.getDefaultPath,
+            /** 获取当前储存的图片数据 */
+            data = this.getBackgroundAllImageObject,
+            // 整理数据，去除没有数据的索引
+            result: { [key: string]: ImageCodes } = {};
+            // 赋值
+            if (value.length > 0) {
+                result[hash] = { path, value };
             }
-        }
-        return this.setBackgroundConfiguration('allImageCodes', result);
-    }
-
-    /** 获取所有选择的图片哈希值数据 */
-    static get getBackgroundAllImageCodes (): string[] {
-        const path = this.getSettingStorePath??this.getDefaultPath,
-        data = this.getBackgroundAllImageObject;
-        // 没有对应属性则新创建一个
-        if (!data.hasOwnProperty(path)) {
-            data[path] = [];
-        }
-        return data[path];
+            for (const hashName in data) {
+                if (data[hashName] && data[hashName].value.length > 0 && hashName !== hash) {
+                    result[hashName] = data[hashName];
+                }
+            }
+            this.queueSet(() => Promise.resolve(
+                this.setBackgroundConfiguration('allImageCodes', result)
+            ), resolve, reject);
+        });
     }
 
     /**
@@ -100,18 +153,55 @@ export class BackgroundConfiguration {
             }
             list.splice(value, 1);
         }
-        await Promise.resolve(this.setBackgroundAllImageObject(list)).then(() => {
+        await this.setBackgroundAllImageObject(list).then(() => {
             return Promise.resolve();
         }).catch(err => {
             return Promise.reject(err);
         });
     }
 
+    /** 检测数据路径是否存在 */
+    static check () {
+        const [hash] = this.getSettingStorePath??this.getDefaultPath,
+        /** 获取当前储存的图片数据 */
+        data = this.getBackgroundAllImageObject,
+        // 整理数据，去除没有数据的索引
+        result: { [key: string]: ImageCodes } = {};
+        for (const hashName in data) {
+            const target = data[hashName];
+            // 没有path数据进入下一次循环
+            if (!target.hasOwnProperty('path')) {
+                continue;
+            }
+            // 没有value为空数组
+            if (!target.hasOwnProperty('value')) {
+                target.value = [];
+            }
+            if (hash !== hashName) {
+                const thePath = target.path;
+                // 路径不存在跳过进入下一次循环
+                if (!existsSync(thePath) || (hashName !== 'default' && !thePath)) {
+                    continue;
+                }
+            }
+            result[hashName] = target;
+        }
+        // 插入队列执行
+        this.queueSet(() => Promise.resolve(
+            this.setBackgroundConfiguration('allImageCodes', result)
+        ));
+    }
+
+    /** 获取所有图片哈希码数组的储存数据 */
+    private static get getBackgroundAllImageObject(): { [key: string]: ImageCodes } {
+        return this.getBackgroundConfiguration('allImageCodes');
+    }
+
     /**
      * 更新图片数组数据
      * @param value 
      */
-    static refreshBackgroundImagePath (value: string[]): Thenable<void> {
+    static refreshBackgroundImagePath (value: string[]): Promise<void> {
         // 只更新对应属性的数据
         return this.setBackgroundAllImageObject(value);
     }
@@ -233,3 +323,6 @@ export class BackgroundConfiguration {
         return this.setBackgroundConfiguration('randomCode', value);
     }
 }
+
+// 执行数据校验
+BackgroundConfiguration.check();

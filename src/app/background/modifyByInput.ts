@@ -19,10 +19,18 @@ import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils"
  * @param url 
  */
 export function requestImageToBackground (url: string) {
+    const sendMsg: string[] = [];
     getImageBase64ByRequest(url).then(data => {
-        return addImageToStorage([data], 'newImageNetwork');
+        return addImageToStorage([data]);
+    }).then(codes => {
+        sendMsg.push(...codes);
     }).catch(err => {
-        errlog(err);
+        err && errlog(err);
+    }).finally(() => {
+        backgroundSendMessage({
+            name: 'newImageNetwork',
+            value: sendMsg
+        });
     });
 }
 
@@ -34,17 +42,20 @@ function getImageBase64ByRequest (url: string): Promise<string> {
     return new Promise((resolve, reject) => {
         const reg = url.match(imageUrl);
         if (!reg) {
-            return reject(new WError('Illegal Image URL', {
-                position: 'Parameter',
-                FunctionName: getImageBase64ByRequest.name,
-                ParameterName: 'url'
-            }));
+            return reject({ warning: true, message: 'Illegal Image URL' });
         }
         GetImage(url).then(res => {
             return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
         }).then(data => {
             resolve(data);
         }).catch(err => {
+            if (err.warning) {
+                showMessage({
+                    type: 'error',
+                    message: `${err.status??'Error'}: ${err.message??''} [ ${url} ]`,
+                });
+                return reject();
+            }
             reject(promiseReject(err, getImageBase64ByRequest.name));
         });
     });

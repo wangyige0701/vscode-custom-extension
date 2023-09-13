@@ -10,6 +10,7 @@ import { copyFileWhenVersionChange } from "../../version/versionChange";
 import { setStatusBarResolve } from "../../utils/interactive";
 import { errlog, promiseReject } from "../../error";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
+import { clearDynamicImport } from "../../library";
 
 /** 注册背景图设置功能 */
 export function registBackground (): void {
@@ -52,7 +53,8 @@ export function registBackground (): void {
 /** webview切换隐藏时，触发的销毁数据函数 */
 function executeWhenUninstall () {
 	executeAllFunctions(
-		clearRepositoryWhenUninstall
+		clearRepositoryWhenUninstall,
+		clearDynamicImport
 	);
 }
 

@@ -51,7 +51,7 @@ module.exports = [
         ]
     }),
     bundle({
-        input: 'src/library/axios.ts',
+        input: 'src/library/external/axios.ts',
         output: {
             file: 'dist/library/axios.js',
             format: 'cjs',
@@ -59,7 +59,7 @@ module.exports = [
         }
     }),
     bundle({
-        input: 'src/library/sharp.ts',
+        input: 'src/library/external/sharp.ts',
         output: {
             file: 'dist/library/sharp.js',
             format: 'cjs',

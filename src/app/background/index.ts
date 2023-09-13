@@ -256,8 +256,6 @@ export function clearBackgroundConfigExecute () {
 
 /** 侧栏webview页面从本地文件选择背景图 */
 export function selectImage () {
-    // 需要发送的数据
-    let sendMsg: string[] = [];
     selectFile({
         many: true,
         files: true,
@@ -279,26 +277,38 @@ export function selectImage () {
             uris.map(uri => imageToBase64(uri.fsPath))
         );
     }).then(base64s => {
-        return Promise.all(
-            base64s.map(base64 => createFileStore(base64))
-        );
-    }).then(codes => {
-        for (const index of range(-1, codes.length - 1)) {
-            const code = codes[index];
-            sendMsg.push(code);
-            backgroundImageCodeArray.unshift(code);
-        }
-        return Promise.resolve(
-            BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
-        );
-    }).then(() => {
-        refreshImageCodeList();
+        return addImageToStorage(base64s);
     }).catch(err => {
         errlog(err, true);
-    }).finally(() => {
-        backgroundSendMessage({
-            name: 'newImage',
-            value: sendMsg
+    });
+}
+
+/** 新增的哈希码储存至缓存和储存空间 */
+export function addImageToStorage (imageDatas: string[], sendName: 'newImage' | 'newImageNetwork' = 'newImage'): Promise<void> {
+    return new Promise((resolve, reject) => {
+        /** 需要发送的数据 */
+        const sendMsg: string[] = [];
+        Promise.all(
+            imageDatas.map(imageData => createFileStore(imageData))
+        ).then(codes => {
+            for (const index of range(-1, codes.length - 1)) {
+                const code = codes[index];
+                sendMsg.push(code);
+                backgroundImageCodeArray.unshift(code);
+            }
+            return Promise.resolve(
+                BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
+            );
+        }).then(() => {
+            refreshImageCodeList();
+            resolve();
+        }).catch(err => {
+            reject(promiseReject(err, addImageToStorage.name));
+        }).finally(() => {
+            backgroundSendMessage({
+                name: sendName,
+                value: sendMsg
+            });
         });
     });
 }
@@ -421,9 +431,7 @@ export function getBase64DataFromObject (code: string, thumbnail: boolean = fals
  */
 function changeToString (buffers: bufferAndCode[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        Promise.resolve().then(() => {
-            return imageStoreUri();
-        }).then(uri => {
+        imageStoreUri().then(uri => {
             // 校验当前哈希码是否存在于缓存列表中以及获取缩略图
             return Promise.all(buffers.map(({ code, buffer }) => {
                 return codeListRefresh(code, 'check', { addData: buffer.toString(), uri });
@@ -642,18 +650,18 @@ function newHashCode (): string {
 /** 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg) */
 export function createFileStore (base64: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        const code: string = newHashCode();
         imageStoreUri().then(uri => {
+            const code: string = newHashCode();
             // 原文件写入
-            return createExParamPromise(writeFileUri(newUri(uri, `${code}.back.wyg`), createBuffer(base64)), uri);
-        }).then(([_, uri]) => {
+            return createExParamPromise(writeFileUri(newUri(uri, `${code}.back.wyg`), createBuffer(base64)), uri, code);
+        }).then(([_, uri, $code]) => {
             // 写入压缩图
-            return getCompressImage(code, base64, uri);
-        }).then(({ data }) => {
+            return getCompressImage($code, base64, uri);
+        }).then(({ code: $code, data }) => {
             // 新增一个哈希码数据
-            return codeListRefresh(code, 'add', { addData: base64.toString(), compressData: data });
-        }).then(() => {
-            resolve(code);
+            return codeListRefresh($code, 'add', { addData: base64.toString(), compressData: data });
+        }).then($code => {
+            resolve($code);
         }).catch(err => {
             reject(promiseReject(err, createFileStore.name));
         });
@@ -682,8 +690,8 @@ function deleteFileStore (code: string): Promise<string> {
             return deleteCompressByCode(code);
         }).then(() => {
             return codeListRefresh(code, 'delete', {});
-        }).then(() => {
-            resolve(code);
+        }).then($code => {
+            resolve($code);
         }).catch(err => {
             reject(promiseReject(err, deleteFileStore.name));
         });

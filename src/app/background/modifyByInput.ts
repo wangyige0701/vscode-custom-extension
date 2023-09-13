@@ -1,7 +1,7 @@
 import { addImageToStorage } from ".";
 import { errlog, promiseReject } from "../../error";
 import { base64ByFiletypeAndData, imageToBase64Type } from "../../utils/file";
-import { showMessage, showMessageWithConfirm } from "../../utils/interactive";
+import { showMessageWithConfirm } from "../../utils/interactive";
 import { imageUrl } from "../../utils/regexp";
 import { GetImage } from "../../utils/request/utils";
 import { BackgroundConfiguration } from "../../workspace/background";
@@ -50,10 +50,7 @@ function getImageBase64ByRequest (url: string): Promise<string> {
             resolve(data);
         }).catch(err => {
             if (err.warning) {
-                showMessage({
-                    type: 'error',
-                    message: `${err.status??'Error'}: ${err.message??''} [ ${url} ]`,
-                });
+                showMessageWithConfirm(`${err.status??'Error'}: ${err.message??''} [ ${url} ]`, "error");
                 return reject();
             }
             reject(promiseReject(err, getImageBase64ByRequest.name));

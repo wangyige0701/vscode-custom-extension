@@ -2,6 +2,7 @@ import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window
 import { check, isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
 import { 
+    MessageBoxMethodType,
     MessageBoxType, 
     ProgressLocationData, 
     ProgressOptionsNew, 
@@ -148,8 +149,9 @@ export function showMessage<T extends MessageItem> ({
 }
 
 /** 带确认按钮的消息弹框 */
-export function showMessageWithConfirm (message: string) {
+export function showMessageWithConfirm (message: string, type: MessageBoxMethodType = "information") {
     return showMessage({
+        type,
         message,
         items: [{
             id: 0,

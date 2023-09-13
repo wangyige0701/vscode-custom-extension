@@ -11,7 +11,6 @@ import {
     StatusBarIconMessage, 
     StatusBarParam 
 } from './type';
-import { errlog } from '../../error';
 
 /**
  * 调用输入框api获取输入内容
@@ -143,7 +142,7 @@ export function showMessage<T extends MessageItem> ({
         ).then(res => {
             resolve(res);
         }).catch(err => {
-            errlog(new Error('MessageBox Error', { cause: err }), true);
+            throw new Error('MessageBox Error', { cause: err });
         });
     });
 }

@@ -4,24 +4,10 @@ import { isFunction, isString } from "../utils";
 import { joinPathUri } from "../utils/file";
 import { cryHex } from '../utils/hash';
 import { contextContainer } from "../utils/webview";
+import type { ImageCodes, Res, Rej, SetCodesQueue } from "./type/background";
 
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
-
-type ImageCodes = {
-    path: string;
-    value: string[];
-};
-
-type Res = (value?: any | PromiseLike<any>) => void;
-
-type Rej = (reason?: any) => void;
-
-type SetCodesQueue = {
-    func: () => Promise<any>;
-    resolve?: Res;
-    reject?: Rej;
-};
 
 /** 背景图配置项实例 */
 export class BackgroundConfiguration {
@@ -30,14 +16,14 @@ export class BackgroundConfiguration {
 
     static queue: SetCodesQueue[] = [];
 
-    static isQueue: boolean = false;
+    static isQueueExecute: boolean = false;
 
     /** 插入队列 */
     private static queueSet (func: () => Promise<void>, resolve?: Res, reject?: Rej) {
         if (isFunction(func) && (!resolve || isFunction(resolve)) && (!reject || isFunction(reject))) {
             this.queue.push({ func, resolve, reject });
         }
-        if (!this.isQueue) {
+        if (!this.isQueueExecute) {
             this.queueExecute();
         }
     }
@@ -45,10 +31,10 @@ export class BackgroundConfiguration {
     /** 队列执行 */
     private static queueExecute () {
         if (this.queue.length <= 0) {
-            this.isQueue = false;
+            this.isQueueExecute = false;
             return;
         }
-        this.isQueue = true;
+        this.isQueueExecute = true;
         const target = this.queue.shift();
         if (!target) {
             this.queueExecute();

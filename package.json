@@ -171,7 +171,7 @@
 		"compile": "rollup -c",
 		"pre": "ts-node src/package/production.ts",
 		"check": "ts-node src/package/check.ts",
-		"watch": "tsc -watch -p ./",
+		"watch": "ts-node src/package/cleardist.ts && tsc -watch -p ./",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "vitest --run"

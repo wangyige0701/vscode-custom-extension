@@ -70,7 +70,7 @@ module.exports = [
     }, [
         changeSharpJsRequire(),
         changeModuleJsonFile(),
-        copyFiles(['node_modules/sharp/build'], ['dist/library/build'], ['node', 'dll'])
+        copyFiles(['resources/sharp'], ['dist/library/build'], ['node', 'dll'])
     ], {
         dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
         ignoreDynamicRequires: true
@@ -188,15 +188,24 @@ function copyFiles (source = [], target = [], suffix = []) {
 }
 
 /** sharp模块中的node文件导入路径调整 */
-function changeSharpJsRequire (target = '\\.\\.', replace = '.') {
+function changeSharpJsRequire () {
     /** @type {RollupPlugin} */
     const plugin = {
         name: "changeSharpJsRequire",
         transform (code, id) {
             try {
                 if (id.endsWith('sharp.js')) {
-                    const reg = new RegExp(`(^[\\w\\W]*require\\s*\\(.*?)(${target})(.*?\\.node.*?\\)[\\w\\W]*$)`);
-                    return code.replace(reg, `$1${replace}$3`);
+                    const reg = /(^[\w\W]*require\s*\(.*?)(\.\.)(.*?)(\.node.*?\)[\w\W]*$)/;
+                    const res = code.match(reg);
+                    if (res) {
+                        const fileName = res[3];
+                        const allFile = fileName.split('/').filter(item => item);
+                        const importName = allFile[2].match(/^.*?\$\{(.*)\}.*?$/);
+                        if (importName) {
+                            allFile[1] = `\$\{${importName[1]}\}`;
+                        }
+                        return code.replace(reg, `$1./${allFile.join('/')}$4`);
+                    }
                 }
             } catch (error) {
                 this.error({ message: 'Change Sharp Require Error', id: id, cause: error });

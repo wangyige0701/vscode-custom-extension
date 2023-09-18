@@ -1,4 +1,4 @@
-const jsonminify = require("jsonminify");
+const json5 = require("json5");
 const path = require("path");
 const fs = require("fs");
 
@@ -14,8 +14,9 @@ function copyJsonFileAndComprss (rootPath, source, target, fileName = []) {
         if (!fs.existsSync(sourcePath)) {
             continue;
         }
-        const content = fs.readFileSync(sourcePath).toString();
-        const result = jsonminify(content);
+        const content = fs.readFileSync(sourcePath, 'utf-8');
+        // 如果有注释，json5也能去除
+        const result = JSON.stringify(json5.parse(content));
         if (!result) {
             continue;
         }

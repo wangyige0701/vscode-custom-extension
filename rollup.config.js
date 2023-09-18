@@ -2,6 +2,7 @@
 /** @typedef {import('rollup').Plugin} RollupPlugin */
 /** @typedef {import('rollup').ResolveIdResult} RollupResolveIdResult */
 /** @typedef {import('@rollup/plugin-commonjs').RollupCommonJSOptions} CommonJsOptions */
+/** @typedef {import('@rollup/plugin-terser').Options} TerserOptions */
 
 const terser = require('@rollup/plugin-terser');
 const commonjs = require('@rollup/plugin-commonjs');
@@ -32,8 +33,10 @@ const rootPath = process.cwd();
 const resolvePlugin = resolve({ preferBuiltins: true });
 /** json文件导入插件 @type {RollupPlugin} */
 const jsonPlugin = json({ preferConst: true });
+/** 压缩插件配置 @type {TerserOptions} */
+const terserOptions = { maxWorkers: 4 };
 /** 压缩插件 @type {RollupPlugin} */
-const terserPlugin = terser();
+const terserPlugin = terser(terserOptions);
 
 module.exports = [
     bundle({

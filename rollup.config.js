@@ -87,6 +87,7 @@ module.exports = [
         jsonPlugin,
         commonjs(),
         terserPlugin,
+        externalJsonFilePathChange(rootPath)
     ]),
     bundle({
         input: 'src/library/external/sharp.ts',

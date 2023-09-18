@@ -8,11 +8,32 @@ const commonjs = require('@rollup/plugin-commonjs');
 const typescript = require('@rollup/plugin-typescript');
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
-const path = require('path');
-const fs = require("fs");
-const { createHash } = require("crypto");
+
+// 文件打包配置函数
+const bundle = require("./rollup-plugin/bundle");
+// 移除路径
+const removeDist = require("./rollup-plugin/remove-dist");
+// 复制文件
+const copyFiles = require("./rollup-plugin/copy-files");
+// 主文件下json导入路径调整
+const mainJsonRequireChange = require("./rollup-plugin/main-json-path");
+// 主文件下外部模块导入禁止
+const mainModuleRequirePathChange = require("./rollup-plugin/main-module-import");
+// sharp模块下node二进制文件导入路径调整
+const sharpNodeRequireChange = require("./rollup-plugin/sharp-module");
+// 外部模块导入的json文件路径调整
+const { externalJsonFilePathChange, pacakgeJsonRelativePathChange } = require("./rollup-plugin/external/json-import");
+// bin.js首行代码删除
+const lineCodeRemove = require("./rollup-plugin/external/install-bin-code");
 
 const rootPath = process.cwd();
+
+/** @type {RollupPlugin} */
+const resolvePlugin = resolve({ preferBuiltins: true });
+/** json文件导入插件 @type {RollupPlugin} */
+const jsonPlugin = json({ preferConst: true });
+/** 压缩插件 @type {RollupPlugin} */
+const terserPlugin = terser();
 
 module.exports = [
     bundle({
@@ -22,36 +43,38 @@ module.exports = [
             format: 'cjs'
         },
         external: ["vscode"],
-    }, {
-        font: [
-            removeDist(),
-            typescript({
-                tsconfig: './tsconfig.json',
-                compilerOptions: {
-                    module: "ESNext",
-                    moduleResolution: "Node",
-                    sourceMap: false
-                }
-            })
-        ],
-        back: [
-            changeJsonRequire('..'),
-            chngeModuleRequirePath(["axios", "sharp"], ["./library/axios", "./library/sharp"])
-        ]
-    }),
+    }, [
+        removeDist(rootPath, 'dist'),
+        typescript({
+            tsconfig: './tsconfig.json',
+            compilerOptions: {
+                module: "ESNext",
+                moduleResolution: "Node",
+                sourceMap: false
+            }
+        }),
+        resolvePlugin,
+        jsonPlugin,
+        commonjs(),
+        terserPlugin,
+        mainJsonRequireChange(rootPath, 'dist', 'extension.js'),
+        mainModuleRequirePathChange(rootPath, ["axios", "sharp"], ["./library/axios", "./library/sharp"])
+    ]),
     bundle({
         input: 'src/uninstall.ts',
         output: {
             file: 'dist/uninstall.js',
             format: 'cjs'
         }
-    }, {
-        font: [
-            typescript({
-                tsconfig: './tsconfig.uninstall.json'
-            })
-        ]
-    }),
+    }, [
+        typescript({
+            tsconfig: './tsconfig.uninstall.json'
+        }),
+        resolvePlugin,
+        jsonPlugin,
+        commonjs(),
+        terserPlugin
+    ]),
     bundle({
         input: 'src/library/external/axios.ts',
         output: {
@@ -59,7 +82,12 @@ module.exports = [
             format: 'cjs',
             exports: "default"
         }
-    }),
+    }, [
+        resolvePlugin,
+        jsonPlugin,
+        commonjs(),
+        terserPlugin,
+    ]),
     bundle({
         input: 'src/library/external/sharp.ts',
         output: {
@@ -68,337 +96,58 @@ module.exports = [
             exports: "default"
         }
     }, [
-        changeSharpJsRequire(),
-        changeModuleJsonFile(),
-        copyFiles(['resources/sharp'], ['dist/library/build'], ['node', 'dll'])
-    ], {
-        dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
-        ignoreDynamicRequires: true
-    })
+        resolvePlugin,
+        jsonPlugin,
+        commonjs({
+            dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
+            ignoreDynamicRequires: true
+        }),
+        terserPlugin,
+        sharpNodeRequireChange(),
+        externalJsonFilePathChange(rootPath)
+    ]),
+    bundle({
+        input: 'src/library/external/build/use-libvips.ts',
+        output: {
+            file: 'dist/library/install/use-libvips.js',
+            format: 'cjs'
+        }
+    }, [
+        resolvePlugin,
+        jsonPlugin,
+        commonjs(),
+        terserPlugin,
+        externalJsonFilePathChange(rootPath, "..", 'libvips.js')
+    ]),
+    bundle({
+        input: 'src/library/external/build/copy.ts',
+        output: {
+            file: 'dist/library/install/copy.js',
+            format: 'cjs'
+        }
+    }, [
+        resolvePlugin,
+        jsonPlugin,
+        commonjs(),
+        terserPlugin,
+        externalJsonFilePathChange(rootPath, "..")
+    ]),
+    bundle({
+        input: 'src/library/external/build/bin.ts',
+        output: {
+            file: 'dist/library/install/bin.js',
+            format: 'cjs'
+        }
+    }, [
+        resolvePlugin,
+        jsonPlugin,
+        commonjs({
+            dynadynamicRequireTargets: ['!node_modules/prebuild-install/package.json', '!node_modules/napi-build-utils/pacakge.json'],
+            ignoreDynamicRequires: true
+        }),
+        terserPlugin,
+        externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
+        pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
+        lineCodeRemove()
+    ])
 ];
-
-/**
- * 多输出文件配置
- * @param {RollupInput} config
- * @param {{font:RollupPlugin[];back:RollupPlugin[]}|RollupPlugin[]} plugins font是覆盖在插件之前，back在之后，只传数组默认为back
- * @param {CommonJsOptions} commonjsOpt
- * @returns {RollupInput}
- */
-function bundle (config, plugins = { font: [], back: [] }, commonjsOpt = {}) {
-    if (Array.isArray(plugins)) {
-        plugins = {
-            font: [],
-            back: plugins
-        };
-    } else {
-        if (typeof plugins !== 'object') {
-            plugins = {};
-        }
-        if (!('font' in plugins)) {
-            plugins.font = [];
-        }
-        if (!('back' in plugins)) {
-            plugins.back = [];
-        }
-    }
-    return {
-        ...config,
-        plugins: [
-            ...plugins.font,
-            resolve(),
-            json({
-                preferConst: true
-            }),
-            commonjs(commonjsOpt),
-            terser(),
-            ...plugins.back
-        ]
-    };
-}
-
-/** 移除打包目录 */
-function removeDist () {
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: 'removeDist',
-        buildStart () {
-            const dist = path.join(rootPath, 'dist');
-            if (fs.existsSync(dist)) {
-                fs.rmSync(dist, { recursive: true });
-            }
-        }
-    };
-    return plugin;
-}
-
-/**
- * 将引用外部json文件的路径修改
- * @param {string} root 根路径
- */
-function changeJsonRequire (root = '.') {
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: 'changeJsonRequire',
-        /** @param {string} code */
-        transform: function (code, id) {
-            try {
-                let regexp = /(require\s*\(\s*)(?:'([^']*\.json)'|"([^"]*\.json)")(\s*\))/;
-                if (regexp.test(code)) {
-                    let repRegexp = new RegExp(regexp, 'g');
-                    return code.replace(repRegexp, (s, start, $1, $2, end) => {
-                        // $1是匹配单引号，$2是匹配双引号
-                        let res = checkPosition($1??$2??'', id);
-                        return `${start}"${res.root?root+'/'+res.path:res.path}"${end}`;
-                    });
-                }
-            } catch (error) {
-                this.error({ message: 'Replace Require Path Error', id: id, cause: error });
-            }
-        }
-    };
-    return plugin;
-}
-
-/**
- * 拷贝文件
- * @param {string[]|string} source
- * @param {string[]|string} target
- * @param {string[]|string} suffix 包含的后缀
- */
-function copyFiles (source = [], target = [], suffix = []) {
-    if (!Array.isArray(target)) {
-        target = [target.toString];
-    }
-    // 先删除所有文件
-    for(const p of target) {
-        const targetPath = path.join(rootPath, p);
-        if (fs.existsSync(targetPath)) {
-            fs.rmSync(targetPath, { recursive: true });
-        }
-    }
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: "copyFiles",
-        async generateBundle () {
-            // 拷贝node文件
-            await copyFilesFunc(source, target, suffix);
-        }
-    };
-    return plugin;
-}
-
-/** sharp模块中的node文件导入路径调整 */
-function changeSharpJsRequire () {
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: "changeSharpJsRequire",
-        transform (code, id) {
-            try {
-                if (id.endsWith('sharp.js')) {
-                    const reg = /(^[\w\W]*require\s*\(.*?)(\.\.)(.*?)(\.node.*?\)[\w\W]*$)/;
-                    const res = code.match(reg);
-                    if (res) {
-                        const fileName = res[3];
-                        const allFile = fileName.split('/').filter(item => item);
-                        const importName = allFile[2].match(/^.*?\$\{(.*)\}.*?$/);
-                        if (importName) {
-                            allFile[1] = `\$\{${importName[1]}\}`;
-                        }
-                        return code.replace(reg, `$1./${allFile.join('/')}$4`);
-                    }
-                }
-            } catch (error) {
-                this.error({ message: 'Change Sharp Require Error', id: id, cause: error });
-            }
-        }
-    };
-    return plugin;
-}
-
-/** 外部模块引用的json文件拷贝 */
-function changeModuleJsonFile () {
-    /** 生成随机字符 */
-    const random = {
-        /** @type {{code:string;path:string;}[]} */
-        folderNames: [],
-        /** @returns {string} */
-        create (len = 6) {
-            const r = Math.random().toString(36).slice(2, len + 2).padEnd(len, '0');
-            if (this.folderNames.find(item =>item.code === r)) {
-                return this.create(len);
-            }
-            return r;
-        },
-        set (patName) {
-            const item = this.folderNames.find(item => item.path === patName);
-            if (item) {
-                return item.code;
-            }
-            const r = this.create();
-            this.folderNames.push({ code: r, path: patName });
-            return r;
-        },
-        get get () {
-            return this.folderNames;
-        }
-    };
-    // 删除旧json文件夹
-    const jsonFolder = path.join(rootPath, 'dist', 'library', 'json');
-    if (fs.existsSync(jsonFolder)) {
-        fs.rmSync(jsonFolder, { recursive: true });
-    }
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: 'changeModuleJsonFile',
-        async resolveId (code, id) {
-            if (id && /[\w\W]*\.(json|js|ts)\?[\w\W]*/.test(id)) {
-                // ?commonjs-external文件不处理
-                return false;
-            }
-            if (id && code && code.endsWith('.json')) {
-                // 拷贝json文件
-                const fullPath = path.join(id, '..', code);
-                if (!path.isAbsolute(fullPath)) {
-                    return false;
-                }
-                const fileName = path.basename(fullPath);
-                const folderName = random.set(createHash('md5').update(fullPath).digest('hex'));
-                const createPath = path.join(jsonFolder, folderName);
-                await copyFilesFunc(path.dirname(fullPath), createPath, fileName);
-                /** @type {RollupResolveIdResult} */
-                const result = {
-                    id: `./json/${folderName}/${fileName}`,
-                    external: true,
-                    assertions: code,
-                    resolvedBy: 'changeModuleJsonFile'
-                };
-                return result;
-            }
-        }
-    };
-    return plugin;
-}
-
-/** 修改全局引用的导入路径 */
-function chngeModuleRequirePath (from = [], to = []) {
-    const matchRequire = /(^[\w\W]*require\s*\(\s*[`'"])(.*)([`'"]\s*\)[\w\W]*$)/;
-    const checkPath = path.join(rootPath, 'src', 'library', 'importer');
-    /** @type {RollupPlugin} */
-    const plugin = {
-        name: 'chngeModuleRequirePath',
-        resolveId (code) {
-            const index =  from.findIndex(item => item === code);
-            if (index >= 0) {
-                /** @type {RollupResolveIdResult} */
-                const result = {
-                    id: to[index]??code[index],
-                    external: true,
-                    assertions: from,
-                    resolvedBy: 'chngeModuleRequirePath'
-                };
-                return result;
-            }
-        },
-        transform (code, id) {
-            // 对非直接引用的导入语句进行解析并修改
-            if (id.startsWith(checkPath)) {
-                const result = code.match(matchRequire);
-                if (result && from.includes(result[2])) {
-                    const index = from.indexOf(result[2]);
-                    return code.replace(matchRequire, `$1${to[index]}$3`);
-                }
-            }
-        }
-    };
-    return plugin;
-}
-
-/** 拷贝文件的执行方法 */
-async function copyFilesFunc (source = [], target = [], suffix = []) {
-    [source, target,suffix] = [source, target,suffix].map(item => {
-        if (!Array.isArray(item)) {
-            return [item.toString()];
-        }
-        return item;
-    });
-    for (let i = 0; i < source.length; i++) {
-        const s = source[i];
-        const t = target[i];
-        // 需要使用resolve处理路径，防止两个绝对路径冲突
-        const sourcePath = path.resolve(rootPath, s);
-        const targetPath = path.resolve(rootPath, t);
-        await recursionFolder(sourcePath, targetPath, async (sp, tp) => {
-            if (fs.existsSync(tp)) {
-                fs.unlinkSync(tp);
-            }
-            // 判断是否有后缀并校验
-            if (suffix.length <= 0 || !!suffix.find(i => sp.endsWith(i))) {
-                const dir = path.dirname(tp);
-                if (!fs.existsSync(dir)) {
-                    fs.mkdirSync(dir, { recursive: true });
-                }
-                fs.copyFileSync(sp, tp);
-            }
-        });
-    }
-    return Promise.resolve();
-}
-
-/**
- * 递归文件夹
- * @param {string} source
- * @param {string} target
- * @param {(s:string, t:string) => Promise<any>} isFile
- * @param {(s:string, t:string) => Promise<any>} isFolder
- */
-async function recursionFolder (source, target, isFile) {
-    const folder = await handleFolder(source);
-    if (folder) {
-        fs.readdirSync(source).forEach(async item => {
-            await recursionFolder(path.join(source, item), path.join(target, item), isFile);
-        });
-    } else {
-        await isFile?.(source, target);
-    }
-}
-
-/**
- * 路径位置检测 
- * @param {string} requirePath 
- * @param {string} filePath
- */
-function checkPosition (requirePath, filePath) {
-    if (!requirePath) {
-        return '';
-    }
-    filePath = path.resolve(filePath, '..');
-    let paths = [];
-    requirePath.split('/').forEach((item, index) => {
-        if (item === '.' && index > 0) {
-            throw new Error('Illegal Path');
-        } else if (item === '..') {
-            filePath = path.resolve(filePath, '..');
-        } else {
-            paths.push(item);
-        }
-    });
-    return filePath === __dirname ? {
-        path: paths.join('/'),
-        root: true
-    } : {
-        path: requirePath,
-        root: false
-    };
-}
-
-/** 判断是否是文件夹 */
-function handleFolder (path) {
-    return new Promise((resolve, reject) => {
-        fs.stat(path, (err, data) => {
-            if (err) {
-                return reject(err);
-            }
-            return resolve(data.isDirectory());
-        });
-    });
-}

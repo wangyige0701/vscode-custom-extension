@@ -6,6 +6,7 @@ src/**
 .yarnrc
 vsc-extension-quickstart.md
 **/tsconfig.json
+**/tsconfig.*.json
 **/.eslintrc.json
 **/*.map
 **/*.ts
@@ -27,3 +28,4 @@ dist/**
 !dist/library
 # 主题文件夹不进行发布
 resources/theme/**
+rollup-plugin/**

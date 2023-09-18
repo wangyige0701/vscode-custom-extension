@@ -5,7 +5,9 @@ const fs = require('fs');
 
 const { createHash } = require("crypto");
 
-const { removeDirectory, copyFileFromSource, slashToBack } = require("../utils/file-opt");
+const { removeDirectory, slashToBack } = require("../utils/file-opt");
+
+const copyJsonFileAndComprss = require("./compress-json");
 
 const random = require("../utils/folder-create");
 
@@ -49,7 +51,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'externalJsonFilePathChange',
-        async resolveId (code, id) {
+        resolveId (code, id) {
             if (id && ignoreFileName.test(id)) {
                 // ?commonjs-external文件不处理
                 return false;
@@ -63,24 +65,24 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                 const fileName = path.basename(fullPath);
                 const folderName = random.set(pathToHash(fullPath));
                 const createPath = path.join(jsonFolder, folderName);
-                await copyFileFromSource(rootPath, path.dirname(fullPath), createPath, fileName, { deleteFile: false, first: true });
+                copyJsonFileAndComprss(rootPath, path.dirname(fullPath), createPath, fileName);
                 /** @type {RollupResolveIdResult} */
                 const result = {
                     id: `${relativePosition}/json/${folderName}/${fileName}`,
                     external: true,
                     assertions: code,
-                    resolvedBy: 'jsonFileResolvePathChange'
+                    resolvedBy: 'externalJsonFilePathChange'
                 };
                 return result;
             }
         },
-        async transform (code, id) {
+        transform (code, id) {
             if (checkFilename && checkFilename.some(item => id.endsWith(item))) {
                 /**
                  * @param {string} content
                  * @param {RegExp} match
                  */
-                async function create (content, match) {
+                function create (content, match) {
                     const res = content.match(match);
                     if (res) {
                         const fullPath = path.join(id, '..', res[2]);
@@ -90,12 +92,12 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                         const fileName = path.basename(fullPath);
                         const folderName = random.set(pathToHash(fullPath));
                         const createPath = path.join(jsonFolder, folderName);
-                        await copyFileFromSource(rootPath, path.dirname(fullPath), createPath, fileName, { deleteFile: false, first: true });
+                        copyJsonFileAndComprss(rootPath, path.dirname(fullPath), createPath, fileName);
                         return res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
                     }
                     return content;
                 }
-                let result = await create(code, searchRequireJson);
+                let result = create(code, searchRequireJson);
                 return result;
             }
         }
@@ -116,7 +118,7 @@ function pacakgeJsonRelativePathChange (rootPath, relativePosition = '..', fileN
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'pacakgeJsonRelativePathChange',
-        async transform (code, id) {
+        transform (code, id) {
             for (const match of [searchResolveJson, searchExitsyncJson]) {
                 const res = code.match(match);
                 if (!res) {
@@ -125,7 +127,7 @@ function pacakgeJsonRelativePathChange (rootPath, relativePosition = '..', fileN
                 const fileName = path.basename(resetPath);
                 const folderName = random.set(pathToHash(resetPath));
                 const createPath = path.join(jsonFolder, folderName);
-                await copyFileFromSource(rootPath, path.dirname(resetPath), createPath, fileName, { deleteFile: false, first: true });
+                copyJsonFileAndComprss(rootPath, path.dirname(resetPath), createPath, fileName);
                 code = res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
             }
             return code;

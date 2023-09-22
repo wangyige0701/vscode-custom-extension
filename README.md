@@ -21,6 +21,7 @@
 - [实现思路](#实现思路)
 - [体验问题](#体验问题)
 - [webview页面开发经验](#webview页面开发经验)
+- [版本更新主要内容](#版本更新主要内容)
 <br/>
 
 ### 使用介绍
@@ -142,18 +143,19 @@
 <br/>
 
 ### 体验问题
-  - > 官方不建议对vscode的源码进行补丁行为（[具体可以点此查看](https://code.visualstudio.com/docs/supporting/faq#_installation-appears-to-be-corrupt-unsupported)），因此当修改背景图导致css文件被修改后，会被后台检测到，从而弹出一个警告（如下）。解决方法可以通过点击弹框右上角的设置按钮选择‘不再弹出’，当然这样操作如果有预期之外的文件修改同样不能发现。（[似乎可行的方法，有待尝试](https://github.com/lehni/vscode-fix-checksums/blob/master/extension.js)）
+  - 由于官方不建议对vscode的源码进行补丁行为（[具体可以点此查看](https://code.visualstudio.com/docs/supporting/faq#_installation-appears-to-be-corrupt-unsupported)），因此当修改背景图导致css文件被修改后，会被后台检测到，从而弹出一个警告（如下）。解决方法可以通过点击弹框右上角的设置按钮选择‘不再弹出’，当然这样操作如果有预期之外的文件修改同样不能发现。（[似乎可行的方法，有待尝试](https://github.com/lehni/vscode-fix-checksums/blob/master/extension.js)）
   <p align="center">
     <img width="400" src="https://raw.githubusercontent.com/wangyige0701/vscode-custom-extension/master/resources/docs/background/file-modify-warnign.png" />
   </p>
 
-   > 对于上面的问题，在0.5.2版本尝试进行了处理，通过更改product.json文件中的文件校验和数据来阻止弹出警告。目前测试下来仍有一点问题，在设置背景图并且重启窗口后vscode校验结果仍是错误的，可能是重启并没有清除其校验文件使用的数据缓存（测试日期至2023-9-9）
+   > 对于上面的问题，在0.5.2版本尝试进行了处理，通过更改product.json文件中的文件校验和数据来阻止弹出警告。目前测试下来仍有一点问题，在设置背景图并且重启窗口后vscode校验结果仍是错误的，可能是重启并没有清除其校验文件使用的数据缓存。（测试日期至2023-9-9）
 
 
   <br/>
 
   - 背景图的显示是通过设置body背景样式，而图片的透明状态是通过修改工作台div的不透明度，所以会存在工作台的所有元素都会变得透明这个问题，无论是图片还是代码都会比深色背景看起来更费劲，如果不喜欢这种体验则最好不要进行背景图的设置。~~目前的想法是可以对工作台div容器的before伪元素进行背景设置，保持容器不透明度不变，后续尝试能否优化。~~ 
-  <font color="red">经过测试，工作台div容器对伪元素设置背景图防止子元素透明方法不成立：由于子元素层级过多且不同地方设有背景色，会导致工作台的祖先div即类名为window的div容器即使设置了背景图也会被子元素的背景色遮盖，必须给body设置opacity全局透明才能显示背景图。</font>
+  > <font color="red">经过测试，工作台div容器对伪元素设置背景图防止子元素透明方法不成立：由于子元素层级过多且不同地方设有背景色，会导致工作台的祖先div即类名为window的div容器即使设置了背景图也会被子元素的背景色遮盖，必须给body设置opacity全局透明才能显示背景图。</font>
+
   <br/>
 
 ### webview页面开发经验
@@ -175,3 +177,11 @@
     - 使用`IntersectionObserver`进行图片的懒加载
     - 加载图片不再使用base64数据，而是转为blob数据路径
     - 对图片进行压缩，侧栏展示的图片是缩略图
+
+### 版本更新主要内容
+ 1. 优化打包方法，外部模块动态导入。
+  - 项目中使用的外部模块例如axios，将axios单独打包为一个文件，并且启动插件时不进行导入，可以增快插件的启动速度，同时只在需要使用模块时才将模块对象导入，不需要时删除，优化缓存空间。
+  - 对于模块中引用的json文件，单独导出存放在另外的目录下。
+
+ 2. 卸载的处理
+  - 添加了卸载组件时调用的脚本，但是由于其只会在组件被彻底删除时触发，所以必须在卸载完成后重启应用时才能调用。测试中有时会出现重启并不能立刻调用的情况，此时需要多次关闭vscode并重开。

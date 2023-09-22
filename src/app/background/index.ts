@@ -83,7 +83,7 @@ export async function WindowInitCheckCssModifyCompleteness () {
 	await checkImageCssDataIsRight().then(state => {
 		if (state) {
             // 需要重启应用背景
-			isWindowReloadToLoadBackimage('背景图配置文件被修改或删除，如果当前背景样式消失请选择确认重启窗口');
+			isWindowReloadToLoadBackimage('检测到背景图配置修改或删除，当前状态可能为插件重装，如果需要重新应用背景请选择确认重启窗口');
         }
 	}).catch(err => {
 		errlog(err);

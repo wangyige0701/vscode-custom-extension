@@ -3,6 +3,7 @@
 class ReportRequire {
     static store: Map<string, Function>;
 
+    /** 插入一个清除函数 */
     static set (name: string, callback: Function) {
         if (!ReportRequire.store) {
             ReportRequire.store = new Map<string, Function>();
@@ -10,14 +11,19 @@ class ReportRequire {
         ReportRequire.store.set(name, callback);
     }
 
+    /** 执行一个导入对象的清除函数 */
     static execute (name: string) {
         if (ReportRequire.store.has(name)) {
-            ReportRequire.store.get(name)!();
+            ReportRequire.store.get(name)?.();
             ReportRequire.store.delete(name);
         }
     }
-
+    
+    /** 执行所有导入对象的清除函数 */
     static clear () {
+        if (!ReportRequire.store) {
+            return;
+        }
         ReportRequire.store.forEach((val, key) => {
             ReportRequire.execute(key);
         });

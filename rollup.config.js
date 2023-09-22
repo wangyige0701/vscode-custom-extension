@@ -26,6 +26,8 @@ const sharpNodeRequireChange = require("./rollup-plugin/sharp-module");
 const { externalJsonFilePathChange, pacakgeJsonRelativePathChange } = require("./rollup-plugin/external/json-import");
 // bin.js首行代码删除
 const lineCodeRemove = require("./rollup-plugin/external/install-bin-code");
+// 警告处理函数
+const warnHandle = require("./rollup-plugin/warn-handle");
 
 const rootPath = process.cwd();
 
@@ -115,7 +117,8 @@ module.exports = [
         output: {
             file: 'dist/library/install/use-libvips.js',
             format: 'cjs'
-        }
+        },
+        onwarn: warnHandle('CIRCULAR_DEPENDENCY')
     }, [
         resolvePlugin,
         jsonPlugin,
@@ -141,7 +144,8 @@ module.exports = [
         output: {
             file: 'dist/library/install/bin.js',
             format: 'cjs'
-        }
+        },
+        onwarn: warnHandle('CIRCULAR_DEPENDENCY')
     }, [
         resolvePlugin,
         jsonPlugin,

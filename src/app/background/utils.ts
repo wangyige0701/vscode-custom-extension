@@ -6,7 +6,7 @@ import { Uri } from "vscode";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { WError, $rej } from "../../error";
 import { minmax } from "../../utils";
-import { backgroundSendMessage } from "./execute_webview";
+import { backgroundSendMessage } from "./executeWebview";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri> {

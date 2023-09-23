@@ -2,9 +2,9 @@ import { errlog } from "../../error";
 import { delay, getRandom } from "../../utils";
 import { showMessageWithConfirm, showProgress } from "../../utils/interactive";
 import { BackgroundConfiguration } from "../../workspace/background";
-import { backgroundSendMessage } from "./execute_webview";
+import { backgroundSendMessage } from "./executeWebview";
 import { closeRandomBackground, showMessageByModal } from "./utils";
-import { settingImage } from "./execute_setting";
+import { settingImage } from "./executeSetting";
 import { modifyCssFileForBackground } from "./modify";
 import { Progress } from "vscode";
 

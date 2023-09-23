@@ -21,7 +21,8 @@ class ReportRequire {
     
     /** 执行所有导入对象的清除函数 */
     static clear () {
-        if (!ReportRequire.store) {
+        // 当未执行任何获取模块对象数据的函数时，store属性是undefined
+        if (!ReportRequire.store || ReportRequire.store.size <= 0) {
             return;
         }
         ReportRequire.store.forEach((val, key) => {

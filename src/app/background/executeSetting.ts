@@ -5,6 +5,7 @@ import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./executeWebview";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
 import { errlog, $rej } from "../../error";
+import { Progress } from "vscode";
 
 type settingImageData = {
     code: string;
@@ -36,30 +37,38 @@ export function settingImage ({ code, index }: settingImageData, random: boolean
     });
 }
 
+type TheProgress = Progress<{
+    message?: string | undefined;
+    increment?: number | undefined;
+}>;
+
 /** 执行设置背景图方法 */
 function settingProgress (code: string, index: number) {
     return showProgress({
         location: 'Notification',
         title: '背景图设置中'
-    }, (progress) => {
-        return <Promise<void>> new Promise(resolve => {
-            setting(code, false).then(() => {
-                backgroundSendMessage({
-                    name: 'settingBackgroundSuccess',
-                    value: index!
-                });
-                progress.report({
-                    message: '设置成功',
-                    increment: 100
-                });
-                return delay(500);
-            }).then(() => {
-                isWindowReloadToLoadBackimage();
-            }).finally(() => {
-                resolve();
+    }, settimgCallback.bind(null, code, index));
+}
+
+/** 进度条方法的回调函数 */
+function settimgCallback (code: string, index: number, progress: TheProgress) {
+    return <Promise<void>> new Promise(resolve => {
+        setting(code, false).then(() => {
+            backgroundSendMessage({
+                name: 'settingBackgroundSuccess',
+                value: index!
             });
-        }); 
-    });
+            progress.report({
+                message: '设置成功',
+                increment: 100
+            });
+            return delay(500);
+        }).then(() => {
+            isWindowReloadToLoadBackimage();
+        }).finally(() => {
+            resolve();
+        });
+    }); 
 }
 
 /**

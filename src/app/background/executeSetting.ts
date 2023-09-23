@@ -2,7 +2,7 @@ import { modifyCssFileForBackground } from "./modify";
 import { showMessageWithConfirm, showProgress } from "../../utils/interactive";
 import { createExParamPromise, delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
-import { backgroundSendMessage } from "./execute_webview";
+import { backgroundSendMessage } from "./executeWebview";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
 import { errlog, $rej } from "../../error";
 

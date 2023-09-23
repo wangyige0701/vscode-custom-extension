@@ -5,13 +5,8 @@ import { showMessageWithConfirm } from "../../utils/interactive";
 import { imageUrl } from "../../utils/regexp";
 import { GetImage } from "../../utils/request/utils";
 import { BackgroundConfiguration } from "../../workspace/background";
-import { backgroundSendMessage } from "./execute_webview";
-import { 
-    getExternalCssModifyOpacityContent, 
-    getExternalFileContent, 
-    setSourceCssImportInfo, 
-    writeExternalCssFile 
-} from "./modify";
+import { backgroundSendMessage } from "./executeWebview";
+import { getExternalCssModifyOpacityContent, getExternalFileContent, setSourceCssImportInfo, writeExternalCssFile } from "./modify";
 import { getNewBackgroundOpacity, isWindowReloadToLoadBackimage } from "./utils";
 
 /**

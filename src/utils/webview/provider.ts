@@ -1,11 +1,4 @@
-import { 
-    window, 
-    WebviewViewProvider, 
-    Disposable, 
-    CancellationToken, 
-    WebviewView, 
-    WebviewViewResolveContext 
-} from "vscode";
+import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
 import { errlog } from "../../error";
 import { RegistWebviewProviderOptions } from "./type";
 import { messageHandle } from "./message";

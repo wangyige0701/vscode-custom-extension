@@ -886,12 +886,12 @@ function createInstance () {
 
 /**
  * 设置背景图
- * @param {string} code 
+ * @param {{code:string,index:number}} data 
  */
-function settingBackground (code) {
+function settingBackground (data) {
     sendMessage({
         name: 'settingBackground',
-        value: code
+        value: data
     });
 }
 

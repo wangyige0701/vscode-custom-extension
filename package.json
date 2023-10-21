@@ -27,6 +27,15 @@
 		"background"
 	],
 	"contributes": {
+		"icons": {
+			"wangyige-clock": {
+				"description": "clock icon",
+				"default": {
+					"fontPath": "./resources/icon/icon.woff",
+					"fontCharacter": "\\E651"
+				}
+			}
+		},
 		"commands": [
 			{
 				"command": "wangyige.background.clear",

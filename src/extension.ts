@@ -3,7 +3,7 @@ import { registBackground } from './app/background/regist';
 import { contextContainer } from './utils/webview/index';
 import { checksumsInit } from './utils/checksums';
 import { isNeedToCreateSharpBinaryFile } from "./library/create-sharp-node";
-import { showTimeInStatusBar } from './time/indx';
+import { showTimeInStatusBar } from './time';
 
 export function activate(context: ExtensionContext) {
 	// webview模块内扩展上下文实例赋值

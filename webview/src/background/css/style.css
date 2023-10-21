@@ -2,6 +2,10 @@
 
 html {
 	height: 100%;
+
+	--img-border-color-selected: rgb(197, 23, 182);
+	--img-delete-button-color: rgb(242, 93, 46);
+	--img-select-button-color: rgb(242, 202, 51);
 }
 
 body {
@@ -184,7 +188,7 @@ nav.list div.image-container:not(.select):hover {
 }
 
 nav.list div.image-container.select {
-	border-color: var(--vscode-gitlens-graphLane4Color);
+	border-color: var(--img-border-color-selected);
 }
 
 div.image-container.random {
@@ -305,7 +309,7 @@ div.image-container > span.image-select {
 
 /* 删除按钮 */
 div.image-container > span.image-delete {
-	color: var(--vscode-gitlens-graphLane7Color);
+	color: var(--img-delete-button-color);
 	right: 0;
 }
 div.image-container > span.image-delete::after {
@@ -315,7 +319,7 @@ div.image-container > span.image-delete::after {
 /* 选中按钮 */
 div.image-container > span.image-select.select {
 	opacity: 1;
-	color: var(--vscode-gitlens-graphLane8Color);
+	color: var(--img-select-button-color);
 	right: 10px;
 }
 div.image-container > span.image-select.select::before {

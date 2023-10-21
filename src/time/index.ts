@@ -2,7 +2,7 @@ import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { window, StatusBarAlignment } from "vscode";
 
 /** 终止函数 */
-var stopFunction: () => void | undefined;
+var stopFunction: (() => void) | undefined;
 
 /** 设置时间显示在状态栏，添加闹钟功能 */
 export function showTimeInStatusBar (context: ExtensionContext) {
@@ -13,7 +13,7 @@ export function showTimeInStatusBar (context: ExtensionContext) {
 
 /** 关闭时间显示 */
 export function stopTimeInStatusBar () {
-    stopFunction?.();
+    typeof stopFunction === 'function' && stopFunction();
 }
 
 /** 设置时间函数 */

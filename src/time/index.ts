@@ -1,12 +1,19 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { window, StatusBarAlignment } from "vscode";
 
+/** 终止函数 */
+var stopFunction: () => void | undefined;
+
 /** 设置时间显示在状态栏，添加闹钟功能 */
 export function showTimeInStatusBar (context: ExtensionContext) {
     const statusBarItemInstance = window.createStatusBarItem(StatusBarAlignment.Right, -1 * (10 ** 8));
     context.subscriptions.push(statusBarItemInstance);
-    timerCaller(statusBarItemInstance);
-    statusBarItemInstance.show();
+    stopFunction = timerCaller(statusBarItemInstance);
+}
+
+/** 关闭时间显示 */
+export function stopTimeInStatusBar () {
+    stopFunction?.();
 }
 
 /** 设置时间函数 */
@@ -25,10 +32,12 @@ function timerCaller (statusBar: StatusBarItem) {
         }, wait);
     }
     timer();
-    return function () {
+    statusBar.show();
+    return function (hide: boolean = true) {
         if (timeclear) {
             clearTimeout(timeclear);
         }
+        hide && statusBar.hide();
     };
 }
 

@@ -135,7 +135,8 @@ div.image-container {
 	overflow: hidden;
 	transition: border .3s ease, margin-bottom .3s ease;
 	position: relative;
-	animation: opacity-show .3s ease;
+	opacity: 0;
+	animation: opacity-show .3s ease forwards;
 }
 
 div.image-container.init-image {
@@ -159,22 +160,18 @@ div.image-container:not(.init-image) {
 
 /* 新插入的图片添加一个展开动画 */
 div.image-container[init=false] {
-	animation: image-add .3s ease;
+	animation: image-add .3s ease forwards;
 }
 
 /* 加载完成的图片在删除时添加删除动画 */
 div.image-container.image-delete[loaded=true]:not(.multiple-images-delete) {
-	opacity: 0;
-	grid-template-rows: 0fr;
-	padding: 0 var(--input-padding-horizontal);
 	margin-bottom: 0;
-	animation: image-delete var(--animation-time) ease;
+	animation: image-delete var(--animation-time) ease forwards;
 }
 
 /* 重置储存路径时图片全部删除的透明度动画 */
 div.image-container.image-delete.multiple-images-delete {
-	opacity: 0;
-	animation: opacity-hide var(--animation-time) ease!important;
+	animation: opacity-hide var(--animation-time) ease forwards!important;
 }
 
 div.image-container:hover {
@@ -216,7 +213,8 @@ div.image-container[loaded=false] > div.image-popup {
 div.image-container[loaded=true] > div.image-popup {
 	background: transparent;
 	overflow: hidden;
-	animation: blur-transition .5s linear;
+	filter: blur(var(--blur-number));
+	animation: blur-transition .5s linear forwards;
 }
 
 /* 加载状态下的遮罩层 */

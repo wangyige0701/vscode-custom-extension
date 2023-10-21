@@ -66,9 +66,6 @@
 
 /* 模糊过渡动画 */
 @keyframes blur-transition {
-	from {
-		filter: blur(var(--blur-number));
-	}
 	to {
 		filter: blur(0);
 	}

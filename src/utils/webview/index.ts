@@ -1,7 +1,8 @@
-import { FileType, Uri, Webview} from "vscode";
+import { FileType, Uri} from "vscode";
+import type { Webview } from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { createExParamPromise, getNonce } from "..";
-import { ExternalFile, contextInter, webFileType } from "./type";
+import { ExternalFile, webFileType } from "./type";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
@@ -124,7 +125,7 @@ export class FileMerge {
                 const external_files: ExternalFile[] = ['css', 'js'];
                 // 过滤外部公用文件的文件夹
                 const external_files_get: Promise<[[ExternalFile, FileType][], ExternalFile]>[] = res.filter(([name, type]) => {
-                    return type === 2 && external_files.includes(name as ExternalFile);
+                    return type === FileType.Directory && external_files.includes(name as ExternalFile);
                 }).map(([name]) => {
                     return createExParamPromise(readDirectoryUri(newUri(this.publicFileUri!, name)), name) as Promise<[[ExternalFile, FileType][], ExternalFile]>;
                 });
@@ -271,7 +272,7 @@ export class FileMerge {
             readDirectoryUri(newUri(uri)).then(res => {
                 const list: Uri[] = [], checkReg = new RegExp(`\\.${fileType}$`);
                 for (const item of res) {
-                    if (item[1] === 1 && checkReg.test(item[0])) {
+                    if (item[1] === FileType.File && checkReg.test(item[0])) {
                         list.push(newUri(uri, item[0]));
                     }
                 }

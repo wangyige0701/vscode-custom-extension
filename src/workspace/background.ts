@@ -1,7 +1,6 @@
-import { existsSync } from "fs";
 import { getWorkSpace, setWorkSpace } from ".";
 import { isFunction, isString } from "../utils";
-import { joinPathUri } from "../utils/file";
+import { joinPathUri, isFileExitsSync } from "../utils/file";
 import { cryHex } from '../utils/hash';
 import type { ImageCodes, Res, Rej, SetCodesQueue } from "./type/background";
 import ExtensionUri from "../utils/system/extension";
@@ -162,7 +161,7 @@ export class BackgroundConfiguration {
             if (hash !== hashName) {
                 const thePath = target.path;
                 // 路径不存在跳过进入下一次循环
-                if (!thePath || !existsSync(thePath)) {
+                if (!thePath || !isFileExitsSync(thePath)) {
                     continue;
                 }
             }

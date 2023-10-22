@@ -1,59 +1,37 @@
 import { cryHex } from "./hash";
 
 /**
- * 对字符串进行正则校验
- * @param str {String} 验证字符串
- * @param reg {RegExp} 正则校验，默认非换行符的任意多字符
- * @returns 校验结果
- */
-export function check (str: string, reg: RegExp = /^.*$/): boolean {
-    return reg.test(str);
-}
-
-/**
  * 根据日期数据生成格式化日期字符串
- * @param date {Date} 日期
- * @param format {String} 时间内容展示格式
+ * @param date 日期
+ * @param format 时间内容展示格式；年：YYYY；月：MM；日：DD；时：hh；分：mm；秒：ss；
  * @returns 格式化日期字符串
  */
 export function getDate(date: Date | undefined = void 0, format: string = "YYYY-MM-DD hh:mm:ss"): string {
-    const legal = '[^a-zA-Z0-9\\n\\f\\r\\t\\v]', // 合法连接符
-    reg = new RegExp(`^YYYY(${legal}{1})MM(${legal}{1})DD(${legal}{1})hh(${legal}{1})mm(${legal}{1})ss$`);
     // 校验时间格式
-    if (!format || !check(format, reg)) {
-        throw new Error("时间格式错误");
+    if (!format) {
+        format = "YYYY-MM-DD hh:mm:ss";
     }
     // 判断是否传入日期
-    if (isUndefined(date)) {
+    if (!date) {
         date = new Date();
     }
-    const formatCode = format.match(reg)?.slice(1, 6),
-    // 获取时间连接符
-    [f1, f2, f3, f4, f5] = formatCode!,
-    y = date.getFullYear(),
+    const y = date.getFullYear().toString(),
     m = addZero(date.getMonth() + 1),
     d = addZero(date.getDate()),
     h = addZero(date.getHours()),
     mm = addZero(date.getMinutes()),
     s = addZero(date.getSeconds());
-    return `${y}${f1}${m}${f2}${d}${f3}${h}${f4}${mm}${f5}${s}`;
+    return format.replace("YYYY", y).replace("MM", m).replace("DD", d).replace("hh", h).replace("mm", mm).replace("ss", s);
 }
 
 /**
- * 对数字进行补位
- * @param value 补位的数字
+ * 对数字进行补零
+ * @param value 需要补位的数字
  * @param length 期望的长度
  * @returns 补齐的数字字符串
  */
 export function addZero (value: number | string, length: number = 2): string {
-    value = value.toString();
-    let left = value.split('.')[0];
-    if (left.length < length) {
-        for (let i of range(length - left.length)) {
-            value = '0' + value;
-        }
-    }
-    return value;
+    return value.toString().padStart(length, '0');
 }
 
 /** 迭代器循环数字范围 */

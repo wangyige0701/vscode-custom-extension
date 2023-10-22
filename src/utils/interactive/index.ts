@@ -1,5 +1,5 @@
 import { Disposable, MessageItem, ProgressLocation, ProgressOptions, Uri, window } from 'vscode';
-import { check, isNumber, isObject, isString, isUndefined } from '../index';
+import { isNumber, isObject, isString, isUndefined } from '../index';
 import { dirname } from 'path';
 import { 
     MessageBoxMethodType,
@@ -28,7 +28,7 @@ export function getInputInfo (title: string, placeHolder: string, reg: RegExp = 
                 placeHolder: placeHolder,
                 prompt: title,
                 validateInput: function (text: string): string {
-                    if (check(text, reg)) {
+                    if (reg.test(text)) {
                         return "";
                     } else {
                         return "Illegal input";

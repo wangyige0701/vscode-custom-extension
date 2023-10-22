@@ -1,6 +1,7 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { window, StatusBarAlignment, commands } from "vscode";
-import { init } from "./alarmClock";
+import { init, settingAlarmClock, trigger } from "./alarmClock";
+import { errlog } from '../error';
 
 /** 终止函数 */
 var stopFunction: ((hide: boolean) => void) | undefined;
@@ -12,16 +13,15 @@ export function showTimeInStatusBar (subscriptions: ExtensionContext["subscripti
     const statusBarItemInstance = window.createStatusBarItem(StatusBarAlignment.Right, -1 * (10 ** 8));
     statusBarItemInstance.command = commandId;
     // 注册一个命名方法
-    const commandTask = commands.registerCommand(commandId, () => {
-        // 打开输入框设置闹钟时间
-        // 展示所有闹钟，可以选择删除或者改变状态，可以点击新建跳转创建新闹钟
-        // 创建：1、输入时间；2、选择是否每天或每周（注，时间只能设置时和分）
-    });
+    const commandTask = commands.registerCommand(commandId, settingAlarmClock);
     // 插入执行队列
     subscriptions.push(commandTask, statusBarItemInstance);
-    stopFunction = timerCaller(statusBarItemInstance);
     // 初始化闹钟配置
-    init();
+    init().then(() => {
+        stopFunction = timerCaller(statusBarItemInstance);
+    }).catch(err => {
+        errlog(err);
+    });
 }
 
 /** 关闭时间显示 */
@@ -33,18 +33,23 @@ export function stopTimeInStatusBar (hide: boolean = true) {
 function timerCaller (statusBar: StatusBarItem) {
     let time = Date.now(), timeclear: NodeJS.Timeout;
     statusBar.text = getTimeString(time);
-    function timer () {
+    function _timer () {
         /** 秒数误差 */
         const secondMis = 1000 - (time % 1000), 
         s = new Date(time).getSeconds(), 
         wait = (59 - s) * 1000 + secondMis;
         timeclear = setTimeout(() => {
             time = Date.now();
-            statusBar.text = getTimeString(time);
-            timer();
+            const value = getTimeString(time);
+            if (value !== statusBar.text) {
+                // 防止定时器误差提前触发
+                statusBar.text = value;
+                trigger(time);
+            }
+            _timer();
         }, wait);
     }
-    timer();
+    _timer();
     statusBar.show();
     return function (hide: boolean = true) {
         if (timeclear) {

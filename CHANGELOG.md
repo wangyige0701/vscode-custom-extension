@@ -10,7 +10,7 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
  - 修复：图片压缩导致的运行错误bug完成
  - 优化：调整扩展依赖下载方法，减小包体积
 
-## 0.6.0 - 2023-9-9  ---> 注：直至v0.6.8版本bug修复
+## 0.6.0 - 2023-9-9  >>>>  注：直至v0.6.8版本bug修复
  - 新增：对图片进行压缩操作，加快侧栏图片列表加载速度
 
 ## 0.5.4 - 2023-9-8

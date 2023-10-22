@@ -188,6 +188,16 @@ export function isFileExits (data: Uri | string): Promise<boolean> {
 }
 
 /**
+ * 同步判断路径是否存在
+ */
+export function isFileExitsSync (data: Uri | string): boolean {
+    if (!isString(data)) {
+        data = data.fsPath;
+    }
+    return existsSync(data);
+}
+
+/**
  * 将本地图片转为base64编码
  * @param path 
  */

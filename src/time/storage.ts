@@ -1,5 +1,5 @@
 import type { Uri } from "vscode";
-import { createBuffer, createDirectoryUri, isFileExits, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
+import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import { bisectionAsce } from "../utils/algorithm";
 import ExtensionUri from "../utils/system/extension";
 import { $rej } from "../error";
@@ -11,14 +11,33 @@ export const clockRecord: number[] = [];
 /** 储存闹钟数据的文件夹 */
 export const storagePath = ["resources", "alarmclock"];
 
+/** 基础数据记录文件名 */
 const basicFile = '.basic';
+/** 匹配时间戳 */
+const matchTimestamp = '\\d{13}';
 /** 匹配所有时间数据 */
-const mathcAllTime = /(\d{13});/g;
+const mathcAllTime = `(${matchTimestamp});`;
+const mathcAllTimeRegexp = new RegExp(mathcAllTime, 'g');
 
 /**
  * ini文件初始化，如果不存在则进行创建，存在则获取所有时间戳的数据
  */
 export function fileInit (): Promise<void> {
+    /** 对记录的数据进行校验 */
+    async function _check (pathUri: Uri) {
+        let refresh = false, i = 0, length = clockRecord.length;
+        for (;i < length; i++) {
+            const time = clockRecord[i];
+            if (!isFileExitsSync(joinPathUri(pathUri, time.toString()))) {
+                remove(time);
+                refresh = true;
+                i--, length--;
+            }
+        }
+        if (refresh) {
+            await refreshBasicData();
+        }
+    }
     return new Promise((resolve, reject) => {
         const fileUri = joinPathUri(ExtensionUri.get, ...storagePath),
         retrievalUri = joinPathUri(fileUri, basicFile);
@@ -26,18 +45,17 @@ export function fileInit (): Promise<void> {
             if (!state) {
                 return createDirectoryUri(fileUri);
             }
-        }).then(() => {
-            return isFileExits(retrievalUri);
-        }).then(async state => {
-            if (!state) {
+        }).then(async () => {
+            if (!isFileExitsSync(retrievalUri)) {
                 const fileContent = '';
                 await writeFileUri(retrievalUri, createBuffer(fileContent));
                 return fileContent;
             }
             const fileContent = await readFileUri(retrievalUri);
             return fileContent.toString();
-        }).then(res => {
+        }).then(async res => {
             basicDataHandle(res);
+            await _check(fileUri);
             resolve();
         }).catch(err => {
             reject($rej(err, fileInit.name));
@@ -111,10 +129,7 @@ export function deleteByTimestamp (timestamp: number): Promise<void> {
                 return uriDelete(filePath);
             }
         }).then(async () => {
-            if (clockRecord.includes(timestamp)) {
-                clockRecord.splice(clockRecord.indexOf(timestamp), 1);
-                await refreshBasicData();
-            }
+            await remove(timestamp, true);
             resolve();
         }).catch(err => {
             reject($rej(err, deleteByTimestamp.name));
@@ -127,7 +142,7 @@ export function deleteByTimestamp (timestamp: number): Promise<void> {
  */
 function basicDataHandle (content: string) {
     clockRecord.splice(0, clockRecord.length);
-    for (const time of content.matchAll(mathcAllTime)) {
+    for (const time of content.matchAll(mathcAllTimeRegexp)) {
         const timestamp = +time[1];
         // 二分法插入时间戳
         insert(timestamp);
@@ -141,6 +156,20 @@ function insert (timestamp: number, refresh: true): Promise<void>;
 function insert (timestamp: number, refresh?: false): void; 
 function insert (timestamp: number, refresh: boolean = false) {
     clockRecord.splice(bisectionAsce(clockRecord, timestamp), 0, timestamp);
+    if (refresh) {
+        return refreshBasicData();
+    }
+}
+
+/**
+ * 移除一条时间戳数据
+ */
+function remove (timestamp: number, refresh: true): Promise<void>; 
+function remove (timestamp: number, refresh?: false): void; 
+function remove (timestamp: number, refresh: boolean = false) {
+    if (clockRecord.includes(timestamp)) {
+        clockRecord.splice(clockRecord.indexOf(timestamp), 1);
+    }
     if (refresh) {
         return refreshBasicData();
     }

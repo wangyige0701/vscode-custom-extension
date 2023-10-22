@@ -1,4 +1,4 @@
-import { Uri, FileType, Disposable } from "vscode";
+import type { Uri, FileType, Disposable } from "vscode";
 import { createExParamPromise, delay, getHashCode, range } from "../../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
 import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";

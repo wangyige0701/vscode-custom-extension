@@ -1,12 +1,12 @@
 import { createDirectoryUri, isFileExits, joinPathUri } from "../../utils/file";
 import { showMessage, setStatusBar, showMessageWithConfirm } from "../../utils/interactive";
 import { windowReload } from "../../utils/system";
-import { contextContainer } from "../../utils/webview/index";
 import { Uri } from "vscode";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { WError, $rej } from "../../error";
 import { minmax } from "../../utils";
 import { backgroundSendMessage } from "./executeWebview";
+import ExtensionUri from "../../utils/system/extension";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri> {
@@ -18,7 +18,7 @@ export function imageStoreUri (): Promise<Uri> {
                 return Uri.file(path);
             } else {
                 // 没有缓存数据则获取插件路径
-                const uri = contextContainer.instance?.extensionUri;
+                const uri = ExtensionUri.get;
                 if (uri) {
                     return joinPathUri(uri, ...defaultPath);
                 }

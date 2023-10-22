@@ -1,8 +1,9 @@
-import { Disposable, commands } from "vscode";
+import { commands } from "vscode";
+import type { Disposable, ExtensionContext } from "vscode";
 import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
 import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
-import { BackgroundConfiguration } from "../../workspace/background";
+import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
 import { bindMessageCallback } from "../../utils/webview/message";
 import { backgroundExecute } from "./execute";
@@ -13,12 +14,12 @@ import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { clearDynamicImport } from "../../library";
 
 /** 注册背景图设置功能 */
-export function registBackground (): void {
+export function registBackground (subscriptions: ExtensionContext["subscriptions"]): void {
 	const statusBarTarget: Disposable = setStatusBarResolve({
 		icon: 'loading~spin',
 		message: '默认路径图片数据检测'
 	});
-	copyFileWhenVersionChange('resources/background').then(() => {
+	copyFileWhenVersionChange(defaultPath.join('/')).then(() => {
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();
@@ -33,6 +34,7 @@ export function registBackground (): void {
 	}).then(() => {
 		// 设置背景图的侧栏webview注册
 		registWebviewProvider(
+			subscriptions,
 			'wangyige.custom.backgroundImage', 
 			{ path: 'webview/src/background', title: '背景图片' }, 
 			{ visibleHiddenCallback: executeWhenUninstall }

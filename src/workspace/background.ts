@@ -3,8 +3,8 @@ import { getWorkSpace, setWorkSpace } from ".";
 import { isFunction, isString } from "../utils";
 import { joinPathUri } from "../utils/file";
 import { cryHex } from '../utils/hash';
-import { contextContainer } from "../utils/webview";
 import type { ImageCodes, Res, Rej, SetCodesQueue } from "./type/background";
+import ExtensionUri from "../utils/system/extension";
 
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
@@ -65,11 +65,8 @@ export class BackgroundConfiguration {
 
     /** 获取默认储存路径 */
     static get getDefaultPath (): [string, string] {
-        if (contextContainer.instance && contextContainer.instance.extensionUri) {
-            const path = joinPathUri(contextContainer.instance.extensionUri, ...defaultPath).fsPath;
-            return [cryHex(path), path];
-        }
-        return ['default', ''];
+        const path = joinPathUri(ExtensionUri.get, ...defaultPath).fsPath;
+        return [cryHex(path), path];
     }
 
     /** 获取当前储存路径，如果有则返回哈希值 */
@@ -105,7 +102,6 @@ export class BackgroundConfiguration {
             data = this.getBackgroundAllImageObject,
             // 整理数据，去除没有数据的索引
             result: { [key: string]: ImageCodes } = {};
-            // 赋值
             if (value.length > 0) {
                 result[hash] = { path, value };
             }
@@ -166,7 +162,7 @@ export class BackgroundConfiguration {
             if (hash !== hashName) {
                 const thePath = target.path;
                 // 路径不存在跳过进入下一次循环
-                if (!existsSync(thePath) || (hashName !== 'default' && !thePath)) {
+                if (!thePath || !existsSync(thePath)) {
                     continue;
                 }
             }

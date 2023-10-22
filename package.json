@@ -39,7 +39,7 @@
 		"commands": [
 			{
 				"command": "wangyige.background.clear",
-				"title": "清除背景图配置",
+				"title": "清除背景图配置/Clear background config",
 				"icon": {
 					"light": "resources/svg/light/circle-slash.svg",
 					"dark": "resources/svg/dark/circle-slash.svg"
@@ -47,7 +47,7 @@
 			},
 			{
 				"command": "wangyige.background.selectStore",
-				"title": "选择图片储存路径",
+				"title": "选择图片储存路径/Select background store path",
 				"icon": {
 					"light": "resources/svg/light/folder-library.svg",
 					"dark": "resources/svg/dark/folder-library.svg"
@@ -55,11 +55,15 @@
 			},
 			{
 				"command": "wangyige.background.resetStore",
-				"title": "重置图片储存路径",
+				"title": "重置图片储存路径/Reset background store path",
 				"icon": {
 					"light": "resources/svg/light/refresh.svg",
 					"dark": "resources/svg/dark/refresh.svg"
 				}
+			},
+			{
+				"command": "wangyige.time.alarmClock",
+				"title": "设置闹钟/Setting alarm clock"
 			}
 		],
 		"viewsContainers": {

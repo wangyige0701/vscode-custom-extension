@@ -7,6 +7,7 @@ import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
 import { WError, $rej } from "../../error";
 import { cryHex } from "../hash";
+import ExtensionUri from "../system/extension";
 
 const webFile: webFileType = {
     html: 'index.html',
@@ -55,10 +56,7 @@ export class FileMerge {
     private static isFileMerged: Set<string>;
 
     constructor (path: string, title:string = '') {
-        if (!contextContainer.instance) {
-            return;
-        }
-        this.baseUri = Uri.joinPath(contextContainer.instance.extensionUri, path);
+        this.baseUri = Uri.joinPath(ExtensionUri.get, path);
         this.title = title;
         if (isDev()) {
             // 开发环境
@@ -78,7 +76,7 @@ export class FileMerge {
             FileMerge.isFileMerged.add(pathHash);
         }
         // webview文件夹路径
-        this.publicFileUri = Uri.joinPath(contextContainer.instance.extensionUri, 'webview');
+        this.publicFileUri = Uri.joinPath(ExtensionUri.get, 'webview');
         // 生产环境合成index.production.js/css，开发环境合成index.development.js/css
         this.newCssUri = newUri(this.baseUri!, `index.${this.env}.css`);
         this.newJsUri = newUri(this.baseUri!, `index.${this.env}.js`);
@@ -367,11 +365,6 @@ export class FileMerge {
         });
     }
 }
-
-/** 保存context数据 */
-export const contextContainer: contextInter = {
-    instance: void 0
-};
 
 /**
  * 将不同文件下的Uint8Array数据转为字符串，按序合并返回

@@ -1,8 +1,9 @@
-import { window, WebviewViewProvider, Disposable, CancellationToken, WebviewView, WebviewViewResolveContext } from "vscode";
+import { window } from "vscode";
+import type { ExtensionContext, Disposable, CancellationToken, WebviewView, WebviewViewProvider, WebviewViewResolveContext } from "vscode";
 import { errlog } from "../../error";
 import { RegistWebviewProviderOptions } from "./type";
 import { messageHandle } from "./message";
-import { FileMerge, contextContainer } from "./index";
+import { FileMerge } from "./index";
 
 /** 通过html文件插入webview */
 export class webviewCreateProvider implements WebviewViewProvider {
@@ -48,6 +49,7 @@ export class webviewCreateProvider implements WebviewViewProvider {
 
 /** 注册webview provider */
 export function registWebviewProvider (
+    subscriptions: ExtensionContext["subscriptions"],
     viewId: string, 
     provider: { path: string, title: string }, 
     { retainContextWhenHidden = false, visibleHiddenCallback = void 0 }: RegistWebviewProviderOptions
@@ -59,6 +61,6 @@ export function registWebviewProvider (
             webviewOptions: { retainContextWhenHidden }
         }
     );
-    contextContainer.instance!.subscriptions.push(dispose);
+    subscriptions.push(dispose);
     return dispose;
 }

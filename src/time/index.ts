@@ -1,19 +1,32 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
-import { window, StatusBarAlignment } from "vscode";
+import { window, StatusBarAlignment, commands } from "vscode";
+import { init } from "./alarmClock";
 
 /** 终止函数 */
-var stopFunction: (() => void) | undefined;
+var stopFunction: ((hide: boolean) => void) | undefined;
 
 /** 设置时间显示在状态栏，添加闹钟功能 */
-export function showTimeInStatusBar (context: ExtensionContext) {
+export function showTimeInStatusBar (subscriptions: ExtensionContext["subscriptions"]) {
+    const commandId = "wangyige.time.alarmClock";
+    // 注册一个状态栏容器
     const statusBarItemInstance = window.createStatusBarItem(StatusBarAlignment.Right, -1 * (10 ** 8));
-    context.subscriptions.push(statusBarItemInstance);
+    statusBarItemInstance.command = commandId;
+    // 注册一个命名方法
+    const commandTask = commands.registerCommand(commandId, () => {
+        // 打开输入框设置闹钟时间
+        // 展示所有闹钟，可以选择删除或者改变状态，可以点击新建跳转创建新闹钟
+        // 创建：1、输入时间；2、选择是否每天或每周（注，时间只能设置时和分）
+    });
+    // 插入执行队列
+    subscriptions.push(commandTask, statusBarItemInstance);
     stopFunction = timerCaller(statusBarItemInstance);
+    // 初始化闹钟配置
+    init();
 }
 
 /** 关闭时间显示 */
-export function stopTimeInStatusBar () {
-    typeof stopFunction === 'function' && stopFunction();
+export function stopTimeInStatusBar (hide: boolean = true) {
+    typeof stopFunction === 'function' && stopFunction(hide);
 }
 
 /** 设置时间函数 */

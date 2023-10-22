@@ -83,10 +83,10 @@ export function searchByTimestamp (timestamp: number, path?: Uri): Promise<[bool
 export function settintByTimestamp (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"] = void 0): Promise<void> {
     return new Promise((resolve, reject) => {
         const filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
-        searchByTimestamp(timestamp, filePath).then(([exist, data]) => {
+        searchByTimestamp(timestamp, filePath).then(async ([exist, data]) => {
             if (!exist) {
                 // 不存在则插入一个时间戳
-                insert(timestamp);
+                await insert(timestamp, true);
             }
             data.task.push(Object.assign({
                 info
@@ -110,8 +110,11 @@ export function deleteByTimestamp (timestamp: number): Promise<void> {
             if (state) {
                 return uriDelete(filePath);
             }
-        }).then(() => {
-            clockRecord.includes(timestamp) && clockRecord.splice(clockRecord.indexOf(timestamp), 1);
+        }).then(async () => {
+            if (clockRecord.includes(timestamp)) {
+                clockRecord.splice(clockRecord.indexOf(timestamp), 1);
+                await refreshBasicData();
+            }
             resolve();
         }).catch(err => {
             reject($rej(err, deleteByTimestamp.name));
@@ -120,7 +123,7 @@ export function deleteByTimestamp (timestamp: number): Promise<void> {
 }
 
 /**
- * 检索数据处理
+ * 检索数据处理，初始化时调用
  */
 function basicDataHandle (content: string) {
     clockRecord.splice(0, clockRecord.length);
@@ -134,6 +137,22 @@ function basicDataHandle (content: string) {
 /**
  * 使用二分查找将指定时间戳插入数组对应位置
  */
-function insert (timestamp: number) {
+function insert (timestamp: number, refresh: true): Promise<void>; 
+function insert (timestamp: number, refresh?: false): void; 
+function insert (timestamp: number, refresh: boolean = false) {
     clockRecord.splice(bisectionAsce(clockRecord, timestamp), 0, timestamp);
+    if (refresh) {
+        return refreshBasicData();
+    }
+}
+
+/**
+ * 更新记录文件
+ */
+function refreshBasicData () {
+    const result = clockRecord.reduce((prev, curr) => {
+        prev += `${curr};`;
+        return prev;
+    }, '');
+    return writeFileUri(joinPathUri(ExtensionUri.get, ...storagePath, basicFile), createBuffer(result));
 }

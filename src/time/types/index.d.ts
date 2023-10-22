@@ -1,10 +1,16 @@
 
+/** 日期数字，0代表周日 */
+export type SpecificWeek = 1|2|3|4|5|6|0;
+
+/** 周期数据的类型 */
+export type Cycle = 'DAY'|'WEEK'|SpecificWeek[];
+
 /**
  * 闹钟任务数组的元素
  */
 interface AlarmClockRecordItemTask {
-    /** 周期，可以设置为第二天或者下一周的同样时间 */
-    cycle?: 'DAY'|'WEAK';
+    /** 周期，可以设置为每天或者每周的同一时间，也可以设置为具体周几的时间 */
+    cycle?: Cycle;
     /** 任务描述 */
     info: string;
 }

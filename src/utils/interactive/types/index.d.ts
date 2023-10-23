@@ -1,9 +1,9 @@
-import type { CancellationToken, Progress, ProgressLocation, Uri, QuickPickItem, StatusBarAlignment } from "vscode";
+import type { CancellationToken, Progress, ProgressLocation, Uri, QuickPickItem, StatusBarAlignment, InputBoxOptions } from "vscode";
 
 /**
  * 选择文件方法参数
  */
-interface SelectFileParams {
+export interface SelectFileParams {
     /**
      * 选择文件
      */
@@ -34,11 +34,13 @@ interface SelectFileParams {
     defaultUri?: Uri | string;
 }
 
-type MessageBoxMethodType = 'information' | 'error' | 'warning';
+/** 消息盒子类型 */
+export type MessageBoxMethodType = 'information' | 'error' | 'warning';
+
 /**
  * 消息框调用参数
 */
-interface MessageBoxType<T> {
+export interface MessageBoxType<T> {
     /**
      * 类型
     */
@@ -68,11 +70,11 @@ interface MessageBoxType<T> {
 /**
  * 状态栏参数
 */
-type StatusBarParam = number | Thenable<any>;
+export type StatusBarParam = number | Thenable<any>;
 
-type StatusBarCallback = (...data: any[]) => any;
+export type StatusBarCallback = (...data: any[]) => any;
 
-type StatusBarIconMessage = {
+export type StatusBarIconMessage = {
     /**
      * 字符串开头添加的图标
      */
@@ -84,43 +86,37 @@ type StatusBarIconMessage = {
     message: string; 
 };
 
-type ProgressLocationData = keyof typeof ProgressLocation;
+export type ProgressLocationData = keyof typeof ProgressLocation;
 
 /**
  * 进度条数据类型
 */
-interface ProgressOptionsNew {
+export interface ProgressOptionsNew {
     location: ProgressLocationData | { viewId: string } | ProgressLocation;
     title?: string;
     cancellable?: boolean;
 }
 
-type ProgressTaskType<R> = (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<R>
+export type ProgressTaskType<R> = (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<R>
 
-interface StatusBarItemOptions {
+export interface StatusBarItemOptions {
     alignment?: keyof typeof StatusBarAlignment;
     priority?: number;
     command?: string;
 }
 
-type QuickPickItemCallback = ((...any: any[]) => void) | ((...any: any[]) => { then: (...any: any[]) => any});
+export type QuickPickItemCallback<T> = ((data: QuickPickItem) => T) | { then: Promise<T>["then"] };
 
-type QuickPickItemExcludeLabel = keyof Omit<QuickPickItem, "label">;
-
-type GetQuickPickItemOptions<T extends QuickPickItemExcludeLabel> = QuickPickItem[T];
-
-type KeyOfQuickPickItem = {
-    [k in QuickPickItemExcludeLabel]?: QuickPickItem[k]
-} & {
-    label: string;
-};
-
-type MergePickOptions = {
-    [k in QuickPickItemExcludeLabel]?: QuickPickItem[k]
-} & {
-    callback: QuickPickItemCallback;
-};
-
-interface QuickPickLabelOptions {
-    [key: string]: QuickPickItemCallback | MergePickOptions;
+export interface QuickPickLabelOptions<T> {
+    callback: QuickPickItemCallback<T>;
+    options: Pick<QuickPickItem, keyof QuickPickItem>
 }
+
+type NeedInputOptions = Omit<InputBoxOptions, "validateInput">;
+
+type KeyofNeedInputOptions = keyof NeedInputOptions;
+
+export type InputOptions = Pick<NeedInputOptions, KeyofNeedInputOptions> & {
+    regexp?: RegExp;
+    error?: string;
+};

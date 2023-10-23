@@ -19,9 +19,9 @@
 	},
 	"include": [
 		"src/**/*"
-	],
+, "package"	],
 	"exclude": [
-		"src/package",
+		"package",
 		"src/uninstall.ts",
 		"src/library/external"
 	]

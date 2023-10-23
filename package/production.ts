@@ -1,6 +1,6 @@
 import { existsSync, readdir } from "fs";
 import { minifyJs, minifyCss, readFileDir, getRoot, ProcessExit, now_ver, getContent, writeContent, consoleByColor, createExParamPromise } from ".";
-import { bisectionAsce } from '../utils/algorithm';
+import { bisectionAsce } from '../src/utils/algorithm';
 import path from "path";
 
 type file_suffix = 'css' | 'js';

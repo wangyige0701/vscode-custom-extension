@@ -44,7 +44,7 @@ export function showMessage<T extends MessageItem> ({
         ).then(res => {
             resolve(res);
         }).catch(err => {
-            throw new Error('MessageBox Error', { cause: err });
+            reject(new Error('MessageBox Error', { cause: err }));
         });
     });
 }

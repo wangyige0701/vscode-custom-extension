@@ -1,4 +1,4 @@
-import type { CancellationToken, Progress, ProgressLocation, Uri } from "vscode";
+import type { CancellationToken, Progress, ProgressLocation, Uri, QuickPickItem, StatusBarAlignment } from "vscode";
 
 /**
  * 选择文件方法参数
@@ -84,6 +84,8 @@ type StatusBarIconMessage = {
     message: string; 
 };
 
+type ProgressLocationData = keyof typeof ProgressLocation;
+
 /**
  * 进度条数据类型
 */
@@ -93,12 +95,32 @@ interface ProgressOptionsNew {
     cancellable?: boolean;
 }
 
-type ProgressLocationData = 'SourceControl' | 'Window' | 'Notification';
-
 type ProgressTaskType<R> = (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<R>
 
 interface StatusBarItemOptions {
-    alignment?: 'Left'|'Right';
+    alignment?: keyof typeof StatusBarAlignment;
     priority?: number;
     command?: string;
+}
+
+type QuickPickItemCallback = ((...any: any[]) => void) | ((...any: any[]) => { then: (...any: any[]) => any});
+
+type QuickPickItemExcludeLabel = keyof Omit<QuickPickItem, "label">;
+
+type GetQuickPickItemOptions<T extends QuickPickItemExcludeLabel> = QuickPickItem[T];
+
+type KeyOfQuickPickItem = {
+    [k in QuickPickItemExcludeLabel]?: QuickPickItem[k]
+} & {
+    label: string;
+};
+
+type MergePickOptions = {
+    [k in QuickPickItemExcludeLabel]?: QuickPickItem[k]
+} & {
+    callback: QuickPickItemCallback;
+};
+
+interface QuickPickLabelOptions {
+    [key: string]: QuickPickItemCallback | MergePickOptions;
 }

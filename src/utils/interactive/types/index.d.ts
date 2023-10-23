@@ -1,4 +1,4 @@
-import { CancellationToken, Progress, ProgressLocation, Uri } from "vscode";
+import type { CancellationToken, Progress, ProgressLocation, Uri } from "vscode";
 
 /**
  * 选择文件方法参数
@@ -96,3 +96,9 @@ interface ProgressOptionsNew {
 type ProgressLocationData = 'SourceControl' | 'Window' | 'Notification';
 
 type ProgressTaskType<R> = (progress: Progress<{ message?: string; increment?: number }>, token: CancellationToken) => Thenable<R>
+
+interface StatusBarItemOptions {
+    alignment?: 'Left'|'Right';
+    priority?: number;
+    command?: string;
+}

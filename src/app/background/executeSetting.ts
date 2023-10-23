@@ -5,7 +5,7 @@ import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./executeWebview";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "./utils";
 import { errlog, $rej } from "../../error";
-import { Progress } from "vscode";
+import type { Progress } from "vscode";
 
 type settingImageData = {
     code: string;

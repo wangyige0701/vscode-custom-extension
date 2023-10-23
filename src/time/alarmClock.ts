@@ -31,6 +31,9 @@ export function init (): Promise<void> {
  */
 export function trigger (timestamp: number) {
     timestamp = accurateTime(timestamp);
+    if (clockRecord[0] > timestamp) {
+        return;
+    }
     for (const time of clockRecord) {
         if (time > timestamp) {
             // 大于触发时间跳出循环
@@ -57,12 +60,13 @@ export function settingAlarmClock () {
     // 创建：1、输入时间；2、选择功能（注，时间只能设置时和分）校验时需要判断设置的时间是否小于当前时间
     // 小于则不能设置为当天
     // 功能有：1、设置当天，超时或完成自动删除；2、选择时间星期，一周中的几天；3、每天或者每周的指定星期
+    
 }
 
 /**
- * 插入一条新数据
+ * 插入一条新任务
  */
-function insert (timestamp: number, info: string = '', cycle: AlarmClockRecordItemTask["cycle"] = void 0) {
+function insertTask (timestamp: number, info: string = '', cycle: AlarmClockRecordItemTask["cycle"] = void 0) {
     timestamp = accurateTime(timestamp);
     settintByTimestamp(timestamp, info, cycle).then(refresh).catch(err => errlog(err));
 }
@@ -71,7 +75,7 @@ function insert (timestamp: number, info: string = '', cycle: AlarmClockRecordIt
  * 对时间戳进行精确处理，忽略秒数，只返回到分钟的时间戳
  */
 function accurateTime (timestamp: number): number {
-    return new Date(getDate(new Date(timestamp), "YYYY-MM-DD hh:mm:00")).getTime();
+    return new Date(getDate(timestamp, "YYYY-MM-DD hh:mm:00")).getTime();
 }
 
 /**
@@ -102,7 +106,7 @@ async function openAlarmClock (timestamp: number, info: string, cycle: AlarmCloc
         if (!nextTimestamp) {
             return;
         }
-        insert(nextTimestamp, info, cycle);
+        insertTask(nextTimestamp, info, cycle);
     }
 }
 

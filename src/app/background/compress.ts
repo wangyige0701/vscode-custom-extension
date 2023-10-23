@@ -1,4 +1,4 @@
-import { Uri } from "vscode";
+import type { Uri } from "vscode";
 import { imageStoreUri } from "./utils";
 import {
     base64ByFiletypeAndData,

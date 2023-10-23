@@ -1,4 +1,4 @@
-import type { CheckSumsData, ChecksumsDataOperation } from "./types/index";
+import type { CheckSumsData, ChecksumsDataOperation } from "./types";
 
 export const checksumsMap: ChecksumsDataOperation<Map<string, CheckSumsData>> = new class {
     /** 校验和数据记录 */

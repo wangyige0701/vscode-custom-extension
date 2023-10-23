@@ -2,7 +2,7 @@ import { getWorkSpace, setWorkSpace } from ".";
 import { isFunction, isString } from "../utils";
 import { joinPathUri, isFileExitsSync } from "../utils/file";
 import { cryHex } from '../utils/hash';
-import type { ImageCodes, Res, Rej, SetCodesQueue } from "./type/background";
+import type { ImageCodes, Res, Rej, SetCodesQueue } from "./types/background";
 import ExtensionUri from "../utils/system/extension";
 
 /** 背景图片默认存储路径 */

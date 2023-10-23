@@ -6,7 +6,7 @@ import { backgroundSendMessage } from "./executeWebview";
 import { closeRandomBackground, showMessageByModal } from "./utils";
 import { settingImage } from "./executeSetting";
 import { modifyCssFileForBackground } from "./modify";
-import { Progress } from "vscode";
+import type { Progress } from "vscode";
 
 /**
  * 记录随机设置背景图的相关数据，并更新状态

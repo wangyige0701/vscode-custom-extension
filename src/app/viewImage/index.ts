@@ -1,9 +1,9 @@
-import { Disposable, Webview, WebviewPanel } from "vscode";
+import type { Disposable, Webview, WebviewPanel } from "vscode";
 import { registerWebviewPanel } from "../../utils/webview/panel";
-import { viewImageMessageData, viewImageSendMessage } from "./type";
+import type { viewImageMessageData, viewImageSendMessage } from "./types";
 import { isObject, queueCreate } from "../../utils";
 import { bindMessageCallback, messageExecute, messageSend, unbindMessageCallback } from "../../utils/webview/message";
-import { MessageData } from "../../utils/webview/type";
+import { MessageData } from "../../utils/webview/types";
 
 /** webview实例 */
 var viewImageWebviewInstance: WebviewPanel | null = null;

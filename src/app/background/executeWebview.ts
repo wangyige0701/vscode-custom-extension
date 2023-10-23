@@ -1,6 +1,6 @@
-import { Webview } from "vscode";
-import { MessageData } from "../../utils/webview/type";
-import { backgroundSendMessageData } from "./type";
+import type { Webview } from "vscode";
+import { MessageData } from "../../utils/webview/types";
+import type { backgroundSendMessageData } from "./types";
 import { isObject } from "../../utils";
 import { messageSend } from "../../utils/webview/message";
 

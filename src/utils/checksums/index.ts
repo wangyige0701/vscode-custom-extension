@@ -1,4 +1,4 @@
-import { Uri } from "vscode";
+import type { Uri } from "vscode";
 import { createExParamPromise, range } from "..";
 import { errlog } from "../../error";
 import { cryHex } from "../hash";

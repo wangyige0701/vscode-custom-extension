@@ -1,5 +1,5 @@
 import { Webview } from "vscode";
-import { 
+import type { 
     ExecuteFunction, 
     ExecuteType, 
     GetName, 
@@ -8,7 +8,7 @@ import {
     MessageGroupCallback, 
     MessageGroupCallbackName, 
     callbackType
-} from "./type";
+} from "./types";
 import { errlog } from "../../error";
 import { firstUpperCase, isUndefined } from "..";
 

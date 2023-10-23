@@ -1,4 +1,5 @@
-import { FileStat, FileType, Uri, workspace } from 'vscode';
+import { Uri, workspace } from 'vscode';
+import type { FileStat, FileType } from 'vscode';
 import { posix, extname, resolve as pathResolve } from 'path';
 import { isString } from '..';
 import { existsSync } from 'fs';

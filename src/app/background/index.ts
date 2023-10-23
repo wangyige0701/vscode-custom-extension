@@ -7,7 +7,7 @@ import { BackgroundConfiguration } from "../../workspace/background";
 import { changeLoadState, imageStoreUri, showMessageByModal, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./executeWebview";
 import { checExternalDataIsRight, deleteBackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
-import { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./type";
+import type { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./types";
 import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";

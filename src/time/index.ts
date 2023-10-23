@@ -1,7 +1,8 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
-import { window, StatusBarAlignment, commands } from "vscode";
+import { commands } from "vscode";
 import { init, settingAlarmClock, trigger } from "./alarmClock";
 import { errlog } from '../error';
+import { setStatusBarItem } from '../utils/interactive';
 
 /** 终止函数 */
 var stopFunction: ((hide: boolean) => void) | undefined;
@@ -10,8 +11,11 @@ var stopFunction: ((hide: boolean) => void) | undefined;
 export function showTimeInStatusBar (subscriptions: ExtensionContext["subscriptions"]) {
     const commandId = "wangyige.time.alarmClock";
     // 注册一个状态栏容器
-    const statusBarItemInstance = window.createStatusBarItem(StatusBarAlignment.Right, -1 * (10 ** 8));
-    statusBarItemInstance.command = commandId;
+    const statusBarItemInstance = setStatusBarItem({
+        alignment: 'Right',
+        priority: -1 * (10 ** 8),
+        command: commandId,
+    });
     // 注册一个命名方法
     const commandTask = commands.registerCommand(commandId, settingAlarmClock);
     // 插入执行队列

@@ -2,17 +2,19 @@ import { cryHex } from "./hash";
 
 /**
  * 根据日期数据生成格式化日期字符串
- * @param date 日期
- * @param format 时间内容展示格式；年：YYYY；月：MM；日：DD；时：hh；分：mm；秒：ss；
+ * @param date 日期，可以传入Date格式或者时间戳格式
+ * @param format 时间内容展示格式；年-YYYY；月-MM；日-DD；时-hh；分-mm；秒-ss；
  * @returns 格式化日期字符串
  */
-export function getDate(date: Date | undefined = void 0, format: string = "YYYY-MM-DD hh:mm:ss"): string {
+export function getDate(date: Date | number | undefined = void 0, format: string = "YYYY-MM-DD hh:mm:ss"): string {
     // 校验时间格式
     if (!format) {
         format = "YYYY-MM-DD hh:mm:ss";
     }
-    // 判断是否传入日期
-    if (!date) {
+    // 判断是否传入正确日期格式
+    if (isNumber(date)) {
+        date = new Date(date);
+    } else if (!date || !(date instanceof Date)) {
         date = new Date();
     }
     const y = date.getFullYear().toString(),

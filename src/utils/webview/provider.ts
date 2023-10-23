@@ -1,7 +1,7 @@
 import { window } from "vscode";
 import type { ExtensionContext, Disposable, CancellationToken, WebviewView, WebviewViewProvider, WebviewViewResolveContext } from "vscode";
 import { errlog } from "../../error";
-import { RegistWebviewProviderOptions } from "./type";
+import type { RegistWebviewProviderOptions } from "./types";
 import { messageHandle } from "./message";
 import { FileMerge } from "./index";
 

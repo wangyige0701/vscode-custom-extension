@@ -1,4 +1,4 @@
-import { Uri } from "vscode";
+import type { Uri } from "vscode";
 import { cryHex } from "../hash";
 import { checksumsMap } from "./data";
 import { getProductRoot, getProductFileName, computeFileChecksums } from "./utils";

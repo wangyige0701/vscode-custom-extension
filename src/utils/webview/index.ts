@@ -2,7 +2,7 @@ import { FileType, Uri} from "vscode";
 import type { Webview } from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
 import { createExParamPromise, getNonce } from "..";
-import { ExternalFile, webFileType } from "./type";
+import type { ExternalFile, webFileType } from "./types";
 import { isDev } from "../../version";
 import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";

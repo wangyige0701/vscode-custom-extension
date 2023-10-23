@@ -82,7 +82,7 @@ export function searchByTimestamp (timestamp: number, path?: Uri): Promise<[bool
             }
             return readFileUri(filePath);
         }).then(uni8 => {
-            const json = uni8 ? 
+            const json: AlarmClockRecordItemTask[] = uni8 ? 
                 JSON.parse(uni8.toString()) :
                 [];
             resolve([uni8?true:false, {

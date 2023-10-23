@@ -1,6 +1,6 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { commands } from "vscode";
-import { init, settingAlarmClock, trigger } from "./alarmClock";
+import { initAlarmClock, settingAlarmClock, trigger } from "./alarmClock";
 import { errlog } from '../error';
 import { setStatusBarItem } from '../utils/interactive';
 
@@ -21,7 +21,7 @@ export function showTimeInStatusBar (subscriptions: ExtensionContext["subscripti
     // 插入执行队列
     subscriptions.push(commandTask, statusBarItemInstance);
     // 初始化闹钟配置
-    init().then(() => {
+    initAlarmClock().then(() => {
         stopFunction = timerCaller(statusBarItemInstance);
     }).catch(err => {
         errlog(err);

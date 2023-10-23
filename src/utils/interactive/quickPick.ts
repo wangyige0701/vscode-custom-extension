@@ -1,45 +1,55 @@
 import { window } from "vscode";
-import type { QuickPickItem } from "vscode";
-import { QuickPickItemCallback, QuickPickLabelOptions } from "./types";
-import { isFunction, isPromise } from "..";
+import type { CancellationToken, QuickPickItem, QuickPickOptions } from "vscode";
+import type { QuickPickItemCallback, QuickPickLabelOptions } from "./types";
+import { isArray, isFunction, isPromise, isString } from "..";
 
 /**
- * 打开一个选择面板
+ * 创建并打开一个可选列表
  */
-export function openQuickPick (options: QuickPickLabelOptions) {
-    function _check (value: any): value is QuickPickItemCallback {
+export function createAndShowQuickPick<T> (options: QuickPickLabelOptions<T>[]): Promise<void | T> {
+    function _check (value: any): value is QuickPickItemCallback<T> {
         return isFunction(value) || isPromise(value);
     }
-    const items: QuickPickItem[] = [];
-    for (const key in options) {
-        const item: QuickPickItem = { label: key }, value = options[key];
-        items.push(item);
-        if (_check(value)) {
-            continue;
-        }
-        item.alwaysShow = value.alwaysShow;
-        item.description = value.description;
-        item.detail = value.detail;
-        item.picked = value.picked;
-        item.buttons = value.buttons;
-        item.kind = value.kind;
+    const callbackMap: { [key: string]: QuickPickItemCallback<T> } = {},
+    items: QuickPickItem[] = [];
+    for (const key of options) {
+        callbackMap[key.options.label] = key.callback;
+        items.push(key.options);
     }
     return new Promise((resolve, reject) => {
         const quickPick = window.createQuickPick();
         quickPick.items = items;
         quickPick.onDidChangeSelection(selection => {
             if (selection[0]) {
-                const target = options[selection[0].label];
-                let callback: QuickPickItemCallback;
-                if (!_check(target)) {
-                    callback = target.callback;
+                const callback = callbackMap[selection[0].label];
+                if (_check(callback)) {
+                    Promise.resolve(
+                        isFunction(callback) ? callback(selection[0]) : callback
+                    ).then((res: T) => {
+                        resolve(res);
+                    }).catch(err => {
+                        reject(new Error("CreateQuickPick Error", { cause: err }));
+                    });
                 } else {
-                    callback = target;
+                    resolve();
                 }
-                Promise.resolve(callback(selection[0])).then(resolve).catch(err => {
-                    reject(new Error("CreateQuickPick Error", { cause: err }));
-                });
             }
         });
+        quickPick.onDidHide(() => {
+            quickPick.dispose();
+        });
+        quickPick.show();
     });
+}
+
+/**
+ * 显示一个可选列表
+ */
+export function showQuickPick(items: string[], options?: QuickPickOptions, token?: CancellationToken): Promise<string>;
+export function showQuickPick<T extends QuickPickItem>(items: T[], options?: QuickPickOptions, token?: CancellationToken): Promise<T>;
+export function showQuickPick<T extends QuickPickItem> (items: T[] | string[], options?: QuickPickOptions, token?: CancellationToken) {
+    if (isArray(items) && (items as string[]).every(item => isString(item))) {
+        return Promise.resolve(window.showQuickPick((items as string[]), options, token));
+    }
+    return Promise.resolve(window.showQuickPick<T>((items as T[]), options, token));
 }

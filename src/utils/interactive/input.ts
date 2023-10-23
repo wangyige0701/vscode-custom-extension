@@ -1,27 +1,42 @@
 import { window } from "vscode";
+import type { CancellationToken } from "vscode";
+import type { InputOptions } from "./types";
 
 /**
  * 调用输入框api获取输入内容
- * @param title 输入框下方提示标题
- * @param placeHolder 占位符
- * @param reg 正则校验规则
+ * @param params 配置项
+ * @param validateInput 自定义校验规则
+ * @param token 关闭输入框的token
  */
-export function getInputInfo (title: string, placeHolder: string, reg: RegExp = /^[a-zA-Z0-9]*$/): Promise<string | undefined> {
+export function getInputInfo ({
+    title,
+    prompt,
+    placeHolder,
+    regexp = /^[a-zA-Z0-9]*$/,
+    error = "Illegal input",
+    password = false,
+    ignoreFocusOut = true,
+    value,
+    valueSelection
+}: InputOptions, validateInput?: (test: string) => string, token?: CancellationToken): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
             window.showInputBox({
-                password: false,
-                ignoreFocusOut: true,
-                placeHolder: placeHolder,
-                prompt: title,
-                validateInput: function (text: string): string {
-                    if (reg.test(text)) {
+                prompt,
+                title,
+                password,
+                ignoreFocusOut,
+                placeHolder,
+                value,
+                valueSelection,
+                validateInput: validateInput ? validateInput : function (text: string): string {
+                    if (regexp.test(text)) {
                         return "";
                     } else {
-                        return "Illegal input";
+                        return error;
                     }
                 }
-            })
+            }, token)
         ).then(msg => {
             resolve(msg);
         }).catch(err => {

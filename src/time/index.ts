@@ -3,6 +3,7 @@ import { commands } from "vscode";
 import { initAlarmClock, settingAlarmClock, trigger } from "./alarmClock";
 import { errlog } from '../error';
 import { setStatusBarItem } from '../utils/interactive';
+import { getTimeString } from "./utils";
 
 /** 终止函数 */
 var stopFunction: ((hide: boolean) => void) | undefined;
@@ -61,27 +62,4 @@ function timerCaller (statusBar: StatusBarItem) {
         }
         hide && statusBar.hide();
     };
-}
-
-/** 获取当前时间 */
-function getTimeString (timestamp: number) {
-    let date = new Date(timestamp),
-    y = date.getFullYear(),
-    M = date.getMonth() + 1,
-    d = date.getDate(),
-    h = date.getHours(),
-    m = date.getMinutes(),
-    meridiem = 'AM';
-    if (h > 11 && h < 23) {
-        meridiem = 'PM';
-    }
-    if (h > 12) {
-        h = h - 12;
-    }
-    return `$(wangyige-clock) ${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}`;
-}
-
-/** 补位 */
-function _a (value: number): string {
-    return `${value}`.padStart(2, '0');
 }

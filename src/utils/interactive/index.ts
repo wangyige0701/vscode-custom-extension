@@ -2,7 +2,7 @@ import { getInputInfo } from "./input";
 import { selectFile } from "./file";
 import { showMessage, showMessageWithConfirm } from "./messageBox";
 import { setStatusBar, setStatusBarResolve, setStatusBarItem } from "./statusBar";
-import { showProgress } from "./progress";
+import { showProgress, showProgressByTime } from "./progress";
 import { createAndShowQuickPick, showQuickPick } from "./quickPick";
 
 export {
@@ -14,6 +14,7 @@ export {
     setStatusBarResolve,
     setStatusBarItem,
     showProgress,
+    showProgressByTime,
     createAndShowQuickPick,
     showQuickPick
 };

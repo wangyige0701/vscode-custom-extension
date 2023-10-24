@@ -24,3 +24,5 @@ export interface AlarmClockRecordItem {
     /** 当前时间戳的任务数组 */
     task: AlarmClockRecordItemTask[];
 }
+
+export type CreateAlarmClockCallback = (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => any;

@@ -10,6 +10,7 @@ export function accurateTime (timestamp: number): number {
 
 /**
  * 根据周期计算下一次触发的新时间戳
+ * 星期列表是0-6的数字组成的数组，0代表周日
  */
 export function cycleCalculate (timestamp: number, cycle: Cycle): number;
 export function cycleCalculate (timestamp: number, cycle?: Cycle | undefined) {
@@ -93,4 +94,25 @@ export function changeHourTo24 (time: string, symbol: string = ":") {
         }
     }
     return `${_a(hour)}${symbol}${_a(minute)}`;
+}
+
+/**
+ * 判断是不是闰年
+ */
+export function leapYear (year: number) {
+    return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+}
+
+/** 判断日期是否存在 */
+export function isDateExist (year: string | number, month: string | number, day: string | number) {
+    const isLeapYear = leapYear(+year);
+    const monthNum = +month;
+    const dayNum = +day;
+    if (monthNum === 2) {
+        return isLeapYear ? dayNum <= 29 : dayNum <= 28;
+    } else if (monthNum === 4 || monthNum === 6 || monthNum === 9 || monthNum === 11) {
+        return dayNum <= 30;
+    } else {
+        return dayNum <= 31;
+    }
 }

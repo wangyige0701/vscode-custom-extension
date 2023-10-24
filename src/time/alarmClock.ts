@@ -1,4 +1,6 @@
 import { $rej, errlog } from "../error";
+import { delay, getDate } from "../utils";
+import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { openOperationPanel } from "./openPanel";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByTimestamp, storagePath } from "./storage";
@@ -63,14 +65,19 @@ export function trigger (timestamp: number) {
  * 开启面板设置闹钟
  */
 export function settingAlarmClock () {
-    console.log("setting");
-    // 打开输入框设置闹钟时间
-    // 展示所有闹钟，可以选择删除或者改变状态，可以点击新建跳转创建新闹钟
-    // 创建：1、输入时间；2、选择功能（注，时间只能设置时和分）校验时需要判断设置的时间是否小于当前时间
-    // 小于则不能设置为当天
-    // 功能有：1、设置当天，超时或完成自动删除；2、选择时间星期，一周中的几天；3、每天或者每周的指定星期；4、设置年月日
     openOperationPanel((timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
-        insertTask(timestamp, info, cycle);
+        showProgress({
+            title: '正在设置闹钟',
+            location: 'Notification'
+        }, (progress) => <Promise<void>>new Promise(resolve => {
+            insertTask(timestamp, info, cycle).then(() => {
+                progress.report({
+                    message: `[${getDate(timestamp)}] 设置完成`,
+                    increment: 100
+                });
+                return delay(3000);
+            }).then(resolve);
+        }));
     });
 }
 

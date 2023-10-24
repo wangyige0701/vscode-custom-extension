@@ -69,7 +69,9 @@ export function settingAlarmClock () {
     // 创建：1、输入时间；2、选择功能（注，时间只能设置时和分）校验时需要判断设置的时间是否小于当前时间
     // 小于则不能设置为当天
     // 功能有：1、设置当天，超时或完成自动删除；2、选择时间星期，一周中的几天；3、每天或者每周的指定星期；4、设置年月日
-    openOperationPanel();
+    openOperationPanel((timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
+        insertTask(timestamp, info, cycle);
+    });
 }
 
 /**
@@ -102,7 +104,7 @@ function checkInit (timestamp: number): Promise<void> {
  */
 function insertTask (timestamp: number, info: string = '', cycle: AlarmClockRecordItemTask["cycle"] = void 0) {
     timestamp = accurateTime(timestamp);
-    settintByTimestamp(timestamp, info, cycle).then(refresh).catch(errlog);
+    return settintByTimestamp(timestamp, info, cycle);
 }
 
 /**
@@ -119,7 +121,7 @@ function taskHandle (timestamp: number, task: AlarmClockRecordItemTask[]) {
  * 删除一个任务
  */
 async function deleteTask (timestamp: number) {
-    deleteByTimestamp(timestamp).then(refresh).catch(errlog);
+    deleteByTimestamp(timestamp).catch(errlog);
 }
 
 /**
@@ -127,13 +129,15 @@ async function deleteTask (timestamp: number) {
  */
 async function openAlarmClock (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) {
     // 显示闹钟信息
+    console.log(info);
+    
     // 判断是否重新插入
     if (cycle) {
         const nextTimestamp = cycleCalculate(timestamp, cycle);
         if (!nextTimestamp) {
             return;
         }
-        insertTask(nextTimestamp, info, cycle);
+        insertTask(nextTimestamp, info, cycle).catch(errlog);
     }
 }
 

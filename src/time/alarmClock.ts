@@ -3,6 +3,7 @@ import { delay, getDate } from "../utils";
 import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { openOperationPanel } from "./openPanel";
+import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByTimestamp, storagePath } from "./storage";
 import type { AlarmClockRecordItemTask } from "./types";
 import { accurateTime, cycleCalculate } from "./utils";
@@ -23,7 +24,7 @@ export function initAlarmClock (): Promise<void> {
                     continue;
                 }
                 if (time === nowTime) {
-                    searchByTimestamp(time).then(([_, { task }]) => {
+                    searchByTimestamp(time).then(([, { task }]) => {
                         taskHandle(time, task);
                     }).catch(errlog);
                     break;
@@ -55,7 +56,7 @@ export function trigger (timestamp: number) {
             deleteTask(time);
             continue;
         }
-        searchByTimestamp(time).then(([_, { task }]) => {
+        searchByTimestamp(time).then(([, { task }]) => {
             taskHandle(time, task);
         });
     }
@@ -75,7 +76,7 @@ export function settingAlarmClock () {
                     message: `[${getDate(timestamp)}] 设置完成`,
                     increment: 100
                 });
-                return delay(3000);
+                return delay(1000);
             }).then(resolve);
         }));
     });
@@ -136,8 +137,7 @@ async function deleteTask (timestamp: number) {
  */
 async function openAlarmClock (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) {
     // 显示闹钟信息
-    console.log(info);
-    
+    showAlarmClockInfo(getDate(timestamp, "YYYY年MM月DD日 hh时mm分ss秒"), info);
     // 判断是否重新插入
     if (cycle) {
         const nextTimestamp = cycleCalculate(timestamp, cycle);

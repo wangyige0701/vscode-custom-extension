@@ -45,8 +45,10 @@ export function createAndShowQuickPick<T> (options: QuickPickLabelOptions<T>[]):
 /**
  * 显示一个可选列表
  */
-export function showQuickPick(items: string[], options?: QuickPickOptions, token?: CancellationToken): Promise<string>;
-export function showQuickPick<T extends QuickPickItem>(items: T[], options?: QuickPickOptions, token?: CancellationToken): Promise<T>;
+export function showQuickPick(items: string[], options?: QuickPickOptions & { canPickMany?: false }, token?: CancellationToken): Promise<string>;
+export function showQuickPick(items: string[], options: QuickPickOptions & { canPickMany: true }, token?: CancellationToken): Promise<string[]>;
+export function showQuickPick<T extends QuickPickItem>(items: T[], options?: QuickPickOptions & { canPickMany?: false }, token?: CancellationToken): Promise<T>;
+export function showQuickPick<T extends QuickPickItem>(items: T[], options: QuickPickOptions & { canPickMany: true }, token?: CancellationToken): Promise<T[]>;
 export function showQuickPick<T extends QuickPickItem> (items: T[] | string[], options?: QuickPickOptions, token?: CancellationToken) {
     if (isArray(items) && (items as string[]).every(item => isString(item))) {
         return Promise.resolve(window.showQuickPick((items as string[]), options, token));

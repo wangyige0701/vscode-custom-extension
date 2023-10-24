@@ -1,5 +1,5 @@
 import { window } from "vscode";
-import type { CancellationToken } from "vscode";
+import type { CancellationToken, InputBoxOptions } from "vscode";
 import type { InputOptions } from "./types";
 
 /**
@@ -8,7 +8,7 @@ import type { InputOptions } from "./types";
  * @param validateInput 自定义校验规则
  * @param token 关闭输入框的token
  */
-export function getInputInfo ({
+export function showInputBox ({
     title,
     prompt,
     placeHolder,
@@ -18,7 +18,7 @@ export function getInputInfo ({
     ignoreFocusOut = true,
     value,
     valueSelection
-}: InputOptions, validateInput?: (test: string) => string, token?: CancellationToken): Promise<string | undefined> {
+}: InputOptions, validateInput?: InputBoxOptions["validateInput"], token?: CancellationToken): Promise<string | undefined> {
     return new Promise((resolve, reject) => {
         Promise.resolve(
             window.showInputBox({

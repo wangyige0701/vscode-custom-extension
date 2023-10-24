@@ -7,16 +7,17 @@ import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./uti
  * 打开设置闹钟的操作面板
 */
 export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) {
-    /** 校验时间格式，连接符：[/-:] */
+    /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
 
     /** 校验年月日格式 */
     const dateCheck = /^(\d{4})[\-\/]([1-9]|0[1-9]|1[0-2])[\-\/]([1-9]|0[1-9]|[1-2][0-9]|3[01])$/;
 
+    /** 提示弹框显示时间 */
     const messageBoxShowTime = 5000;
 
     /**
-     * 创建新闹钟
+     * 创建新闹钟，输入时间
      */
     function _create () {
         showInputBox({

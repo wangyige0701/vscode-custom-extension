@@ -40,8 +40,8 @@ export function cycleCalculate (timestamp: number, cycle?: Cycle | undefined) {
     }
 }
 
-/** 获取当前时间，返回12小时制 */
-export function getTimeString (timestamp: number) {
+/** 获取当前时间，返回12小时制的字符串，可以选择是否包含时钟图标代码 */
+export function getTimeString (timestamp: number, icon: boolean = true) {
     let date = new Date(timestamp),
     y = date.getFullYear(),
     M = date.getMonth() + 1,
@@ -55,7 +55,7 @@ export function getTimeString (timestamp: number) {
     if (h > 12) {
         h = h - 12;
     }
-    return `$(wangyige-clock) ${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}`;
+    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}`;
 }
 
 /** 补位 */

@@ -34,6 +34,13 @@
 					"fontPath": "./resources/icon/icon.woff",
 					"fontCharacter": "\\E651"
 				}
+			},
+			"wangyige-alarmClock": {
+				"description": "alarm clock icon",
+				"default": {
+					"fontPath": "./resources/icon/icon.woff",
+					"fontCharacter": "\\E600"
+				}
 			}
 		},
 		"commands": [

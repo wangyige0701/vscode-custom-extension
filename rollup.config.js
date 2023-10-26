@@ -63,7 +63,15 @@ module.exports = [
         commonjs(),
         terserPlugin,
         mainJsonRequireChange(rootPath, 'dist', 'extension.js'),
-        mainModuleRequirePathChange(rootPath, ["axios", "sharp"], ["./library/axios", "./library/sharp"])
+        mainModuleRequirePathChange(rootPath, [
+            "axios", 
+            "sharp",
+            "../../time/openAlarmClockPanel"
+        ], [
+            "./library/axios", 
+            "./library/sharp", 
+            "./library/openAlarmClockPanel"
+        ])
     ]),
     bundle({
         input: 'src/uninstall.ts',
@@ -94,6 +102,7 @@ module.exports = [
         terserPlugin,
         externalJsonFilePathChange(rootPath)
     ]),
+    // 打包sharp模块文件
     bundle({
         input: 'src/library/external/sharp.ts',
         output: {
@@ -112,6 +121,7 @@ module.exports = [
         sharpNodeRequireChange(),
         externalJsonFilePathChange(rootPath)
     ]),
+    // 打包sharp依赖的use-libvips模块
     bundle({
         input: 'src/library/external/build/use-libvips.ts',
         output: {
@@ -157,5 +167,27 @@ module.exports = [
         externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
         pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
         lineCodeRemove()
+    ]),
+    // 打包闹钟面板引用方法文件
+    bundle({
+        input: 'src/library/external/openAlarmClockPanel.ts',
+        output: {
+            file: 'dist/library/openAlarmClockPanel.js',
+            format: 'cjs',
+            exports: "default"
+        },
+        external: ["vscode"]
+    }, [
+        typescript({
+            tsconfig: './tsconfig.json',
+            compilerOptions: {
+                module: "ESNext",
+                moduleResolution: "Node",
+                sourceMap: false
+            }
+        }),
+        resolvePlugin,
+        terserPlugin,
+        commonjs()
     ])
 ];

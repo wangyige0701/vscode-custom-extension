@@ -2,7 +2,7 @@ import { $rej, errlog } from "../error";
 import { delay, getDate } from "../utils";
 import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
-import { openOperationPanel } from "./openPanel";
+import openAlarmClockPanel from "../library/importer/openAlarmClockPanel";
 import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByTimestamp, storagePath } from "./storage";
 import type { AlarmClockRecordItemTask } from "./types";
@@ -69,7 +69,7 @@ export function trigger (timestamp: number) {
  * 开启面板设置闹钟
  */
 export function settingAlarmClock () {
-    openOperationPanel((timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
+    openAlarmClockPanel((timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
         showProgress({
             title: '正在设置闹钟',
             location: 'Notification'

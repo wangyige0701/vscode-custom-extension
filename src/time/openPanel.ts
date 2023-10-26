@@ -1,5 +1,6 @@
+import type { QuickPickItem } from "vscode";
 import { getDate } from "../utils";
-import { showInputBox, createAndShowQuickPick, showQuickPick, showProgressByTime } from "../utils/interactive";
+import { createQuickPick, showProgressByTime, MultiStep } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, SpecificWeek } from "./types";
 import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
 
@@ -16,21 +17,28 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
     /** 提示弹框显示时间 */
     const messageBoxShowTime = 5000;
 
+    let totalSteps = 3;
+
     /**
      * 创建新闹钟，输入时间
      */
     function _create () {
-        showInputBox({
+        MultiStep.showInputBox({
+            step: 1,
+            totalSteps,
             title: "请输入时间",
             prompt: "格式为：时:分；如：9:05/9:05 P  ",
-            placeHolder: "时和分的连接符可以是[:]；如果是12小时制，需要在最后写上p或a",
+            placeHolder: "时和分的连接符是 : ；如果是12小时制，需要在最后写上p或a表示时段",
             regexp: timeCheck,
-            error: "时间格式错误"
-        }).then(res => {
-            if (!res) {
-                return;
+            error: "时间格式错误",
+            back: true,
+            $proxy: true,
+            $complete: (res) => {
+                if (!res) {
+                    return;
+                }
+                _options(res);
             }
-            _options(res);
         });
     }
 
@@ -53,23 +61,26 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
             index
         };
     });
-    (callMap as unknown) = null;
-    (descriptions as unknown) = null;
+    (callMap as unknown) = null, (descriptions as unknown) = null;
     /**
      * 打开操作选项
      */
     function _options (time: string) {
         time = changeHourTo24(time, ":");
-        showQuickPick(infoList, {
+        MultiStep.showQuickPick(infoList, {
+            step: 2,
+            totalSteps,
             title: '请选择设置方式',
             placeHolder: `当前预设置时间：${time}`,
             ignoreFocusOut: true,
-            matchOnDetail: true
-        }).then(res => {
-            if (!res) {
-                return;
+            matchOnDetail: true,
+            back: true,
+            $complete: (res) => {
+                if (!res) {
+                    return;
+                }
+                res.callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
             }
-            res.callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
         });
     }
 
@@ -85,29 +96,55 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
                 index: SpecificWeek;
             };
         });
-        showQuickPick(weekList, {
-            title: 'aaaaa',
-            placeHolder: '请选择星期',
+        const selectedItems: QuickPickItem[] = [];
+        totalSteps = totalSteps + 1;
+        MultiStep.showQuickPick(weekList, {
+            step: 3,
+            totalSteps,
+            title: '请选择星期',
+            placeHolder: '请选择需要进行提醒的星期',
             canPickMany: true,
             ignoreFocusOut: true,
-            matchOnDetail: true
-        }).then(res => {
-            if (res.length === 0) {
-                showProgressByTime("未选择星期", messageBoxShowTime);
-                return;
+            matchOnDetail: true,
+            back: true,
+            selectedItems: selectedItems,
+            goBack () {
+                totalSteps = totalSteps - 1;
+            },
+            didChangeSelection (res) {
+                selectedItems.splice(0, selectedItems.length, ...res);
+            },
+            $complete: (res) => {
+                if (res.length === 0) {
+                    showProgressByTime("未选择星期", messageBoxShowTime);
+                    return;
+                }
+                callback(res.map(item => item.index).sort());
             }
-            callback(res.map(item => item.index).sort());
         });
     }
 
     /** 输入指定年月日 */
     function _writeSpecifyDay (today: number, callback: (date: string) => void) {
         const dayString = getDate(new Date(today), "YYYY-MM-DD");
-        showInputBox({
+        totalSteps = totalSteps + 1;
+        MultiStep.showInputBox({
+            step: 3,
+            totalSteps,
             title: '请输入年月日',
             placeHolder: '以[-/]连接年月日的数据',
             prompt: `如：${dayString}  `,
-            value: dayString
+            value: dayString,
+            back: true,
+            goBack () {
+                totalSteps = totalSteps - 1;
+            },
+            $complete: (res) => {
+                if (!res) {
+                    return;
+                }
+                callback(res);
+            }
         }, (text) => {
             if (!dateCheck.test(text)) {
                 return "年月日格式错误";
@@ -117,11 +154,6 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
                 return `日期：“${text}”不存在`;
             }
             return "";
-        }).then(res => {
-            if (!res) {
-                return;
-            }
-            callback(res);
         });
     }
 
@@ -178,24 +210,26 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
 
     /** 输入提示信息 */
     function _writeInfo (timestamp: number, cycle: AlarmClockRecordItemTask["cycle"]) {
-        showInputBox({
+        MultiStep.showInputBox({
+            step: totalSteps,
+            totalSteps: totalSteps,
             title: '请输入提醒内容',
-            placeHolder: "请输入"
+            placeHolder: "请输入",
+            back: true,
+            $complete: (text) => {
+                createAlarmClock(timestamp, text??"", cycle);
+            }
         }, (text) => {
             if (text.length > 100) {
                 return "输入字数不能超过一百字";
             }
             return "";
-        }).then(text => {
-            createAlarmClock(timestamp, text??"", cycle);
         });
     }
 
     // 打开面板
-    createAndShowQuickPick([{
+    createQuickPick([{
         callback: _create,
-        options: {
-            label: '新建闹钟',
-        }
+        label: '新建闹钟',
     }]);
 }

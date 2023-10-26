@@ -64,7 +64,7 @@ export function clearRepositoryWhenUninstall () {
 }
 
 /** vscode初始化后检测背景配置是否完整 */
-export async function WindowInitCheckCssModifyCompleteness () {
+export async function windowInitCheckCssModifyCompleteness () {
     // 检查css文件是否正确
 	await checkImageCssDataIsRight().then(state => {
 		if (state) {

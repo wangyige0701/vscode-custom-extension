@@ -1,6 +1,28 @@
 import { window } from "vscode";
 import type { CancellationToken, InputBoxOptions } from "vscode";
-import type { InputOptions } from "./types";
+import type { CreateInputOptions, InputOptions } from "./types";
+import { firstStrUpperCase, isFunction } from "..";
+
+/**
+ * 创建一个输入框面板
+ */
+export function creaetInputBox (options: CreateInputOptions) {
+    const input = window.createInputBox();
+    const isShow = options.show ?? true;
+    for (const key in options) {
+        // @ts-ignore
+        const value = options[key];
+        if (isFunction(value)) {
+            // @ts-ignore
+            input[`on${firstStrUpperCase(key)}`]?.(value.bind(input));
+            continue;
+        }
+        // @ts-ignore
+        input[key] = value;
+    }
+    isShow && input.show();
+    return input;
+}
 
 /**
  * 调用输入框api获取输入内容
@@ -30,7 +52,7 @@ export function showInputBox ({
                 value,
                 valueSelection,
                 validateInput: validateInput ? validateInput : function (text: string): string {
-                    if (regexp.test(text)) {
+                    if (!text || regexp.test(text)) {
                         return "";
                     } else {
                         return error;

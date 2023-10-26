@@ -279,3 +279,13 @@ export async function executeAllFunctions (...funcs: Array<Function>) {
         }
     }
 }
+
+/** 字符串第一个字符大写 */
+export function firstStrUpperCase (str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/** 字符串第一个字符小写 */
+export function firstStrLowerCase (str: string) {
+    return str.charAt(0).toLowerCase() + str.slice(1);
+}

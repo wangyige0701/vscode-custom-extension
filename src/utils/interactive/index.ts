@@ -1,12 +1,14 @@
-import { showInputBox } from "./input";
+import { showInputBox, creaetInputBox } from "./input";
 import { selectFile } from "./file";
 import { showMessage, showMessageWithConfirm } from "./messageBox";
 import { setStatusBar, setStatusBarResolve, setStatusBarItem } from "./statusBar";
 import { showProgress, showProgressByTime } from "./progress";
-import { createAndShowQuickPick, showQuickPick } from "./quickPick";
+import { createQuickPick, showQuickPick } from "./quickPick";
+import { MultiStep } from "./multiStep";
 
 export {
     showInputBox,
+    creaetInputBox,
     selectFile,
     showMessage,
     showMessageWithConfirm,
@@ -15,6 +17,7 @@ export {
     setStatusBarItem,
     showProgress,
     showProgressByTime,
-    createAndShowQuickPick,
-    showQuickPick
+    createQuickPick,
+    showQuickPick,
+    MultiStep
 };

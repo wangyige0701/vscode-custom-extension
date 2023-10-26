@@ -1,45 +1,60 @@
 import { window } from "vscode";
 import type { CancellationToken, QuickPickItem, QuickPickOptions } from "vscode";
-import type { QuickPickItemCallback, QuickPickLabelOptions } from "./types";
-import { isArray, isFunction, isPromise, isString } from "..";
+import type { QuickPickItemCallback, QuickPickItemsOptions, QuickPickPanelOptions, } from "./types";
+import { firstStrUpperCase, isArray, isFunction, isPromise, isString } from "..";
 
 /**
  * 创建并打开一个可选列表
  */
-export function createAndShowQuickPick<T> (options: QuickPickLabelOptions<T>[]): Promise<void | T> {
-    function _check (value: any): value is QuickPickItemCallback<T> {
+export function createQuickPick (items: QuickPickItemsOptions[], options: QuickPickPanelOptions = {}) {
+    function _check (value: any): value is QuickPickItemCallback {
         return isFunction(value) || isPromise(value);
     }
-    const callbackMap: { [key: string]: QuickPickItemCallback<T> } = {},
-    items: QuickPickItem[] = [];
-    for (const key of options) {
-        callbackMap[key.options.label] = key.callback;
-        items.push(key.options);
+    const callbackMap: { [key: string]: QuickPickItemCallback | undefined } = {};
+    // 属性整理
+    for (const key of items) {
+        // 判断回调函数属性是否被冻结
+        if (!Object.isFrozen(key.callback)) {
+            callbackMap[key.label] = key.callback??void 0;
+            delete key.callback;       
+        }
     }
-    return new Promise((resolve, reject) => {
-        const quickPick = window.createQuickPick();
-        quickPick.items = items;
-        quickPick.onDidChangeSelection(selection => {
-            if (selection[0]) {
-                const callback = callbackMap[selection[0].label];
-                if (_check(callback)) {
-                    Promise.resolve(
-                        isFunction(callback) ? callback(selection[0]) : callback
-                    ).then((res: T) => {
-                        resolve(res);
-                    }).catch(err => {
-                        reject(new Error("CreateQuickPick Error", { cause: err }));
-                    });
-                } else {
-                    resolve();
-                }
-            }
+    const quickPick = window.createQuickPick();
+    quickPick.items = items;
+    quickPick.onDidChangeSelection(selection => {
+        if (!selection[0]) {
+            return;
+        }
+        const callback = callbackMap[selection[0].label] ?? void 0;
+        if (!callback || !_check(callback)) {
+            return;
+        }
+        Promise.resolve(
+            isFunction(callback) ? callback() : callback
+        ).catch(err => {
+            throw new Error("CreateQuickPick Error", { cause: err });
         });
-        quickPick.onDidHide(() => {
-            quickPick.dispose();
-        });
-        quickPick.show();
     });
+    quickPick.onDidHide(() => {
+        quickPick.dispose();
+    });
+    // 是否立即显示
+    const isShow = options.show ?? true;
+    delete options.show;
+    // 自定义属性赋值
+    for (const key in options) {
+        // @ts-ignore
+        const value = options[key];
+        if (isFunction(value)) {
+            // @ts-ignore
+            quickPick[`on${firstStrUpperCase(key)}`]?.(value.bind(quickPick));
+            continue;
+        }
+        // @ts-ignore
+        quickPick[key] = value;
+    }
+    isShow && quickPick.show();
+    return quickPick;
 }
 
 /**

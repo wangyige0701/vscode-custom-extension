@@ -6,6 +6,9 @@ const matchRequire = /(require\s*\(\s*[`'"])(.*)([`'"]\s*\))/;
 
 /**
  * 修改全局引用的导入路径,禁止外部模块内容导入
+ * @param {string} rootPath 根路径
+ * @param {string[]} from
+ * @param {string[]} to
  */
 function mainModuleRequirePathChange (rootPath, from = [], to = []) {
     const checkPath = path.join(rootPath, 'src', 'library', 'importer');

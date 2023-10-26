@@ -1,12 +1,12 @@
 import { commands } from "vscode";
 import type { Disposable, ExtensionContext } from "vscode";
-import { WindowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
+import { windowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
 import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
 import { bindMessageCallback } from "../../utils/webview/message";
-import { backgroundExecute } from "./execute";
+import { backgroundWebviewCommunication } from "./communication";
 import { copyFileWhenVersionChange } from "../../version/versionChange";
 import { setStatusBarResolve } from "../../utils/interactive";
 import { errlog, $rej } from "../../error";
@@ -25,7 +25,7 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		return checkRandomCode();
 	}).then(state => {
 		// 检测配置完整
-		return createExParamPromise(WindowInitCheckCssModifyCompleteness(), state);
+		return createExParamPromise(windowInitCheckCssModifyCompleteness(), state);
 	}).then(([_, state]) => {
 		// 开启后判断是否随机修改背景
 		if (state) {
@@ -44,7 +44,7 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		commands.registerCommand('wangyige.background.resetStore', resetBackgroundStorePath);
 		commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
 		// 绑定事件通信回调
-		bindMessageCallback('onBackground', backgroundExecute);
+		bindMessageCallback('onBackground', backgroundWebviewCommunication);
 	}).catch(err => {
 		errlog(err);
 	}).finally(() => {

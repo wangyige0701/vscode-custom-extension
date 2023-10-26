@@ -92,13 +92,13 @@ const messageReceiver = messageExecute<backgroundMessageData>({
 });
 
 /**
- * 背景图通信数据处理
+ * 背景图webview侧栏页面通信数据处理
  * @param name 
  * @param value 
  * @param messageSend 
  * @param webview 
  */
-export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
+export function backgroundWebviewCommunication ({ name, value }: backgroundMessageData, webview: Webview) {
     if (!BackgroundWebviewInstance.value) {
         BackgroundWebviewInstance.set(webview);
     }

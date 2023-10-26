@@ -40,6 +40,16 @@ const terserOptions = { maxWorkers: 4 };
 /** 压缩插件 @type {RollupPlugin} */
 const terserPlugin = terser(terserOptions);
 
+/** ts解析配置 */
+const typescriptConfig = {
+    tsconfig: './tsconfig.json',
+    compilerOptions: {
+        module: "ESNext",
+        moduleResolution: "Node",
+        sourceMap: false
+    }
+};
+
 module.exports = [
     bundle({
         input: 'src/extension.ts',
@@ -50,14 +60,7 @@ module.exports = [
         external: ["vscode"],
     }, [
         removeDist(rootPath, 'dist'),
-        typescript({
-            tsconfig: './tsconfig.json',
-            compilerOptions: {
-                module: "ESNext",
-                moduleResolution: "Node",
-                sourceMap: false
-            }
-        }),
+        typescript(typescriptConfig),
         resolvePlugin,
         jsonPlugin,
         commonjs(),
@@ -178,14 +181,7 @@ module.exports = [
         },
         external: ["vscode"]
     }, [
-        typescript({
-            tsconfig: './tsconfig.json',
-            compilerOptions: {
-                module: "ESNext",
-                moduleResolution: "Node",
-                sourceMap: false
-            }
-        }),
+        typescript(typescriptConfig),
         resolvePlugin,
         terserPlugin,
         commonjs()

@@ -8,10 +8,7 @@ export default class WebviewInstance {
 
     constructor () {}
 
-    get value (): Webview {
-        if (!this.instance) {
-            throw new Error("The instance of Webview is not assignment");
-        }
+    get value (): Webview | undefined {
         return this.instance;
     }
 

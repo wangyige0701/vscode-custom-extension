@@ -7,7 +7,7 @@ import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./uti
 /**
  * 打开设置闹钟的操作面板
 */
-export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) {
+export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
     /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
 
@@ -33,11 +33,12 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
             error: "时间格式错误",
             back: true,
             $proxy: true,
-            $complete: (res) => {
+            $complete: (res, nextStep) => {
                 if (!res) {
                     return;
                 }
                 _options(res);
+                nextStep();
             }
         });
     }
@@ -56,7 +57,7 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
     const infoList = ['当天提醒', '每天提醒', '每周提醒', '指定星期提醒', '指定年月日提醒'].map((item, index) => {
         return {
             label: item,
-            callback: callMap[index],
+            callback: callMap[index] as ((timestamp: number, nowTimestamp: number, inputTime: string) => void | false),
             description: descriptions[index],
             index
         };
@@ -75,11 +76,16 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
             ignoreFocusOut: true,
             matchOnDetail: true,
             back: true,
-            $complete: (res) => {
+            $complete: (res, nextStep) => {
                 if (!res) {
                     return;
                 }
-                res.callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
+                // 返回false则不进行下一步的跳转
+                const state = res.callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
+                if (state === false) {
+                    return;
+                }
+                nextStep();
             }
         });
     }
@@ -114,18 +120,19 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
             didChangeSelection (res) {
                 selectedItems.splice(0, selectedItems.length, ...res);
             },
-            $complete: (res) => {
+            $complete: (res, nextStep) => {
                 if (res.length === 0) {
                     showProgressByTime("未选择星期", messageBoxShowTime);
                     return;
                 }
                 callback(res.map(item => item.index).sort());
+                nextStep();
             }
         });
     }
 
     /** 输入指定年月日 */
-    function _writeSpecifyDay (today: number, callback: (date: string) => void) {
+    function _writeSpecifyDay (today: number, callback: (date: string) => void | false) {
         const dayString = getDate(new Date(today), "YYYY-MM-DD");
         totalSteps = totalSteps + 1;
         MultiStep.showInputBox({
@@ -139,11 +146,15 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
             goBack () {
                 totalSteps = totalSteps - 1;
             },
-            $complete: (res) => {
+            $complete: (res, nextStep) => {
                 if (!res) {
                     return;
                 }
-                callback(res);
+                const state = callback(res);
+                if (state === false) {
+                    return;
+                }
+                nextStep();
             }
         }, (text) => {
             if (!dateCheck.test(text)) {
@@ -160,8 +171,8 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
     /** 当天，需要判断时间是否超过 */
     function _today (timestamp: number, nowTimestamp: number) {
         if (timestamp < nowTimestamp) {
-            showProgressByTime(`[${getDate(timestamp)}] 不能设置过去的时间`, messageBoxShowTime);
-            return;
+            showProgressByTime(`【${getDate(timestamp, clockFullInfoType)}】不能设置过去的时间`, messageBoxShowTime);
+            return false;
         }
         _writeInfo(timestamp, void 0);
     }
@@ -201,8 +212,8 @@ export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback) 
         _writeSpecifyDay(nowTimestamp, (date) => {
             const settingTime = new Date(`${date} ${inputTime}:00`).getTime();
             if (settingTime < nowTimestamp) {
-                showProgressByTime(`[${getDate(settingTime)}] 不能设置过去的时间`, messageBoxShowTime);
-                return;
+                showProgressByTime(`【${getDate(settingTime, clockFullInfoType)}】不能设置过去的时间`, messageBoxShowTime);
+                return false;
             }
             _writeInfo(settingTime, void 0);
         });

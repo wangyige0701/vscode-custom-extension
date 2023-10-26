@@ -1,4 +1,12 @@
-import type { InputOptions, QuickPickItemsOptions, ShowInputBoxValidation, ShowQuickPickOptions, Complete, MultiStepCollectFunc, MultiStepInputBoxExtraType } from "./types";
+import type { 
+    InputOptions, 
+    QuickPickItemsOptions, 
+    ShowInputBoxValidation, 
+    ShowQuickPickOptions, 
+    Complete, 
+    MultiStepCollectFunc, 
+    MultiStepInputBoxExtraType 
+} from "./types";
 import { creaetInputBox, createQuickPick } from "./index";
 import { QuickInputButtons } from "vscode";
 import { isFunction, isString } from "..";
@@ -6,26 +14,36 @@ import { isFunction, isString } from "..";
 export class MultiStep {
     private static collect: [Function, string | undefined][] = [];
 
+    /**
+     * 传入函数则将对应函数插入收集队列，否则从队列中移除元素进行调用
+     */
+    private static run (func: Exclude<MultiStepCollectFunc, Function>): Promise<void>;
+    private static run (func: Function, inputValue?: string): void;
     private static run (func?: MultiStepCollectFunc, inputValue?: string) {
         if (isFunction(func)) {
             this.collect.push([func, inputValue]);
             return;
         }
-        const item = this.collect.pop();
-        if (item) {
-            const callback = item[0];
-            const inputValue = item[1];
-            callback('back', inputValue);
-        }
-        func?.hide();
+        return <Promise<void>>new Promise(async resolve => {
+            const item = this.collect.pop();
+            if (item) {
+                const callback = item[0];
+                const inputValue = item[1];
+                await (inputValue ? callback('back', inputValue) : callback('back'));
+            }
+            func?.hide();
+            resolve();
+        });
     }
 
+    /** 清除所有队列数据 */
     private static clear () {
         this.collect.splice(0, this.collect.length);
     }
 
-    constructor () {}
-
+    /**
+     * 创建一个可以显示步骤数的输入框
+     */
     static showInputBox ({
         title,
         prompt,
@@ -44,15 +62,26 @@ export class MultiStep {
         buttons,
         comeBack,
         goBack
-    }: InputOptions & MultiStepInputBoxExtraType & Complete<string>, validateInput?: ShowInputBoxValidation): Promise<string | void> {
-        const lastParam = arguments[arguments.length - 1], secondLastParam = arguments[arguments.length - 2];
-        if (secondLastParam === 'back') {
-            comeBack?.();
+    }: InputOptions & MultiStepInputBoxExtraType & Complete<string>, validateInput?: ShowInputBoxValidation): Promise<string | void | 'back'> {
+        let oldInputValue: string | undefined = void 0;
+        // 参数判断，如果是通过后退键返回时触发，则倒数第二个参数是'back'，在快速选择模块里是最后一个
+        // 同时输入框方法内还会将上一次的value作为最后一个参数传入
+        const argsLength = arguments.length;
+        if (argsLength > 2) {
+            const lastParam = arguments[argsLength - 1], secondLastParam = arguments[argsLength - 2];
+            if (secondLastParam === 'back') {
+                // 如果当前函数是从返回队列中取出并执行的，调用一次comeBack回调函数
+                comeBack?.();
+                delete arguments[argsLength - 2];
+            }
+            if (isString(lastParam)) {
+                oldInputValue = lastParam;
+                delete arguments[argsLength - 1];
+            }
         }
-        const oldInputValue: string | undefined = isString(lastParam)?lastParam:void 0;
         const isBack = back === true && step && totalSteps && step <= totalSteps;
         const toCollect = this.showInputBox.bind(this, arguments[0], arguments[1]);
-        let collected: boolean = false;
+        let notActiveHide: boolean = true, backLock: boolean = false;
         return new Promise(resolve => {
             const input = creaetInputBox({
                 title,
@@ -78,51 +107,61 @@ export class MultiStep {
                     this.show();
                 },
                 didAccept () {
-                    $complete?.(this.value);
+                    $complete?.(this.value, () => {
+                        if (isBack) {
+                            if (step === totalSteps) {
+                                MultiStep.clear();
+                            } else {
+                                notActiveHide = false;
+                                MultiStep.run(toCollect, $proxy ? this.value : void 0);    
+                            }
+                        }
+                    });
                     resolve(this.value);
-                    if (!isBack) {
-                        return;
-                    }
-                    if (step === totalSteps) {
-                        MultiStep.clear();
-                        return;
-                    }
-                    collected = true;
-                    MultiStep.run(toCollect, $proxy ? this.value : void 0);
                 },
-                didHide: () => {
-                    if (isBack && !collected) {
-                        this.clear();
+                didHide () {
+                    // 只有在当前面板没有返回按键并且不是主动点击造成的隐藏时清除队列数据
+                    if (isBack && notActiveHide) {
+                        MultiStep.clear();
                     }
                 }
             });
             if (isBack && step && step > 1) {
+                // 步骤数大于1显示返回按钮
                 input.buttons = [QuickInputButtons.Back, ...(buttons || [])];
             }
-            input.onDidTriggerButton(item => {
-                if (item === QuickInputButtons.Back) {
-                    collected = true;
+            // 点击按钮的事件处理，返回按钮处理时执行goBack回调函数
+            input.onDidTriggerButton(async item => {
+                if (!backLock && item === QuickInputButtons.Back) {
+                    backLock = true;
+                    notActiveHide = false;
                     goBack?.();
-                    this.run();
+                    await this.run(input);
+                    resolve('back');
                 }
             });
         });
     }
 
     /**
+     * 创建一个可以显示步骤数的选择框
      * @param autoCallback 当存在callback属性时是否在选择后自动触发回调函数
      */
     static showQuickPick<T extends QuickPickItemsOptions> (items: T[], options: ShowQuickPickOptions<T> & { canPickMany?: false }, autoCallback?: boolean): Promise<T>;
     static showQuickPick<T extends QuickPickItemsOptions> (items: T[], options: ShowQuickPickOptions<T[]> & { canPickMany: true }, autoCallback?: boolean): Promise<T[]>;
-    static showQuickPick<T extends QuickPickItemsOptions> (items: T[], options: ShowQuickPickOptions<T | T[]>, autoCallback: boolean = false): Promise<T | T[]> {
-        const lastParam = arguments[arguments.length - 1];
-        if (lastParam === 'back') {
-            options.comeBack?.();
+    static showQuickPick<T extends QuickPickItemsOptions> (items: T[], options: ShowQuickPickOptions<T | T[]>, autoCallback: boolean = false): Promise<T | T[] | 'back'> {
+        const argsLength = arguments.length;
+        if (argsLength > 1) {
+            const lastParam = arguments[arguments.length - 1];
+            if (lastParam === 'back') {
+                options.comeBack?.();
+                delete arguments[arguments.length - 1];
+            }
         }
         const { step, totalSteps } = options;
         const isBack = options.back === true && step && totalSteps && step <= totalSteps;
         const toCollect = this.showQuickPick.bind(this, arguments[0], arguments[1], arguments[2]);
-        let collected: boolean = false;
+        let notActiveHide: boolean = true, backLock: boolean = false;
         return new Promise(resolve => {
             if (!autoCallback) {
                 for (const target of items) {
@@ -143,20 +182,20 @@ export class MultiStep {
                 ...options,
                 didAccept () {
                     const result = options.canSelectMany ? (this.selectedItems as T[]) : (this.selectedItems[0] as T);
-                    options.$complete?.(result);
+                    options.$complete?.(result, () => {
+                        if (isBack) {
+                            if (step === totalSteps) {
+                                MultiStep.clear();
+                            } else {
+                                notActiveHide = false;
+                                MultiStep.run(toCollect);
+                            }
+                        }
+                    });
                     resolve(result);
-                    if (!isBack) {
-                        return;
-                    }
-                    if (step === totalSteps) {
-                        MultiStep.clear();
-                        return;
-                    }
-                    collected = true;
-                    MultiStep.run(toCollect);
                 },
                 didHide () {
-                    if (isBack && !collected) {
+                    if (isBack && notActiveHide) {
                         MultiStep.clear();
                     }
                 }
@@ -164,11 +203,13 @@ export class MultiStep {
             if (isBack && options.step && options.step > 1) {
                 quickPick.buttons = [QuickInputButtons.Back, ...(options.buttons || [])];
             }
-            quickPick.onDidTriggerButton(item => {
-                if (item === QuickInputButtons.Back) {
-                    collected = true;
+            quickPick.onDidTriggerButton(async item => {
+                if (!backLock && item === QuickInputButtons.Back) {
+                    backLock = true;
+                    notActiveHide = false;
                     options.goBack?.();
-                    this.run();
+                    await this.run(quickPick);
+                    resolve('back');
                 }
             });
         });

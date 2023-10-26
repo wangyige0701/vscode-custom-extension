@@ -8,6 +8,9 @@ import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByT
 import type { AlarmClockRecordItemTask } from "./types";
 import { accurateTime, cycleCalculate } from "./utils";
 
+/** 显示的时间格式 */
+const clockFullInfoType = "YYYY年MM月DD日 hh时mm分";
+
 /**
  * 闹钟配置初始化
  */
@@ -73,13 +76,13 @@ export function settingAlarmClock () {
         }, (progress) => <Promise<void>>new Promise(resolve => {
             insertTask(timestamp, info, cycle).then(() => {
                 progress.report({
-                    message: `[${getDate(timestamp)}] 设置完成`,
+                    message: `【${getDate(timestamp, clockFullInfoType)}】设置完成`,
                     increment: 100
                 });
                 return delay(1000);
             }).then(resolve);
         }));
-    });
+    }, clockFullInfoType);
 }
 
 /**
@@ -137,7 +140,7 @@ async function deleteTask (timestamp: number) {
  */
 async function openAlarmClock (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) {
     // 显示闹钟信息
-    showAlarmClockInfo(getDate(timestamp, "YYYY年MM月DD日 hh时mm分ss秒"), info);
+    showAlarmClockInfo(getDate(timestamp, clockFullInfoType), info);
     // 判断是否重新插入
     if (cycle) {
         const nextTimestamp = cycleCalculate(timestamp, cycle);

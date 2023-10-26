@@ -7,7 +7,8 @@ import type {
     MultiStepCollectFunc, 
     MultiStepInputBoxExtraType 
 } from "./types";
-import { creaetInputBox, createQuickPick } from "./index";
+import { creaetInputBox } from "./input";
+import { createQuickPick } from "./quickPick";
 import { QuickInputButtons } from "vscode";
 import { isFunction, isString } from "..";
 

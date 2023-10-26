@@ -1,5 +1,6 @@
 import type { InputBox, QuickPick, QuickPickItem } from "vscode";
-import type { InputBoxTarget, QuickPickPanelOptions } from "./index";
+import type { InputBoxTarget } from "./input";
+import type { QuickPickPanelOptions } from "./quickPick";
 
 export type Complete<T> = {
     /** 当需要给面板添加后退按钮时，可以通过此事件接收结果 */

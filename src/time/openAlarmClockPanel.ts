@@ -7,7 +7,7 @@ import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./uti
 /**
  * 打开设置闹钟的操作面板
 */
-export function openOperationPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
+export default function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
     /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
 

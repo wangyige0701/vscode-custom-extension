@@ -4,7 +4,7 @@ import type { backgroundMessageData } from "./types";
 import { backgroundOpacityModify, requestImageToBackground } from "./modifyByInput";
 import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../viewImage";
-import { webviewInstance } from './executeWebview';
+import { BackgroundWebviewInstance } from './executeWebview';
 import { settingImage } from './executeSetting';
 import { messageExecute } from "../../utils/webview/message";
 
@@ -85,7 +85,7 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 查看大图，标题发送哈希码前七位 */
     viewBigImage: {
         execute: {
-            func: data => { toViewImage(data, getBase64DataFromObject.bind(null, data), `${data.slice(0, 7)}...`, webviewInstance.value!); },
+            func: data => { toViewImage(data, getBase64DataFromObject.bind(null, data), `${data.slice(0, 7)}...`, BackgroundWebviewInstance.value!); },
             data: true
         }
     }
@@ -99,8 +99,8 @@ const messageReceiver = messageExecute<backgroundMessageData>({
  * @param webview 
  */
 export function backgroundExecute ({ name, value }: backgroundMessageData, webview: Webview) {
-    if (!webviewInstance.value) {
-        webviewInstance.value = webview;
+    if (!BackgroundWebviewInstance.value) {
+        BackgroundWebviewInstance.set(webview);
     }
     // 执行对应方法
     messageReceiver(name, value);

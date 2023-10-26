@@ -1,4 +1,4 @@
-import { ExtensionContext, Webview } from "vscode";
+import type { ExtensionContext, Webview } from "vscode";
 
 /* 扩展侧和webview侧通信的类型 */
 

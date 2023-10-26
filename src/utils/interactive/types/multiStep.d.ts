@@ -3,7 +3,7 @@ import type { InputBoxTarget, QuickPickPanelOptions } from "./index";
 
 export type Complete<T> = {
     /** 当需要给面板添加后退按钮时，可以通过此事件接收结果 */
-    $complete?: (params: T) => any;
+    $complete?: (params: T, nextStep: () => void) => any;
 };
 
 export type ShowInputBoxValidation = (value: string) => InputBox["validationMessage"];

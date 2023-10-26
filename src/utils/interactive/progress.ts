@@ -50,7 +50,7 @@ export function showProgressByTime (content: string, time: number, showTime: boo
                         }, 1000 - t);
                         return;
                     }
-                    callback(` （${Math.floor(t / 1000)}秒后关闭）`);
+                    callback(`（${Math.floor(t / 1000)}秒后关闭）`);
                     setTimeout(() => {
                         _run(t - 1000);
                     }, 1000);

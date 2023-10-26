@@ -1,33 +1,47 @@
 
 /** 储存清空对象的方法 */
 class ReportRequire {
+    static autoClearTime = 1000 * 60 * 5;
     static store: Map<string, Function>;
+    static timeout: { [key: string]: NodeJS.Timeout };
 
     /** 插入一个清除函数 */
     static set (name: string, callback: Function) {
-        if (!ReportRequire.store) {
-            ReportRequire.store = new Map<string, Function>();
+        if (!this.store) {
+            this.store = new Map<string, Function>();
         }
-        ReportRequire.store.set(name, callback);
+        if (!this.timeout) {
+            this.timeout = {};
+        }
+        if (this.timeout[name]) {
+            clearTimeout(this.timeout[name]);
+        }
+        this.store.set(name, callback);
+        // 自动清除实例缓存
+        this.timeout[name] = setTimeout(() => {
+            this.execute(name);
+        }, this.autoClearTime);
     }
 
     /** 执行一个导入对象的清除函数 */
     static execute (name: string) {
-        if (ReportRequire.store.has(name)) {
-            ReportRequire.store.get(name)?.();
-            ReportRequire.store.delete(name);
+        if (this.store.has(name)) {
+            this.store.get(name)?.();
+            this.store.delete(name);
         }
     }
     
     /** 执行所有导入对象的清除函数 */
     static clear () {
         // 当未执行任何获取模块对象数据的函数时，store属性是undefined
-        if (!ReportRequire.store || ReportRequire.store.size <= 0) {
+        if (!this.store || this.store.size <= 0) {
             return;
         }
-        ReportRequire.store.forEach((val, key) => {
-            ReportRequire.execute(key);
+        this.store.forEach((val, key) => {
+            this.execute(key);
         });
+        (this.store as unknown) = null;
+        (this.timeout as unknown) = null;
     }
 }
 

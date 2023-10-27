@@ -5,3 +5,4 @@ export * from "./messageBox";
 export * from "./quickPick";
 export * from "./statusBar";
 export * from "./multiStep";
+export * from "./button";

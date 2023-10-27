@@ -68,12 +68,10 @@ module.exports = [
         mainJsonRequireChange(rootPath, 'dist', 'extension.js'),
         mainModuleRequirePathChange(rootPath, [
             "axios", 
-            "sharp",
-            "../../time/openAlarmClockPanel"
+            "sharp"
         ], [
             "./library/axios", 
-            "./library/sharp", 
-            "./library/openAlarmClockPanel"
+            "./library/sharp"
         ])
     ]),
     bundle({
@@ -170,20 +168,5 @@ module.exports = [
         externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
         pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
         lineCodeRemove()
-    ]),
-    // 打包闹钟面板引用方法文件
-    bundle({
-        input: 'src/library/external/openAlarmClockPanel.ts',
-        output: {
-            file: 'dist/library/openAlarmClockPanel.js',
-            format: 'cjs',
-            exports: "default"
-        },
-        external: ["vscode"]
-    }, [
-        typescript(typescriptConfig),
-        resolvePlugin,
-        terserPlugin,
-        commonjs()
     ])
 ];

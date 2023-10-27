@@ -2,7 +2,7 @@ import { $rej, errlog } from "../error";
 import { delay, getDate } from "../utils";
 import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
-import openAlarmClockPanel from "../library/importer/openAlarmClockPanel";
+import { openAlarmClockPanel } from "./panel";
 import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByTimestamp, storagePath } from "./storage";
 import type { AlarmClockRecordItemTask } from "./types";

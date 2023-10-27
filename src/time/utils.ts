@@ -1,4 +1,4 @@
-import { getDate, isArray } from "../utils";
+import { getDate, isArray, isNumber } from "../utils";
 import type { Cycle, SpecificWeek } from "./types";
 
 /** 星期 */
@@ -132,4 +132,23 @@ export function isDateExist (year: string | number, month: string | number, day:
     } else {
         return dayNum <= 31;
     }
+}
+
+/**
+ * 返回周期的信息
+ */
+export function cycleInfo (cycle?: Cycle) {
+    if (cycle === 'DAY') {
+        return "每天响铃";
+    } else if (cycle === 'WEEK') {
+        return "每周响铃";
+    } else if (isArray(cycle) && cycle.every(item => isNumber(item) && item >=0 && item <= 6)) {
+        let weeks = cycle.map(item => item === 0 ? 7 : item);
+        const result = weeks.reduce((prev, curr) => {
+            prev.push('周' + weeksName[curr]);
+            return prev;
+        }, [] as string[]);
+        return result.join('，') + '响铃';
+    }
+    return "响铃一次";
 }

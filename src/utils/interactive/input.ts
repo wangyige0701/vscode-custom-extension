@@ -20,6 +20,9 @@ export function creaetInputBox (options: CreateInputOptions) {
         // @ts-ignore
         input[key] = value;
     }
+    input.onDidHide(() => {
+        input.dispose();
+    });
     isShow && input.show();
     return input;
 }

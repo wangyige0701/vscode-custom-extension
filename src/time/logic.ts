@@ -2,7 +2,7 @@ import { $rej, errlog } from "../error";
 import { delay, getDate } from "../utils";
 import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
-import { openAlarmClockPanel } from "./panel";
+import openAlarmClockPanel from "./panel";
 import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath } from "./storage";
 import type { AlarmClockRecordItemTask } from "./types";
@@ -69,20 +69,24 @@ export function trigger (timestamp: number) {
  * 开启面板设置闹钟
  */
 export function settingAlarmClock () {
-    openAlarmClockPanel(async (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
-        await showProgress({
-            title: '正在设置闹钟',
-            location: 'Notification'
-        }, (progress) => <Promise<void>>new Promise(resolve => {
-            insertTask(timestamp, info, cycle).then(() => {
-                progress.report({
-                    message: `【${getDate(timestamp, clockFullInfoType)}】设置完成`,
-                    increment: 100
-                });
-                return delay(1000);
-            }).then(resolve);
-        }));
-    }, clockFullInfoType);
+    openAlarmClockPanel({
+        createAlarmClock: async (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
+            await showProgress({
+                title: '正在设置闹钟',
+                location: 'Notification'
+            }, (progress) => <Promise<void>>new Promise(resolve => {
+                insertTask(timestamp, info, cycle).then(() => {
+                    progress.report({
+                        message: `【${getDate(timestamp, clockFullInfoType)}】设置完成`,
+                        increment: 100
+                    });
+                    return delay(1000);
+                }).then(resolve);
+            }));
+        }, 
+        clockFullInfoType, 
+        deleteTask
+    });
 }
 
 /**
@@ -132,7 +136,7 @@ function taskHandle (timestamp: number, task: AlarmClockRecordItemTask[]) {
  * 删除一个任务
  */
 async function deleteTask (timestamp: number) {
-    deleteByTimestamp(timestamp).catch(errlog);
+    await deleteByTimestamp(timestamp).catch(errlog);
 }
 
 /**
@@ -150,8 +154,3 @@ async function openAlarmClock (timestamp: number, info: string, cycle: AlarmCloc
         insertTask(nextTimestamp, info, cycle).catch(errlog);
     }
 }
-
-/**
- * 刷新函数
- */
-function refresh () {}

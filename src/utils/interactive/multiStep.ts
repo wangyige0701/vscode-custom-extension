@@ -10,6 +10,7 @@ import type {
 import { creaetInputBox } from "./input";
 import { createQuickPick } from "./quickPick";
 import { QuickInputButtons } from "vscode";
+import type { QuickInputButton } from "vscode";
 import { isFunction, isString } from "..";
 
 export class MultiStep {
@@ -62,7 +63,8 @@ export class MultiStep {
         $proxy = false,
         buttons,
         comeBack,
-        goBack
+        goBack,
+        triggerButton
     }: InputOptions & MultiStepInputBoxExtraType & Complete<string>, validateInput?: ShowInputBoxValidation): Promise<string | void | 'back'> {
         let oldInputValue: string | undefined = void 0;
         // 参数判断，如果是通过后退键返回时触发，则倒数第二个参数是'back'，在快速选择模块里是最后一个
@@ -128,9 +130,20 @@ export class MultiStep {
                     }
                 }
             });
+            // 按钮设置
+            let settintButtons: QuickInputButton[] | undefined = void 0;
             if (isBack && step && step > 1) {
                 // 步骤数大于1显示返回按钮
-                input.buttons = [QuickInputButtons.Back, ...(buttons || [])];
+                settintButtons = [QuickInputButtons.Back];
+            }
+            if (buttons && buttons.length > 0) {
+                if (!settintButtons) {
+                    settintButtons = [];
+                }
+                settintButtons.push(...(buttons || []));
+            }
+            if (settintButtons) {
+                input.buttons = settintButtons;
             }
             // 点击按钮的事件处理，返回按钮处理时执行goBack回调函数
             input.onDidTriggerButton(async item => {
@@ -142,6 +155,9 @@ export class MultiStep {
                     resolve('back');
                 }
             });
+            if (triggerButton) {
+                input.onDidTriggerButton(triggerButton);
+            }
         });
     }
 
@@ -203,8 +219,18 @@ export class MultiStep {
                     }
                 }
             });
+            let settintButtons: QuickInputButton[] | undefined = void 0;
             if (isBack && options.step && options.step > 1) {
-                quickPick.buttons = [QuickInputButtons.Back, ...(options.buttons || [])];
+                settintButtons = [QuickInputButtons.Back];
+            }
+            if (options.buttons && options.buttons.length > 0) {
+                if (!settintButtons) {
+                    settintButtons = [];
+                }
+                settintButtons.push(...(options.buttons || []));
+            }
+            if (settintButtons) {
+                quickPick.buttons = settintButtons;
             }
             quickPick.onDidTriggerButton(async item => {
                 if (!backLock && item === QuickInputButtons.Back) {

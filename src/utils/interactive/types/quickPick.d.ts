@@ -1,4 +1,4 @@
-import type { Event, QuickPick, QuickPickItem } from "vscode";
+import type { Event, QuickPick, QuickPickItem, ThemeIcon, Uri } from "vscode";
 
 export type QuickPickItemCallback = ((...data: any[]) => any) | { then: Promise<any>["then"] };
 
@@ -7,7 +7,8 @@ export type QuickPickItemsOptions = {
     [key in keyof QuickPickItem]: QuickPickItem[key];
 } & {
     callback?: QuickPickItemCallback;
-}
+    iconPath?: Uri | ThemeIcon | {dark: Uri, light: Uri};
+};
 
 /** 不需要忽略的属性 */
 type NeedQuickPickPanelOptions = Omit<QuickPick<QuickPickItem>, "show" | "items" | "dispose" | "hide">;

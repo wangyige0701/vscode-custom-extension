@@ -97,7 +97,7 @@ export function isString (value: any): value is string {
  * @param value 
  */
 export function isNumber (value: any): value is number {
-    return typeof value === 'number';
+    return typeof value === 'number' && !isNaN(value);
 }
 
 /**

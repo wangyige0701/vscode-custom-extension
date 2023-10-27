@@ -1,6 +1,6 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { commands } from "vscode";
-import { initAlarmClock, settingAlarmClock, trigger } from "./alarmClock";
+import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
 import { errlog } from '../error';
 import { setStatusBarItem } from '../utils/interactive';
 import { getTimeString } from "./utils";

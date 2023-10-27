@@ -3,11 +3,12 @@ import { getDate } from "../utils";
 import { createQuickPick, showProgressByTime, MultiStep } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, SpecificWeek } from "./types";
 import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
+import { createQuickButton } from "../utils/interactive/button";
 
 /**
  * 打开设置闹钟的操作面板
 */
-export default function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
+export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
     /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
 
@@ -240,7 +241,15 @@ export default function openAlarmClockPanel (createAlarmClock: CreateAlarmClockC
 
     // 打开面板
     createQuickPick([{
-        callback: _create,
         label: '新建闹钟',
-    }]);
+    }], {
+        placeholder: "闹钟信息",
+        ignoreFocusOut: true,
+        buttons: [createQuickButton("create", { id: "add" }, "新建闹钟/Create alarm clock")],
+        didTriggerButton (res: unknown) {
+            if (res && (res as QuickPickItem & { id: string }).id === 'create') {
+                _create();
+            }
+        }
+    });
 }

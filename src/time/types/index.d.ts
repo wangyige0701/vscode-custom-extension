@@ -25,4 +25,4 @@ export interface AlarmClockRecordItem {
     task: AlarmClockRecordItemTask[];
 }
 
-export type CreateAlarmClockCallback = (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => any;
+export type CreateAlarmClockCallback = (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => Promise<void>;

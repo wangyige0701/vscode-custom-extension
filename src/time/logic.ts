@@ -69,8 +69,8 @@ export function trigger (timestamp: number) {
  * 开启面板设置闹钟
  */
 export function settingAlarmClock () {
-    openAlarmClockPanel((timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
-        showProgress({
+    openAlarmClockPanel(async (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => {
+        await showProgress({
             title: '正在设置闹钟',
             location: 'Notification'
         }, (progress) => <Promise<void>>new Promise(resolve => {

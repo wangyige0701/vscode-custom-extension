@@ -108,8 +108,8 @@ export class MultiStep {
                     this.show();
                 },
                 didAccept () {
-                    $complete?.(this.value, () => {
-                        if (isBack) {
+                    $complete?.(this.value, (ignore: boolean = false) => {
+                        if (!ignore && isBack) {
                             if (step === totalSteps) {
                                 MultiStep.clear();
                             } else {
@@ -117,6 +117,7 @@ export class MultiStep {
                                 MultiStep.run(toCollect, $proxy ? this.value : void 0);    
                             }
                         }
+                        return this.hide.bind(this);
                     });
                     resolve(this.value);
                 },
@@ -183,8 +184,8 @@ export class MultiStep {
                 ...options,
                 didAccept () {
                     const result = options.canSelectMany ? (this.selectedItems as T[]) : (this.selectedItems[0] as T);
-                    options.$complete?.(result, () => {
-                        if (isBack) {
+                    options.$complete?.(result, (ignore: boolean = false) => {
+                        if (!ignore && isBack) {
                             if (step === totalSteps) {
                                 MultiStep.clear();
                             } else {
@@ -192,6 +193,7 @@ export class MultiStep {
                                 MultiStep.run(toCollect);
                             }
                         }
+                        return this.hide.bind(this);
                     });
                     resolve(result);
                 },

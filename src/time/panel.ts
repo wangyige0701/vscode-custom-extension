@@ -228,8 +228,10 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
             title: '请输入提醒内容',
             placeHolder: "请输入",
             back: true,
-            $complete: (text) => {
-                createAlarmClock(timestamp, text??"", cycle);
+            async $complete (text, nextStep) {
+                await createAlarmClock(timestamp, text??"", cycle);
+                const hide = nextStep(true);
+                hide();
             }
         }, (text) => {
             if (text.length > 100) {

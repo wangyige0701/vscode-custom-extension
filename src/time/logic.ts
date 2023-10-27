@@ -4,7 +4,7 @@ import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import { openAlarmClockPanel } from "./panel";
 import { showAlarmClockInfo } from "./prompt";
-import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, settintByTimestamp, storagePath } from "./storage";
+import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath } from "./storage";
 import type { AlarmClockRecordItemTask } from "./types";
 import { accurateTime, cycleCalculate } from "./utils";
 
@@ -103,7 +103,7 @@ function checkInit (timestamp: number): Promise<void> {
                 if (!newTimestamp) {
                     continue;
                 }
-                await settintByTimestamp(newTimestamp, val.info, val.cycle).catch(errlog);
+                await addByTimestamp(newTimestamp, val.info, val.cycle).catch(errlog);
             }
             resolve();
         }).catch(errlog);
@@ -115,7 +115,7 @@ function checkInit (timestamp: number): Promise<void> {
  */
 function insertTask (timestamp: number, info: string = '', cycle: AlarmClockRecordItemTask["cycle"] = void 0) {
     timestamp = accurateTime(timestamp);
-    return settintByTimestamp(timestamp, info, cycle);
+    return addByTimestamp(timestamp, info, cycle);
 }
 
 /**

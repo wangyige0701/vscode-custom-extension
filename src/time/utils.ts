@@ -1,6 +1,9 @@
 import { getDate, isArray } from "../utils";
 import type { Cycle, SpecificWeek } from "./types";
 
+/** 星期 */
+export const weeksName = ['日', '一', '二', '三', '四', '五', '六'];
+
 /**
  * 对时间戳进行精确处理，忽略秒数，只返回到分钟的时间戳
  */
@@ -20,6 +23,20 @@ export function cycleCalculate (timestamp: number, cycle?: Cycle | undefined) {
         return timestamp + 1000 * 60 * 60 * 24 * 7;
     } else if (isArray(cycle)) {
         const w = (new Date(timestamp).getDay()) as SpecificWeek;
+        if (!cycle.includes(w)) {
+            // 传入的时间戳并非处于周期中的时间，则需要查找距离此时间戳最近的星期
+            if (w < cycle[0]) {
+                return timestamp + (1000 * 60 * 60 * 24 * (cycle[0] - w));
+            } else if (w > cycle[cycle.length - 1]) {
+                return timestamp + (1000 * 60 * 60 * 24 * (6 - w + cycle[0]));
+            } else {
+                for (const week of cycle) {
+                    if (w < week) {
+                        return timestamp + (1000 * 60 * 60 * 24 * (week - w));
+                    }
+                }
+            }
+        }
         let curr = cycle.indexOf(w), next = curr + 1;
         if (next >= cycle.length ) {
             next = 0;
@@ -55,7 +72,7 @@ export function getTimeString (timestamp: number, icon: boolean = true) {
     if (h > 12) {
         h = h - 12;
     }
-    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}`;
+    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}【周${weeksName[date.getDay()]}】`;
 }
 
 /** 补位 */

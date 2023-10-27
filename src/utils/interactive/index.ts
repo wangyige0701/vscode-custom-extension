@@ -1,23 +1,8 @@
-import { showInputBox, creaetInputBox } from "./input";
-import { selectFile } from "./file";
-import { showMessage, showMessageWithConfirm } from "./messageBox";
-import { setStatusBar, setStatusBarResolve, setStatusBarItem } from "./statusBar";
-import { showProgress, showProgressByTime } from "./progress";
-import { createQuickPick, showQuickPick } from "./quickPick";
-import { MultiStep } from "./multiStep";
-
-export {
-    showInputBox,
-    creaetInputBox,
-    selectFile,
-    showMessage,
-    showMessageWithConfirm,
-    setStatusBar,
-    setStatusBarResolve,
-    setStatusBarItem,
-    showProgress,
-    showProgressByTime,
-    createQuickPick,
-    showQuickPick,
-    MultiStep
-};
+export * from "./input";
+export * from "./file";
+export * from "./messageBox";
+export * from "./statusBar";
+export * from "./progress";
+export * from "./quickPick";
+export * from "./multiStep";
+export * from "./icon";

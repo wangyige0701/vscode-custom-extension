@@ -1,9 +1,10 @@
 import type { QuickPickItem } from "vscode";
 import { getDate } from "../utils";
-import { createQuickPick, showProgressByTime, MultiStep } from "../utils/interactive";
+import { createQuickPick, showProgressByTime, MultiStep, createThemeIcon } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, SpecificWeek } from "./types";
-import { accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
+import { weeksName as weeks, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
 import { createQuickButton } from "../utils/interactive/button";
+import { clockRecord, clockRecordMap } from "./storage";
 
 /**
  * 打开设置闹钟的操作面板
@@ -94,9 +95,9 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
     /** 选择指定星期 */
     function _selectWeeks (callback: (list: SpecificWeek[]) => void) {
         /** 星期列表 */
-        const weekList = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((item, index) => {
+        const weekList = [...weeks.slice(1), ...weeks.slice(0, 1)].map((item, index) => {
             return {
-                label: item,
+                label: '周' + item,
                 index: index < 6 ? index + 1 : 0
             } as {
                 label: string;
@@ -200,8 +201,8 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
     function _specifyWeek (timestamp: number, nowTimestamp: number) {
         _selectWeeks((weekList) => {
             const nowWeek = new Date(nowTimestamp).getDay() as SpecificWeek;
-            if (timestamp < nowTimestamp && weekList.includes(nowWeek)) {
-                // 选择的星期包括今天并且时间小于当前，插入下一天的时间戳
+            if (timestamp <= nowTimestamp || !weekList.includes(nowWeek)) {
+                // 选择的星期不包括今天或者时间大于当前，插入下一天的时间戳
                 timestamp = cycleCalculate(timestamp, weekList);
             }
             _writeInfo(timestamp, weekList);
@@ -241,9 +242,30 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
         });
     }
 
+    /**
+     * 获取星期数据
+     */
+    const _getWeekInfo = (function () {
+        const nowTimestamp = Date.now(), nowWeek = new Date(nowTimestamp).getDay();
+        const nowSumday = new Date(getDate(nowTimestamp, "YYYY-MM-DD 23:59:59")).getTime() + (7 - (nowWeek === 0 ? 7 : nowWeek)) * 24 * 60 * 60 * 1000;
+        return function (timestamp: number) {
+            const date = new Date(timestamp);
+            const week = date.getDay();
+            const weekName = weeks[week];
+            const prefix = timestamp > nowSumday ? "下" : "本";
+            return `${prefix}周${weekName}`;
+        };
+    })();
+
     // 打开面板
-    createQuickPick([{
-        label: '新建闹钟',
+    createQuickPick(clockRecord.length > 0 ? clockRecord.map(item => {
+        return {
+            label: getDate(item, clockFullInfoType),
+            description: `（${_getWeekInfo(item)}）${clockRecordMap[item]}个任务`,
+            iconPath: createThemeIcon("wangyige-alarmClock")
+        };
+    }) : [{
+        label: '暂无闹钟数据'
     }], {
         placeholder: "闹钟信息",
         ignoreFocusOut: true,

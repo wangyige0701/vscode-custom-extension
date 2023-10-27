@@ -29,4 +29,6 @@ export type MultiStepInputBoxExtraType = {
     buttons?: InputBoxTarget;
     comeBack?: () => void;
     goBack?: () => void;
+    /** 多步骤输入框点击按钮时，触发的回调函数 */
+    triggerButton?: QuickPickPanelOptions["didTriggerButton"]
 };

@@ -1,15 +1,25 @@
-import type { QuickPickItem } from "vscode";
-import { getDate } from "../utils";
-import { createQuickPick, showProgressByTime, MultiStep, createThemeIcon } from "../utils/interactive";
+import { QuickInputButtons, QuickPickItemKind, type QuickPickItem } from "vscode";
+import { arabicNumeralsToChinese, getDate, isNumber } from "../utils";
+import { createQuickPick, showProgressByTime, MultiStep, createThemeIcon, showMessage } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, SpecificWeek } from "./types";
-import { weeksName as weeks, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
+import { weeksName as weeks, accurateTime, changeHourTo24, cycleCalculate, isDateExist, cycleInfo } from "./utils";
 import { createQuickButton } from "../utils/interactive/button";
-import { clockRecord, clockRecordMap } from "./storage";
+import { clockRecord, clockRecordMap, searchByTimestamp } from "./storage";
+import { errlog } from "../error";
+import type { QuickPickItemsOptions, QuickPickType } from "../utils/interactive/types";
 
 /**
  * 打开设置闹钟的操作面板
 */
-export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback, clockFullInfoType: string) {
+export default function openAlarmClockPanel ({
+    createAlarmClock, 
+    clockFullInfoType, 
+    deleteTask
+}: {
+    createAlarmClock: CreateAlarmClockCallback, 
+    clockFullInfoType: string, 
+    deleteTask: (timestamp: number) => Promise<void>
+}) {
     /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
 
@@ -19,6 +29,7 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
     /** 提示弹框显示时间 */
     const messageBoxShowTime = 5000;
 
+    /** 总步骤数 */
     let totalSteps = 3;
 
     /**
@@ -35,6 +46,14 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
             error: "时间格式错误",
             back: true,
             $proxy: true,
+            buttons: [QuickInputButtons.Back],
+            triggerButton (item) {
+                if (item === QuickInputButtons.Back) {
+                    // 时间输入框添加返回按钮返回主面板
+                    _open();
+                    this.hide();
+                }
+            },
             $complete: (res, nextStep) => {
                 if (!res) {
                     return;
@@ -59,7 +78,7 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
     const infoList = ['当天提醒', '每天提醒', '每周提醒', '指定星期提醒', '指定年月日提醒'].map((item, index) => {
         return {
             label: item,
-            callback: callMap[index] as ((timestamp: number, nowTimestamp: number, inputTime: string) => void | false),
+            $callback: callMap[index] as ((timestamp: number, nowTimestamp: number, inputTime: string) => void | false),
             description: descriptions[index],
             index
         };
@@ -83,7 +102,7 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
                     return;
                 }
                 // 返回false则不进行下一步的跳转
-                const state = res.callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
+                const state = res.$callback?.(accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), Date.now(), time);
                 if (state === false) {
                     return;
                 }
@@ -243,7 +262,7 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
     }
 
     /**
-     * 获取星期数据
+     * 获取星期数据，相对于当前是本周还是下周
      */
     const _getWeekInfo = (function () {
         const nowTimestamp = Date.now(), nowWeek = new Date(nowTimestamp).getDay();
@@ -257,23 +276,148 @@ export function openAlarmClockPanel (createAlarmClock: CreateAlarmClockCallback,
         };
     })();
 
-    // 打开面板
-    createQuickPick(clockRecord.length > 0 ? clockRecord.map(item => {
-        return {
-            label: getDate(item, clockFullInfoType),
-            description: `（${_getWeekInfo(item)}）${clockRecordMap[item]}个任务`,
-            iconPath: createThemeIcon("wangyige-alarmClock")
-        };
-    }) : [{
-        label: '暂无闹钟数据'
-    }], {
-        placeholder: "闹钟信息",
-        ignoreFocusOut: true,
-        buttons: [createQuickButton("create", { id: "add" }, "新建闹钟/Create alarm clock")],
-        didTriggerButton (res: unknown) {
-            if (res && (res as QuickPickItem & { id: string }).id === 'create') {
-                _create();
+    /** 确认删除 */
+    function _confirmDelete (timestamp: number): Promise<void> {
+        return new Promise(resolve => {
+            showMessage({
+                message: "删除闹钟",
+                modal: true,
+                detail: `是否删除${getDate(timestamp)}的所有任务？`,
+                items: [{
+                    id: 0,
+                    title: '确认'
+                }]
+            }).then(async res => {
+                if (res && res.id === 0) {
+                    await deleteTask(timestamp);
+                }
+                resolve();
+            }).catch(errlog);
+        });
+    }
+
+    /** 闹钟详情列表数据渲染 */
+    function _alarmInfoRenderList (task: AlarmClockRecordItemTask[]): QuickPickItemsOptions[] {
+        return task.length > 0 ? task.map((item, index) => {
+            return {
+                label: `任务${arabicNumeralsToChinese(index + 1)}：`,
+                description: cycleInfo(item.cycle),
+                detail: item.info
+            };
+        }) : [{
+            label: '暂无任务'
+        }];
+    }
+
+    /**
+     * 打开闹钟详情面板
+     * @this {QuickPickType}
+     */
+    function _alarmClockDetail (res: QuickPickItemsOptions) {
+        const { $uid: timestamp, $index: posiIndex } = (res as QuickPickItemsOptions & { $uid: number, $index: number});
+        searchByTimestamp(timestamp).then(([exits, data]) => {
+            if (!exits) {
+                showMessage({
+                    message: `【${res.label}】闹钟数据不存在`,
+                    detail: '点击确认关闭',
+                    modal: true,
+                    items: [{title: '确认'}]
+                }).then(() => {
+                    // @ts-ignore 此函数this指向打开的QuickPick面板
+                    this.hide();
+                });
+                return;
             }
-        }
-    });
+            createQuickPick(_alarmInfoRenderList(data.task), {
+                title: `【${res.label}】闹钟详情`,
+                placeholder: res.description,
+                ignoreFocusOut: true,
+                buttons: [QuickInputButtons.Back],
+                didTriggerButton (res) {
+                    if (res && res === QuickInputButtons.Back) {
+                        // 返回时传入索引，用于选中上一次点击的元素
+                        _open(posiIndex);
+                        this.hide();
+                    }
+                }
+            });
+        });
+    }
+
+    /** 生成渲染列表 */
+    function _rederList (): (QuickPickItemsOptions & { $index?: number, $uid?: number })[] {
+        const theKind = QuickPickItemKind.Separator;
+        const alarmIcon = createThemeIcon("wangyige-alarmClock");
+        const result: QuickPickItemsOptions[] = clockRecord.length > 0 ? clockRecord.map((item, index) => {
+            return {
+                $index: index,
+                $uid: item,
+                callback: _alarmClockDetail,
+                label: getDate(item, clockFullInfoType),
+                description: `（${_getWeekInfo(item)}）${clockRecordMap[item]}个任务`,
+                iconPath: alarmIcon,
+                buttons: [createQuickButton(`delete-${item}`, { id: "trash" }, "删除闹钟/Delete alarm clock")],
+            } as QuickPickItemsOptions;
+        }) : [{
+            label: '暂无闹钟数据',
+            description: '点击列表第一项或者点击右上角按钮 $(add) 创建',
+        }];
+        // 添加固定数据
+        result.unshift({
+            callback: _create,
+            label: "新建闹钟",
+            iconPath: createThemeIcon("add"),
+            alwaysShow: true
+        }, {
+            label: "关闭面板",
+            iconPath: createThemeIcon("close-all"),
+            callback () {
+                this.hide();
+            },
+            alwaysShow: true
+        }, {
+            label: "闹钟数据",
+            kind: theKind
+        });
+        return result;
+    }
+
+    /** 打开面板 */
+    function _open (posi?: number) {
+        const renderList = _rederList();
+        // 过滤选中的元素
+        const select = isNumber(posi) ? renderList.find(item => item && item.$index === posi) ?? void 0 : void 0;
+        createQuickPick(renderList, {
+            placeholder: "闹钟信息",
+            ignoreFocusOut: true,
+            activeItems: select ? [select] : void 0,
+            buttons: [
+                QuickInputButtons.Back,
+                createQuickButton("create", { id: "add" }, "新建闹钟/Create alarm clock")
+            ],
+            didTriggerButton (res: unknown) {
+                if (res && (res as QuickPickItem & { id: string }).id === 'create') {
+                    _create();
+                } else {
+                    this.hide();
+                }
+            },
+            didTriggerItemButton (res) {
+                if (!res) {
+                    return;
+                }
+                const button: unknown = res.button;
+                const id = (button as QuickPickItem & { id: string }).id;
+                if (id && id.startsWith('delete-')) {
+                    _confirmDelete(parseInt(id.split('-')[1])).then(() => {
+                        // 更新面板
+                        this.items = _rederList();
+                        this.show();
+                    });
+                }
+            }
+        });
+    }
+
+    _open();
 }

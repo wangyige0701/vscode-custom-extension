@@ -30,13 +30,10 @@ export function createQuickPick (items: QuickPickItemsOptions[], options: QuickP
             return;
         }
         Promise.resolve(
-            isFunction(callback) ? callback() : callback
+            isFunction(callback) ? callback.call(quickPick, selection[0]) : callback
         ).catch(err => {
             throw new Error("CreateQuickPick Error", { cause: err });
         });
-    });
-    quickPick.onDidHide(() => {
-        quickPick.dispose();
     });
     // 是否立即显示
     const isShow = options.show ?? true;
@@ -53,6 +50,9 @@ export function createQuickPick (items: QuickPickItemsOptions[], options: QuickP
         // @ts-ignore
         quickPick[key] = value;
     }
+    quickPick.onDidHide(() => {
+        quickPick.dispose();
+    });
     isShow && quickPick.show();
     return quickPick;
 }

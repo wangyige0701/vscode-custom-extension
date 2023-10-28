@@ -1,4 +1,5 @@
 import { getDate, isArray, isNumber } from "../utils";
+import { CycleItem } from "./cycle";
 import type { Cycle, SpecificWeek } from "./types";
 
 /** 星期 */
@@ -12,16 +13,26 @@ export function accurateTime (timestamp: number): number {
 }
 
 /**
+ * 判断是否是星期列表
+ */
+export function isCycleWeeks (value: Array<any>): value is SpecificWeek[] {
+    return isArray(value) && value.every(item => isNumber(item) && item >=0 && item <= 6);
+}
+
+/**
  * 根据周期计算下一次触发的新时间戳
  * 星期列表是0-6的数字组成的数组，0代表周日
  */
 export function cycleCalculate (timestamp: number, cycle: Cycle): number;
 export function cycleCalculate (timestamp: number, cycle?: Cycle | undefined) {
-    if (cycle === "DAY") {
+    if (!cycle) {
+        return timestamp;
+    }
+    if (cycle === CycleItem.DAY) {
         return timestamp + 1000 * 60 * 60 * 24;
-    } else if (cycle === "WEEK") {
+    } else if (cycle === CycleItem.WEEK) {
         return timestamp + 1000 * 60 * 60 * 24 * 7;
-    } else if (isArray(cycle)) {
+    } else if (isCycleWeeks(cycle)) {
         const w = (new Date(timestamp).getDay()) as SpecificWeek;
         if (!cycle.includes(w)) {
             // 传入的时间戳并非处于周期中的时间，则需要查找距离此时间戳最近的星期
@@ -138,11 +149,14 @@ export function isDateExist (year: string | number, month: string | number, day:
  * 返回周期的信息
  */
 export function cycleInfo (cycle?: Cycle) {
-    if (cycle === 'DAY') {
+    if (!cycle) {
+        return "响铃一次";
+    }
+    if (cycle === CycleItem.DAY) {
         return "每天响铃";
-    } else if (cycle === 'WEEK') {
+    } else if (cycle === CycleItem.WEEK) {
         return "每周响铃";
-    } else if (isArray(cycle) && cycle.every(item => isNumber(item) && item >=0 && item <= 6)) {
+    } else if (isCycleWeeks(cycle)) {
         let weeks = cycle.map(item => item === 0 ? 7 : item);
         const result = weeks.reduce((prev, curr) => {
             prev.push('周' + weeksName[curr]);

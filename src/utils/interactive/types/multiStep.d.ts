@@ -14,9 +14,11 @@ export type ShowQuickPickOptions<T> = QuickPickPanelOptions & {
     totalSteps?: number;
     placeHolder?: string;
     canPickMany?: boolean;
-    back?: boolean;
-    comeBack?: () => void;
-    goBack?: () => void;
+    $backButton?: boolean;
+    /** 点击返回按钮自动返回上一级 */
+    $back?: boolean;
+    $comeBack?: () => void;
+    $goBack?: () => void;
 } &  Complete<T>;
 
 export type MultiStepCollectFunc = Function | InputBox | QuickPick<QuickPickItem>;
@@ -24,11 +26,14 @@ export type MultiStepCollectFunc = Function | InputBox | QuickPick<QuickPickItem
 export type MultiStepInputBoxExtraType = { 
     step?: number;
     totalSteps?: number
-    back?: boolean;
-    $proxy?: boolean;
     buttons?: InputBoxTarget;
-    comeBack?: () => void;
-    goBack?: () => void;
+    $backButton?: boolean;
+    /** 点击返回按钮自动返回上一级 */
+    $back?: boolean;
+    /** 输入框代理初始值，返回上一级时保留上次的输入文本 */
+    $proxy?: boolean;
+    $comeBack?: () => void;
+    $goBack?: () => void;
     /** 多步骤输入框点击按钮时，触发的回调函数 */
-    triggerButton?: QuickPickPanelOptions["didTriggerButton"]
+    $triggerButton?: QuickPickPanelOptions["didTriggerButton"]
 };

@@ -44,7 +44,7 @@ export type SettingOptionsCallbackParams = {
     stepSetting?: CreateTimeInputSteps;
 };
 
-export type SettingOptionsIsPromise<T> = () => Promise<T>;
+export type SettingOptionIsPromise<T> = () => Promise<T>;
 
 type Type1 = SettingOptionsType<SettingOptionsAllTypes>;
 type Type2 = SettingOptionsExcludeType<SettingOptionsAllTypes>;
@@ -54,9 +54,24 @@ export type SettingOptionsCallbackType = (
     timestamp: number, 
     nowTimestamp: number, 
     inputTime?: string
-) => Promise<false|SettingOptionsIsPromise<Type1>|SettingOptionsIsPromise<Type2>>;
+) => Promise<false|SettingOptionIsPromise<Type1>|SettingOptionIsPromise<Type2>>;
 
 export type CreateTimeInputSteps = {
     step: number;
     totalSteps: number;
+};
+
+/** 需要更新的数据类型 */
+export type UpdateTimestampTarget = {
+    content: Cycle | undefined;
+    type: "CYCLE";
+    nextTime: number;
+} | {
+    content: string;
+    type: "TASK"
+    nextTime?: undefined;
+} | {
+    content: number;
+    type: "TIME";
+    nextTime?: undefined;
 };

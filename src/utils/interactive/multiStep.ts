@@ -58,13 +58,14 @@ export class MultiStep {
         valueSelection,
         step,
         totalSteps,
-        back = false,
+        buttons,
+        $back = false,
+        $backButton = false,
         $complete,
         $proxy = false,
-        buttons,
-        comeBack,
-        goBack,
-        triggerButton
+        $comeBack,
+        $goBack,
+        $triggerButton
     }: InputOptions & MultiStepInputBoxExtraType & Complete<string>, validateInput?: ShowInputBoxValidation): Promise<string | void | 'back'> {
         let oldInputValue: string | undefined = void 0;
         // 参数判断，如果是通过后退键返回时触发，则倒数第二个参数是'back'，在快速选择模块里是最后一个
@@ -74,7 +75,7 @@ export class MultiStep {
             const lastParam = arguments[argsLength - 1], secondLastParam = arguments[argsLength - 2];
             if (secondLastParam === 'back') {
                 // 如果当前函数是从返回队列中取出并执行的，调用一次comeBack回调函数
-                comeBack?.();
+                $comeBack?.();
                 delete arguments[argsLength - 2];
             }
             if (isString(lastParam)) {
@@ -82,7 +83,7 @@ export class MultiStep {
                 delete arguments[argsLength - 1];
             }
         }
-        const isBack = back === true && step && totalSteps && step <= totalSteps;
+        const isBack = $back === true && step && totalSteps && step <= totalSteps;
         const toCollect = this.showInputBox.bind(this, arguments[0], arguments[1]);
         let notActiveHide: boolean = true, backLock: boolean = false;
         return new Promise(resolve => {
@@ -132,7 +133,7 @@ export class MultiStep {
             });
             // 按钮设置
             let settintButtons: QuickInputButton[] | undefined = void 0;
-            if (isBack && step && step > 1) {
+            if ($backButton || (isBack && step && step > 1)) {
                 // 步骤数大于1显示返回按钮
                 settintButtons = [QuickInputButtons.Back];
             }
@@ -150,13 +151,15 @@ export class MultiStep {
                 if (!backLock && item === QuickInputButtons.Back) {
                     backLock = true;
                     notActiveHide = false;
-                    goBack?.();
-                    await this.run(input);
+                    $goBack?.();
+                    if (isBack) {
+                        await this.run(input);
+                    }
                     resolve('back');
                 }
             });
-            if (triggerButton) {
-                input.onDidTriggerButton(triggerButton);
+            if ($triggerButton) {
+                input.onDidTriggerButton($triggerButton);
             }
         });
     }
@@ -172,12 +175,12 @@ export class MultiStep {
         if (argsLength > 1) {
             const lastParam = arguments[arguments.length - 1];
             if (lastParam === 'back') {
-                options.comeBack?.();
+                options.$comeBack?.();
                 delete arguments[arguments.length - 1];
             }
         }
         const { step, totalSteps } = options;
-        const isBack = options.back === true && step && totalSteps && step <= totalSteps;
+        const isBack = options.$back === true && step && totalSteps && step <= totalSteps;
         const toCollect = this.showQuickPick.bind(this, arguments[0], arguments[1], arguments[2]);
         let notActiveHide: boolean = true, backLock: boolean = false;
         return new Promise(resolve => {
@@ -220,7 +223,7 @@ export class MultiStep {
                 }
             });
             let settintButtons: QuickInputButton[] | undefined = void 0;
-            if (isBack && options.step && options.step > 1) {
+            if (options.$backButton || (isBack && options.step && options.step > 1)) {
                 settintButtons = [QuickInputButtons.Back];
             }
             if (options.buttons && options.buttons.length > 0) {
@@ -236,8 +239,10 @@ export class MultiStep {
                 if (!backLock && item === QuickInputButtons.Back) {
                     backLock = true;
                     notActiveHide = false;
-                    options.goBack?.();
-                    await this.run(quickPick);
+                    options.$goBack?.();
+                    if (isBack) {
+                        await this.run(quickPick);
+                    }
                     resolve('back');
                 }
             });

@@ -11,7 +11,7 @@ import settingInit from "./settingPanels";
 
 /**
  * 打开设置闹钟的操作面板
-*/
+ */
 export default function openAlarmClockPanel ({
     createAlarmClock, 
     clockFullInfoType, 

@@ -61,8 +61,8 @@ export class MultiStep {
         buttons,
         $back = false,
         $backButton = false,
-        $complete,
         $proxy = false,
+        $complete,
         $comeBack,
         $goBack,
         $triggerButton

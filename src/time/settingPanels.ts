@@ -13,7 +13,8 @@ import type {
     SpecificWeek 
 } from "./types";
 import { CycleItem } from "./cycle";
-import { QuickInputButtons, type QuickPickItem } from "vscode";
+import { QuickInputButtons } from "vscode";
+import type { QuickPickItem } from "vscode";
 import { getDate } from "../utils";
 
 /**

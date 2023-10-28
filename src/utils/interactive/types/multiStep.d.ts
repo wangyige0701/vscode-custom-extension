@@ -14,12 +14,7 @@ export type ShowQuickPickOptions<T> = QuickPickPanelOptions & {
     totalSteps?: number;
     placeHolder?: string;
     canPickMany?: boolean;
-    $backButton?: boolean;
-    /** 点击返回按钮自动返回上一级 */
-    $back?: boolean;
-    $comeBack?: () => void;
-    $goBack?: () => void;
-} &  Complete<T>;
+} & SameTypes & Complete<T>;
 
 export type MultiStepCollectFunc = Function | InputBox | QuickPick<QuickPickItem>;
 
@@ -27,13 +22,19 @@ export type MultiStepInputBoxExtraType = {
     step?: number;
     totalSteps?: number
     buttons?: InputBoxTarget;
-    $backButton?: boolean;
-    /** 点击返回按钮自动返回上一级 */
-    $back?: boolean;
     /** 输入框代理初始值，返回上一级时保留上次的输入文本 */
     $proxy?: boolean;
-    $comeBack?: () => void;
-    $goBack?: () => void;
     /** 多步骤输入框点击按钮时，触发的回调函数 */
     $triggerButton?: QuickPickPanelOptions["didTriggerButton"]
+} & SameTypes;
+
+type SameTypes = {
+    /** 是否显示左上角的返回按键。如果设置了允许多步骤状态下自动返回上一级，则不用设置。 */
+    $backButton?: boolean;
+    /** 是否在多步骤任务时允许点击返回按钮自动返回上一级 */
+    $back?: boolean;
+    /** 从下一级页面返回后触发 */
+    $comeBack?: () => void;
+    /** 将要返回到上一级页面前触发 */
+    $goBack?: () => void;
 };

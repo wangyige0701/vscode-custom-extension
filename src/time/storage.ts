@@ -1,16 +1,13 @@
 import type { Uri } from "vscode";
 import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
-import { bisectionAsce } from "../utils/algorithm";
 import ExtensionUri from "../utils/system/extension";
 import { $rej } from "../error";
-import type { AlarmClockRecordItem, AlarmClockRecordItemTask } from "./types";
+import type { AlarmClockRecordItem, AlarmClockRecordItemTask, Cycle, UpdateTimestampTarget } from "./types";
 import { isNumber } from "../utils";
+import { ClockRecord } from "./cache";
 
 /** 闹钟时间数据记录数组，元素为时间戳，升序排列 */
-export const clockRecord: number[] = [];
-
-/** 某一时刻的闹钟数量 */
-export const clockRecordMap: { [key: string]: number } = {};
+export const clockRecord: ClockRecord = new ClockRecord(refreshBasicData);
 
 /** 储存闹钟数据的文件夹 */
 export const storagePath = ["resources", "alarmclock"];
@@ -26,18 +23,18 @@ const mathcAllTimeRegexp = /(?:(\d{10,13})(?:{(\d*)})?)/g;
  */
 export function fileInit (): Promise<void> {
     /** 对记录的数据进行校验 */
-    async function _check (pathUri: Uri) {
-        let refresh = false, i = 0, length = clockRecord.length;
-        for (; i < length; i++) {
-            const time = clockRecord[i];
+    function _check (pathUri: Uri) {
+        clockRecord.forEach((time) => {
             if (!isFileExitsSync(joinPathUri(pathUri, time.toString()))) {
-                remove(time);
-                refresh = true;
-                i--, length--;
+                clockRecord.stopRefresh().remove(time);
             }
-        }
-        if (refresh) {
-            await refreshBasicData();
+        });
+    }
+    /** 检索数据处理，初始化时调用 */
+    function _basicDataHandle (content: string) {
+        const result = content.matchAll(mathcAllTimeRegexp);
+        for (const time of result) {
+            clockRecord.stopRefresh().addTask(+time[1], +time[2]);
         }
     }
     return new Promise((resolve, reject) => {
@@ -56,8 +53,9 @@ export function fileInit (): Promise<void> {
             const fileContent = await readFileUri(retrievalUri);
             return fileContent.toString();
         }).then(async res => {
-            basicDataHandle(res);
-            await _check(fileUri);
+            _basicDataHandle(res);
+            _check(fileUri);
+            await clockRecord.toRefresh();
             resolve();
         }).catch(err => {
             reject($rej(err, fileInit.name));
@@ -73,24 +71,25 @@ export function fileInit (): Promise<void> {
 export function searchByTimestamp (timestamp: number, path?: Uri): Promise<[boolean, AlarmClockRecordItem]> {
     return new Promise((resolve, reject) => {
         let filePath: Uri;
-        if (!path) {
-            filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
-        } else {
-            filePath = path;
-        }
+        filePath = path ? path : joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
         isFileExits(filePath).then(state => {
             if (!state) {
                 return;
             }
             return readFileUri(filePath);
-        }).then(uni8 => {
+        }).then(async uni8 => {
             const json: AlarmClockRecordItemTask[] = uni8 ? 
                 JSON.parse(uni8.toString()) :
                 [];
-            if (timestamp in clockRecordMap && clockRecordMap[timestamp] !== json.length) {
-                clockRecordMap[timestamp] = json.length;
+            if (clockRecord.has(timestamp)) {
+                // 任务数量校验
+                if (json.length === 0) {
+                    await clockRecord.remove(timestamp);
+                } else if (clockRecord.taskNumber(timestamp) !== json.length) {
+                    await clockRecord.resetTask(timestamp, json.length);
+                }
             }
-            resolve([uni8?true:false, {
+            resolve([uni8 ? true : false, {
                 timestamp,
                 task: json
             }]);
@@ -107,12 +106,12 @@ export function addByTimestamp (timestamp: number, info: string, cycle: AlarmClo
     return new Promise((resolve, reject) => {
         const filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
         searchByTimestamp(timestamp, filePath).then(async ([_, data]) => {
-            await insert(timestamp, true);
             data.task.push(Object.assign({
                 info
             }, cycle ? { cycle } : {}));
             return writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
-        }).then(() => {
+        }).then(async () => {
+            await clockRecord.addTask(timestamp);
             resolve();
         }).catch(err => {
             reject($rej(err, addByTimestamp.name));
@@ -126,14 +125,12 @@ export function addByTimestamp (timestamp: number, info: string, cycle: AlarmClo
 export function deleteByTimestamp (timestamp: number): Promise<void> {
     return new Promise((resolve, reject) => {
         const filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
-        isFileExits(filePath).then(state => {
+        isFileExits(filePath).then(async state => {
             if (state) {
-                return uriDelete(filePath);
+                await uriDelete(filePath);
+                return clockRecord.remove(timestamp);
             }
-        }).then(async () => {
-            await remove(timestamp, true);
-            resolve();
-        }).catch(err => {
+        }).then(resolve).catch(err => {
             reject($rej(err, deleteByTimestamp.name));
         });
     });
@@ -145,7 +142,7 @@ export function deleteByTimestamp (timestamp: number): Promise<void> {
 export function deleteTaskInTimestamp (timestamp: number, index: number): Promise<void> {
     return new Promise((resolve, reject) => {
         const filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
-        searchByTimestamp(timestamp, filePath).then(([exits, data]) => {
+        searchByTimestamp(timestamp, filePath).then(async ([exits, data]) => {
             if (!exits) {
                 return;
             }
@@ -154,13 +151,13 @@ export function deleteTaskInTimestamp (timestamp: number, index: number): Promis
                 return;
             }
             data.task.splice(index, 1);
-            clockRecordMap[timestamp]--;
             if (data.task.length > 0) {
                 // 仍有数据则更新文件
-                return writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
+                await writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
             } else {
-                return deleteByTimestamp(timestamp);
+                await deleteByTimestamp(timestamp);
             }
+            await clockRecord.removeTask(timestamp);
         }).then(resolve).catch(err => {
             reject($rej(err, deleteTaskInTimestamp.name));
         });
@@ -168,66 +165,51 @@ export function deleteTaskInTimestamp (timestamp: number, index: number): Promis
 }
 
 /**
- * 检索数据处理，初始化时调用
+ * 更新指定时间戳中的指定任务的指定数据
  */
-function basicDataHandle (content: string) {
-    // 相关数据清除
-    clockRecord.splice(0, clockRecord.length);
-    for (const key in clockRecordMap) {
-        delete clockRecordMap[key];
-    }
-    const result = content.matchAll(mathcAllTimeRegexp);
-    for (const time of result) {
-        const timestamp = +time[1], number = +time[2];
-        // 二分法插入时间戳
-        insert(timestamp, false, number);
-    }
-}
-
-/**
- * 使用二分查找将指定时间戳插入数组对应位置
- */
-function insert (timestamp: number, refresh: true): Promise<void>; 
-function insert (timestamp: number, refresh?: false, addNumber?: number): void; 
-function insert (timestamp: number, refresh: boolean = false, addNumber: number = 1) {
-    if (!isNumber(addNumber) || addNumber === 0) {
-        addNumber = 1;
-    }
-    if (!clockRecord.includes(timestamp)) {
-        clockRecord.splice(bisectionAsce(clockRecord, timestamp), 0, timestamp);
-        clockRecordMap[timestamp] = addNumber;
-    } else {
-        clockRecordMap[timestamp] += addNumber;
-    }
-    if (refresh) {
-        return refreshBasicData();
-    }
-}
-
-/**
- * 移除一条时间戳数据
- */
-function remove (timestamp: number, refresh: true): Promise<void>; 
-function remove (timestamp: number, refresh?: false): void; 
-function remove (timestamp: number, refresh: boolean = false) {
-    if (clockRecord.includes(timestamp)) {
-        clockRecord.splice(clockRecord.indexOf(timestamp), 1);
-    }
-    // 当删除时间戳时，一般性情况是整个时间戳的任务触发，所以对应的任务数量清零
-    // 只删除时间戳内的某一条任务的处理方法单独封装
-    if (timestamp in clockRecordMap) {
-        delete clockRecordMap[timestamp];
-    }
-    if (refresh) {
-        return refreshBasicData();
-    }
+export function updateSthInTimstamp (timestamp: number, index: number, { content, type, nextTime }: UpdateTimestampTarget): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const filePath = joinPathUri(ExtensionUri.get, ...storagePath, `${timestamp}`);
+        searchByTimestamp(timestamp, filePath).then(async ([exits, data]) => {
+            if (!exits) {
+                return;
+            }
+            const length = data.task.length;
+            if (index < 0 || index > length - 1) {
+                return;
+            }
+            const target = data.task[index];
+            if (type === 'TIME') {
+                await deleteTaskInTimestamp(timestamp, index);
+                clockRecord.stopRefresh().removeTask(timestamp);
+                if (content > Date.now()) {
+                    await addByTimestamp(content, target.info, target.cycle);
+                    clockRecord.stopRefresh().addTask(content);
+                }
+            } else if (type === 'TASK') {
+                target.info = content;
+                await writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
+            } else if (type === 'CYCLE') {
+                target.cycle = content;
+                await deleteTaskInTimestamp(timestamp, index);
+                clockRecord.stopRefresh().removeTask(timestamp);
+                if (nextTime > Date.now()) {
+                    await addByTimestamp(nextTime, target.info, target.cycle);
+                    clockRecord.stopRefresh().addTask(nextTime);
+                }
+            }
+            await clockRecord.toRefresh();
+        }).then(resolve).catch(err => {
+            reject($rej(err, updateSthInTimstamp.name));
+        });
+    });
 }
 
 /**
  * 更新记录文件
  */
 function refreshBasicData () {
-    const result = clockRecord.reduce((prev, curr) => {
+    const result = clockRecord.origin.reduce((prev, curr) => {
         prev += calcNumber`${curr};`;
         return prev;
     }, '');
@@ -238,7 +220,9 @@ function refreshBasicData () {
  * 拼接最后的字符串结果
  */
 function calcNumber (str: TemplateStringsArray, timestamp: number) {
-    const num = clockRecordMap[timestamp];
-    const sufix = isNumber(num) && num > 1 ? `{${num}}` : '';
-    return timestamp + sufix + str.join('');
+    const num = clockRecord.taskNumber(timestamp);
+    if (isNumber(num) && num > 0) {
+        return `${timestamp}{${num}}${str.join('')}`;
+    }
+    return "";
 }

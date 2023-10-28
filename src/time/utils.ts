@@ -166,3 +166,22 @@ export function cycleInfo (cycle?: Cycle) {
     }
     return "响铃一次";
 }
+
+/**
+ * 判断设置的时间是否合法，为false表示不合法，否则返回可以设置的时间
+ */
+export function isTimeLegel (timestamp: number, cycle?: Cycle) {
+    const nowTimestamp = Date.now();
+    if (!cycle) {
+        return timestamp > nowTimestamp ? timestamp : false;
+    }
+    if (cycle === CycleItem.DAY || cycle === CycleItem.WEEK) {
+        return timestamp > nowTimestamp ? timestamp : cycleCalculate(timestamp, cycle);
+    } else {
+        const notWeek = new Date(nowTimestamp).getDay() as SpecificWeek;
+        if (!cycle.includes(notWeek)) {
+            return cycleCalculate(timestamp, cycle);
+        }
+        return timestamp > nowTimestamp ? timestamp : cycleCalculate(timestamp, cycle);
+    }
+}

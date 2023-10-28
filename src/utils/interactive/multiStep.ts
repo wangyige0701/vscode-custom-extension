@@ -151,11 +151,12 @@ export class MultiStep {
                 if (!backLock && item === QuickInputButtons.Back) {
                     backLock = true;
                     notActiveHide = false;
-                    $goBack?.();
+                    $goBack?.call(input);
                     if (isBack) {
                         await this.run(input);
                     }
                     resolve('back');
+                    input.hide();
                 }
             });
             if ($triggerButton) {
@@ -239,11 +240,12 @@ export class MultiStep {
                 if (!backLock && item === QuickInputButtons.Back) {
                     backLock = true;
                     notActiveHide = false;
-                    options.$goBack?.();
+                    options.$goBack?.call(quickPick);
                     if (isBack) {
                         await this.run(quickPick);
                     }
                     resolve('back');
+                    quickPick.hide();
                 }
             });
         });

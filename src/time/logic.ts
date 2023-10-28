@@ -21,19 +21,19 @@ export function initAlarmClock (): Promise<void> {
             return fileInit();
         }).then(async () => {
             // 数据校验，去除超时的
-            for (const time of clockRecord) {
+            clockRecord.forEach(async (time, index, toBreak) => {
                 if (time < nowTime) {
                     await checkInit(time);
-                    continue;
+                    return;
                 }
                 if (time === nowTime) {
                     searchByTimestamp(time).then(([, { task }]) => {
                         taskHandle(time, task);
                     }).catch(errlog);
-                    break;
+                    return toBreak("BREAK");
                 }
-                break;
-            }
+                return toBreak("BREAK");
+            });
             resolve();
         }).catch(err => {
             reject($rej(err, initAlarmClock.name));
@@ -46,23 +46,23 @@ export function initAlarmClock (): Promise<void> {
  */
 export function trigger (timestamp: number) {
     timestamp = accurateTime(timestamp);
-    if (clockRecord[0] > timestamp) {
+    if (clockRecord.findByIndex(0) > timestamp) {
         return;
     }
-    for (const time of clockRecord) {
+    clockRecord.forEach((time, index, toBreak) => {
         if (time > timestamp) {
             // 大于触发时间跳出循环
-            break;
+            return toBreak("BREAK");
         }
         if (time < timestamp) {
             // 小于触发时间的时间戳进行删除
             deleteTask(time);
-            continue;
+            return toBreak("BREAK");
         }
         searchByTimestamp(time).then(([, { task }]) => {
             taskHandle(time, task);
         });
-    }
+    });
 }
 
 /**

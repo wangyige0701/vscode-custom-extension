@@ -295,12 +295,17 @@ export function firstStrLowerCase (str: string) {
  */
 export function arabicNumeralsToChinese (num: number) {
     const chineseNumbers = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
-    const unitToThousand = ['', '十', '百', '千'];
-    const unitToMore = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载', '极'];
     if (num === 0) {
         return chineseNumbers[0];
     }
-    const origin = String(num);
+    const unitToThousand = ['', '十', '百', '千'];
+    const unitToMore = ['', '万', '亿', '兆', '京', '垓', '秭', '穰', '沟', '涧', '正', '载', '极'];
+    let sign = '';
+    if (num < 0) {
+        sign = '负';
+        num = Math.abs(num);
+    }
+    const origin = num.toString();
     function _unit (str: string) {
         if (str === "0000") {
             return '';
@@ -308,14 +313,14 @@ export function arabicNumeralsToChinese (num: number) {
         let result = '';
         for (const i of range(str.length, 0, 1)) {
             const item = str.charAt(str.length - i - 1);
-            let l = chineseNumbers[+item];
-            if (l === '零' && result.startsWith('零')) {
+            let n = chineseNumbers[+item];
+            if (n === '零' && result.startsWith('零')) {
                 continue;
             }
-            if (l !== '零') {
-                l += unitToThousand[i];
+            if (n !== '零') {
+                n += unitToThousand[i];
             }
-            result = l + result;
+            result = n + result;
         }
         if (result.length > 0 && result.endsWith('零')) {
             result = result.slice(0, result.length - 1);
@@ -341,5 +346,20 @@ export function arabicNumeralsToChinese (num: number) {
     if (result.startsWith('零')) {
         result = result.slice(1);
     }
-    return result;
+    return sign + result;
+}
+
+/**
+ * 防抖函数
+ */
+export function debounce<T extends Function> (callback: T, time: number = 300): (...childParams: any) => void {
+    let timeout: NodeJS.Timeout;
+    return function (...childParams: any[]) {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+        timeout = setTimeout(() => {
+            callback(...childParams);
+        }, time);
+    };
 }

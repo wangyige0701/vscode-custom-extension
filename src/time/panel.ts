@@ -1,10 +1,10 @@
-import { QuickInputButtons, QuickPickItemKind, type QuickPickItem, QuickPickItemButtonEvent } from "vscode";
-import { arabicNumeralsToChinese, createExParamPromise, getDate, isArray, isNumber } from "../utils";
+import { QuickInputButtons, QuickPickItemKind, type QuickPickItem, QuickInputButton } from "vscode";
+import { arabicNumeralsToChinese, createExParamPromise, getDate, isNumber, isUndefined } from "../utils";
 import { createQuickPick, createThemeIcon, showMessage } from "../utils/interactive";
-import type { AlarmClockRecordItemTask, CreateAlarmClockCallback } from "./types";
+import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "./types";
 import { weeksName as weeks, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
 import { createQuickButton } from "../utils/interactive/button";
-import { clockRecord, searchByTimestamp, updateSthInTimstamp } from "./storage";
+import { clockRecord, searchByTimestamp } from "./storage";
 import { errlog } from "../error";
 import type { QuickPickItemsOptions } from "../utils/interactive/types";
 import settingInit from "./settingPanels";
@@ -14,12 +14,16 @@ import settingInit from "./settingPanels";
  */
 export default function openAlarmClockPanel ({
     createAlarmClock, 
-    clockFullInfoType, 
-    deleteTask
+    updateAlarmClockTask,
+    deleteTimestamp,
+    deleteTaskInTimestamp,
+    clockFullInfoType
 }: {
     createAlarmClock: CreateAlarmClockCallback, 
-    clockFullInfoType: string, 
-    deleteTask: (timestamp: number) => Promise<void>
+    updateAlarmClockTask: UpdateAlarmClockTaskCallback,
+    deleteTimestamp: DeleteTimestampType,
+    deleteTaskInTimestamp: DeleteTaskInTimestampType,
+    clockFullInfoType: string
 }) {
     /** 创建新闹钟的对象初始化 */
     const settingPanelTarget = settingInit({ createAlarmClock, clockFullInfoType });
@@ -50,16 +54,21 @@ export default function openAlarmClockPanel ({
     })();
 
     /** 确认删除 */
-    function _confirmDelete (timestamp: number): Promise<void> {
+    function _confirmDelete (timestamp: number, index?: number): Promise<void> {
         return new Promise(resolve => {
+            const deleteAllTask = isUndefined(index);
             showMessage({
-                message: "删除闹钟",
+                message: deleteAllTask ? "删除闹钟" : "删除任务",
                 modal: true,
-                detail: `是否删除${getDate(timestamp)}的所有任务？`,
+                detail: `是否删除${getDate(timestamp)}的${deleteAllTask ? "所有任务" : "任务"+arabicNumeralsToChinese(index+1)}？`,
                 items: messageButtons
             }).then(async res => {
                 if (res && res.id === 0) {
-                    await deleteTask(timestamp);
+                    if (deleteAllTask) {
+                        await deleteTimestamp(timestamp);
+                    } else {
+                        await deleteTaskInTimestamp(timestamp, index);
+                    }
                 }
                 resolve();
             }).catch(errlog);
@@ -70,29 +79,32 @@ export default function openAlarmClockPanel ({
     function _alarmTaskTimeChange (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {
         _create(() => _alarmClockDetail(option), false, void 0, getDate(timestamp, "hh:mm")).then(([time, hide]) => {
             time = changeHourTo24(time);
-            const timestamp = accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime());
-            const result = isTimeLegel(timestamp, task.cycle);
+            const settingTimestamp = accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime());
+            const result = isTimeLegel(settingTimestamp, task.cycle);
             if (result === false) {
                 showMessage({
                     message: "时间错误",
                     modal: true,
                     detail: `时间不能小于当前时间，请重新输入！`,
                     items: messageButtons
-                }).then((res) => {
-                    if (res && res.id === 0) {
-                        _alarmTaskTimeChange(option, index, timestamp, task);
-                    }
                 });
-                return createExParamPromise(Promise.resolve(), hide);
+                return createExParamPromise(Promise.resolve(), false, () => {});
             }
-            return createExParamPromise(updateSthInTimstamp(timestamp, index, { content: result, type: "TIME" }), hide);
-        }).then(([_, hide]) => {
+            return createExParamPromise(updateAlarmClockTask(timestamp, index, { content: result, type: "TIME" }), true, hide);
+        }).then(([_, state, hide]) => {
             hide?.();
+            if (state) {
+                _open();
+            }
         }).catch(errlog);
     }
 
     /** 闹钟任务周期调整 */
-    function _alarmTaskCycleChange (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {}
+    function _alarmTaskCycleChange (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {
+        _options(() => _alarmClockDetail(option), getDate(timestamp, "hh:mm"), false, void 0).then(([value, hide]) => {
+
+        });
+    }
 
     /** 闹钟任务内容编辑 */
     function _alarmTaskInfoEdit (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {}
@@ -108,7 +120,7 @@ export default function openAlarmClockPanel ({
     };
 
     /** 闹钟详情列表数据渲染 */
-    function _alarmInfoRenderList (task: AlarmClockRecordItemTask[]): QuickPickItemsOptions[] {
+    function _alarmInfoRenderList (timestamp: number, task: AlarmClockRecordItemTask[]): QuickPickItemsOptions[] {
         return task.length > 0 ? task.map((item, index) => {
             return {
                 label: `任务${arabicNumeralsToChinese(index + 1)}：`,
@@ -120,7 +132,13 @@ export default function openAlarmClockPanel ({
                     createQuickButton(`editCycle-${index}`, createThemeIcon("clock"), "修改任务周期"),
                     createQuickButton(`editInfo-${index}`, createThemeIcon("pencil"), "编辑任务内容"),
                     createQuickButton(`delete-${index}`, createThemeIcon("trash"), "删除任务"),
-                ]
+                ].map(item => {
+                    return {
+                        ...item,
+                        timestamp,
+                        task: task[index]
+                    };
+                })
             };
         }) : [{
             label: '暂无任务'
@@ -133,6 +151,36 @@ export default function openAlarmClockPanel ({
      */
     function _alarmClockDetail (option: QuickPickItemsOptions) {
         const { $uid: timestamp, $index: posiIndex } = (option as QuickPickItemsOptions & { $uid: number, $index: number});
+        const renderList: QuickPickItemsOptions[] = [{
+            label: '数据检索中'
+        }];
+        let quick = createQuickPick(renderList, {
+            title: `【${option.label}】闹钟详情`,
+            placeholder: option.description,
+            ignoreFocusOut: true,
+            matchOnDetail: true,
+            buttons: [QuickInputButtons.Back],
+            didTriggerButton (res) {
+                if (res && res === QuickInputButtons.Back) {
+                    // 返回时传入索引，用于选中上一次点击的元素
+                    _open(posiIndex);
+                    this.hide();
+                }
+            },
+            async didTriggerItemButton (res) {
+                if (!res) { return; }
+                const theButton = res.button;
+                const { id, timestamp: theTimestamp, task: theTask } = (theButton as QuickInputButton & { id: string, timestamp: number, task: AlarmClockRecordItemTask });
+                if (!id) { return; }
+                const matchResult = id.match(resolveId);
+                if (!matchResult) { return; }
+                const [_, idName, idIndex] = matchResult;
+                const _runFunc = alarmTaskCallbacks[idName as "editTime" | "editCycle" | "editInfo" | "delete"];
+                if (!_runFunc) { return; }
+                _runFunc(option, +idIndex, theTimestamp, theTask);
+            }
+        });
+        // 动态加载
         searchByTimestamp(timestamp).then(([exits, data]) => {
             if (!exits) {
                 showMessage({
@@ -142,35 +190,14 @@ export default function openAlarmClockPanel ({
                     items: messageButtons
                 }).then(() => {
                     // @ts-ignore 此函数this指向打开的QuickPick面板
-                    this.hide();
+                    quick.hide();
+                    renderList.splice(0, renderList.length);
+                    (quick as unknown) = null;
                 });
                 return;
             }
-            createQuickPick(_alarmInfoRenderList(data.task), {
-                title: `【${option.label}】闹钟详情`,
-                placeholder: option.description,
-                ignoreFocusOut: true,
-                matchOnDetail: true,
-                buttons: [QuickInputButtons.Back],
-                didTriggerButton (res) {
-                    if (res && res === QuickInputButtons.Back) {
-                        // 返回时传入索引，用于选中上一次点击的元素
-                        _open(posiIndex);
-                        this.hide();
-                    }
-                },
-                async didTriggerItemButton (res) {
-                    if (!res) { return; }
-                    const id = (res as QuickPickItemButtonEvent<QuickPickItem> & { id: string }).id;
-                    if (!id) { return; }
-                    const matchResult = id.match(resolveId);
-                    if (!matchResult) { return; }
-                    const [_, idName, idIndex] = matchResult;
-                    const _runFunc = alarmTaskCallbacks[idName as "editTime" | "editCycle" | "editInfo" | "delete"];
-                    if (!_runFunc) { return; }
-                    _runFunc(option, +idIndex, data.timestamp, data.task[+idIndex]);
-                }
-            });
+            renderList.splice(0, renderList.length, ..._alarmInfoRenderList(data.timestamp, data.task));
+            quick.items = renderList;
         }).catch(errlog);
     }
 
@@ -216,9 +243,9 @@ export default function openAlarmClockPanel ({
 
     /** 打开面板 */
     function _open (posi?: number) {
-        const renderList = _rederList();
+        let renderList = _rederList();
         // 过滤选中的元素
-        const select = posi && isNumber(posi) ? renderList.find(item => item && item.$index === posi) : void 0;
+        let select = posi && isNumber(posi) ? renderList.find(item => item && item.$index === posi) : void 0;
         createQuickPick(renderList, {
             placeholder: "闹钟信息",
             ignoreFocusOut: true,
@@ -229,8 +256,12 @@ export default function openAlarmClockPanel ({
                 QuickInputButtons.Back,
                 createQuickButton("create", { id: "add" }, "新建闹钟/Create alarm clock")
             ],
-            didTriggerButton (res: unknown) {
-                if (res && (res as QuickPickItem & { id: string }).id === 'create') {
+            didTriggerButton (res) {
+                if (!res) {
+                    return;
+                }
+                const id = (res as QuickInputButton & { id: string }).id;
+                if (id === 'create') {
                     _create(_open, true, defaultSteps);
                 } else {
                     this.hide();
@@ -238,8 +269,8 @@ export default function openAlarmClockPanel ({
             },
             didTriggerItemButton (res) {
                 if (!res) { return; }
-                const button: unknown = res.button;
-                const id = (button as QuickPickItem & { id: string }).id;
+                const button = res.button;
+                const id = (button as QuickInputButton & { id: string }).id;
                 if (id && id.startsWith('delete-')) {
                     _confirmDelete(parseInt(id.split('-')[1])).then(() => {
                         // 更新面板
@@ -249,6 +280,7 @@ export default function openAlarmClockPanel ({
                 }
             }
         });
+        (renderList as unknown) = null, (select as unknown) = void 0;
     }
 
     _open();

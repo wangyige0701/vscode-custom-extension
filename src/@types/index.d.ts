@@ -22,3 +22,7 @@ type RemoveOnString<T extends keyof any> = T extends `on${infer U}` ? Uncapitali
 type RemoveOnName<T> = {
     [K in keyof T as RemoveOnString<K>]: T[K];
 }
+
+type KeysRemoveReadonly<T> = T extends { [key: string]: any } ? {
+    -readonly [K in keyof T]: KeysRemoveReadonly<T[K]>;
+} : T;

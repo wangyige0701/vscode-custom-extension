@@ -1,11 +1,11 @@
 import { $rej, errlog } from "../error";
-import { delay, getDate } from "../utils";
+import { arabicNumeralsToChinese, delay, getDate } from "../utils";
 import { showProgress } from "../utils/interactive";
 import { copyFileWhenVersionChange } from "../version/versionChange";
 import openAlarmClockPanel from "./panel";
 import { showAlarmClockInfo } from "./prompt";
-import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath } from "./storage";
-import type { AlarmClockRecordItemTask } from "./types";
+import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath, updateSthInTimstamp, deleteTaskInTimestamp } from "./storage";
+import type { AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
 import { accurateTime, cycleCalculate } from "./utils";
 
 /** 显示的时间格式 */
@@ -56,7 +56,7 @@ export function trigger (timestamp: number) {
         }
         if (time < timestamp) {
             // 小于触发时间的时间戳进行删除
-            deleteTask(time);
+            deleteTimestamp(time);
             return toBreak("BREAK");
         }
         searchByTimestamp(time).then(([, { task }]) => {
@@ -84,8 +84,56 @@ export function settingAlarmClock () {
                 }).then(resolve);
             }));
         }, 
-        clockFullInfoType, 
-        deleteTask
+        updateAlarmClockTask: async (timestamp: number, index: number, { content, type, nextTime }: UpdateTimestampTarget) => {
+            const typeName = {
+                "TIME": "时间",
+                "CYCLE": "周期",
+                "TASK": "任务内容"
+            };
+            await showProgress({
+                title: '正在更新闹钟信息',
+                location: 'Notification'
+            }, (progress) => <Promise<void>>new Promise(resolve => {
+                updateSthInTimstamp(timestamp, index, (
+                    type === 'TIME' ? { content, type } : type === 'TASK' ? { content, type } : { content, type, nextTime }
+                )).then(() => {
+                    progress.report({
+                        message: `【${getDate(timestamp, clockFullInfoType)}】${typeName[type]}更新完成`,
+                        increment: 100
+                    });
+                    return delay(1000);
+                }).then(resolve);
+            }));
+        }, 
+        deleteTimestamp: async (timestamp: number) => {
+            await showProgress({
+                title: '正在删除闹钟',
+                location: 'Notification'
+            }, (progress) => <Promise<void>>new Promise(resolve => {
+                deleteTimestamp(timestamp).then(() => {
+                    progress.report({
+                        message: `【${getDate(timestamp, clockFullInfoType)}】删除完成`,
+                        increment: 100
+                    });
+                    return delay(1000);
+                }).then(resolve);
+            }));
+        },
+        deleteTaskInTimestamp: async (timestamp: number, index: number) => {
+            await showProgress({
+                title: '正在删除任务',
+                location: 'Notification'
+            }, (progress) => <Promise<void>>new Promise(resolve => {
+                deleteTaskInTimestamp(timestamp, index).then(() => {
+                    progress.report({
+                        message: `【${getDate(timestamp, clockFullInfoType)}】（任务${arabicNumeralsToChinese(index + 1)}）删除完成`,
+                        increment: 100
+                    });
+                    return delay(1000);
+                }).then(resolve);
+            }));
+        },
+        clockFullInfoType
     });
 }
 
@@ -129,13 +177,13 @@ function taskHandle (timestamp: number, task: AlarmClockRecordItemTask[]) {
     task.forEach(item => {
         openAlarmClock(timestamp, item.info, item.cycle);
     });
-    deleteTask(timestamp);
+    deleteTimestamp(timestamp);
 }
 
 /**
  * 删除一个任务
  */
-async function deleteTask (timestamp: number) {
+async function deleteTimestamp (timestamp: number) {
     await deleteByTimestamp(timestamp).catch(errlog);
 }
 

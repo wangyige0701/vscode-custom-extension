@@ -111,6 +111,10 @@ export class MultiStep {
                     this.show();
                 },
                 didAccept () {
+                    if (this.validationMessage) {
+                        return;
+                    }
+                    const hideFunction = this.hide.bind(this);
                     $complete?.(this.value, (ignore: boolean = false) => {
                         if (!ignore && isBack) {
                             if (step === totalSteps) {
@@ -120,8 +124,8 @@ export class MultiStep {
                                 MultiStep.run(toCollect, $proxy ? this.value : void 0);    
                             }
                         }
-                        return this.hide.bind(this);
-                    });
+                        return hideFunction;
+                    }, hideFunction);
                     resolve(this.value);
                 },
                 didHide () {
@@ -204,6 +208,7 @@ export class MultiStep {
                 ...options,
                 didAccept () {
                     const result = options.canSelectMany ? (this.selectedItems as T[]) : (this.selectedItems[0] as T);
+                    const hideFunction = this.hide.bind(this);
                     options.$complete?.(result, (ignore: boolean = false) => {
                         if (!ignore && isBack) {
                             if (step === totalSteps) {
@@ -213,8 +218,8 @@ export class MultiStep {
                                 MultiStep.run(toCollect);
                             }
                         }
-                        return this.hide.bind(this);
-                    });
+                        return hideFunction;
+                    }, hideFunction);
                     resolve(result);
                 },
                 didHide () {

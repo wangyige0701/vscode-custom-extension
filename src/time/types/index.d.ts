@@ -29,6 +29,12 @@ export interface AlarmClockRecordItem {
 
 export type CreateAlarmClockCallback = (timestamp: number, info: string, cycle: AlarmClockRecordItemTask["cycle"]) => Promise<void>;
 
+export type UpdateAlarmClockTaskCallback = (timestamp: number, index: number, { content, type, nextTime }: UpdateTimestampTarget) => Promise<void>;
+
+export type DeleteTimestampType = (timestamp: number) => Promise<void>;
+
+export type DeleteTaskInTimestampType = (timestamp: number, index: number) => Promise<void>;
+
 export type SettingOptionsType<T> = {
     timestamp: number;
     taskInfo: string;
@@ -54,7 +60,7 @@ export type SettingOptionsCallbackType = (
     timestamp: number, 
     nowTimestamp: number, 
     inputTime?: string
-) => Promise<false|SettingOptionIsPromise<Type1>|SettingOptionIsPromise<Type2>>;
+) => Promise<false|SettingOptionIsPromise<Type1>|SettingOptionIsPromise<[Type2, never|Function]>>;
 
 export type CreateTimeInputSteps = {
     step: number;

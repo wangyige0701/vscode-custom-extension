@@ -129,7 +129,7 @@ export default function openAlarmClockPanel ({
 
     /** 闹钟任务内容编辑 */
     function _alarmTaskInfoEdit (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {
-        _writeInfo(() => _alarmClockDetail(option), task.cycle, timestamp, false, void 0).then(([value, hide]) => {
+        _writeInfo(() => _alarmClockDetail(option), task.cycle, timestamp, false, void 0, task.info).then(([value, hide]) => {
             return createExParamPromise(updateAlarmClockTask(timestamp, index, { content: value, type: "TASK" }), hide);
         }).then(([_, hide]) => {
             hide?.();
@@ -266,7 +266,7 @@ export default function openAlarmClockPanel ({
                 label: getDate(item, clockFullInfoType),
                 description: `（${_getWeekInfo(item)}）${clockRecord.taskNumber(item)}个任务`,
                 iconPath: alarmIcon,
-                buttons: [createQuickButton(`delete-${item}`, { id: "trash" }, "删除闹钟/Delete alarm clock")],
+                buttons: [createQuickButton(`delete-${item}`, { id: "trash" }, "删除闹钟")],
             } as QuickPickItemsOptions;
         }) : [{
             label: '暂无闹钟数据',
@@ -296,10 +296,11 @@ export default function openAlarmClockPanel ({
 
     /** 打开面板 */
     function _open (posi?: number) {
-        let renderList = _rederList();
+        const renderList = _rederList();
         // 过滤选中的元素
         let select = posi && isNumber(posi) ? renderList.find(item => item && item.$index === posi) : void 0;
         createQuickPick(renderList, {
+            title: '闹钟面板',
             placeholder: "闹钟信息",
             ignoreFocusOut: true,
             ...(select ? {
@@ -307,7 +308,7 @@ export default function openAlarmClockPanel ({
             } : {}),
             buttons: [
                 QuickInputButtons.Back,
-                createQuickButton("create", { id: "add" }, "新建闹钟/Create alarm clock")
+                createQuickButton("create", { id: "add" }, "新建闹钟")
             ],
             didTriggerButton (res) {
                 if (!res) {
@@ -327,13 +328,14 @@ export default function openAlarmClockPanel ({
                 if (id && id.startsWith('delete-')) {
                     _confirmDelete(parseInt(id.split('-')[1])).then(() => {
                         // 更新面板
-                        this.items = _rederList();
+                        renderList.splice(0, renderList.length, ..._rederList());
+                        this.items = renderList;
                         this.show();
                     });
                 }
             }
         });
-        (renderList as unknown) = null, (select as unknown) = void 0;
+        (select as unknown) = void 0;
     }
 
     _open();

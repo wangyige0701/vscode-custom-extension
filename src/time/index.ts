@@ -1,9 +1,11 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
-import { commands } from "vscode";
+import { MarkdownString, commands } from "vscode";
 import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
 import { errlog } from '../error';
 import { setStatusBarItem } from '../utils/interactive';
 import { getTimeString } from "./utils";
+import { clockRecord } from './storage';
+import { ClockRecord } from './cache';
 
 /** 终止函数 */
 var stopFunction: ((hide: boolean) => void) | undefined;
@@ -27,6 +29,7 @@ export function showTimeInStatusBar (subscriptions: ExtensionContext["subscripti
     }).catch(err => {
         errlog(err);
     });
+    clockRecord.registChange(alarmClockRecordInfo(statusBarItemInstance));
 }
 
 /** 关闭时间显示 */
@@ -63,3 +66,35 @@ function timerCaller (statusBar: StatusBarItem) {
         hide && statusBar.hide();
     };
 }
+
+/**
+ * 状态栏鼠标悬浮显示提示文字处理
+ */
+const alarmClockRecordInfo: ((statusBar: StatusBarItem) => (this: ClockRecord) => void) = (statusBar) => {
+    const markdown = new MarkdownString();
+    markdown.supportThemeIcons = true;
+    markdown.supportHtml = true;
+    function colorSpan (content: string, color: string = "#3794ff") {
+        return `<span style='color:${color};'>${content}</span>`;
+    }
+    function setColor (str: TemplateStringsArray, num: number) {
+        return str[0] + colorSpan(num.toString()) + str[1];
+    }
+    return function () {
+        markdown.value = "";
+        markdown.appendMarkdown("### 闹钟信息：\n ");
+        const alarmClockNumber = this.length;
+        let alarmTaskNumber = 0;
+        this.forEach(item => {
+            alarmTaskNumber += this.getTaskNumber(item);
+        });
+        if (alarmClockNumber > 0) {
+            markdown.appendMarkdown(setColor`  - 闹钟数量：${alarmClockNumber}个 \n\n `);
+            markdown.appendMarkdown(setColor`  - 任务数量：${alarmTaskNumber}个 \n\n `);
+        } else {
+            markdown.appendMarkdown("    暂无闹钟数据 \n\n ");
+        }
+        markdown.appendMarkdown("> " + colorSpan("点击打开闹钟面板 $(chevron-down)"));
+        statusBar.tooltip = markdown;
+    };
+};

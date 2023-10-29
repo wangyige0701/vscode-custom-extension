@@ -13,9 +13,8 @@ import type {
     SpecificWeek 
 } from "./types";
 import { CycleItem } from "./cycle";
-import { QuickInputButtons } from "vscode";
 import type { QuickPickItem } from "vscode";
-import { getDate, isArray, isFunction } from "../utils";
+import { getDate, isArray, isFunction, isNumber } from "../utils";
 
 /**
  * 初始化设置面板
@@ -167,7 +166,7 @@ export default function settingInit ({
                         return resolve(false);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, timestamp, void 0, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, void 0, timestamp, true, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -202,7 +201,7 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.DAY);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, timestamp, CycleItem.DAY, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, CycleItem.DAY, timestamp, true, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -237,7 +236,7 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.WEEK);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, timestamp, CycleItem.WEEK, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, CycleItem.WEEK, timestamp, true, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -276,7 +275,7 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const [taskInfo] = await _writeInfo(void 0, timestamp, weekList, stepSettingChild ? { 
+                                const [taskInfo] = await _writeInfo(void 0, weekList, timestamp, true, stepSettingChild ? { 
                                     step: stepSettingChild.step, 
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
@@ -320,7 +319,7 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const [taskInfo] = await _writeInfo(void 0, settingTime, void 0, stepSettingChild ? { 
+                                const [taskInfo] = await _writeInfo(void 0, void 0, settingTime, true, stepSettingChild ? { 
                                     step: stepSettingChild.step, 
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
@@ -345,8 +344,15 @@ export default function settingInit ({
         });
     }
 
-    /** 输入提示信息 */
-    function _writeInfo (_goback: Function | undefined, timestamp: number, cycle: AlarmClockRecordItemTask["cycle"], stepSetting?: CreateTimeInputSteps): Promise<[string, Function]> {
+    /** 
+     * 输入提示信息
+     * @param _goback 返回按钮点击时调用的函数
+     * @param cycle 周期数据
+     * @param timestamp 当自动创建时需要的时间戳信息
+     * @param autoCreate 是否自动创建一条数据，用于新创建时的连续步骤中，输入完任务内容后自动创建
+     * @param stepSetting 步骤数据
+     */
+    function _writeInfo (_goback: Function | undefined, cycle: AlarmClockRecordItemTask["cycle"], timestamp?: number, autoCreate: boolean = true, stepSetting?: CreateTimeInputSteps): Promise<[string, Function]> {
         return new Promise(resolve => {
             MultiStep.showInputBox({
                 ...(stepSetting ? {
@@ -361,9 +367,13 @@ export default function settingInit ({
                     _goback?.();
                 },
                 async $complete (text, nextStep, hide) {
-                    await createAlarmClock(timestamp, text??"", cycle);
-                    // 调用hide方法
-                    nextStep(true)?.();
+                    if (autoCreate && isNumber(timestamp)) {
+                        await createAlarmClock(timestamp, text??"", cycle);
+                        // 调用hide方法
+                        nextStep(true)?.();
+                    } else {
+                        nextStep(true);
+                    }
                     resolve([text, hide]);
                 }
             }, (text) => {
@@ -431,6 +441,7 @@ export default function settingInit ({
             placeHolder: '以[-/]连接年月日的数据',
             prompt: `如：${dayString}  `,
             value: dayString,
+            $proxy: true,
             $back: stepSetting ? true : false,
             $complete: async (res, nextStep, hide) => {
                 if (!res) { return; }

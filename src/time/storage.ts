@@ -2,7 +2,7 @@ import type { Uri } from "vscode";
 import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../utils/file";
 import ExtensionUri from "../utils/system/extension";
 import { $rej } from "../error";
-import type { AlarmClockRecordItem, AlarmClockRecordItemTask, Cycle, UpdateTimestampTarget } from "./types";
+import type { AlarmClockRecordItem, AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
 import { isNumber } from "../utils";
 import { ClockRecord } from "./cache";
 

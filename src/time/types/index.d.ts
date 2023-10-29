@@ -43,7 +43,7 @@ export type SettingOptionsType<T> = {
 
 export type SettingOptionsExcludeType<T> = Omit<SettingOptionsType<T>, "taskInfo">;
 
-export type SettingOptionsAllTypes = void|CycleItem|SpecificWeek[];
+export type SettingOptionsAllTypes = undefined | CycleItem | SpecificWeek[];
 
 export type SettingOptionsCallbackParams = { 
     defaultNext: boolean;

@@ -11,6 +11,9 @@ import { accurateTime, cycleCalculate } from "./utils";
 /** 显示的时间格式 */
 const clockFullInfoType = "YYYY年MM月DD日 hh时mm分";
 
+/** 进度条延长显示的时间 */
+const progressDelayTime = 500;
+
 /**
  * 闹钟配置初始化
  */
@@ -80,7 +83,7 @@ export function settingAlarmClock () {
                         message: `【${getDate(timestamp, clockFullInfoType)}】设置完成`,
                         increment: 100
                     });
-                    return delay(1000);
+                    return delay(progressDelayTime);
                 }).then(resolve);
             }));
         }, 
@@ -101,7 +104,7 @@ export function settingAlarmClock () {
                         message: `【${getDate(timestamp, clockFullInfoType)}】${typeName[type]}更新完成`,
                         increment: 100
                     });
-                    return delay(1000);
+                    return delay(progressDelayTime);
                 }).then(resolve);
             }));
         }, 
@@ -115,7 +118,7 @@ export function settingAlarmClock () {
                         message: `【${getDate(timestamp, clockFullInfoType)}】删除完成`,
                         increment: 100
                     });
-                    return delay(1000);
+                    return delay(progressDelayTime);
                 }).then(resolve);
             }));
         },
@@ -129,7 +132,7 @@ export function settingAlarmClock () {
                         message: `【${getDate(timestamp, clockFullInfoType)}】（任务${arabicNumeralsToChinese(index + 1)}）删除完成`,
                         increment: 100
                     });
-                    return delay(1000);
+                    return delay(progressDelayTime);
                 }).then(resolve);
             }));
         },

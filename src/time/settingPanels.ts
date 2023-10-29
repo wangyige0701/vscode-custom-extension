@@ -15,7 +15,7 @@ import type {
 import { CycleItem } from "./cycle";
 import { QuickInputButtons } from "vscode";
 import type { QuickPickItem } from "vscode";
-import { getDate } from "../utils";
+import { getDate, isArray, isFunction } from "../utils";
 
 /**
  * 初始化设置面板
@@ -64,9 +64,9 @@ export default function settingInit ({
                 $goBack () {
                     _goback?.();
                 },
-                $complete: async (res, nextStep) => {
+                $complete: async (res, nextStep, hide) => {
                     if (!res) { return; }
-                    let hide = nextStep(_goback ? true : false);
+                    nextStep(!defaultNext);
                     if (defaultNext) {
                         const settingResult = await _options(void 0, res, defaultNext, stepSetting ? { step: stepSetting.step + 1, totalSteps: stepSetting.totalSteps } : void 0);
                         return resolve(settingResult);
@@ -101,7 +101,7 @@ export default function settingInit ({
      * 打开操作选项
      */
     function _options (_goback: Function | undefined, time: string, defaultNext: true, stepSetting?: CreateTimeInputSteps): Promise<SettingOptionsType<SettingOptionsAllTypes>>;
-    function _options (_goback: Function | undefined, time: string, defaultNext: false, stepSetting?: CreateTimeInputSteps): Promise<SettingOptionsExcludeType<SettingOptionsAllTypes>>;
+    function _options (_goback: Function | undefined, time: string, defaultNext: false, stepSetting?: CreateTimeInputSteps): Promise<[SettingOptionsExcludeType<SettingOptionsAllTypes>, Function]>;
     function _options (_goback: Function | undefined, time: string, defaultNext: boolean, stepSetting?: CreateTimeInputSteps) {
         time = changeHourTo24(time, ":");
         const activeItem: QuickPickItem[] = [];
@@ -121,7 +121,7 @@ export default function settingInit ({
                 $goBack () {
                     _goback?.();
                 },
-                $complete: async (res, nextStep) => {
+                $complete: async (res, nextStep, hide) => {
                     if (!res) { return; }
                     // 返回false则不进行下一步的跳转
                     const state = await res.$callback(
@@ -134,9 +134,17 @@ export default function settingInit ({
                         return;
                     }
                     activeItem.splice(0, activeItem.length, res);
-                    nextStep(_goback ? true : false);
+                    nextStep();
                     state().then(result => {
-                        resolve(result);
+                        if (!defaultNext) {
+                            return resolve(result);
+                        }
+                        if (isArray(result)) {
+                            if (result[1] && isFunction(result[1])) {
+                                return resolve(result);
+                            }
+                            return resolve([result[0], hide]);
+                        }
                     });
                 }
             });
@@ -145,7 +153,7 @@ export default function settingInit ({
 
     /** 当天，需要判断时间是否超过 */
     function _today (options:{defaultNext:true}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsType<void>>>;
-    function _today (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsExcludeType<void>>>;
+    function _today (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<[SettingOptionIsPromise<SettingOptionsExcludeType<void>>, never]>;
     function _today (options:{defaultNext:boolean}, timestamp: number, nowTimestamp: number): Promise<false>;
     function _today ({
         defaultNext,
@@ -159,7 +167,7 @@ export default function settingInit ({
                         return resolve(false);
                     }
                     if (defaultNext) {
-                        const taskInfo = await _writeInfo(void 0, timestamp, void 0, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, timestamp, void 0, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -169,10 +177,10 @@ export default function settingInit ({
                             cycle: void 0
                         });
                     }
-                    inserResolve({
+                    inserResolve([{
                         timestamp,
                         cycle: void 0
-                    });
+                    }]);
                 });
             };
             resolve(overCallback);
@@ -181,7 +189,7 @@ export default function settingInit ({
 
     /** 每天提醒 */
     function _everyDay (options:{defaultNext:true}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsType<CycleItem.DAY>>>;
-    function _everyDay (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsExcludeType<CycleItem.DAY>>>;
+    function _everyDay (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<[SettingOptionIsPromise<SettingOptionsExcludeType<CycleItem.DAY>>, never]>;
     function _everyDay ({
         defaultNext,
         stepSetting
@@ -194,7 +202,7 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.DAY);
                     }
                     if (defaultNext) {
-                        const taskInfo = await _writeInfo(void 0, timestamp, CycleItem.DAY, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, timestamp, CycleItem.DAY, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -204,10 +212,10 @@ export default function settingInit ({
                             cycle: CycleItem.DAY
                         });
                     }
-                    inserResolve({
+                    inserResolve([{
                         timestamp,
                         cycle: CycleItem.DAY
-                    });
+                    }]);
                 });
             };
             resolve(overCallback);
@@ -216,7 +224,7 @@ export default function settingInit ({
 
     /** 每周提醒 */
     function _everyWeek (options:{defaultNext:true}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsType<CycleItem.WEEK>>>;
-    function _everyWeek (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsExcludeType<CycleItem.WEEK>>>;
+    function _everyWeek (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<[SettingOptionIsPromise<SettingOptionsExcludeType<CycleItem.WEEK>>, never]>;
     function _everyWeek ({
         defaultNext,
         stepSetting
@@ -229,7 +237,7 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.WEEK);
                     }
                     if (defaultNext) {
-                        const taskInfo = await _writeInfo(void 0, timestamp, CycleItem.WEEK, stepSetting ? { 
+                        const [taskInfo] = await _writeInfo(void 0, timestamp, CycleItem.WEEK, stepSetting ? { 
                             step: stepSetting.step + 1, 
                             totalSteps: stepSetting.totalSteps 
                         } : void 0);
@@ -239,10 +247,10 @@ export default function settingInit ({
                             cycle: CycleItem.WEEK
                         });
                     }
-                    inserResolve({
+                    inserResolve([{
                         timestamp,
                         cycle: CycleItem.WEEK
-                    });
+                    }]);
                 });
             };
             resolve(overCallback);
@@ -251,7 +259,7 @@ export default function settingInit ({
 
     /** 指定星期提醒 */
     function _specifyWeek (options:{defaultNext:true}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsType<SpecificWeek[]>>>;
-    function _specifyWeek (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<SettingOptionIsPromise<SettingOptionsExcludeType<SpecificWeek[]>>>;
+    function _specifyWeek (options:{defaultNext:false}, timestamp: number, nowTimestamp: number): Promise<[SettingOptionIsPromise<SettingOptionsExcludeType<SpecificWeek[]>>, Function]>;
     function _specifyWeek ({
         defaultNext,
         stepSetting
@@ -259,7 +267,7 @@ export default function settingInit ({
         return new Promise(resolve => {
             const overCallback = () => {
                 return new Promise(inserResolve => {
-                    _selectWeeks((weekList, stepSettingChild) => {
+                    _selectWeeks((weekList, hideFunction, stepSettingChild) => {
                         return new Promise(async callResolve => {
                             const nowWeek = new Date(nowTimestamp).getDay() as SpecificWeek;
                             if (timestamp <= nowTimestamp || !weekList.includes(nowWeek)) {
@@ -268,7 +276,7 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const taskInfo = await _writeInfo(void 0, timestamp, weekList, stepSettingChild ? { 
+                                const [taskInfo] = await _writeInfo(void 0, timestamp, weekList, stepSettingChild ? { 
                                     step: stepSettingChild.step, 
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
@@ -278,10 +286,10 @@ export default function settingInit ({
                                     cycle: weekList
                                 });
                             }
-                            inserResolve({
+                            inserResolve([{
                                 timestamp,
                                 cycle: weekList
-                            });
+                            }, hideFunction]);
                         });
                     }, stepSetting ? { 
                         step: stepSetting.step + 1, 
@@ -295,7 +303,7 @@ export default function settingInit ({
 
     /** 指定年月日的时间提醒 */
     function _specifyDay (options:{defaultNext:true}, timestamp: number, nowTimestamp: number, inputTime: string): Promise<SettingOptionIsPromise<SettingOptionsType<void>>>;
-    function _specifyDay (options:{defaultNext:false}, timestamp: number, nowTimestamp: number, inputTime: string): Promise<SettingOptionIsPromise<SettingOptionsExcludeType<void>>>;
+    function _specifyDay (options:{defaultNext:false}, timestamp: number, nowTimestamp: number, inputTime: string): Promise<[SettingOptionIsPromise<SettingOptionsExcludeType<void>>, Function]>;
     function _specifyDay ({
         defaultNext,
         stepSetting
@@ -303,7 +311,7 @@ export default function settingInit ({
         return new Promise(resolve => {
             const overCallback = () => {
                 return new Promise(inserResolve => {
-                    _writeSpecifyDay(nowTimestamp, (date, stepSettingChild) => {
+                    _writeSpecifyDay(nowTimestamp, (date, hideFunction, stepSettingChild) => {
                         return new Promise(async callResolve => {
                             const settingTime = new Date(`${date} ${inputTime}:00`).getTime();
                             if (settingTime < nowTimestamp) {
@@ -312,7 +320,7 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const taskInfo = await _writeInfo(void 0, settingTime, void 0, stepSettingChild ? { 
+                                const [taskInfo] = await _writeInfo(void 0, settingTime, void 0, stepSettingChild ? { 
                                     step: stepSettingChild.step, 
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
@@ -322,10 +330,10 @@ export default function settingInit ({
                                     cycle: void 0
                                 });
                             }
-                            inserResolve({
+                            inserResolve([{
                                 timestamp: settingTime,
                                 cycle: void 0
-                            });
+                            }, hideFunction]);
                         });
                     }, stepSetting ? { 
                         step: stepSetting.step + 1, 
@@ -338,7 +346,7 @@ export default function settingInit ({
     }
 
     /** 输入提示信息 */
-    function _writeInfo (_goback: Function | undefined, timestamp: number, cycle: AlarmClockRecordItemTask["cycle"], stepSetting?: CreateTimeInputSteps): Promise<string> {
+    function _writeInfo (_goback: Function | undefined, timestamp: number, cycle: AlarmClockRecordItemTask["cycle"], stepSetting?: CreateTimeInputSteps): Promise<[string, Function]> {
         return new Promise(resolve => {
             MultiStep.showInputBox({
                 ...(stepSetting ? {
@@ -352,11 +360,11 @@ export default function settingInit ({
                 $goBack () {
                     _goback?.();
                 },
-                async $complete (text, nextStep) {
+                async $complete (text, nextStep, hide) {
                     await createAlarmClock(timestamp, text??"", cycle);
                     // 调用hide方法
                     nextStep(true)?.();
-                    resolve(text);
+                    resolve([text, hide]);
                 }
             }, (text) => {
                 if (text.length > 100) {
@@ -368,7 +376,10 @@ export default function settingInit ({
     }
 
     /** 选择指定星期 */
-    function _selectWeeks (callback: (list: SpecificWeek[], stepSettingChild?: CreateTimeInputSteps) => Promise<void>, stepSetting?: CreateTimeInputSteps) {
+    function _selectWeeks (
+        callback: (list: SpecificWeek[], hide: () => void, stepSettingChild?: CreateTimeInputSteps) => Promise<void>, 
+        stepSetting?: CreateTimeInputSteps
+    ) {
         /** 星期列表 */
         const weekList = [...weeks.slice(1), ...weeks.slice(0, 1)].map((item, index) => {
             return {
@@ -395,11 +406,11 @@ export default function settingInit ({
             didChangeSelection (res) {
                 selectedItems.splice(0, selectedItems.length, ...res);
             },
-            $complete: async (res, nextStep) => {
+            $complete: async (res, nextStep, hide) => {
                 if (res.length === 0) {
                     return showProgressByTime("未选择星期", messageBoxShowTime);
                 }
-                await callback(res.map(item => item.index).sort(), stepSetting ? {
+                await callback(res.map(item => item.index).sort(), hide, stepSetting ? {
                     step: stepSetting.step + 1,
                     totalSteps: stepSetting.totalSteps,
                 } : void 0);
@@ -409,7 +420,7 @@ export default function settingInit ({
     }
 
     /** 输入指定年月日 */
-    function _writeSpecifyDay (today: number, callback: (date: string, stepSettingChild?: CreateTimeInputSteps) => Promise<void | false>, stepSetting?: CreateTimeInputSteps) {
+    function _writeSpecifyDay (today: number, callback: (date: string, hide: () => void, stepSettingChild?: CreateTimeInputSteps) => Promise<void | false>, stepSetting?: CreateTimeInputSteps) {
         const dayString = getDate(new Date(today), "YYYY-MM-DD");
         MultiStep.showInputBox({
             ...(stepSetting ? {
@@ -421,9 +432,9 @@ export default function settingInit ({
             prompt: `如：${dayString}  `,
             value: dayString,
             $back: stepSetting ? true : false,
-            $complete: async (res, nextStep) => {
+            $complete: async (res, nextStep, hide) => {
                 if (!res) { return; }
-                const state = await callback(res, stepSetting ? {
+                const state = await callback(res, hide, stepSetting ? {
                     step: stepSetting.step + 1,
                     totalSteps: stepSetting.totalSteps,
                 } : void 0);

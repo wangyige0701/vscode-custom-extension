@@ -109,11 +109,9 @@ export function addByTimestamp (timestamp: number, info: string, cycle: AlarmClo
             data.task.push(Object.assign({
                 info
             }, cycle ? { cycle } : {}));
-            return writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
-        }).then(async () => {
-            await clockRecord.addTask(timestamp);
-            resolve();
-        }).catch(err => {
+            await writeFileUri(filePath, createBuffer(JSON.stringify(data.task)));
+            return clockRecord.addTask(timestamp);
+        }).then(resolve).catch(err => {
             reject($rej(err, addByTimestamp.name));
         });
     });
@@ -181,10 +179,8 @@ export function updateSthInTimstamp (timestamp: number, index: number, { content
             const target = data.task[index];
             if (type === 'TIME') {
                 await deleteTaskInTimestamp(timestamp, index);
-                clockRecord.stopRefresh().removeTask(timestamp);
                 if (content > Date.now()) {
                     await addByTimestamp(content, target.info, target.cycle);
-                    clockRecord.stopRefresh().addTask(content);
                 }
             } else if (type === 'TASK') {
                 target.info = content;
@@ -192,13 +188,10 @@ export function updateSthInTimstamp (timestamp: number, index: number, { content
             } else if (type === 'CYCLE') {
                 target.cycle = content;
                 await deleteTaskInTimestamp(timestamp, index);
-                clockRecord.stopRefresh().removeTask(timestamp);
                 if (nextTime > Date.now()) {
                     await addByTimestamp(nextTime, target.info, target.cycle);
-                    clockRecord.stopRefresh().addTask(nextTime);
                 }
             }
-            await clockRecord.toRefresh();
         }).then(resolve).catch(err => {
             reject($rej(err, updateSthInTimstamp.name));
         });

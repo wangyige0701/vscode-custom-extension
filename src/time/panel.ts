@@ -1,8 +1,8 @@
-import { QuickInputButtons, QuickPickItemKind, type QuickPickItem, QuickInputButton } from "vscode";
+import { QuickInputButtons, QuickPickItemKind, QuickInputButton, QuickPickItem, QuickPick } from "vscode";
 import { arabicNumeralsToChinese, createExParamPromise, getDate, isNumber, isUndefined } from "../utils";
 import { createQuickPick, createThemeIcon, showMessage } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "./types";
-import { weeksName as weeks, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
+import { weeksName, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
 import { createQuickButton } from "../utils/interactive/button";
 import { clockRecord, searchByTimestamp } from "./storage";
 import { errlog } from "../error";
@@ -31,8 +31,10 @@ export default function openAlarmClockPanel ({
     /** 方法解构 */
     const { _create, _options, _writeInfo, defaultSteps } = settingPanelTarget;
 
+    /** id数据处理正则 */
     const resolveId = /^(\w*)\-(\d*)$/;
 
+    /** 系统弹框中的按钮对象 */
     const messageButtons = [{
         id: 0,
         title: '确认'
@@ -47,7 +49,7 @@ export default function openAlarmClockPanel ({
         return function (timestamp: number) {
             const date = new Date(timestamp);
             const week = date.getDay();
-            const weekName = weeks[week];
+            const weekName = weeksName[week];
             const prefix = timestamp > nowSumday ? "下" : "本";
             return `${prefix}周${weekName}`;
         };
@@ -102,15 +104,56 @@ export default function openAlarmClockPanel ({
     /** 闹钟任务周期调整 */
     function _alarmTaskCycleChange (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {
         _options(() => _alarmClockDetail(option), getDate(timestamp, "hh:mm"), false, void 0).then(([value, hide]) => {
-
-        });
+            const result = isTimeLegel(timestamp, value.cycle);
+            if (result === false) {
+                showMessage({
+                    message: "时间错误",
+                    modal: true,
+                    detail: `时间不能小于当前时间，请重新输入！`,
+                    items: messageButtons
+                });
+                return createExParamPromise(Promise.resolve(), false, () => {});
+            }
+            return createExParamPromise(updateAlarmClockTask(timestamp, index, { content: value.cycle, type: "CYCLE", nextTime: result }), true, hide);
+        }).then(([_, state, hide]) =>{
+            hide?.();
+            if (state) {
+                _open();
+            }
+        }).catch(errlog);
     }
 
     /** 闹钟任务内容编辑 */
-    function _alarmTaskInfoEdit (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {}
+    function _alarmTaskInfoEdit (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {
+        _writeInfo(() => _alarmClockDetail(option), task.cycle, timestamp, false, void 0).then(([value, hide]) => {
+            return createExParamPromise(updateAlarmClockTask(timestamp, index, { content: value, type: "TASK" }), hide);
+        }).then(([_, hide]) => {
+            hide?.();
+            _alarmClockDetail(option);
+        }).catch(errlog);
+    }
 
     /** 闹钟任务删除 */
-    function _alarmTaskDelete (option: QuickPickItemsOptions, index: number, timestamp: number, task: AlarmClockRecordItemTask) {}
+    function _alarmTaskDelete (
+        option: QuickPickItemsOptions, 
+        index: number, 
+        timestamp: number, 
+        task: AlarmClockRecordItemTask, 
+        renderList: QuickPickItemsOptions[], 
+        allTasks: AlarmClockRecordItemTask[], 
+        quick: QuickPick<QuickPickItem>
+    ) {
+        _confirmDelete(timestamp, index).then(() => {
+            if (quick && allTasks.length > 0) {
+                allTasks.splice(index, 1);
+                // 重置列表数据
+                renderList.splice(0, renderList.length, ..._alarmInfoRenderList(timestamp, allTasks));
+                quick.items = renderList;
+                return;
+            }
+            _open();
+        });
+    }
 
     const alarmTaskCallbacks = {
         editTime: _alarmTaskTimeChange,
@@ -120,8 +163,8 @@ export default function openAlarmClockPanel ({
     };
 
     /** 闹钟详情列表数据渲染 */
-    function _alarmInfoRenderList (timestamp: number, task: AlarmClockRecordItemTask[]): QuickPickItemsOptions[] {
-        return task.length > 0 ? task.map((item, index) => {
+    function _alarmInfoRenderList (timestamp: number, tasks: AlarmClockRecordItemTask[]): QuickPickItemsOptions[] {
+        return tasks.length > 0 ? tasks.map((item, index) => {
             return {
                 label: `任务${arabicNumeralsToChinese(index + 1)}：`,
                 description: cycleInfo(item.cycle),
@@ -136,7 +179,8 @@ export default function openAlarmClockPanel ({
                     return {
                         ...item,
                         timestamp,
-                        task: task[index]
+                        task: tasks[index],
+                        tasks
                     };
                 })
             };
@@ -170,14 +214,19 @@ export default function openAlarmClockPanel ({
             async didTriggerItemButton (res) {
                 if (!res) { return; }
                 const theButton = res.button;
-                const { id, timestamp: theTimestamp, task: theTask } = (theButton as QuickInputButton & { id: string, timestamp: number, task: AlarmClockRecordItemTask });
+                const { id, timestamp: theTimestamp, task: theTask, tasks: allTasks } = (theButton as QuickInputButton & { 
+                    id: string; 
+                    timestamp: number; 
+                    task: AlarmClockRecordItemTask; 
+                    tasks: AlarmClockRecordItemTask[];
+                });
                 if (!id) { return; }
                 const matchResult = id.match(resolveId);
                 if (!matchResult) { return; }
                 const [_, idName, idIndex] = matchResult;
                 const _runFunc = alarmTaskCallbacks[idName as "editTime" | "editCycle" | "editInfo" | "delete"];
                 if (!_runFunc) { return; }
-                _runFunc(option, +idIndex, theTimestamp, theTask);
+                _runFunc(option, +idIndex, theTimestamp, theTask, renderList, allTasks, quick);
             }
         });
         // 动态加载

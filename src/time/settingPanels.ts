@@ -352,9 +352,10 @@ export default function settingInit ({
      * @param autoCreate 是否自动创建一条数据，用于新创建时的连续步骤中，输入完任务内容后自动创建
      * @param stepSetting 步骤数据
      */
-    function _writeInfo (_goback: Function | undefined, cycle: AlarmClockRecordItemTask["cycle"], timestamp?: number, autoCreate: boolean = true, stepSetting?: CreateTimeInputSteps): Promise<[string, Function]> {
+    function _writeInfo (_goback: Function | undefined, cycle: AlarmClockRecordItemTask["cycle"], timestamp?: number, autoCreate: boolean = true, stepSetting?: CreateTimeInputSteps, value?: string): Promise<[string, Function]> {
         return new Promise(resolve => {
             MultiStep.showInputBox({
+                value,
                 ...(stepSetting ? {
                     step: stepSetting.step,
                     totalSteps: stepSetting.totalSteps,

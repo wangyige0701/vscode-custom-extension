@@ -1,4 +1,4 @@
-import { range } from "../utils";
+import { isFunction, range } from "../utils";
 import { bisectionAsce } from "../utils/algorithm";
 
 /**
@@ -9,8 +9,13 @@ export class ClockRecord {
     /** 注册的回调函数 */
     private onChange: () => Promise<void>;
 
+    /** 元素属性修改后调用的回调列表 */
+    private onChangeList: Function[] = [];
+
+    /** 数据修改后是否需要调用刷新函数 */
     private needRefresh: boolean = true;
 
+    /** 刷新函数 */
     toRefresh: () => Promise<void>;
 
     /** 存放时间戳的数组 */
@@ -31,6 +36,18 @@ export class ClockRecord {
         };
     }
 
+    registChange (changeCallback: Function) {
+        if (isFunction(changeCallback)) {
+            this.onChangeList.push(changeCallback);
+        }
+    }
+
+    pollingChangeCallback () {
+        const copy = this.origin;
+        this.onChangeList.forEach(callback => callback.call(this));
+    }
+
+    /** 下一次修改数据后不会进行更新 */
     stopRefresh () {
         this.needRefresh = false;
         return this;
@@ -47,7 +64,7 @@ export class ClockRecord {
         return this.array.includes(timestamp);
     }
 
-    /** 插入一个时间戳，自动排序 */
+    /** 插入一个时间戳，自动排序，此方法不会进行文件写入 */
     add (timestamp: number) {
         if (!this.has(timestamp)) {
             this.array.splice(bisectionAsce(this.origin, timestamp), 0, timestamp);
@@ -62,6 +79,7 @@ export class ClockRecord {
         }
         this.map.set(timestamp.toString(), this.taskNumber(timestamp) + taskNumber);
         await this.toRefresh();
+        this.pollingChangeCallback();
     }
 
     /** 重置任务数量 */
@@ -71,6 +89,7 @@ export class ClockRecord {
         }
         this.map.set(timestamp.toString(), taskNumber);
         await this.toRefresh();
+        this.pollingChangeCallback();
     }
 
     /** 移除一条时间戳对应的数据 */
@@ -79,6 +98,7 @@ export class ClockRecord {
             this.array.splice(this.array.indexOf(timestamp), 1);
             this.map.delete(timestamp.toString());
             await this.toRefresh();
+            this.pollingChangeCallback();
         }
     }
 
@@ -93,6 +113,7 @@ export class ClockRecord {
                 this.remove(timestamp);
             }
             await this.toRefresh();
+            this.pollingChangeCallback();
         }
     }
 

@@ -19,9 +19,13 @@ export default function openAlarmClockPanel ({
     deleteTaskInTimestamp,
     clockFullInfoType
 }: {
+    /** 创建闹钟调用 */
     createAlarmClock: CreateAlarmClockCallback, 
+    /** 更新闹钟中的某个数据调用 */
     updateAlarmClockTask: UpdateAlarmClockTaskCallback,
+    /** 删除某个时间的所有任务调用 */
     deleteTimestamp: DeleteTimestampType,
+    /** 删除某个时间的某个任务调用 */
     deleteTaskInTimestamp: DeleteTaskInTimestampType,
     clockFullInfoType: string
 }) {

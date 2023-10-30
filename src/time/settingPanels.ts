@@ -1,5 +1,5 @@
 import { showProgressByTime, MultiStep } from "../utils/interactive";
-import { weeksName as weeks, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
+import { weeksName, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
 import type { 
     AlarmClockRecordItemTask, 
     CreateAlarmClockCallback, 
@@ -392,7 +392,7 @@ export default function settingInit ({
         stepSetting?: CreateTimeInputSteps
     ) {
         /** 星期列表 */
-        const weekList = [...weeks.slice(1), ...weeks.slice(0, 1)].map((item, index) => {
+        const weekList = [...weeksName.slice(1), ...weeksName.slice(0, 1)].map((item, index) => {
             return {
                 label: '周' + item,
                 index: index < 6 ? index + 1 : 0

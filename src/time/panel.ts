@@ -1,5 +1,5 @@
 import { QuickInputButtons, QuickPickItemKind, QuickInputButton, QuickPickItem, QuickPick } from "vscode";
-import { arabicNumeralsToChinese, createExParamPromise, getDate, isNumber, isUndefined } from "../utils";
+import { arabicNumeralsToChinese, createExParamPromise, delay, getDate, isNumber, isUndefined } from "../utils";
 import { createQuickPick, createThemeIcon, showMessage } from "../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "./types";
 import { weeksName, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
@@ -200,7 +200,7 @@ export default function openAlarmClockPanel ({
     function _alarmClockDetail (option: QuickPickItemsOptions) {
         const { $uid: timestamp, $index: posiIndex } = (option as QuickPickItemsOptions & { $uid: number, $index: number});
         const renderList: QuickPickItemsOptions[] = [{
-            label: '数据检索中'
+            label: '$(sync~spin) 数据检索中'
         }];
         let quick = createQuickPick(renderList, {
             title: `【${option.label}】闹钟详情`,
@@ -255,10 +255,10 @@ export default function openAlarmClockPanel ({
     }
 
     /** 生成渲染列表 */
-    function _rederList (): (QuickPickItemsOptions & { $index?: number, $uid?: number })[] {
+    function _renderList (): (QuickPickItemsOptions & { $index?: number, $uid?: number | string })[] {
         const theKind = QuickPickItemKind.Separator;
         const alarmIcon = createThemeIcon("wangyige-alarmClock");
-        const result: QuickPickItemsOptions[] = clockRecord.length > 0 ? clockRecord.origin.map((item, index) => {
+        const result: (QuickPickItemsOptions & { $index?: number, $uid?: number | string })[] = clockRecord.length > 0 ? clockRecord.origin.map((item, index) => {
             return {
                 $index: index,
                 $uid: item,
@@ -269,23 +269,24 @@ export default function openAlarmClockPanel ({
                 buttons: [createQuickButton(`delete-${item}`, { id: "trash" }, "删除闹钟")],
             } as QuickPickItemsOptions;
         }) : [{
-            label: '暂无闹钟数据',
-            description: '点击列表第一项或者点击右上角按钮 $(add) 创建',
+            label: '$(file-add) ',
+            description: '暂无闹钟数据，点击列表第一项或者右上角按钮 $(add) 创建',
         }];
         // 添加固定数据
         result.unshift({
-            callback: () => {
-                _create(_open, true, defaultSteps);
-            },
+            $uid: "create",
             label: "新建闹钟",
             iconPath: createThemeIcon("add"),
             alwaysShow: true
         }, {
+            $uid: "hide",
             label: "关闭面板",
             iconPath: createThemeIcon("close-all"),
-            callback () {
-                this.hide();
-            },
+            alwaysShow: true
+        }, {
+            $uid: "refresh",
+            label: "刷新数据",
+            iconPath: createThemeIcon("sync"),
             alwaysShow: true
         }, {
             label: "闹钟数据",
@@ -296,7 +297,7 @@ export default function openAlarmClockPanel ({
 
     /** 打开面板 */
     function _open (posi?: number) {
-        const renderList = _rederList();
+        const renderList = _renderList();
         // 过滤选中的元素
         let select = posi && isNumber(posi) ? renderList.find(item => item && item.$index === posi) : void 0;
         createQuickPick(renderList, {
@@ -310,6 +311,32 @@ export default function openAlarmClockPanel ({
                 QuickInputButtons.Back,
                 createQuickButton("create", { id: "add" }, "新建闹钟")
             ],
+            didChangeSelection (res) {
+                const target = res[0];
+                if (!target) {
+                    return;
+                }
+                const uid = (target as QuickPickItemsOptions & { $uid: string | number }).$uid;
+                if (isNumber(uid)) {
+                    return;
+                }
+                if (uid === "create") {
+                    _create(_open, true, defaultSteps);
+                } else if (uid === "hide") {
+                    this.hide();
+                } else if (uid === "refresh") {
+                    renderList.splice(4, renderList.length);
+                    renderList.push({
+                        label: "$(sync~spin) 数据刷新中",
+                        alwaysShow: true
+                    });
+                    this.items = renderList;
+                    delay(500).then(() => {
+                        renderList.splice(0, renderList.length, ..._renderList());
+                        this.items = renderList;
+                    });
+                }
+            },
             didTriggerButton (res) {
                 if (!res) {
                     return;
@@ -328,9 +355,8 @@ export default function openAlarmClockPanel ({
                 if (id && id.startsWith('delete-')) {
                     _confirmDelete(parseInt(id.split('-')[1])).then(() => {
                         // 更新面板
-                        renderList.splice(0, renderList.length, ..._rederList());
+                        renderList.splice(0, renderList.length, ..._renderList());
                         this.items = renderList;
-                        this.show();
                     });
                 }
             }

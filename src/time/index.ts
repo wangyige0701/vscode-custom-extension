@@ -29,7 +29,7 @@ export function showTimeInStatusBar (subscriptions: ExtensionContext["subscripti
     }).catch(err => {
         errlog(err);
     });
-    clockRecord.registChange(alarmClockRecordInfo(statusBarItemInstance));
+    clockRecord.registChange(alarmClockRecordInfo(statusBarItemInstance), true);
 }
 
 /** 关闭时间显示 */

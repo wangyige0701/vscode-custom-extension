@@ -15,14 +15,20 @@ export class ClockRecord {
     /** 数据修改后是否需要调用刷新函数 */
     private needRefresh: boolean = true;
 
-    /** 刷新函数 */
-    toRefresh: () => Promise<void>;
+    /** 轮询执行所有函数 */
+    private pollingChangeCallback () {
+        const copy = this.origin;
+        this.onChangeList.forEach(callback => callback.call(this));
+    }
 
     /** 存放时间戳的数组 */
     private array: number[] = [];
 
     /** 存放时间戳对应任务数量的哈希表 */
     private map: Map<string, number> = new Map();
+
+    /** 刷新函数 */
+    toRefresh: () => Promise<void>;
 
     constructor (changeCallback: () => Promise<void>) {
         this.clear();
@@ -36,15 +42,14 @@ export class ClockRecord {
         };
     }
 
-    registChange (changeCallback: Function) {
+    /** 注册一个在数据修改时触发的函数 */
+    registChange (changeCallback: Function, immediately: boolean = false) {
         if (isFunction(changeCallback)) {
             this.onChangeList.push(changeCallback);
+            if (immediately) {
+                changeCallback.call(this);
+            }
         }
-    }
-
-    pollingChangeCallback () {
-        const copy = this.origin;
-        this.onChangeList.forEach(callback => callback.call(this));
     }
 
     /** 下一次修改数据后不会进行更新 */

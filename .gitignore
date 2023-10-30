@@ -6,6 +6,6 @@ node_modules
 webview/src/*/index.*.css
 webview/src/*/index.*.js
 resources/background/
-resources/alarmClock/
+resources/alarmclock/
 package-lock.json
 test/

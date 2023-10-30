@@ -12,7 +12,7 @@ vsc-extension-quickstart.md
 **/*.ts
 **/rollup.config.js
 resources/background/**
-resources/alarmClock/**
+resources/alarmclock/**
 resources/extension/**
 resources/docs/**
 webview/src/*/css/**

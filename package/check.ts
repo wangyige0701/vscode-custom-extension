@@ -26,7 +26,7 @@ function check_ver (file_path: string, n_v: string): Promise<string> {
         getContent(file_path).then(res => {
             const l_v = latest_ver(res);
             if (!l_v || l_v !== n_v) {
-                return reject(file_path + ' ---> 版本错误 >>> ' + `预发布版本：v${n_v}；打包文件版本：${l_v?'v'+l_v:'不存在'};`);
+                return reject(file_path + ' ---> 版本错误 >>> ' + `预发布版本：v${n_v}; 打包文件版本：${l_v?'v'+l_v:'不存在'};`);
             }
             resolve(file_path);
         }).catch(err => {

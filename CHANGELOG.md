@@ -6,8 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.7.0 - 2023-10-30
+ - 新增：添加时间显示，添加闹钟功能
+
 ## 0.6.8 ~ 0.6.15 - 2023-9-21
- - 修复：图片压缩导致的运行错误bug完成
+ - 修复：图片压缩导致的运行错误bug修复完成
  - 优化：调整扩展依赖下载方法，减小包体积
 
 ## 0.6.0 - 2023-9-9  >>>>  注：直至v0.6.8版本bug修复

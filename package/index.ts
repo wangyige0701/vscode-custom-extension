@@ -92,7 +92,7 @@ export function packageFileExits (): string[] | false {
  * 获取预发布版本号
  */
 export function now_ver () {
-    const json = require('../../package.json');
+    const json = require('../package.json');
     return json.version as string;
 }
 

@@ -77,13 +77,17 @@ export function getTimeString (timestamp: number, icon: boolean = true) {
     h = date.getHours(),
     m = date.getMinutes(),
     meridiem = 'AM';
-    if (h > 11 && h < 23) {
+    if (h > 11 && h < 24) {
         meridiem = 'PM';
     }
     if (h > 12) {
         h = h - 12;
     }
-    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem}【周${weeksName[date.getDay()]}】`;
+    if (h === 0) {
+        // 零点是上午十二点
+        h = 12;
+    }
+    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem} 周${weeksName[date.getDay()]}`;
 }
 
 /** 补位 */

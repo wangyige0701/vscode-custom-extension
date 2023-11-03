@@ -38,6 +38,9 @@ function pathToHash (path) {
 
 /**
  * 外部导入模块中全局导入的json文件路径重置
+ * @param {string} rootPath 根路径
+ * @param {string} relativePosition 调整后的相对位置路径
+ * @param {string|string[]|undefined} checkFilename 需要检测的文件名
  */
 function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFilename = void 0) {
     const jsonFolder = path.resolve(rootPath, 'dist', 'library', 'json');
@@ -52,6 +55,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
     const plugin = {
         name: 'externalJsonFilePathChange',
         resolveId (code, id) {
+            // import导入语句处理
             if (id && ignoreFileName.test(id)) {
                 // ?commonjs-external文件不处理
                 return false;
@@ -77,6 +81,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
             }
         },
         transform (code, id) {
+            // 代码文本中的语句修改
             if (checkFilename && checkFilename.some(item => id.endsWith(item))) {
                 /**
                  * @param {string} content
@@ -109,28 +114,40 @@ const searchResolveJson = /(^[\w\W]*path\.resolve\s*\(\s*['"`]\s*)(package\.json
 const searchExitsyncJson = /(^[\w\W]*fs\.existsSync\s*\(\s*['"`]\s*)(package\.json)(\s*['"`]\s*\)[\w\W]*$)/;
 
 /**
- * prebuild-install模块下对sharp中json文件的引用路径调整
+ * prebuild-install模块里对sharp模块中的json文件的引用路径调整
+ * @param {string} rootPath 根路径
+ * @param {string} relativePosition 调整后的相对位置路径
+ * @param {string[]} checkFilename 需要检测的文件名
  */
-function pacakgeJsonRelativePathChange (rootPath, relativePosition = '..', fileName = []) {
+function pacakgeJsonRelativePathChange (rootPath, relativePosition = '..', checkFilename = []) {
     const resetPath = path.resolve(rootPath, 'node_modules', 'sharp', 'package.json');
     const jsonFolder = path.resolve(rootPath, 'dist', 'library', 'json');
-    fileName = fileName.map(item => slashToBack(item));
+    isFolderRemove(jsonFolder);
+    if (checkFilename && typeof checkFilename === 'string') {
+        checkFilename = [checkFilename];
+    }
+    if (Array.isArray(checkFilename)) {
+        checkFilename = checkFilename.map(item => slashToBack(item));
+    }
+    const matchTarget = [searchResolveJson, searchExitsyncJson];
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'pacakgeJsonRelativePathChange',
         transform (code, id) {
-            for (const match of [searchResolveJson, searchExitsyncJson]) {
-                const res = code.match(match);
-                if (!res) {
-                    continue;
+            if (checkFilename && checkFilename.some(item => id.endsWith(item))) {
+                for (const match of matchTarget) {
+                    const res = code.match(match);
+                    if (!res) {
+                        continue;
+                    }
+                    const fileName = path.basename(resetPath);
+                    const folderName = random.set(pathToHash(resetPath));
+                    const createPath = path.join(jsonFolder, folderName);
+                    copyJsonFileAndComprss(rootPath, path.dirname(resetPath), createPath, fileName);
+                    code = res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
                 }
-                const fileName = path.basename(resetPath);
-                const folderName = random.set(pathToHash(resetPath));
-                const createPath = path.join(jsonFolder, folderName);
-                copyJsonFileAndComprss(rootPath, path.dirname(resetPath), createPath, fileName);
-                code = res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
+                return code;
             }
-            return code;
         }
     };
     return plugin;

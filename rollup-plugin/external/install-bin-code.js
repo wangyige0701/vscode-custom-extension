@@ -16,4 +16,21 @@ function lineCodeRemove () {
     return plugin;
 }
 
-module.exports = lineCodeRemove;
+/**
+ * \/#! ... #/ 注释删除
+ */
+function removeAbsoluteNote () {
+    /** @type {RollupPlugin} */
+    const plugin = {
+        name: 'removeAbsoluteNote',
+        transform (code, id) {
+            return code.replace(/\/\*\!(?:[\w\W](?!(?:\/\*\!?)))*\*\//g,'');
+        }
+    };
+    return plugin;
+}
+
+module.exports = {
+    lineCodeRemove,
+    removeAbsoluteNote
+};

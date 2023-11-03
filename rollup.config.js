@@ -25,7 +25,7 @@ const sharpNodeRequireChange = require("./rollup-plugin/sharp-module");
 // 外部模块导入的json文件路径调整
 const { externalJsonFilePathChange, pacakgeJsonRelativePathChange } = require("./rollup-plugin/external/json-import");
 // bin.js首行代码删除
-const lineCodeRemove = require("./rollup-plugin/external/install-bin-code");
+const { lineCodeRemove, removeAbsoluteNote } = require("./rollup-plugin/external/install-bin-code");
 // 警告处理函数
 const warnHandle = require("./rollup-plugin/warn-handle");
 
@@ -89,6 +89,8 @@ module.exports = [
         commonjs(),
         terserPlugin
     ]),
+    // 外部引用模块单独打包
+    // 打包axios模块文件
     bundle({
         input: 'src/library/external/axios.ts',
         output: {
@@ -101,7 +103,8 @@ module.exports = [
         jsonPlugin,
         commonjs(),
         terserPlugin,
-        externalJsonFilePathChange(rootPath)
+        externalJsonFilePathChange(rootPath),
+        removeAbsoluteNote()
     ]),
     // 打包sharp模块文件
     bundle({
@@ -122,7 +125,7 @@ module.exports = [
         sharpNodeRequireChange(),
         externalJsonFilePathChange(rootPath)
     ]),
-    // 打包sharp依赖的use-libvips模块
+    // 打包sharp依赖的use-libvips模块文件
     bundle({
         input: 'src/library/external/build/use-libvips.ts',
         output: {
@@ -135,8 +138,11 @@ module.exports = [
         jsonPlugin,
         commonjs(),
         terserPlugin,
-        externalJsonFilePathChange(rootPath, "..", 'libvips.js')
+        // 调整json文件的导入路径
+        externalJsonFilePathChange(rootPath, "..", 'libvips.js'),
+        removeAbsoluteNote()
     ]),
+    // 打包sharp依赖的copy模块文件
     bundle({
         input: 'src/library/external/build/copy.ts',
         output: {
@@ -150,6 +156,7 @@ module.exports = [
         terserPlugin,
         externalJsonFilePathChange(rootPath, "..")
     ]),
+    // 打包sharp依赖的bin文件
     bundle({
         input: 'src/library/external/build/bin.ts',
         output: {
@@ -167,6 +174,7 @@ module.exports = [
         terserPlugin,
         externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
         pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
-        lineCodeRemove()
+        lineCodeRemove(),
+        removeAbsoluteNote()
     ])
 ];

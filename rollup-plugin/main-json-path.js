@@ -8,6 +8,11 @@ const regexp = /(require\s*\(\s*['"`]\s*)([^'"`]*\.json)(\s*['"`]\s*\))/;
  */
 function mainJsonRequireChange (...paths) {
     const targetPath = path.resolve(...paths);
+    /**
+     * 通过比较json文件的源路径和打包后引用文件目标路径的绝对路径写法，生成最终的相对路径结果
+     * 主要是package.json文件
+     * 注：此方法不会对json文件进行拷贝，只会生成新的相对路径
+     */
     function checkPosition (relative, id) {
         const sourcePath = path.resolve(id, relative);
         const { dir: targetDir } = path.parse(targetPath);

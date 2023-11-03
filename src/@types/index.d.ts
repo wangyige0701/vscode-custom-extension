@@ -26,3 +26,5 @@ type RemoveOnName<T> = {
 type KeysRemoveReadonly<T> = T extends { [key: string]: any } ? {
     -readonly [K in keyof T]: KeysRemoveReadonly<T[K]>;
 } : T;
+
+type SimpleFunction<T extends any[] = [void], K extends any = void> = (...params: T) => K;

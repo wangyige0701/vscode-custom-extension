@@ -18,7 +18,7 @@ const timeDisplayConfig: TimeDisplayConfig = {
 };
 
 /** 终止函数 */
-var stopFunction: ({ hide: Function, reset: Function });
+var stopFunction: ({ hide: SimpleFunction, reset: SimpleFunction });
 
 /** 生成需要显示的时间字符串 */
 var getTimeDisplayInfo: (timstamp: number) => string;

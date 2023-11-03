@@ -6,6 +6,9 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.7.1 - 2023-11-3
+ - 修复：十二小时制时间显示错误修复
+
 ## 0.7.0 - 2023-10-30
  - 新增：添加时间显示，添加闹钟功能
 

@@ -68,26 +68,39 @@ export function cycleCalculate (timestamp: number, cycle?: Cycle | undefined) {
     }
 }
 
-/** 获取当前时间，返回12小时制的字符串，可以选择是否包含时钟图标代码 */
-export function getTimeString (timestamp: number, icon: boolean = true) {
-    let date = new Date(timestamp),
-    y = date.getFullYear(),
-    M = date.getMonth() + 1,
-    d = date.getDate(),
-    h = date.getHours(),
-    m = date.getMinutes(),
-    meridiem = 'AM';
-    if (h > 11 && h < 24) {
-        meridiem = 'PM';
+/** 获取当前时间，返回12小时制或者24小时制的字符串，可以选择是否包含时钟图标代码 */
+export function getTimeString (twelve: boolean = true, icon: boolean = true) {
+    const result: number[] = [], iconPrefix = icon ? '$(wangyige-clock) ' : '';
+    function _getDate (timestamp: number) {
+        let date = new Date(timestamp),
+        y = date.getFullYear(),
+        M = date.getMonth() + 1,
+        d = date.getDate(),
+        h = date.getHours(),
+        m = date.getMinutes(),
+        day = date.getDay();
+        return result.splice(0, result.length, y, M, d, h, m, day);
     }
-    if (h > 12) {
-        h = h - 12;
-    }
-    if (h === 0) {
-        // 零点是上午十二点
-        h = 12;
-    }
-    return `${icon ? '$(wangyige-clock) ' : ''}` + `${y}/${_a(M)}/${_a(d)} ${_a(h)}:${_a(m)} ${meridiem} 周${weeksName[date.getDay()]}`;
+    return twelve ? function (timestamp: number) {
+        _getDate(timestamp);
+        let [y, M, d, h, m, day] = result,
+        meridiem = 'AM';
+        if (h > 11 && h < 24) {
+            meridiem = 'PM';
+        }
+        if (h > 12) {
+            h = h - 12;
+        }
+        if (h === 0) {
+            // 零点是上午十二点
+            h = 12;
+        }
+        return `${iconPrefix}${y}/${_a(M)}/${_a(d)} 周${weeksName[day]}$(chevron-left)${_a(h)}:${_a(m)} ${meridiem}$(chevron-right)`;
+    } : function (timestamp: number) {
+        _getDate(timestamp);
+        const [y, M, d, h, m, day] = result;
+        return `${iconPrefix}${y}/${_a(M)}/${_a(d)} 周${weeksName[day]}$(chevron-left)${_a(h)}:${_a(m)}$(chevron-right)`;
+    };
 }
 
 /** 补位 */

@@ -6,3 +6,4 @@ export * from "./progress";
 export * from "./quickPick";
 export * from "./multiStep";
 export * from "./icon";
+export * from "./color";

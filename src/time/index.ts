@@ -3,15 +3,31 @@ import { MarkdownString, commands } from "vscode";
 import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
 import { errlog } from '../error';
 import { setStatusBarItem } from '../utils/interactive';
-import { getTimeString } from "./utils";
+import { accurateTime, getTimeString } from "./utils";
 import { clockRecord } from './storage';
 import { ClockRecord } from './cache';
+import { isFunction } from '../utils';
+import type { TimeDisplayConfig } from './types';
+
+/**
+ * 时间显示配置
+ */
+const timeDisplayConfig: TimeDisplayConfig = {
+    twelve: true,
+    icon: true
+};
 
 /** 终止函数 */
-var stopFunction: ((hide: boolean) => void) | undefined;
+var stopFunction: ({ hide: Function, reset: Function });
 
-/** 设置时间显示在状态栏，添加闹钟功能 */
-export function showTimeInStatusBar (subscriptions: ExtensionContext["subscriptions"]) {
+/** 生成需要显示的时间字符串 */
+var getTimeDisplayInfo: (timstamp: number) => string;
+
+// 初始化配置
+initTimeDisplayConfig();
+
+/** 初始化状态栏时间显示，初始化闹钟配置 */
+export function initTimeDisplayInStatusBar (subscriptions: ExtensionContext["subscriptions"]) {
     const commandId = "wangyige.time.alarmClock";
     // 注册一个状态栏容器
     const statusBarItemInstance = setStatusBarItem({
@@ -24,46 +40,98 @@ export function showTimeInStatusBar (subscriptions: ExtensionContext["subscripti
     // 插入执行队列
     subscriptions.push(commandTask, statusBarItemInstance);
     // 初始化闹钟配置
-    initAlarmClock().then(() => {
-        stopFunction = timerCaller(statusBarItemInstance);
-    }).catch(err => {
+    initAlarmClock().catch(err => {
         errlog(err);
+    }).finally(() => {
+        stopFunction = timerCaller(statusBarItemInstance);
     });
     clockRecord.registChange(alarmClockRecordInfo(statusBarItemInstance), true);
 }
 
-/** 关闭时间显示 */
-export function stopTimeInStatusBar (hide: boolean = true) {
-    typeof stopFunction === 'function' && stopFunction(hide);
+/** 关闭时间显示，销毁状态栏实例 */
+export function destroyTimeInStatusBar () {
+    if (!stopFunction) {
+        return;
+    }
+    isFunction(stopFunction.hide) && stopFunction.hide();
+    (stopFunction as unknown) = null;
+}
+
+/** 调整时间显示文字的配置 */
+export function changeTimeDisplayConfig (config: Partial<TimeDisplayConfig>) {
+    if (!stopFunction) {
+        return;
+    }
+    Object.assign(timeDisplayConfig, config);
+    initTimeDisplayConfig();
+    resetTimeDisplay();
+}
+
+/** 关闭时间 */
+export function hideTimeDisplay () {
+    if (!stopFunction) {
+        return;
+    }
+    isFunction(stopFunction.hide) && stopFunction.hide();
+}
+
+/** 打开时间 */
+export function showTimeDisplay () {
+    if (!stopFunction) {
+        return;
+    }
+    isFunction(stopFunction.reset) && stopFunction.reset();
+}
+
+/** 根据配置生成需要调用的函数 */
+function initTimeDisplayConfig () {
+    getTimeDisplayInfo = getTimeString(timeDisplayConfig.twelve, timeDisplayConfig.icon);
+}
+
+/** 重置时间显示的文字 */
+function resetTimeDisplay () {
+    isFunction(stopFunction.reset) && stopFunction.reset();
 }
 
 /** 设置时间函数 */
 function timerCaller (statusBar: StatusBarItem) {
-    let time = Date.now(), timeclear: NodeJS.Timeout;
-    statusBar.text = getTimeString(time);
+    let time: number, 
+    timeclear: NodeJS.Timeout, 
+    latestStorage: number;
+    /** 计算延迟并触发文字设置函数 */
     function _timer () {
+        _set();
         /** 秒数误差 */
         const secondMis = 1000 - (time % 1000), 
         s = new Date(time).getSeconds(), 
         wait = (59 - s) * 1000 + secondMis;
-        timeclear = setTimeout(() => {
-            time = Date.now();
-            const value = getTimeString(time);
-            if (value !== statusBar.text) {
-                // 防止定时器误差提前触发
-                statusBar.text = value;
-                trigger(time);
-            }
-            _timer();
-        }, wait);
+        timeclear = setTimeout(_timer, wait);
+    }
+    /** 设置文字 */
+    function _set () {
+        time = Date.now();
+        const value = getTimeDisplayInfo(time),
+        check = accurateTime(time);
+        if (latestStorage !== check) {
+            latestStorage = check;
+            // 防止定时器误差提前触发
+            statusBar.text = value;
+            trigger(time);
+        }
     }
     _timer();
     statusBar.show();
-    return function (hide: boolean = true) {
-        if (timeclear) {
-            clearTimeout(timeclear);
+    return {
+        hide: function () {
+            timeclear && clearTimeout(timeclear);
+            statusBar.hide();
+        },
+        reset: function () {
+            timeclear && clearTimeout(timeclear);
+            latestStorage = NaN;
+            time = Date.now();
+            _timer();
         }
-        hide && statusBar.hide();
     };
 }
 

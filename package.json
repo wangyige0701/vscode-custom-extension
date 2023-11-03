@@ -2,7 +2,7 @@
 	"name": "wangyige",
 	"displayName": "WangYige",
 	"description": "My custom extension, to record some ideas.",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"publisher": "wangyige",
 	"repository": {
 		"type": "github",

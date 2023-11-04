@@ -1,7 +1,7 @@
 {
     "iconDefinitions": {
         "wyg-title-icon": {
-            "iconPath": "../icon/icon.100.png"
+            "iconPath": ""
         }
     },
     "fileExtensions": {

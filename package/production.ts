@@ -29,7 +29,7 @@ type ExtFiles = {
  * 在生产环境发布前，需要对所有webview的js、css文件进行压缩合并，
 */
 if (!process.env.NODE_ENV) {
-    console.log(consoleByColor('blue', '开始预发布webview相关文件打包...'));
+    console.log(consoleByColor('blue', '开始webview相关文件打包...'));
     const file_param: file_suffix[] = ['css', 'js'],
     root = getRoot(),
     /** 文件路径存放 */
@@ -37,7 +37,8 @@ if (!process.env.NODE_ENV) {
         css: [],
         js: []
     },
-    now_version = now_ver();
+    now_version = now_ver(),
+    isBeta = now_version.endsWith('-beta');
     var ver_text = `/* version: ${now_version} */`;
     // 获取公共css、js文件
     const getAllExternalFile: Promise<[string[], file_suffix]>[] = file_param.map(item => {
@@ -60,7 +61,7 @@ if (!process.env.NODE_ENV) {
         }
         return toPackage(file_param, { css: ext_files.css, js: ext_files.js });
     }).then(() => {
-        ProcessExit(consoleByColor('green', `\n打包完成   （预发布版本：v${now_version}）\n`), 0);
+        ProcessExit(consoleByColor('green', `\n打包完成   （${isBeta?'测试':'预发布'}版本：v${now_version}）\n`), 0);
     }).catch(err => {
         ProcessExit(consoleByColor('red', err), 1);
     });

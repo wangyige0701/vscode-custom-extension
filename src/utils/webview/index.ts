@@ -119,15 +119,17 @@ export class FileMerge {
      * @param dev 是否是开发环境
      */
     private async start (dev: boolean) {
-        await readDirectoryUri(this.publicFileUri!).then(res => {
+        await Promise.resolve(
             // 整理所有外部公共文件的Uri，开发环境下需要整合公共文件，已经整合过不会再执行
-            if (dev && !this.isMergeComplete) {
+            (dev && !this.isMergeComplete) ? readDirectoryUri(newUri(this.publicFileUri!, 'common')) : void 0
+        ).then(res => {
+            if (res) {
                 const external_files: ExternalFile[] = ['css', 'js'];
                 // 过滤外部公用文件的文件夹
                 const external_files_get: Promise<[[ExternalFile, FileType][], ExternalFile]>[] = res.filter(([name, type]) => {
                     return type === FileType.Directory && external_files.includes(name as ExternalFile);
                 }).map(([name]) => {
-                    return createExParamPromise(readDirectoryUri(newUri(this.publicFileUri!, name)), name) as Promise<[[ExternalFile, FileType][], ExternalFile]>;
+                    return createExParamPromise(readDirectoryUri(newUri(this.publicFileUri!, 'common', name)), name) as Promise<[[ExternalFile, FileType][], ExternalFile]>;
                 });
                 return Promise.all(external_files_get);
             }
@@ -142,7 +144,7 @@ export class FileMerge {
                         if (!filename.endsWith(name)) {
                             continue;
                         }
-                        this.externalFilesUri[name].push(newUri(this.publicFileUri!, name, filename));
+                        this.externalFilesUri[name].push(newUri(this.publicFileUri!, 'common', name, filename));
                     }
                 }
             }

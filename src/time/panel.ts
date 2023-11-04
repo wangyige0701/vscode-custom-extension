@@ -327,7 +327,8 @@ export default function openAlarmClockPanel ({
                 } else if (uid === "refresh") {
                     renderList.splice(4, renderList.length);
                     renderList.push({
-                        label: "$(sync~spin) 数据刷新中",
+                        label: "$(sync~spin) ",
+                        description: '数据刷新中',
                         alwaysShow: true
                     });
                     this.items = renderList;

@@ -42,7 +42,7 @@ if (!process.env.NODE_ENV) {
     var ver_text = `/* version: ${now_version} */`;
     // 获取公共css、js文件
     const getAllExternalFile: Promise<[string[], file_suffix]>[] = file_param.map(item => {
-        return createExParamPromise(dir_content(path.join(root, item)), item);
+        return createExParamPromise(dir_content(path.join(root, 'common', item)), item);
     });
     Promise.all(getAllExternalFile).then((datas) => {
         for (const data of datas) {
@@ -56,7 +56,7 @@ if (!process.env.NODE_ENV) {
                     continue;
                 }
                 // 文件数据插入数组
-                ext_files[name].push(path.join(root, name, file));
+                ext_files[name].push(path.join(root, 'common', name, file));
             }
         }
         return toPackage(file_param, { css: ext_files.css, js: ext_files.js });

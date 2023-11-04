@@ -18,8 +18,7 @@ resources/docs/**
 webview/src/*/css/**
 webview/src/*/js/**
 webview/src/*/*.development.*
-webview/css
-webview/js
+webview/common/**
 test/**
 package/**
 out/**

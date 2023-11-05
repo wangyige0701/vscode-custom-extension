@@ -13,10 +13,15 @@ class ReportRequire {
         if (!this.timeout) {
             this.timeout = {};
         }
+        this.store.set(name, callback);
+        this.resetTimeout(name);
+    }
+
+    /** 重置缓存定时器 */
+    static resetTimeout (name: string) {
         if (this.timeout[name]) {
             clearTimeout(this.timeout[name]);
         }
-        this.store.set(name, callback);
         // 自动清除实例缓存
         this.timeout[name] = setTimeout(() => {
             this.execute(name);
@@ -58,6 +63,8 @@ export function dynamicImportObject<T> (name: string, requireFunc: () => T): T {
             if (!target[symbolName]) {
                 target[symbolName] = requireFunc();
                 ReportRequire.set(name, () => target[symbolName] = null);
+            } else {
+                ReportRequire.resetTimeout(name);
             }
             return target[symbolName][property]??void 0;
         }
@@ -78,6 +85,8 @@ export function dynamicImportFunction<T> (name: string, requireFunc: () => T): T
         if (!record[symbolName]) {
             record[symbolName] = requireFunc() as Function;
             ReportRequire.set(name, () => record[symbolName] = null);
+        } else {
+            ReportRequire.resetTimeout(name);
         }
         return record[symbolName](...params);
     } as T);

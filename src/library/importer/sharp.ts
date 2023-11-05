@@ -2,7 +2,7 @@ import type { Sharp, SharpOptions } from "sharp";
 import { dynamicImportFunction } from "..";
 
 /** sharp构造函数类型 */
-type $sharp = ((options?: SharpOptions) => Sharp) | 
+type $Sharp = ((options?: SharpOptions) => Sharp) | 
 ((
     input?:
         | Buffer
@@ -21,6 +21,6 @@ type $sharp = ((options?: SharpOptions) => Sharp) |
 ) => Sharp);
 
 /** sharp动态实例 */
-const sharp = dynamicImportFunction<$sharp>("sharp", () => require("sharp"));
+const sharp = dynamicImportFunction<$Sharp>("sharp", () => require("sharp"));
 
 export default sharp;

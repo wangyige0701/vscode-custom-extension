@@ -12,7 +12,7 @@ const copyJsonFileAndComprss = require("./compress-json");
 const Random = require("../utils/folder-create");
 
 const ignoreFileName = /[\w\W]*\.(json|js|ts)\?[\w\W]*/;
-const searchRequireJson = /(^[\w\W]*require\s*\(\s*['"`]\s*)([^'"`]*\.json)(\s*['"`]\s*\)[\w\W]*$)/;
+const searchRequireJson = /(require\s*\(\s*['"`]\s*)([^'"`]*\.json)(\s*['"`]\s*\))/g;
 
 /**
  * 判断原json文件夹是否删除,删除了则跳过
@@ -54,15 +54,15 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
     /** @type {RollupPlugin} */
     const plugin = {
         name: 'externalJsonFilePathChange',
-        resolveId (code, id) {
+        resolveId (source, importer) {
             // import导入语句处理
-            if (id && ignoreFileName.test(id)) {
+            if (importer && ignoreFileName.test(importer)) {
                 // ?commonjs-external文件不处理
                 return false;
             }
-            if (id && code && code.endsWith('.json')) {
+            if (importer && source && source.endsWith('.json')) {
                 // 拷贝json文件
-                const fullPath = path.join(id, '..', code);
+                const fullPath = path.join(importer, '..', source);
                 if (!path.isAbsolute(fullPath) || !fs.existsSync(fullPath)) {
                     return false;
                 }
@@ -74,7 +74,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                 const result = {
                     id: `${relativePosition}/json/${folderName}/${fileName}`,
                     external: true,
-                    assertions: code,
+                    assertions: source,
                     resolvedBy: 'externalJsonFilePathChange'
                 };
                 return result;
@@ -88,19 +88,17 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                  * @param {RegExp} match
                  */
                 function create (content, match) {
-                    const res = content.match(match);
-                    if (res) {
-                        const fullPath = path.join(id, '..', res[2]);
+                    return content.replace(match, (_, $1, $2, $3) => {
+                        const fullPath = path.join(id, '..', $2);
                         if (!path.isAbsolute(fullPath) || !fs.existsSync(fullPath)) {
-                            return content;
+                            return $1 + $2 + $3;
                         }
                         const fileName = path.basename(fullPath);
                         const folderName = Random.set(pathToHash(fullPath));
                         const createPath = path.join(jsonFolder, folderName);
                         copyJsonFileAndComprss(rootPath, path.dirname(fullPath), createPath, fileName);
-                        return res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
-                    }
-                    return content;
+                        return $1 + `${relativePosition}/json/${folderName}/${fileName}` + $3;
+                    });
                 }
                 let result = create(code, searchRequireJson);
                 return result;

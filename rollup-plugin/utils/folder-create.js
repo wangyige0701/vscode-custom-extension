@@ -2,7 +2,7 @@
 /**
  * 根据文件夹路径生成随机字符
  */
-class random {
+class Random {
     /** @type {{code:string;path:string;}[]} */
     static folderNames = [];
 
@@ -30,4 +30,4 @@ class random {
     }
 }
 
-module.exports = random;
+module.exports = Random;

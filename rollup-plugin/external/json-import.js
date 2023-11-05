@@ -9,7 +9,7 @@ const { removeDirectory, slashToBack } = require("../utils/file-opt");
 
 const copyJsonFileAndComprss = require("./compress-json");
 
-const random = require("../utils/folder-create");
+const Random = require("../utils/folder-create");
 
 const ignoreFileName = /[\w\W]*\.(json|js|ts)\?[\w\W]*/;
 const searchRequireJson = /(^[\w\W]*require\s*\(\s*['"`]\s*)([^'"`]*\.json)(\s*['"`]\s*\)[\w\W]*$)/;
@@ -67,7 +67,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                     return false;
                 }
                 const fileName = path.basename(fullPath);
-                const folderName = random.set(pathToHash(fullPath));
+                const folderName = Random.set(pathToHash(fullPath));
                 const createPath = path.join(jsonFolder, folderName);
                 copyJsonFileAndComprss(rootPath, path.dirname(fullPath), createPath, fileName);
                 /** @type {RollupResolveIdResult} */
@@ -95,7 +95,7 @@ function externalJsonFilePathChange (rootPath, relativePosition = '.', checkFile
                             return content;
                         }
                         const fileName = path.basename(fullPath);
-                        const folderName = random.set(pathToHash(fullPath));
+                        const folderName = Random.set(pathToHash(fullPath));
                         const createPath = path.join(jsonFolder, folderName);
                         copyJsonFileAndComprss(rootPath, path.dirname(fullPath), createPath, fileName);
                         return res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];
@@ -141,7 +141,7 @@ function pacakgeJsonRelativePathChange (rootPath, relativePosition = '..', check
                         continue;
                     }
                     const fileName = path.basename(resetPath);
-                    const folderName = random.set(pathToHash(resetPath));
+                    const folderName = Random.set(pathToHash(resetPath));
                     const createPath = path.join(jsonFolder, folderName);
                     copyJsonFileAndComprss(rootPath, path.dirname(resetPath), createPath, fileName);
                     code = res[1] + `${relativePosition}/json/${folderName}/${fileName}` + res[3];

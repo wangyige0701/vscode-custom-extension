@@ -1,4 +1,5 @@
 /* index(30) */
+/// <reference path="../../../common/js/utils.js" />
 
 /** 监听右键点击，点击图片发送数据查看大图 */
 document.getElementById(queryNames.listId).addEventListener('contextmenu', (e) => {

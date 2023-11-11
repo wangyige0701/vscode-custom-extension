@@ -48,6 +48,13 @@
 			"request": "launch",
 			"console": "integratedTerminal",
 			"runtimeArgs": ["-r", "ts-node/register", "${file}"]
+		},
+		{
+			"name": "Debug Node",
+			"type": "node",
+			"request": "launch",
+			"console": "integratedTerminal",
+			"runtimeArgs": ["${file}"],
 		}
 	]
 }

@@ -28,6 +28,7 @@
         "out",
         "dist",
         "**/*.d.ts",
-        "test"
+        "test",
+        "rollup-plugin"
     ]
 }

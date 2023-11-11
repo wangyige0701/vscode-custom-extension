@@ -1,5 +1,5 @@
-import { isFunction, range } from "../utils";
-import { bisectionAsce } from "../utils/algorithm";
+import { isFunction, range } from "../../utils";
+import { bisectionAsce } from "../../utils/algorithm";
 
 /**
  * 闹钟数据储存类；

@@ -1,7 +1,7 @@
-import { $rej, errlog } from "../error";
-import { arabicNumeralsToChinese, delay, getDate } from "../utils";
-import { showProgress } from "../utils/interactive";
-import { copyFileWhenVersionChange } from "../version/versionChange";
+import { $rej, errlog } from "../../error";
+import { arabicNumeralsToChinese, delay, getDate } from "../../utils";
+import { showProgress } from "../../utils/interactive";
+import { copyFileWhenVersionChange } from "../../version/versionChange";
 import openAlarmClockPanel from "./panel";
 import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath, updateSthInTimstamp, deleteTaskInTimestamp } from "./storage";

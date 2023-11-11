@@ -1,4 +1,4 @@
-import { getDate, isArray, isNumber } from "../utils";
+import { getDate, isArray, isNumber } from "../../utils";
 import { CycleItem } from "./cycle";
 import type { Cycle, SpecificWeek } from "./types";
 

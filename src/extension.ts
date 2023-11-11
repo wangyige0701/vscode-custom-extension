@@ -2,7 +2,7 @@ import type { ExtensionContext } from 'vscode';
 import { registBackground } from './app/background/regist';
 import { checksumsInit } from './utils/checksums';
 import { isNeedToCreateSharpBinaryFile } from "./library/create-sharp-node";
-import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from './time';
+import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from './app/time';
 import ExtensionUri from './utils/system/extension';
 
 export function activate(context: ExtensionContext) {

@@ -1,4 +1,4 @@
-import { showProgressByTime, MultiStep } from "../utils/interactive";
+import { showProgressByTime, MultiStep } from "../../utils/interactive";
 import { weeksName, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
 import type { 
     AlarmClockRecordItemTask, 
@@ -14,7 +14,7 @@ import type {
 } from "./types";
 import { CycleItem } from "./cycle";
 import type { QuickPickItem } from "vscode";
-import { getDate, isArray, isFunction, isNumber } from "../utils";
+import { getDate, isArray, isFunction, isNumber } from "../../utils";
 
 /**
  * 初始化设置面板

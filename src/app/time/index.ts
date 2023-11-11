@@ -1,12 +1,12 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { MarkdownString, commands } from "vscode";
 import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
-import { errlog } from '../error';
-import { setStatusBarItem } from '../utils/interactive';
+import { errlog } from '../../error';
+import { setStatusBarItem } from '../../utils/interactive';
 import { accurateTime, getTimeString } from "./utils";
 import { clockRecord } from './storage';
 import { ClockRecord } from './cache';
-import { isFunction } from '../utils';
+import { isFunction } from '../../utils';
 import type { TimeDisplayConfig } from './types';
 
 /**

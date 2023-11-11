@@ -1,12 +1,12 @@
 import { QuickInputButtons, QuickPickItemKind, QuickInputButton, QuickPickItem, QuickPick } from "vscode";
-import { arabicNumeralsToChinese, createExParamPromise, delay, getDate, isNumber, isUndefined } from "../utils";
-import { createQuickPick, createThemeIcon, showMessage } from "../utils/interactive";
+import { arabicNumeralsToChinese, createExParamPromise, delay, getDate, isNumber, isUndefined } from "../../utils";
+import { createQuickPick, createThemeIcon, showMessage } from "../../utils/interactive";
 import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "./types";
 import { weeksName, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
-import { createQuickButton } from "../utils/interactive/button";
+import { createQuickButton } from "../../utils/interactive/button";
 import { clockRecord, searchByTimestamp } from "./storage";
-import { errlog } from "../error";
-import type { QuickPickItemsOptions } from "../utils/interactive/types";
+import { errlog } from "../../error";
+import type { QuickPickItemsOptions } from "../../utils/interactive/types";
 import settingInit from "./settingPanels";
 
 /**

@@ -1,9 +1,8 @@
 import type { Uri } from "vscode";
-import { cryHex } from "../hash";
 import { checksumsMap } from "./data";
 import { getProductRoot, getProductFileName, computeFileChecksums } from "./utils";
 import { createBuffer, createUri, readFileUri, writeFileUri } from "../file";
-import { createExParamPromise } from "..";
+import { createExParamPromise, cryHex } from "..";
 import { $rej } from "../../error";
 
 /**

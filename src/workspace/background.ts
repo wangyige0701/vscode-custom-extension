@@ -1,9 +1,8 @@
-import { getWorkSpace, setWorkSpace } from ".";
-import { isFunction, isString } from "../utils";
-import { joinPathUri, isFileExitsSync } from "../utils/file";
-import { cryHex } from '../utils/hash';
 import type { ImageCodes, Res, Rej, SetCodesQueue } from "./types/background";
-import ExtensionUri from "../utils/system/extension";
+import { getWorkSpace, setWorkSpace } from ".";
+import { isFunction, isString, cryHex } from "../utils";
+import { joinPathUri, isFileExitsSync } from "../utils/file";
+import { ExtensionUri } from "../utils/system";
 
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];

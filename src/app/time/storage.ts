@@ -1,9 +1,9 @@
 import type { Uri } from "vscode";
 import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
-import ExtensionUri from "../../utils/system/extension";
+import { ExtensionUri } from "../../utils/system";
+import { isNumber } from "../../utils";
 import { $rej } from "../../error";
 import type { AlarmClockRecordItem, AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
-import { isNumber } from "../../utils";
 import { ClockRecord } from "./cache";
 
 /** 闹钟时间数据记录数组，元素为时间戳，升序排列 */

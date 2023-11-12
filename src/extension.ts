@@ -3,7 +3,7 @@ import { registBackground } from './app/background/regist';
 import { checksumsInit } from './utils/checksums';
 import { isNeedToCreateSharpBinaryFile } from "./library/create-sharp-node";
 import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from './app/time';
-import ExtensionUri from './utils/system/extension';
+import { ExtensionUri } from './utils/system';
 
 export function activate(context: ExtensionContext) {
 	// 将扩展uri赋值全局

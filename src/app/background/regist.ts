@@ -1,16 +1,16 @@
-import { commands } from "vscode";
 import type { Disposable, ExtensionContext } from "vscode";
+import { commands } from "vscode";
 import { windowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
+import { createExParamPromise, executeAllFunctions } from "../../utils";
+import { setStatusBarResolve } from "../../utils/interactive";
+import { bindMessageCallback } from "../../utils/webview";
 import { registWebviewProvider } from "../../utils/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
-import { bindMessageCallback } from "../../utils/webview/message";
 import { backgroundWebviewCommunication } from "./communication";
 import { copyFileWhenVersionChange } from "../../version/versionChange";
-import { setStatusBarResolve } from "../../utils/interactive";
 import { errlog, $rej } from "../../error";
-import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { clearDynamicImport } from "../../library";
 
 /** 注册背景图设置功能 */

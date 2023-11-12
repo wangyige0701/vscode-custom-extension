@@ -1,10 +1,9 @@
 /** 根据扩展版本判断是否需要复制旧版本的某个文件到新版本中 */
-
+import type { Uri } from 'vscode';
 import { checkVersion, getVersionById, refreshVersion } from './utils';
 import { getVersion, isDev } from '.';
 import { createUri, isFileExits, newUri, uriCopy } from '../utils/file';
 import { resolve as pathResolve } from 'path';
-import type { Uri } from 'vscode';
 
 /** 只获取当前扩展版本是否修改的状态 */
 const isExtensionVersionChange = !checkVersion('global', false);

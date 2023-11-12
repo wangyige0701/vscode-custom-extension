@@ -3,7 +3,7 @@ import type { Uri } from "vscode";
 /**
  * 全局获取扩展uri
  */
-export default class ExtensionUri {
+export class ExtensionUri {
     private static extensionUri: Uri | null;
 
     /** 扩展uri赋值 */

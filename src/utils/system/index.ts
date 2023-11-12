@@ -1,5 +1,7 @@
 import { commands } from "vscode";
 
+export * from "./extension";
+
 /** 重启窗口 */
 export function windowReload () {
     commands.executeCommand('workbench.action.reloadWindow');

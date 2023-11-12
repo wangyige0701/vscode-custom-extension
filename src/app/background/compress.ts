@@ -14,7 +14,7 @@ import {
 } from "../../utils/file";
 import { $rej } from "../../error";
 import { createExParamPromise } from "../../utils";
-import { imageCompression } from "../../utils/compression/image";
+import { imageCompression } from "../../utils/compression";
 
 /** 缩略图的存放文件 */
 const compressFileName = 'back.min.wyg';

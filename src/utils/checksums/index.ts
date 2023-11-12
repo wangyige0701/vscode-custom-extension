@@ -1,7 +1,6 @@
 import type { Uri } from "vscode";
-import { createExParamPromise, range } from "..";
+import { createExParamPromise, range, cryHex } from "..";
 import { errlog } from "../../error";
-import { cryHex } from "../hash";
 import { checksumsMap, ChecksumsState } from "./data";
 import { getChecksumsData, getFullPathOfChecksum } from "./utils";
 import { modifyChecksum } from "./modify";

@@ -1,5 +1,5 @@
 import type { Uri, FileType, Disposable } from "vscode";
-import { createExParamPromise, delay, getHashCode, range } from "../../utils";
+import { createExParamPromise, delay, getHashCode, range, bisectionAsce } from "../../utils";
 import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
 import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";
 import { WError, errlog, $rej } from "../../error";
@@ -8,7 +8,6 @@ import { changeLoadState, imageStoreUri, showMessageByModal, isWindowReloadToLoa
 import { backgroundSendMessage } from "./executeWebview";
 import { checExternalDataIsRight, deleteBackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
 import type { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./types";
-import { bisectionAsce } from "../../utils/algorithm";
 import { randomSettingBackground } from "./modifyRandom";
 import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";
 

@@ -1,5 +1,5 @@
 /** @typedef {{ rules: string[] }} Rules */
-/** @typedef {{ worker: Rules,  }} MainOptions */
+/** @typedef {{ worker: Rules, package: Rules }} MainOptions */
 
 const { rollup } = require('rollup');
 

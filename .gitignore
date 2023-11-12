@@ -8,4 +8,5 @@ webview/src/*/index.*.js
 resources/background/
 resources/alarmclock/
 package-lock.json
+pnpm-lock.yaml
 test/

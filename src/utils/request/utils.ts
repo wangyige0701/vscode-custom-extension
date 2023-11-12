@@ -1,4 +1,4 @@
-import request from ".";
+import request from "./main";
 
 /**
  * 请求图片资源

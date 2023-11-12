@@ -1,5 +1,5 @@
-import { workspace } from "vscode";
 import type { WorkspaceConfiguration } from "vscode";
+import { workspace } from "vscode";
 
 /**
  * 获取工作区配置

@@ -1,14 +1,15 @@
-import { FileType, Uri} from "vscode";
 import type { Webview } from "vscode";
-import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
-import { createExParamPromise, getNonce } from "..";
 import type { ExternalFile, webFileType } from "./types";
+import { FileType, Uri} from "vscode";
+import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../file";
+import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "..";
 import { isDev } from "../../version";
-import { bisectionAsce } from '../algorithm';
 import { checkVersion, refreshVersion } from "../../version/utils";
 import { WError, $rej } from "../../error";
-import { cryHex } from "../hash";
-import ExtensionUri from "../system/extension";
+import { ExtensionUri } from "../system";
+
+export * from "./message";
+export * from "./instance";
 
 const webFile: webFileType = {
     html: 'index.html',

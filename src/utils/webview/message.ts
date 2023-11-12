@@ -1,4 +1,3 @@
-import { Webview } from "vscode";
 import type { 
     ExecuteFunction, 
     ExecuteType, 
@@ -9,8 +8,9 @@ import type {
     MessageGroupCallbackName, 
     callbackType
 } from "./types";
+import type { Webview } from "vscode";
 import { errlog } from "../../error";
-import { firstUpperCase, isUndefined } from "..";
+import { firstUpperCase, isUndefined } from "../index";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {

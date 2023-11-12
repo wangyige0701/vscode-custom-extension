@@ -4,6 +4,7 @@ node_modules/**
 src/**
 .gitignore
 .yarnrc
+pnpm-lock.yaml
 vsc-extension-quickstart.md
 **/tsconfig.json
 **/tsconfig.*.json

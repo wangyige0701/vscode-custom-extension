@@ -1,7 +1,14 @@
 const path = require('path');
 const pathParse = require('./path');
 
-const extraSituation = /^(?:(\*([^\*]*?))|(\*\*)|(\!([^\!]*?)))$/;
+/**
+ * 捕获特殊符号
+ * 1、通过{}包裹的变量
+ * 2、没有变量前缀的*，**
+ * 3、有前缀变量的普通字符
+ * 4、无论有没有前缀的!、?拼接的字符
+ */
+const extraSituation = /^(?:(\{[\d\w]+\}(?!\*))?(?:(\*([^\*]*?))|(\*\*)|(\!([^\!]*?))|(\?([^\?]*?))|(?<=\{[\d\w]+\})([^\!\?\*]*?)))$/;
 /** 
  * 判断是否是特殊情况 
  * @param {string} result 
@@ -20,16 +27,25 @@ function _match (matchResult) {
     if (!matchResult) {
         return handleMatchResult;
     }
-    const [_, isSignle, signleSuffix, isDouble, isExclamation, exclamationSuffix] = matchResult;
+    const [_, variable, isSignle, signleSuffix, isDouble, isExclamation, exclamationSuffix, isQuestionMark, questionMarkSuffix, normalString] = matchResult;
     if (isSignle) {
         // 单星号
         handleMatchResult.push('signle', signleSuffix);
-    }
-    if (isDouble) {
-        handleMatchResult.push('double');
-    }
-    if (isExclamation) {
+    } else if (isDouble) {
+        // 双星号
+        handleMatchResult.push('double', undefined);
+    } else if (isExclamation) {
+        // 感叹号
         handleMatchResult.push('exclamation', exclamationSuffix);
+    } else if (isQuestionMark) {
+        // 问号
+        handleMatchResult.push('questionMark', questionMarkSuffix);
+    } else {
+        handleMatchResult.push(undefined, undefined);
+    }
+    if (variable) {
+        // 传入了变量
+        handleMatchResult.push(variable.match(/^\{([\d\w]+)\}$/)[1], normalString);
     }
     return handleMatchResult;
 }
@@ -50,6 +66,13 @@ function _handleExclamation (type, targetValue, value, notMatch = true) {
     return type === 'exclamation' && Boolean(notMatch ^ value.split(',').includes(targetValue));
 }
 
+/**
+ * 问号判断
+ */
+function _handleQuestionMark (type, targetValue, value, notMatch = true) {
+    return type === 'questionMark' && Boolean(notMatch ^ !value.split(',').includes(targetValue));
+}
+
 /** 
  * 规则和目标路径字符串是否匹配
  * @param {string[]} result 用于匹配的数组
@@ -58,22 +81,39 @@ function _same (result, target) {
     if (typeof target === 'string') {
         target = pathParse(target).pathItem;
     }
+    const variables = {};
+    function _result (state) {
+        return Object.assign({
+            state            
+        }, state ? { variables } : {});
+    }
     /** 匹配传入路径数组 */
     let targetIndex = 0, 
     /** 匹配规则路径数组 */
     resultIndex = 0;
     while (targetIndex < target.length) {
         if (resultIndex >= result.length) {
-            return false;
+            return _result(false);
         }
         const t = target[targetIndex], r = result[resultIndex];
         const matchResult = _extraSituation(r);
         if (matchResult) {
-            const [type, value] = _match(matchResult);
-            const signleOrExclamation = _handleSignle(type, t, value, true) || _handleExclamation(type, t, value, true);
+            const [type, value, variable, variableSuffix = ''] = _match(matchResult);
+            if (variable) {
+                // 赋值变量数据
+                if (!type) {
+                    t.endsWith(variableSuffix) ? 
+                    variables[variable] = t.slice(0, t.length - variableSuffix.length) : 
+                    variables[variable] = undefined;
+                } else {
+                    // 在感叹号和问号的情况里，如果校验不通过不会返回变量对象，所以此处可以直接赋值而不需要做额外判断
+                    variables[variable] = t;
+                }
+            }
+            const signleOrExclamation = _handleSignle(type, t, value, true) || _handleExclamation(type, t, value, true) || _handleQuestionMark(type, t, value, true);
             if (signleOrExclamation) {
-                // 单星号或感叹号
-                return false;
+                // 单星号或感叹号或问号
+                return _result(false);
             }
             if (type === 'double') {
                 // 双星号
@@ -83,19 +123,19 @@ function _same (result, target) {
                     continue;
                 }
                 if (_same(result.slice(resultIndex + 1), target.slice(targetIndex))) {
-                    return true;
+                    return _result(true);
                 }
                 resultIndex--;
             }
         } else if (t !== r) {
-            return false;
+            return _result(false);
         }
         resultIndex++,targetIndex++;
     }
     if (resultIndex < result.length - 1) {
-        return false;
+        return _result(false);
     }
-    return true;
+    return _result(true);
 }
 
 /**
@@ -110,8 +150,8 @@ function rules (str) {
     };
 }
 
-// const rele = rules('src/test/!one,two/**/*.js');
-// const compare = path.resolve('src/test/three/file/file2/a.js');
+// const rele = rules('src/{name1}/{name2}!one,two/**/*.js');
+// const compare = path.resolve('src/test/two/file/file2/a.js');
 // console.log(rele.same(pathParse(compare).pathItem));
 
 module.exports = rules;

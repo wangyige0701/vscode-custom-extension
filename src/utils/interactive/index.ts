@@ -7,3 +7,4 @@ export * from "./quickPick";
 export * from "./multiStep";
 export * from "./icon";
 export * from "./color";
+export * from "./button";

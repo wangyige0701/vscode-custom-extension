@@ -148,14 +148,14 @@ export class ClockRecord {
 
     forEach (callback: (item: number, index: number, state: (model: 'BREAK') => void) => void) {
         let toBreak: boolean = false;
-        for (const $i of range(this.length)) {
+        $Door: for (const $i of range(this.length)) {
             callback.call(this, this.array[$i], $i, (model) => {
                 if (model === 'BREAK') {
                     toBreak = true;
                 }
             });
             if (toBreak) {
-                break;
+                break $Door;
             }
         }
     }

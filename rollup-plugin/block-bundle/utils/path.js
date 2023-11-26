@@ -12,12 +12,13 @@ const splitPath = /([^\/\\]*)(?:\/|\\|\\\\)?/g;
 function pathParse (pathData) {
     const baseName = path.basename(pathData);
     const dirName = path.dirname(pathData);
+    const typeResult = baseName.match(typeMatch);
     return {
         baseName,
         dirName,
         pathItem: [...pathData.matchAll(splitPath)].map(item => item[1]).filter(item => item),
         dirItem: [...dirName.matchAll(splitPath)].map(item => item[1]).filter(item => item),
-        baseType: baseName.match(typeMatch)[1]
+        baseType: typeResult ? typeResult[1] : ''
     };
 }
 

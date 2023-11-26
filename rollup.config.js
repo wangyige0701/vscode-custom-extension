@@ -40,6 +40,8 @@ const terserOptions = { maxWorkers: 4 };
 /** 压缩插件 @type {RollupPlugin} */
 const terserPlugin = terser(terserOptions);
 
+const blockBundle = require('./rollup-plugin/block-bundle/index'); 
+
 /** ts解析配置 */
 const typescriptConfig = {
     tsconfig: './tsconfig.json',
@@ -72,109 +74,125 @@ module.exports = [
         ], [
             "./library/axios", 
             "./library/sharp"
-        ])
+        ]),
+        blockBundle({
+            dynamicImportPackage: 'dist/library.js',
+            dynamicFunction: 'dynamicImportFunction',
+            dynamicObject: 'dynamicImportObject',
+            worker: [{
+                from: 'src/worker/{name}/**',
+                to: 'dist/worker/{name}.js'
+            }],
+            package: [{
+                from: 'src/app/{name}/**',
+                to: 'dist/app/{name}.js'
+            }, {
+                from: 'src/?app,extension.ts,uninstall.ts/**',
+                to: 'dist/utils.js'
+            }]
+        })
     ]),
-    bundle({
-        input: 'src/uninstall.ts',
-        output: {
-            file: 'dist/uninstall.js',
-            format: 'cjs'
-        }
-    }, [
-        typescript({
-            tsconfig: './tsconfig.uninstall.json'
-        }),
-        resolvePlugin,
-        jsonPlugin,
-        commonjs(),
-        terserPlugin
-    ]),
-    // 外部引用模块单独打包
-    // 打包axios模块文件
-    bundle({
-        input: 'src/library/external/axios.ts',
-        output: {
-            file: 'dist/library/axios.js',
-            format: 'cjs',
-            exports: "default"
-        }
-    }, [
-        resolvePlugin,
-        jsonPlugin,
-        commonjs(),
-        terserPlugin,
-        externalJsonFilePathChange(rootPath),
-        removeAbsoluteNote()
-    ]),
-    // 打包sharp模块文件
-    bundle({
-        input: 'src/library/external/sharp.ts',
-        output: {
-            file: 'dist/library/sharp.js',
-            format: 'cjs',
-            exports: "default"
-        }
-    }, [
-        resolvePlugin,
-        jsonPlugin,
-        commonjs({
-            dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
-            ignoreDynamicRequires: true
-        }),
-        terserPlugin,
-        sharpNodeRequireChange(),
-        externalJsonFilePathChange(rootPath)
-    ]),
-    // 打包sharp依赖的use-libvips模块文件
-    bundle({
-        input: 'src/library/external/build/use-libvips.ts',
-        output: {
-            file: 'dist/library/install/use-libvips.js',
-            format: 'cjs'
-        },
-        onwarn: warnHandle('CIRCULAR_DEPENDENCY')
-    }, [
-        resolvePlugin,
-        jsonPlugin,
-        commonjs(),
-        terserPlugin,
-        // 调整json文件的导入路径
-        externalJsonFilePathChange(rootPath, "..", 'libvips.js'),
-        removeAbsoluteNote()
-    ]),
-    // 打包sharp依赖的copy模块文件
-    bundle({
-        input: 'src/library/external/build/copy.ts',
-        output: {
-            file: 'dist/library/install/copy.js',
-            format: 'cjs'
-        }
-    }, [
-        resolvePlugin,
-        jsonPlugin,
-        commonjs(),
-        terserPlugin,
-        externalJsonFilePathChange(rootPath, "..")
-    ]),
-    // 打包sharp依赖的bin文件
-    bundle({
-        input: 'src/library/external/build/bin.ts',
-        output: {
-            file: 'dist/library/install/bin.js',
-            format: 'cjs'
-        },
-        onwarn: warnHandle('CIRCULAR_DEPENDENCY')
-    }, [
-        resolvePlugin,
-        jsonPlugin,
-        commonjs({
-            dynadynamicRequireTargets: ['!node_modules/prebuild-install/package.json', '!node_modules/napi-build-utils/pacakge.json'],
-            ignoreDynamicRequires: true
-        }),
-        terserPlugin,
-        externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
-        pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
-        lineCodeRemove(),
-        removeAbsoluteNote()
-    ])
+    // bundle({
+    //     input: 'src/uninstall.ts',
+    //     output: {
+    //         file: 'dist/uninstall.js',
+    //         format: 'cjs'
+    //     }
+    // }, [
+    //     typescript({
+    //         tsconfig: './tsconfig.uninstall.json'
+    //     }),
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs(),
+    //     terserPlugin
+    // ]),
+    // // 外部引用模块单独打包
+    // // 打包axios模块文件
+    // bundle({
+    //     input: 'src/library/external/axios.ts',
+    //     output: {
+    //         file: 'dist/library/axios.js',
+    //         format: 'cjs',
+    //         exports: "default"
+    //     }
+    // }, [
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs(),
+    //     terserPlugin,
+    //     externalJsonFilePathChange(rootPath),
+    //     removeAbsoluteNote()
+    // ]),
+    // // 打包sharp模块文件
+    // bundle({
+    //     input: 'src/library/external/sharp.ts',
+    //     output: {
+    //         file: 'dist/library/sharp.js',
+    //         format: 'cjs',
+    //         exports: "default"
+    //     }
+    // }, [
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs({
+    //         dynamicRequireTargets: '!node_modules/sharp/build/Release/*.node',
+    //         ignoreDynamicRequires: true
+    //     }),
+    //     terserPlugin,
+    //     sharpNodeRequireChange(),
+    //     externalJsonFilePathChange(rootPath)
+    // ]),
+    // // 打包sharp依赖的use-libvips模块文件
+    // bundle({
+    //     input: 'src/library/external/build/use-libvips.ts',
+    //     output: {
+    //         file: 'dist/library/install/use-libvips.js',
+    //         format: 'cjs'
+    //     },
+    //     onwarn: warnHandle('CIRCULAR_DEPENDENCY')
+    // }, [
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs(),
+    //     terserPlugin,
+    //     // 调整json文件的导入路径
+    //     externalJsonFilePathChange(rootPath, "..", 'libvips.js'),
+    //     removeAbsoluteNote()
+    // ]),
+    // // 打包sharp依赖的copy模块文件
+    // bundle({
+    //     input: 'src/library/external/build/copy.ts',
+    //     output: {
+    //         file: 'dist/library/install/copy.js',
+    //         format: 'cjs'
+    //     }
+    // }, [
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs(),
+    //     terserPlugin,
+    //     externalJsonFilePathChange(rootPath, "..")
+    // ]),
+    // // 打包sharp依赖的bin文件
+    // bundle({
+    //     input: 'src/library/external/build/bin.ts',
+    //     output: {
+    //         file: 'dist/library/install/bin.js',
+    //         format: 'cjs'
+    //     },
+    //     onwarn: warnHandle('CIRCULAR_DEPENDENCY')
+    // }, [
+    //     resolvePlugin,
+    //     jsonPlugin,
+    //     commonjs({
+    //         dynadynamicRequireTargets: ['!node_modules/prebuild-install/package.json', '!node_modules/napi-build-utils/pacakge.json'],
+    //         ignoreDynamicRequires: true
+    //     }),
+    //     terserPlugin,
+    //     externalJsonFilePathChange(rootPath, "..", ["bin.js"]),
+    //     pacakgeJsonRelativePathChange(rootPath, "..", ["bin.js", "napi-build-utils/index.js"]),
+    //     lineCodeRemove(),
+    //     removeAbsoluteNote()
+    // ])
 ];

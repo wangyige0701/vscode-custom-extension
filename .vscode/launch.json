@@ -50,7 +50,7 @@
 			"runtimeArgs": ["-r", "ts-node/register", "${file}"]
 		},
 		{
-			"name": "Debug Node",
+			"name": "Run Node",
 			"type": "node",
 			"request": "launch",
 			"console": "integratedTerminal",

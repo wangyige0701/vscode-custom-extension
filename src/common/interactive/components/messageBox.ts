@@ -1,6 +1,6 @@
+import type { MessageBoxMethodType, MessageBoxType } from "../types";
 import { MessageItem, window } from 'vscode';
-import type { MessageBoxMethodType, MessageBoxType } from "./types";
-import { isUndefined } from '../index';
+import { isUndefined } from '../../../utils';
 
 /** 获取消息弹框所有方法 */
 const getMessageBoxAllData = {

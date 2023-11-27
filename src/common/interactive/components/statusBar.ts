@@ -1,7 +1,7 @@
+import type { Disposable, StatusBarItem } from "vscode";
+import type { StatusBarCallback, StatusBarIconMessage, StatusBarItemOptions, StatusBarParam } from "../types";
 import { StatusBarAlignment, window } from "vscode";
-import  type { Disposable, StatusBarItem } from "vscode";
-import { isNumber, isObject, isUndefined } from "../index";
-import type { StatusBarCallback, StatusBarIconMessage, StatusBarItemOptions, StatusBarParam } from "./types";
+import { isNumber, isObject, isUndefined } from "../../../utils";
 
 /**
  * 设置底部状态栏文字内容

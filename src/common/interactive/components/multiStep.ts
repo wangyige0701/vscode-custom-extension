@@ -6,12 +6,12 @@ import type {
     Complete, 
     MultiStepCollectFunc, 
     MultiStepInputBoxExtraType 
-} from "./types";
+} from "../types";
+import type { QuickInputButton } from "vscode";
+import { QuickInputButtons } from "vscode";
 import { creaetInputBox } from "./input";
 import { createQuickPick } from "./quickPick";
-import { QuickInputButtons } from "vscode";
-import type { QuickInputButton } from "vscode";
-import { isFunction, isString } from "..";
+import { isFunction, isString } from "../../../utils";
 
 export class MultiStep {
     private static collect: [Function, string | undefined][] = [];

@@ -1,7 +1,7 @@
-import { window } from "vscode";
 import type { CancellationToken, QuickPickItem, QuickPickOptions } from "vscode";
-import type { QuickPickItemCallback, QuickPickItemsOptions, QuickPickPanelOptions, } from "./types";
-import { firstStrUpperCase, isArray, isFunction, isPromise, isString } from "..";
+import type { QuickPickItemCallback, QuickPickItemsOptions, QuickPickPanelOptions, } from "../types";
+import { window } from "vscode";
+import { firstStrUpperCase, isArray, isFunction, isPromise, isString } from "../../../utils";
 
 /**
  * 创建并打开一个可选列表

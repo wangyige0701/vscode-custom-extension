@@ -1,7 +1,7 @@
-import { ProgressLocation, window } from "vscode";
 import type { ProgressOptions } from "vscode";
-import { isString } from '../index';
-import type { ProgressLocationData, ProgressOptionsNew, ProgressTaskType } from './types';
+import type { ProgressLocationData, ProgressOptionsNew, ProgressTaskType } from '../types';
+import { ProgressLocation, window } from "vscode";
+import { isString } from '../../../utils';
 
 /**
  * 调用进度条api

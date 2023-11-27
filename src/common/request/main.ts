@@ -1,5 +1,5 @@
-import axios from "../../library/importer/axios";
 import type { AxiosRequestConfig, AxiosResponse } from "../../library/importer/axios";
+import axios from "../../library/importer/axios";
 
 /**
  * axios请求状态处理

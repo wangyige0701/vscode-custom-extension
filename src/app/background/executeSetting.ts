@@ -1,5 +1,5 @@
 import { modifyCssFileForBackground } from "./modify";
-import { showMessageWithConfirm, showProgress } from "../../utils/interactive";
+import { showMessageWithConfirm, showProgress } from "../../common/interactive";
 import { createExParamPromise, delay } from "../../utils";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./executeWebview";

@@ -11,10 +11,10 @@ import {
     uriDelete,
     uriStat,
     writeFileUri
-} from "../../utils/file";
+} from "../../common/file";
 import { $rej } from "../../error";
 import { createExParamPromise } from "../../utils";
-import { imageCompression } from "../../utils/compression";
+import { imageCompression } from "../../common/compression";
 
 /** 缩略图的存放文件 */
 const compressFileName = 'back.min.wyg';

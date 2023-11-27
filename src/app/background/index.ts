@@ -1,7 +1,7 @@
 import type { Uri, FileType, Disposable } from "vscode";
 import { createExParamPromise, delay, getHashCode, range, bisectionAsce } from "../../utils";
-import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../../utils/file";
-import { selectFile, setStatusBarResolve, showProgress } from "../../utils/interactive";
+import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uriDelete, writeFileUri } from "../../common/file";
+import { selectFile, setStatusBarResolve, showProgress } from "../../common/interactive";
 import { WError, errlog, $rej } from "../../error";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { changeLoadState, imageStoreUri, showMessageByModal, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";

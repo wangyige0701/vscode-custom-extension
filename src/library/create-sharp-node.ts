@@ -3,7 +3,7 @@ import { isDev } from "../version/index";
 import { readdirSync, existsSync, copyFileSync, rmSync } from "fs";
 import { parse, resolve as pathResolve } from "path";
 import { spawnSync } from "child_process";
-import { setStatusBarResolve } from "../utils/interactive";
+import { setStatusBarResolve } from "../common/interactive";
 
 /**
  * .node二进制文件是否存在

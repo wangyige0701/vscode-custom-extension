@@ -8,7 +8,7 @@
  */
 
 import { isNumber, isString } from "../utils";
-import { showMessageWithConfirm } from "../utils/interactive";
+import { showMessageWithConfirm } from "../common/interactive";
 import { isDev } from "../version";
 import WError from "./WError";
 

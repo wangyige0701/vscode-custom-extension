@@ -2,7 +2,7 @@ import type { ExtensionContext, StatusBarItem } from 'vscode';
 import { MarkdownString, commands } from "vscode";
 import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
 import { errlog } from '../../error';
-import { setStatusBarItem } from '../../utils/interactive';
+import { setStatusBarItem } from '../../common/interactive';
 import { accurateTime, getTimeString } from "./utils";
 import { clockRecord } from './storage';
 import { ClockRecord } from './cache';

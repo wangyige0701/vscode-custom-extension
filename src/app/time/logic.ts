@@ -1,6 +1,6 @@
 import { $rej, errlog } from "../../error";
 import { arabicNumeralsToChinese, delay, getDate } from "../../utils";
-import { showProgress } from "../../utils/interactive";
+import { showProgress } from "../../common/interactive";
 import { copyFileWhenVersionChange } from "../../version/versionChange";
 import openAlarmClockPanel from "./panel";
 import { showAlarmClockInfo } from "./prompt";

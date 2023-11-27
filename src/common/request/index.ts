@@ -1,5 +1,4 @@
-import { GetImage } from "./utils";
 import Request from "./main";
 
-export { GetImage };
+export * from "./extra/getImage";
 export default Request;

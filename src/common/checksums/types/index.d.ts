@@ -1,3 +1,4 @@
+import type { RecordDataByMapType } from "../../../utils/recordData/types"
 
 /** 校验和数据缓存 */
 export interface CheckSumsData {
@@ -17,12 +18,8 @@ export interface GetChecksumsData {
     hash: string;
 }
 
-export type ChecksumsDataOperation<T> = {
-    set(name: string, data: CheckSumsData): void;
-    get(name: string): undefined | CheckSumsData;
-    delete(name: string): void;
-    has(name: string): boolean;
-    clear(): void;
+/** 校验和数据记录类 */
+export type CheckSumsDataRecordType<T> = {
     same(name: string, hash: string): boolean;
     update(name: string, hash: string): void;
-} & Record<"origin", T>
+} & RecordDataByMapType<T>;

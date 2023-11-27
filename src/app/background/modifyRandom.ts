@@ -1,6 +1,6 @@
 import { errlog } from "../../error";
 import { delay, getRandom } from "../../utils";
-import { showMessageWithConfirm, showProgress } from "../../utils/interactive";
+import { showMessageWithConfirm, showProgress } from "../../common/interactive";
 import { BackgroundConfiguration } from "../../workspace/background";
 import { backgroundSendMessage } from "./executeWebview";
 import { closeRandomBackground, showMessageByModal } from "./utils";

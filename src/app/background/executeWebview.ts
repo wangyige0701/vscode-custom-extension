@@ -1,7 +1,7 @@
-import type { MessageData } from "../../utils/webview/types";
+import type { MessageData } from "../../common/webview/types";
 import type { backgroundSendMessageData } from "./types";
 import { isObject } from "../../utils";
-import { messageSend, WebviewInstance } from "../../utils/webview";
+import { messageSend, WebviewInstance } from "../../common/webview";
 
 /** 侧栏webview实例保存 */
 export const BackgroundWebviewInstance = new WebviewInstance();

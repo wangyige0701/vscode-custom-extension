@@ -2,7 +2,7 @@
 import type { Uri } from 'vscode';
 import { checkVersion, getVersionById, refreshVersion } from './utils';
 import { getVersion, isDev } from '.';
-import { createUri, isFileExits, newUri, uriCopy } from '../utils/file';
+import { createUri, isFileExits, newUri, uriCopy } from '../common/file';
 import { resolve as pathResolve } from 'path';
 
 /** 只获取当前扩展版本是否修改的状态 */

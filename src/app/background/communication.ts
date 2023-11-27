@@ -6,7 +6,7 @@ import { randomSettingBackground } from "./modifyRandom";
 import { toViewImage } from "../viewImage";
 import { BackgroundWebviewInstance } from './executeWebview';
 import { settingImage } from './executeSetting';
-import { messageExecute } from "../../utils/webview";
+import { messageExecute } from "../../common/webview";
 
 /** 创建通信数据对应函数执行配置 */
 const messageReceiver = messageExecute<backgroundMessageData>({

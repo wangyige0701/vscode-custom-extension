@@ -19,7 +19,7 @@
 	},
 	"include": [
 		"src/**/*"
-, "package"	],
+	],
 	"exclude": [
 		"package",
 		"src/uninstall.ts",

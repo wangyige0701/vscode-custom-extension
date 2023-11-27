@@ -7,10 +7,10 @@ import type {
     MessageGroupCallback, 
     MessageGroupCallbackName, 
     callbackType
-} from "./types";
+} from "../types";
 import type { Webview } from "vscode";
-import { errlog } from "../../error";
-import { firstUpperCase, isUndefined } from "../index";
+import { errlog } from "../../../error";
+import { firstUpperCase, isUndefined } from "../../../utils";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
@@ -75,7 +75,7 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
         };
     }
     // 配置信息整理
-    for (let t in config) {
+    for (const t in config) {
         const target = config[t as GetName<T>];
         if (!Array.isArray(target.execute)) {
             target.execute = [target.execute];

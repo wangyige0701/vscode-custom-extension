@@ -9,7 +9,7 @@ import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./sele
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
 import { backgroundWebviewCommunication } from "./communication";
-import { copyFileWhenVersionChange } from "../../version/versionChange";
+import { copyFileWhenVersionChange } from "../../version";
 import { errlog, $rej } from "../../error";
 import { clearDynamicImport } from "../../library";
 

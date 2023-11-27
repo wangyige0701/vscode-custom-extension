@@ -90,6 +90,9 @@ module.exports = [
             }, {
                 input: 'src/?app,extension.ts,uninstall.ts/*/index.ts',
                 from: 'src/{name}?app,extension.ts,uninstall.ts/**',
+                exclude: [
+                    'src/library/create-sharp-node.ts'
+                ],
                 to: 'dist/{name}.js'
             }]
         })

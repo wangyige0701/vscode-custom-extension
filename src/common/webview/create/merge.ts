@@ -3,8 +3,7 @@ import type { ExternalFile, webFileType } from "../types";
 import { FileType, Uri} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../../file";
 import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "../../../utils";
-import { isDev } from "../../../version";
-import { checkVersion, refreshVersion } from "../../../version/utils";
+import { isDev, checkVersion, refreshVersion  } from "../../../version";
 import { WError, $rej } from "../../../error";
 import { ExtensionUri } from "../../system";
 

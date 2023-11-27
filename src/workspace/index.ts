@@ -1,21 +1,2 @@
-import type { WorkspaceConfiguration } from "vscode";
-import { workspace } from "vscode";
-
-/**
- * 获取工作区配置
- * @param name 
- */
-export function getWorkSpace (name: string): WorkspaceConfiguration {
-    return workspace.getConfiguration(name);
-}
-
-
-/**
- * 更新工作区配置
- * @param name 
- * @param param 
- * @param value 
- */
-export function setWorkSpace (name: string, param: string, value: any): Thenable<void> {
-    return getWorkSpace(name).update(param, value, true);
-}
+export * from "./main";
+export * from "./background";

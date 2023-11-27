@@ -1,7 +1,9 @@
 import { version as vscVersion } from "vscode";
-import { errlog } from "../error";
-import { getWorkSpace, setWorkSpace } from "../workspace";
-import { getVersion } from ".";
+import { errlog } from "../../error";
+import { getWorkSpace, setWorkSpace } from "../../workspace/main";
+
+/** 版本号，加载时直接解析json，避免多次调用 */
+const version = require('../../package.json').version as string;
 
 /**
  * 根据id获取指定类型的储存数据
@@ -43,4 +45,14 @@ export async function refreshVersion (id: string, refreshVsc: boolean = true, cl
     }).catch(err => {
         errlog(err);
     });
+}
+
+/** 是否是开发环境，本地调试环境变量是development，生产环境没有NODE_ENV */
+export function isDev (): boolean {
+    return process.env.NODE_ENV === "development";
+}
+
+/** 获取版本号 */
+export function getVersion (): string {
+    return version;
 }

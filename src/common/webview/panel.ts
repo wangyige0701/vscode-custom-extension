@@ -1,6 +1,6 @@
 import type { WebviewOptions, WebviewPanel, WebviewPanelOptions } from 'vscode';
 import { ViewColumn, window } from 'vscode';
-import { FileMerge, messageHandle } from ".";
+import { FileMerge, messageHandle } from "./create";
 import { errlog } from '../../error';
 
 /** 

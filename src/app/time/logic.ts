@@ -1,12 +1,12 @@
+import type { AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
 import { $rej, errlog } from "../../error";
 import { arabicNumeralsToChinese, delay, getDate } from "../../utils";
 import { showProgress } from "../../common/interactive";
-import { copyFileWhenVersionChange } from "../../version/versionChange";
-import openAlarmClockPanel from "./panel";
+import { copyFileWhenVersionChange } from "../../version";
 import { showAlarmClockInfo } from "./prompt";
 import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath, updateSthInTimstamp, deleteTaskInTimestamp } from "./storage";
-import type { AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
 import { accurateTime, cycleCalculate } from "./utils";
+import openAlarmClockPanel from "./panel";
 
 /** 显示的时间格式 */
 const clockFullInfoType = "YYYY年MM月DD日 hh时mm分";

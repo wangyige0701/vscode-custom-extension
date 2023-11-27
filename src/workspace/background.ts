@@ -1,5 +1,5 @@
 import type { ImageCodes, Res, Rej, SetCodesQueue } from "./types/background";
-import { getWorkSpace, setWorkSpace } from ".";
+import { getWorkSpace, setWorkSpace } from "./main";
 import { isFunction, isString, cryHex } from "../utils";
 import { joinPathUri, isFileExitsSync } from "../common/file";
 import { ExtensionUri } from "../common/system";

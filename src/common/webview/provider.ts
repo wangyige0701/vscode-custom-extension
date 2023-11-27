@@ -2,8 +2,7 @@ import type { ExtensionContext, Disposable, CancellationToken, WebviewView, Webv
 import type { RegistWebviewProviderOptions } from "./types";
 import { window } from "vscode";
 import { errlog } from "../../error";
-import { messageHandle } from "./message";
-import { FileMerge } from "./index";
+import { messageHandle, FileMerge } from ".";
 
 /** 通过html文件插入webview */
 export class webviewCreateProvider implements WebviewViewProvider {

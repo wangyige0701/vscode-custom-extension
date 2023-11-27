@@ -1,8 +1,7 @@
 import type { WebviewOptions, WebviewPanel, WebviewPanelOptions } from 'vscode';
 import { ViewColumn, window } from 'vscode';
-import { FileMerge } from ".";
+import { FileMerge, messageHandle } from ".";
 import { errlog } from '../../error';
-import { messageHandle } from './message';
 
 /** 
  * 注册panel类型webview页面

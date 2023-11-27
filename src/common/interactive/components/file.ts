@@ -1,7 +1,7 @@
+import type { SelectFileParams } from "../types";
 import { Uri, window } from "vscode";
 import { dirname } from "path";
-import { isString } from "../index";
-import type { SelectFileParams } from "./types";
+import { isString } from "../../../utils";
 
 /**
  * 选择文件

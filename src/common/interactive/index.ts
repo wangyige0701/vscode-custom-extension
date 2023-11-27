@@ -1,10 +1,12 @@
-export * from "./input";
-export * from "./file";
-export * from "./messageBox";
-export * from "./statusBar";
-export * from "./progress";
-export * from "./quickPick";
-export * from "./multiStep";
-export * from "./icon";
-export * from "./color";
-export * from "./button";
+/** 交互组件模块 */
+
+export * from "./components/input";
+export * from "./components/file";
+export * from "./components/messageBox";
+export * from "./components/statusBar";
+export * from "./components/progress";
+export * from "./components/quickPick";
+export * from "./components/multiStep";
+export * from "./components/icon";
+export * from "./components/color";
+export * from "./components/button";

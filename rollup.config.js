@@ -80,20 +80,21 @@ module.exports = [
             dynamicFunction: 'dynamicImportFunction',
             dynamicObject: 'dynamicImportObject',
             worker: [{
+                entry: 'src/worker/*/index.ts',
                 from: 'src/worker/{name}/**',
                 to: 'dist/worker/{name}.js'
             }],
             package: [{
-                input: 'src/app/*/index.ts',
+                entry: 'src/app/*/index.ts',
                 from: 'src/app/{name}/**',
                 to: 'dist/app/{name}.js'
             }, {
-                input: 'src/?app,extension.ts,uninstall.ts/*/index.ts',
+                entry: 'src/?app,extension.ts,uninstall.ts/*/index.ts',
                 from: 'src/{name}?app,extension.ts,uninstall.ts/**',
+                to: 'dist/{name}.js',
                 exclude: [
                     'src/library/create-sharp-node.ts'
-                ],
-                to: 'dist/{name}.js'
+                ]
             }]
         })
     ]),

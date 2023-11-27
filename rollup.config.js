@@ -66,7 +66,7 @@ module.exports = [
         resolvePlugin,
         jsonPlugin,
         commonjs(),
-        terserPlugin,
+        // terserPlugin,
         mainJsonRequireChange(rootPath, 'dist', 'extension.js'),
         mainModuleRequirePathChange(rootPath, [
             "axios", 
@@ -84,11 +84,13 @@ module.exports = [
                 to: 'dist/worker/{name}.js'
             }],
             package: [{
+                input: 'src/app/*/index.ts',
                 from: 'src/app/{name}/**',
                 to: 'dist/app/{name}.js'
             }, {
-                from: 'src/?app,extension.ts,uninstall.ts/**',
-                to: 'dist/utils.js'
+                input: 'src/?app,extension.ts,uninstall.ts/*/index.ts',
+                from: 'src/{name}?app,extension.ts,uninstall.ts/**',
+                to: 'dist/{name}.js'
             }]
         })
     ]),

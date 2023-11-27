@@ -2,7 +2,7 @@
  * 卸载时清除配置
  */
 
-import { setWorkSpace } from "../workspace/main";
+import { setWorkSpace } from "../workspace";
 import { refreshVersion } from "./main";
 
 const backgroundNamespace = 'wangyige.background';

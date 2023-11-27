@@ -1,6 +1,6 @@
 import { version as vscVersion } from "vscode";
 import { errlog } from "../../error";
-import { getWorkSpace, setWorkSpace } from "../../workspace/main";
+import { getWorkSpace, setWorkSpace } from "../../workspace";
 
 /** 版本号，加载时直接解析json，避免多次调用 */
 const version = require('../../package.json').version as string;

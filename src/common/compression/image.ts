@@ -1,7 +1,7 @@
 import type { CompressStyle, InputType } from "./types";
 import sharp from "../../library/importer/sharp";
 import { $rej } from "../../error";
-import { isString } from "..";
+import { isString } from "../../utils";
 
 
 /**

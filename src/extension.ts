@@ -1,9 +1,9 @@
 import type { ExtensionContext } from 'vscode';
 import { registBackground } from './app/background/regist';
-import { checksumsInit } from './utils/checksums';
+import { checksumsInit } from './common/checksums';
 import { isNeedToCreateSharpBinaryFile } from "./library/create-sharp-node";
 import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from './app/time';
-import { ExtensionUri } from './utils/system';
+import { ExtensionUri } from './common/system';
 
 export function activate(context: ExtensionContext) {
 	// 将扩展uri赋值全局

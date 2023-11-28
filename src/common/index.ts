@@ -1,3 +1,5 @@
+/** @description 公共组件封装 */
+
 export * from "./checksums";
 export * from "./compression";
 export * from "./file";

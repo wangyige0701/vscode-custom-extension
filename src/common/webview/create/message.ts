@@ -10,7 +10,7 @@ import type {
 } from "../types";
 import type { Webview } from "vscode";
 import { errlog } from "../../../error";
-import { firstUpperCase, isUndefined } from "../../../utils";
+import { firstStrUpperCase, isUndefined } from "../../../utils";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
@@ -40,7 +40,7 @@ export function messageHandle (webview: Webview) {
             return;
         }
         /** 执行函数名 */
-        const executeName = 'on' + firstUpperCase(groupName) as MessageGroupCallbackName;
+        const executeName = 'on' + firstStrUpperCase(groupName) as MessageGroupCallbackName;
         // 是否有对应函数
         if (!(executeName in messageCallback)) {
             return;

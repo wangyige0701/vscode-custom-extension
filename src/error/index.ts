@@ -24,11 +24,10 @@ function errlog (e: any, isThrow: boolean = !environment): void {
     if (!e) {
         return;
     }
+    console.log(e.toString());
     if (isThrow) {
-        console.log(e);
         return;
     }
-    environment && console.error(e);
     if (isString(e) || isNumber(e)) {
         showMessageWithConfirm(e.toString(), "error");
         return;

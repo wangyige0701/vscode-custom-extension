@@ -1,5 +1,5 @@
 import type { Uri } from "vscode";
-import { imageStoreUri } from "./utils";
+import { imageStoreUri } from "../utils";
 import {
     base64ByFiletypeAndData,
     createBuffer,
@@ -11,10 +11,10 @@ import {
     uriDelete,
     uriStat,
     writeFileUri
-} from "../../common/file";
-import { $rej } from "../../error";
-import { createExParamPromise } from "../../utils";
-import { imageCompression } from "../../common/compression";
+} from "../../../common/file";
+import { $rej } from "../../../error";
+import { createExParamPromise } from "../../../utils";
+import { imageCompression } from "../../../common/compression";
 
 /** 缩略图的存放文件 */
 const compressFileName = 'back.min.wyg';

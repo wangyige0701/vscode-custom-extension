@@ -22,7 +22,7 @@ function main (options) {
     package.forEach(item => {
         regist.add(item, 'package');
     });
-
+    // 需要对url进行标注，首次检测需要加后缀?wangyige，并且添加动态库模块的导入，后续不需要再次导入
     /** @type {RollupPlugin} */
     const plugin = {
         // transform (code, id) {

@@ -79,18 +79,19 @@ module.exports = [
             dynamicImportPackage: 'dist/library.js',
             dynamicFunction: 'dynamicImportFunction',
             dynamicObject: 'dynamicImportObject',
+            workerMainFile: 'src/worker/index.ts', // worker的创建模块
             worker: [{
-                entry: 'src/worker/*/index.ts',
-                from: 'src/worker/{name}/**',
-                to: 'dist/worker/{name}.js'
+                entry: 'src/app/*/worker/*.ts',
+                from: 'src/app/{name}/worker/{file}.ts',
+                to: 'dist/worker/{name}/{file}.js'
             }],
             package: [{
                 entry: 'src/app/*/index.ts',
-                from: 'src/app/{name}/**',
+                from: 'src/app/{name}/?worker/**',
                 to: 'dist/app/{name}.js'
             }, {
-                entry: 'src/?app,extension.ts,uninstall.ts/*/index.ts',
-                from: 'src/{name}?app,extension.ts,uninstall.ts/**',
+                entry: 'src/?app,language,extension.ts,uninstall.ts/*/index.ts',
+                from: 'src/{name}?app,language,extension.ts,uninstall.ts/**',
                 to: 'dist/{name}.js',
                 exclude: [
                     'src/library/create-sharp-node.ts'

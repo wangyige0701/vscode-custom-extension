@@ -27,4 +27,17 @@ type KeysRemoveReadonly<T> = T extends { [key: string]: any } ? {
     -readonly [K in keyof T]: KeysRemoveReadonly<T[K]>;
 } : T;
 
+/** 指定类型的函数 */
 type SimpleFunction<T extends any[] = [void], K extends any = void> = (...params: T) => K;
+
+/** 约束数组长度 */
+type ConstrainedArrayLength<T, L extends number> = T[] & { length: L };
+
+/** 判断不为undefined */
+type NotUndefined<T> = T extends undefined ? never : T;
+
+/** 获取数组下一个元素 */
+type NextArray<T extends any[]> = T extends [infer X, ...infer R] ? R[0] : undefined;
+
+/** 返回去除第一个元素的剩余数组 */
+type ExecludeFirstArray<T extends any[]> = T extends [infer X, ...infer R] ? R : [];

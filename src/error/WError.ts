@@ -1,4 +1,5 @@
-import { isString } from "../utils";
+import { isString, splitByUpperCaseAndJoinWithSpaceUp } from "../utils";
+import { color } from "./print";
 
 type Errorposition = 'Function' | 'Class' | 'Parameter';
 
@@ -28,10 +29,10 @@ type ErrorOptions = {
 export default class WError extends Error {
     constructor (message: string, options: ErrorOptions = {}) {
         super(message);
-            
+        
         // 错误类型
-        this.name = 'VSCode Extension Error [wangyige]';
-
+        this.name = `${color('red', 'VSCode Extension Error')} [${color('yellow', 'wangyige')}]`;
+        
         /** 用于记录换行数 */
         let wrap = 1;
         
@@ -61,7 +62,7 @@ export default class WError extends Error {
         if (this.stack) {
             let file = this.stack.split('\n').splice(wrap, 1)[0];
             if (file) {
-                this.message += `\n >> In File: ${file}\n`;
+                this.message += `\n ${color('blue', '>> In File:')} ${file}\n`;
             }
             this.stack = void 0;
         }
@@ -74,13 +75,13 @@ export default class WError extends Error {
 
     /** cause数据处理 */
     causeHandle (cause: any): string {
-        let msg = '\n------------------------------------\n';
+        let msg = '------------------------------------\n';
         if (isString(cause)) {
             msg += cause;
         } else if (this.has(cause, 'stack')) {
             msg += cause.stack;
         } else if (this.has(cause, 'message')) {
-            msg += this.message;
+            msg += cause.message;
         }
         if (this.has(cause, 'cause')) {
             msg += this.causeHandle(cause.cause);
@@ -92,25 +93,25 @@ export default class WError extends Error {
      * 属性合并
      * @returns 
      */
-    private checkPosition ({position, ClassName, FunctionName, ParameterName}: ErrorOptions): number {
+    private checkPosition (params: ErrorOptions): number {
         let msg = '', wrap = 0;
+        const { position } = params;
         if (position) {
             if (this.message) {
                 this.message += ' >> ';
             }
             msg += `Error of ${position}`;
         }
-        if (ClassName) {
-            msg += `\n[Class Name: ${ClassName}]`;
-            wrap++;
-        }
-        if (FunctionName) {
-            msg += `\n[Function Name: ${FunctionName}]`;
-            wrap++;
-        }
-        if (ParameterName) {
-            msg += `\n[Parameter Name: ${ParameterName}]`;
-            wrap++;
+        const names = ['ClassName', 'FunctionName', 'ParameterName'];
+        for (const name of names) {
+            if (!(name in params)) {
+                continue;
+            }
+            const value = params[name as keyof ErrorOptions];
+            if (value) {
+                msg += `\n[${splitByUpperCaseAndJoinWithSpaceUp(name)}: ${color('yellow', value.toString())}]`;
+                wrap++;
+            }
         }
         this.message += msg;
         return wrap;

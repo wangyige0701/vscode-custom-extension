@@ -210,16 +210,6 @@ export function getRandomClose (start: number, end: number): number {
 }
 
 /**
- * 将字符串第一个字符大写
- */
-export function firstUpperCase (data: string) {
-    if (isString(data)) {
-        return data.charAt(0).toUpperCase() + data.slice(1);
-    }
-    return data;
-}
-
-/**
  * 创建带有额外参数的promise
  */
 export function createExParamPromise<T, P extends Array<any>>(prom: Promise<T>, ...params: P): Promise<MergeTypes<T, P>> {
@@ -249,6 +239,30 @@ export function firstStrUpperCase (str: string) {
 /** 字符串第一个字符小写 */
 export function firstStrLowerCase (str: string) {
     return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+/** 字符串全部大写 */
+export function allStrUpperCase (str: string) {
+    return str.toUpperCase();
+}
+
+/** 字符串全部小写 */
+export function allStrLowerCase (str: string) {
+    return str.toLowerCase();
+}
+
+/**
+ * 根据大写字母分割字符串
+ */
+export function splitByUpperCase (str: string) {
+    return str.trim().split(/([A-Z][^A-Z]*)/g).filter(item => item);
+}
+
+/**
+ * 根据空格分隔字符串
+ */
+export function splitBySpace (str: string) {
+    return str.trim().split(/([\w]+)/g).map(item => item.trim()).filter(item => item);
 }
 
 /**

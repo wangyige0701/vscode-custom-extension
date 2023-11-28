@@ -8,7 +8,7 @@ import { registWebviewProvider } from "../../common/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./selectStore";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modifyRandom";
-import { backgroundWebviewCommunication } from "./communication";
+import { backgroundWebviewCommunication } from "./webview/communication";
 import { copyFileWhenVersionChange } from "../../version";
 import { errlog, $rej } from "../../error";
 import { clearDynamicImport } from "../../library";

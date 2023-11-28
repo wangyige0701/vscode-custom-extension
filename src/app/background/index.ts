@@ -9,7 +9,7 @@ import { backgroundSendMessage } from "./executeWebview";
 import { checExternalDataIsRight, deleteBackgroundCssFileModification, setSourceCssImportInfo } from "./modify";
 import type { BackCheckComplete, CodeRefreshType, bufferAndCode, codeChangeType } from "./types";
 import { randomSettingBackground } from "./modifyRandom";
-import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress";
+import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress/compress";
 
 /** 图片类型过滤规则 */
 const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };

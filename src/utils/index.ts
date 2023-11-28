@@ -1,3 +1,5 @@
+/** @description 工具函数封装 */
+
 export * from "./algorithm";
 export * from "./arbic";
 export * from "./extra";

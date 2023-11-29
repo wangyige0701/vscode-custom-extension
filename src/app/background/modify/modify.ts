@@ -5,16 +5,16 @@
 import { version } from "vscode";
 import type { Disposable, Uri } from "vscode";
 import { dirname, join as pathjoin } from "path";
-import { createExParamPromise, getDate } from "../../utils";
-import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../../common/file";
-import { setStatusBarResolve } from "../../common/interactive";
-import { getNodeModulePath } from "../../common/system";
-import { reChecksum } from "../../common/checksums";
-import { BackgroundConfiguration } from "../../workspace/background";
-import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "./utils";
-import { getVersion } from "../../version";
-import type { ContentAndUri, info } from "./types";
-import { WError, $rej } from "../../error";
+import { createExParamPromise, getDate } from "../../../utils";
+import { createBuffer, createUri, isFileExits, newUri, readFileUri, uriDelete, writeFileUri } from "../../../common/file";
+import { setStatusBarResolve } from "../../../common/interactive";
+import { getNodeModulePath } from "../../../common/system";
+import { reChecksum } from "../../../common/checksums";
+import { BackgroundConfiguration } from "../../../workspace/background";
+import { changeLoadState, getNewBackgroundOpacity, imageStoreUri, setBackgroundImageSuccess } from "../utils";
+import { getVersion } from "../../../version";
+import type { ContentAndUri, info } from "../types";
+import { WError, $rej } from "../../../error";
 
 /** vscode的源css文件名 */
 const cssName = version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css';

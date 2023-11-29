@@ -1,11 +1,11 @@
 import type { Webview } from "vscode";
 import type { backgroundMessageData } from "../types";
 import { backgroundImageDataInit, deleteImage, getBase64DataByCode, getBase64DataFromObject, selectImage } from "..";
-import { backgroundOpacityModify, requestImageToBackground } from "../modifyByInput";
-import { randomSettingBackground } from "../modifyRandom";
+import { backgroundOpacityModify, requestImageToBackground } from "../modify/modifyByInput";
+import { randomSettingBackground } from "../modify/modifyRandom";
 import { toViewImage } from "../../viewImage";
-import { BackgroundWebviewInstance } from '../executeWebview';
-import { settingImage } from '../executeSetting';
+import { BackgroundWebviewInstance } from './executeWebview';
+import { settingImage } from './executeSetting';
 import { messageExecute } from "../../../common/webview";
 
 /** 创建通信数据对应函数执行配置 */

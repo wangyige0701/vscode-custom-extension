@@ -262,7 +262,7 @@ export function splitByUpperCase (str: string) {
  * 根据空格分隔字符串
  */
 export function splitBySpace (str: string) {
-    return str.trim().split(/([\w]+)/g).map(item => item.trim()).filter(item => item);
+    return str.split(/\s+/g).filter(item => item);
 }
 
 /**

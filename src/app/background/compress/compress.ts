@@ -15,12 +15,13 @@ import {
 import { $rej } from "../../../error";
 import { createExParamPromise } from "../../../utils";
 import { imageCompression } from "../../../common/compression";
+import { compressConfig } from "../config";
 
-/** 缩略图的存放文件 */
-const compressFileName = 'back.min.wyg';
+const {
+    compressFileName,
+    compressFolderName
+} = compressConfig();
 
-/** 缩略图存放文件夹 */
-const compressFolderName = 'compression';
 
 /**
  * 当指定哈希码的图片没有压缩图时生成一张压缩图，否则跳出

@@ -5,14 +5,17 @@ import { createBuffer, imageToBase64, newUri, readDirectoryUri, readFileUri, uri
 import { selectFile, setStatusBarResolve, showProgress } from "../../common/interactive";
 import { WError, errlog, $rej } from "../../error";
 import { BackgroundConfiguration } from "../../workspace/background";
-import { changeLoadState, imageStoreUri, showMessageByModal, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
+import { changeLoadState, showMessageByModal, isWindowReloadToLoadBackimage, setBackgroundImageSuccess } from "./utils";
 import { backgroundSendMessage } from "./webview/executeWebview";
 import { checExternalDataIsRight, deleteBackgroundCssFileModification, setSourceCssImportInfo } from "./modify/modify";
 import { randomSettingBackground } from "./modify/modifyRandom";
 import { createCompressDirectory, deleteCompressByCode, getCompressImage } from "./compress/compress";
+import { imageStoreUri } from "./store";
+import { imageFilesConfig } from "./config";
 
-/** 图片类型过滤规则 */
-const imageFilters = { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] };
+const {
+    imageFilters
+} = imageFilesConfig();
 
 /** 选择文件的默认路径 */
 var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;

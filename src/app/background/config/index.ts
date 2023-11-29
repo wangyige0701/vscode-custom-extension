@@ -8,3 +8,11 @@ export function compressConfig () {
         compressFolderName: 'compression'
     };
 }
+
+/** 选择图片配置 */
+export function imageFilesConfig () {
+    return {
+        /** 图片类型过滤规则 */
+        imageFilters: { 'Images': ['png', 'jpg', 'jpeg', 'gif', 'webp'] }
+    };
+}

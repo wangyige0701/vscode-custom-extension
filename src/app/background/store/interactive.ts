@@ -1,6 +1,6 @@
 import { errlog } from "../../../error";
 import { showMessageModal, selectFolderOnly } from "../../../common/interactive";
-import { resetImageStorePath } from "../utils";
+import { resetImageStorePath } from "./private/modify";
 
 /** 选择文件夹作为背景图数据储存路径 */
 export function selectFolderForBackgroundStore (): void {

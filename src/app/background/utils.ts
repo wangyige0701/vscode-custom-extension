@@ -5,7 +5,7 @@ import { Uri } from "vscode";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { WError, $rej } from "../../error";
 import { minmax } from "../../utils";
-import { backgroundSendMessage } from "./executeWebview";
+import { backgroundSendMessage } from "./webview/executeWebview";
 import { ExtensionUri } from "../../common/system";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */

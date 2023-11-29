@@ -5,7 +5,7 @@ import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { setStatusBarResolve } from "../../common/interactive";
 import { bindMessageCallback } from "../../common/webview";
 import { registWebviewProvider } from "../../common/webview/provider";
-import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./select/selectStore";
+import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./select/dataStore";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { setRandomBackground } from "./modify/modifyRandom";
 import { backgroundWebviewCommunication } from "./webview/communication";

@@ -1,5 +1,5 @@
-import type { MessageBoxMethodType, MessageBoxType } from "../types";
-import { MessageItem, window } from 'vscode';
+import type { MessageBoxType, MessageItemExtend } from "../types";
+import { window } from 'vscode';
 import { isUndefined } from '../../../utils';
 
 /** 获取消息弹框所有方法 */
@@ -13,13 +13,13 @@ const getMessageBoxAllData = {
  * 设置消息弹框
  * @param param
  */
-export function showMessage<T extends MessageItem> ({
+export function showMessage ({
     type = 'information',
     message,
     modal = false,
     detail,
     items
-}: MessageBoxType<T>): Promise<T | undefined> {
+}: MessageBoxType<MessageItemExtend>): Promise<MessageItemExtend | undefined> {
     return new Promise((resolve, reject) => {
         if (!type) {
             type = 'information';
@@ -33,11 +33,11 @@ export function showMessage<T extends MessageItem> ({
         Promise.resolve(
             // items是undefinded不传
             isUndefined(items) 
-            ? getMessageBoxAllData[type]<T>(message, {
+            ? getMessageBoxAllData[type]<MessageItemExtend>(message, {
                 modal,
                 detail
             })
-            : getMessageBoxAllData[type]<T>(message, {
+            : getMessageBoxAllData[type]<MessageItemExtend>(message, {
                 modal,
                 detail
             }, ...items)
@@ -46,17 +46,5 @@ export function showMessage<T extends MessageItem> ({
         }).catch(err => {
             reject(new Error('MessageBox Error', { cause: err }));
         });
-    });
-}
-
-/** 带确认按钮的消息弹框 */
-export function showMessageWithConfirm (message: string, type: MessageBoxMethodType = "information") {
-    return showMessage({
-        type,
-        message,
-        items: [{
-            id: 0,
-            title: '确认'
-        }]
     });
 }

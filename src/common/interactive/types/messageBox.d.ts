@@ -1,3 +1,4 @@
+import type { MessageItem } from "vscode";
 
 /** 消息盒子类型 */
 export type MessageBoxMethodType = 'information' | 'error' | 'warning';
@@ -30,4 +31,9 @@ export interface MessageBoxType<T> {
      * 弹框按钮
     */
     items?: T[]
+}
+
+/** 继承MessageItem的类型 */
+export type MessageItemExtend = MessageItem & {
+    [key: string]: any;
 }

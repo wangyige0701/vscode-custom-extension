@@ -1,2 +1,2 @@
-export * from "./read";
-export * from "./readAll";
+export * from "./single";
+export * from "./all";

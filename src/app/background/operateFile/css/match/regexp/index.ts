@@ -1,4 +1,4 @@
-/** @description css文件相关信息匹配模块 */
+/** @description css文件相关信息匹配正则信息 */
 
 import {
     anySpace as s,
@@ -10,17 +10,10 @@ import {
     anyWord as w,
     anyWordAndNumber as nw,
     strToReg
-} from "../../../../../utils/regexp";
-import { cssNameConfig, cssTagNameConfig } from "../../../config/data";
+} from "../../../../../../utils/regexp";
+import { cssTagNameConfig } from "../../../../config/data";
 
 const {
-    cssName,
-    externalFileName
-} = cssNameConfig();
-
-const {
-    importEnd,
-    importStart,
     importEndMatch,
     importStartMatch
 } = cssTagNameConfig();

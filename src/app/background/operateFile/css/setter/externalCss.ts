@@ -1,4 +1,4 @@
-/** @description 修改css文件 */
+/** @description 记录背景图样式的外部css文件修改 */
 
 
 
@@ -50,6 +50,24 @@ export function modifyCssFileForBackground (code: string, random: boolean = fals
             reject($rej(err, modifyCssFileForBackground.name));
         }).finally(() => {
             statusBarTarget?.dispose();
+        });
+    });
+}
+
+/**
+ * 将背景样式写入外部样式文件
+ * @param content css文本
+ */
+export function writeExternalCssFile (content: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+        getCssUri(externalFileName).then(uri => {
+            if (uri) {
+                return writeFileUri(uri, createBuffer(content));
+            }
+        }).then(() => {
+            resolve();
+        }).catch(err => {
+            reject($rej(err, writeExternalCssFile.name));
         });
     });
 }

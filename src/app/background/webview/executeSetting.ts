@@ -1,3 +1,5 @@
+/** @description  */
+
 import { modifyCssFileForBackground } from "../modify/modify";
 import { showMessageWithConfirm, showProgress } from "../../../common/interactive";
 import { createExParamPromise, delay } from "../../../utils";

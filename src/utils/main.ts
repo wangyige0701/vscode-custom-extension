@@ -157,11 +157,11 @@ export function isSymbol (value: any): value is symbol {
 }
 
 /**
- * 是否是Promise
+ * 是否符合Promise A+规范
  * @param value
  */
-export function isPromise (value: any): boolean {
-    return value && typeof value.then === 'function';
+export function isPromise (value: any): value is PromiseLike<any> {
+    return value && (isObject(value) || isFunction(value)) && isFunction(value.then);
 }
 
 /**

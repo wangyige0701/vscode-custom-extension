@@ -1,6 +1,8 @@
+/** @description 注册背景图webview页面 */
+
 import type { Disposable, ExtensionContext } from "vscode";
 import { commands } from "vscode";
-import { windowInitCheckCssModifyCompleteness } from "./init";
+import { windowInitCheckCssModifyCompleteness } from "./check";
 import { clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { setStatusBarResolve } from "../../common/interactive";
@@ -8,7 +10,7 @@ import { bindMessageCallback } from "../../common/webview";
 import { registWebviewProvider } from "../../common/webview/provider";
 import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./store";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
-import { setRandomBackground } from "./modify/modifyRandom";
+import { setRandomBackground } from "./operateFile/modifyRandom";
 import { backgroundWebviewCommunication } from "./webview/communication";
 import { copyFileWhenVersionChange } from "../../version";
 import { errlog, $rej } from "../../error";

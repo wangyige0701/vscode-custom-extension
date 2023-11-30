@@ -5,7 +5,7 @@
  * 根据哈希码删除.wyg图片文件
  * @param code 需要删除图片的哈希码
  */
-function deleteFileStore (code: string): Promise<string> {
+export function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {
         if (!hasHashCode(code)) {
             return reject(new WError('Undefined Hash Code', {

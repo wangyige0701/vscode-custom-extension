@@ -1,6 +1,6 @@
 /** @description 背景图片删除模块 */
 
-import { hasHashCode } from "../../cache";
+import { hasHashCode } from "../../../cache";
 
 /**
  * 删除一张图片，不需要判断是否被设置了背景图，图片被删除后背景图样式保持，直到下一次重新设置

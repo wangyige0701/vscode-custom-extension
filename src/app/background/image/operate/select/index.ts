@@ -1,7 +1,7 @@
 /** @description 背景图片选择模块 */
 
-import { BackgroundConfiguration } from "../../../../workspace/background";
-import { imageFilesConfig } from "../../config/data";
+import { BackgroundConfiguration } from "../../../../../workspace/background";
+import { imageFilesConfig } from "../../../config/data";
 
 
 const {

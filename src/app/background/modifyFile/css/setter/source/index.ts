@@ -1,13 +1,13 @@
 /** @description 源css文件修改 */
 
 import type { Uri } from "vscode";
-import { getSourceCssFileContent } from "../getter";
-import { isSourceCssFileModify } from "../check";
-import { replaceSourceQueryStringContent } from "../match/replace";
-import { createBuffer, writeFileUri } from "../../../../../common/file";
-import { externalCssFileTemplate } from "../template";
-import { $rej } from "../../../../../error";
-import { reChecksum } from "../../../../../common";
+import { getSourceCssFileContent } from "../../getter";
+import { isSourceCssFileModify } from "../../check";
+import { replaceSourceQueryStringContent } from "../../match/replace";
+import { createBuffer, writeFileUri } from "../../../../../../common/file";
+import { externalCssFileTemplate } from "../../template";
+import { $rej } from "../../../../../../error";
+import { reChecksum } from "../../../../../../common";
 
 /**
  * 将导入语句写入源css样式文件中
@@ -56,7 +56,7 @@ function changeSourceCssFile (content: string, uri: Uri, exits: boolean, init: b
     }
     // 修改过源文件需要更换路径后的时间戳，去除缓存
     if (exits) {
-        // 不是初始化校验更新时间戳
+        // 不是初始化校验更新查询字符串的时间戳数据
         return [createBuffer(replaceSourceQueryStringContent(content, timestamp)), uri];
     } else {
         // 没有修改过源文件直接修改
@@ -73,7 +73,7 @@ function needModify (data: false | [Buffer, Uri]) {
 }
 
 /**
- * 源css文件修改后重置校验和数据
+ * 源css文件修改并且在修改完成后重置校验和数据
  * @param uri 源文件的uri数据
  */
 function sourceCeeFileChangeChecksum (content: Uint8Array, uri: Uri): Promise<true> {
@@ -82,7 +82,9 @@ function sourceCeeFileChangeChecksum (content: Uint8Array, uri: Uri): Promise<tr
         .then(() => {
             return reChecksum(uri);
         })
-        .then(() => resolve(true))
+        .then(() => {
+            resolve(true);
+        })
         .catch(reject);
     });
 }

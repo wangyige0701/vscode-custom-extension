@@ -5,7 +5,7 @@ import { isBackgroundCheckComplete } from "../data";
 import { setStatusBarResolve } from "../../../../common/interactive";
 import { BackgroundConfiguration } from "../../../../workspace";
 import { createExParamPromise } from "../../../../utils";
-import { setSourceCssImportInfo } from "../../modifyFile/css/setter/sourceCss";
+import { setSourceCssImportInfo } from "../../modifyFile/css";
 
 /**
  * vscode开始运行后插件启动时调用，

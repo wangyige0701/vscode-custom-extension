@@ -8,6 +8,6 @@ import { externalCssOpacityModify } from "../regexp";
  * @param content 被替换的文本
  * @param value 替换的透明度数据
  */
-export function getExternalCssModifyOpacityContent (content: string, value: number): string {
+export function replaceExternaOpacityContent (content: string, value: number): string {
     return content.replace(externalCssOpacityModify, `$1${value}$3${value}$5`);
 }

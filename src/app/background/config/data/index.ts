@@ -22,9 +22,9 @@ export function imageFilesConfig () {
 export function cssNameConfig () {
     return {
         /** vscode的源css文件名 */
-        cssName: version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css',
+        sourceCssFileName: version >= '1.38' ? 'workbench.desktop.main.css' : 'workbench.main.css',
         /** 写背景图样式的外部css文件名 */
-        externalFileName: 'backgroundImageInfo.css'
+        externalCssFileName: 'backgroundImageInfo.css'
     };
 }
 

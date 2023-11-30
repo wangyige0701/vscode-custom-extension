@@ -5,21 +5,7 @@ import { isBackgroundCheckComplete } from "../data";
 import { setStatusBarResolve } from "../../../../common/interactive";
 import { BackgroundConfiguration } from "../../../../workspace";
 import { createExParamPromise } from "../../../../utils";
-
-/** 打开状态栏信息 */
-function createStatusBar () {
-    isBackgroundCheckComplete.check = true;
-    const statusBarTarget: Disposable = setStatusBarResolve({
-        icon: 'loading~spin',
-        message: '背景图文件校验中'
-    });
-    const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
-    if (!isBack) {
-        // 当前没有设置背景图，则直接跳出检测
-        return false;
-    }
-    return statusBarTarget;
-}
+import { setSourceCssImportInfo } from "../../modifyFile/css/setter/sourceCss";
 
 /**
  * vscode开始运行后插件启动时调用，
@@ -33,7 +19,8 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
             return resolve(statusBarTarget);
         }
         // 设置了背景图则校验源文件是否写入了背景图导入语句
-        setSourceCssImportInfo(true).then((res) => {
+        setSourceCssImportInfo(true)
+        .then((res) => {
             return createExParamPromise(checkExternalDataIsRight(), false || res.modify);
         }).then(([res, state]) => {
             const needReload = state || res.modify;
@@ -52,6 +39,21 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
             executeInitFunc();
         });
     });
+}
+
+/** 打开状态栏信息 */
+function createStatusBar () {
+    isBackgroundCheckComplete.check = true;
+    const statusBarTarget: Disposable = setStatusBarResolve({
+        icon: 'loading~spin',
+        message: '背景图文件校验中'
+    });
+    const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
+    if (!isBack) {
+        // 当前没有设置背景图，则直接跳出检测
+        return false;
+    }
+    return statusBarTarget;
 }
 
 /** 根据对象判断是否需要再次执行初始化函数 */

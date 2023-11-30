@@ -1,0 +1,1 @@
+/** @description 外部样式css文件模板字符串 */

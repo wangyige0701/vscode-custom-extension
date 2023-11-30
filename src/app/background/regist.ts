@@ -1,6 +1,7 @@
 import type { Disposable, ExtensionContext } from "vscode";
 import { commands } from "vscode";
-import { windowInitCheckCssModifyCompleteness, clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
+import { windowInitCheckCssModifyCompleteness } from "./init";
+import { clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { setStatusBarResolve } from "../../common/interactive";
 import { bindMessageCallback } from "../../common/webview";

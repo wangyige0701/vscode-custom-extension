@@ -15,7 +15,7 @@ import {
 import { $rej } from "../../../error";
 import { createExParamPromise } from "../../../utils";
 import { imageCompression } from "../../../common/compression";
-import { compressConfig } from "../config";
+import { compressConfig } from "../config/data";
 
 const {
     compressFileName,

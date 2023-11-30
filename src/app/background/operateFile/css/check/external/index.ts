@@ -1,4 +1,4 @@
-/** @description 校验储存背景图base64数据的外部css文件是否匹配 */
+/** @description 校验储存背景图base64数据的外部css文件信息 */
 
 
 

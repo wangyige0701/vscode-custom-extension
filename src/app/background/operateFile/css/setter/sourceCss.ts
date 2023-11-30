@@ -1,5 +1,7 @@
-/** @description 源css文件修改导入语句 */
+/** @description 源css文件修改 */
 
+import { getSourceCssFileContent } from "../getter";
+import { isSourceCssFileModify } from "../check"; 
 
 
 /**

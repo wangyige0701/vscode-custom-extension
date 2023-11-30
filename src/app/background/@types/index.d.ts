@@ -199,8 +199,8 @@ export interface CodeRefreshType {
     uri?: Uri;
 }
 
-/** 判断背景图校验是否完成 */
-export interface BackCheckComplete {
+/** 背景图校验属性 */
+interface BackCheckCompleteProperty {
     /** 是否校验完成 */
     check: boolean;
     /** 是否需要初始化 */
@@ -208,3 +208,16 @@ export interface BackCheckComplete {
     /** 是否正在初始化中 */
     running: boolean
 }
+
+type BackCheckCompleteOnEvent<T> = {
+    [K in keyof T as `on${Capitalize<string & K>}`]: () => void;
+};
+
+type BackCheckCompleteOffEvent<T> = {
+    [K in keyof T as `off${Capitalize<string & K>}`]: () => void;
+}
+
+/** 判断背景图校验是否完成 */
+export type BackCheckComplete = BackCheckCompleteProperty 
+& BackCheckCompleteOnEvent<BackCheckCompleteProperty> 
+& BackCheckCompleteOffEvent<BackCheckCompleteProperty>;

@@ -1,3 +1,5 @@
+/** @description webview侧和扩展侧的数据通信处理 */
+
 import type { Webview } from "vscode";
 import type { backgroundMessageData } from "../@types";
 import { backgroundImageDataInit, deleteImage, getBase64DataByCode, getBase64DataFromObject, selectImage } from "..";

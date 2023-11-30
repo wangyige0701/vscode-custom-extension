@@ -1,5 +1,5 @@
 import type { Webview } from "vscode";
-import type { backgroundMessageData } from "../types";
+import type { backgroundMessageData } from "../@types";
 import { backgroundImageDataInit, deleteImage, getBase64DataByCode, getBase64DataFromObject, selectImage } from "..";
 import { backgroundOpacityModify, requestImageToBackground } from "../modify/modifyByInput";
 import { randomSettingBackground } from "../modify/modifyRandom";

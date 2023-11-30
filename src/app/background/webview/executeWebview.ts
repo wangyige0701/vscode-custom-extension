@@ -1,5 +1,5 @@
 import type { MessageData } from "../../../common/webview/types";
-import type { backgroundSendMessageData } from "../types";
+import type { backgroundSendMessageData } from "../@types";
 import { isObject } from "../../../utils";
 import { messageSend, WebviewInstance } from "../../../common/webview";
 

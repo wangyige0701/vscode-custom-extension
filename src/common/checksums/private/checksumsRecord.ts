@@ -5,6 +5,10 @@ import type { CheckSumsData, CheckSumsDataRecordType } from "../types";
 import { RecordDataByMap } from "../../../utils";
 
 class CheckSumsDataRecord extends RecordDataByMap<CheckSumsData> {
+    constructor () {
+        super();
+    }
+
     /** 新旧哈希是否相同 */
     same (name: string, hash: string) {
         if (this.has(name)) {

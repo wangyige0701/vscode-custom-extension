@@ -4,23 +4,23 @@ import type { RecordDataByMapType } from "./types";
 export class RecordDataByMap<T> implements RecordDataByMapType<T> {
     private mapData: Map<string, T> = new Map();
 
-    set (key: string, data: T): void {
+    public set (key: string, data: T): void {
         this.mapData.set(key, data);
     }
 
-    get (key: string): undefined | T {
+    public get (key: string): undefined | T {
         return this.mapData.get(key);
     }
 
-    delete (key: string): void {
+    public delete (key: string): void {
         this.mapData.delete(key);
     }
 
-    has (key: string): boolean {
+    public has (key: string): boolean {
         return this.mapData.has(key);
     }
 
-    clear(): void {
+    public clear(): void {
          this.mapData.clear();
     }
 

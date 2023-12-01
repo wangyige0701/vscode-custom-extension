@@ -1,11 +1,11 @@
-/** @description 扩展开始运行后校验配置 */
+/** @description 扩展开始运行后配置检测 */
 
 import type { Disposable } from "vscode";
-import { isBackgroundCheckComplete } from "../data";
-import { setStatusBarResolve } from "../../../../common/interactive";
-import { BackgroundConfiguration } from "../../../../workspace";
-import { createExParamPromise } from "../../../../utils";
-import { setSourceCssImportInfo } from "../../modifyFile/css";
+import { isBackgroundCheckComplete } from "../../data";
+import { setStatusBarResolve } from "../../../../../common/interactive";
+import { BackgroundConfiguration } from "../../../../../workspace";
+import { createExParamPromise } from "../../../../../utils";
+import { setSourceCssImportInfo } from "../../../app-background-files";
 
 /**
  * vscode开始运行后插件启动时调用，

@@ -3,7 +3,7 @@
 import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "../../../../common/interactive";
 import { windowReload } from "../../../../common/system";
 import { $rej, errlog } from "../../../../error";
-import { resetImageStorePath } from "../app-background-image/folder/setter/modify";
+import { resetImageStoreFolder } from "../../app-background-image";
 
 /**
  * 打开系统默认样式的弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
@@ -85,7 +85,7 @@ export function selectFolderForBackgroundStore (): void {
         }
     }).then(data => {
         if (data) { 
-            return resetImageStorePath(data.dirName);
+            return resetImageStoreFolder(data.dirName);
         }
     }).catch(err => {
         errlog(err, true);
@@ -97,7 +97,7 @@ export function resetBackgroundStorePath (): void {
     showMessageModal('是否重置背景图储存路径')
     .then(res => {
         if (res) {
-            return resetImageStorePath('', true);
+            return resetImageStoreFolder('', true);
         }
     }).catch(err => {
         errlog(err, true);

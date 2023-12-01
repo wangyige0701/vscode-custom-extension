@@ -22,7 +22,8 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		icon: 'loading~spin',
 		message: '默认路径图片数据检测'
 	});
-	copyFileWhenVersionChange(defaultPath.join('/')).then(() => {
+	copyFileWhenVersionChange(defaultPath.join('/'))
+	.then(() => {
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();

@@ -1,2 +1,2 @@
 export* from "./interactive";
-export * from "./reuse";
+export * from "./function";

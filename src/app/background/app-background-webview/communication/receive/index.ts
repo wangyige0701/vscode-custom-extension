@@ -7,7 +7,7 @@ import { backgroundOpacityModify, requestImageToBackground } from "../modify/mod
 import { randomSettingBackground } from "../modify/modifyRandom";
 import { toViewImage } from "../../../../viewImage";
 import { BackgroundWebviewInstance } from '../send';
-import { settingImage } from '../../executeSetting';
+import { settingImage } from '../../../app-background-image/operate/setting';
 import { messageExecute } from "../../../../../common/webview";
 
 /** 创建通信数据对应函数执行配置 */

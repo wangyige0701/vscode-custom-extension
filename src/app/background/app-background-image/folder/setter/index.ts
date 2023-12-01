@@ -2,7 +2,7 @@ import { Uri } from "vscode";
 import { showMessageWithConfirm } from "../../../../../common/interactive";
 import { BackgroundConfiguration } from "../../../../../workspace/background";
 import { $rej } from "../../../../../error";
-import { backgroundSendMessage } from "../../webview/executeWebview";
+import { backgroundSendMessage } from "../../../app-background-webview";
 
 /**
  * 重新设置背景图储存路径数据

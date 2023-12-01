@@ -1,12 +1,12 @@
 /** @description  */
 
 import { modifyCssFileForBackground } from "../modify/modify";
-import { showMessageWithConfirm, showProgress } from "../../../common/interactive";
-import { createExParamPromise, delay } from "../../../utils";
-import { BackgroundConfiguration } from "../../../workspace/background";
-import { backgroundSendMessage } from "./communication/send";
+import { showMessageWithConfirm, showProgress } from "../../../../../common/interactive";
+import { createExParamPromise, delay } from "../../../../../utils";
+import { BackgroundConfiguration } from "../../../../../workspace/background";
+import { backgroundSendMessage } from "../../../app-background-webview/communication/send";
 import { showMessageByModal, isWindowReloadToLoadBackimage, closeRandomBackground } from "../utils";
-import { errlog, $rej } from "../../../error";
+import { errlog, $rej } from "../../../../../error";
 import type { Progress } from "vscode";
 
 type settingImageData = {

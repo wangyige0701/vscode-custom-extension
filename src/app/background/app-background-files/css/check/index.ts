@@ -2,4 +2,4 @@
 
 export * from "./external";
 export * from "./source";
-export * from "./isSetting";
+export * from "./setting";

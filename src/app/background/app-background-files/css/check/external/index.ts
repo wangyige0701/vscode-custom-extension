@@ -1,25 +1,22 @@
 /** @description 校验储存背景图base64数据的外部css文件信息 */
 
-import { getNowSettingCodeSync } from "../../../../workspace";
+import { getNowSettingCodeSync } from "../../../../app-background-workspace";
+import { changeLoadState } from "../../../../app-background-common";
 
 /** 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码 */
-export function checkExternalDataIsRight (): Promise<{modify:boolean}> {
+export function checkExternalDataIsRight (): Promise<{
+    modify: boolean;
+}> {
     return new Promise((resolve, reject) => {
         const settingCode = getNowSettingCodeSync();
-        if (!settingCode) {
+        if (settingCode === false) {
             changeLoadState();
             return resolve({
                 modify: false
             });
         }
-        checkCurentImageIsSame(settingCode)
-        getNowSettingCode().then(res => {
-            if (res) {
-                return checkCurentImageIsSame(res);
-            }
-            changeLoadState();
-            return Promise.reject({ jump: true, modify: false });
-        }).then(data => {
+        checkIsSettingImage(settingCode)
+        .then(data => {
             if (data.state === true) {
                 // 当前不需要更新背景图css数据设置文件
                 return Promise.reject({ jump: true, modify: false });

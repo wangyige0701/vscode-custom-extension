@@ -1,40 +1,31 @@
-import { Uri } from "vscode";
-import { joinPathUri } from "../../../../../common/file";
-import { BackgroundConfiguration, defaultPath } from "../../../../../workspace/background";
-import { WError, $rej } from "../../../../../error";
+/** @description 获取图片文件储存文件夹的uri */
+
+import type { Uri } from "vscode";
+import { $rej } from "../../../../../error";
+import { joinPathUri, createUri } from "../../../../../common/file";
 import { ExtensionUri } from "../../../../../common/system";
-import { imageStoreUriExits } from "../setter/modify";
+import { imageStoreUriExits } from "../exist";
+import { getImageStoreFolderPath, getBackgroundResourcePath } from "../../../app-background-workspace";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri> {
     return new Promise((resolve, reject) => {
-        Promise.resolve().then(() => {
-            const path: string = BackgroundConfiguration.getBackgroundStorePath;
-            if (path) {
-                // 缓存内有路径数据
-                return Uri.file(path);
-            } else {
-                // 没有缓存数据则获取插件路径
-                const uri = ExtensionUri.get;
-                if (uri) {
-                    return joinPathUri(uri, ...defaultPath);
-                }
-                return void 0;
-            }
-        }).then(uri => {
-            if (!uri) {
-                return Promise.reject(new WError('Undefined Uri', {
-                    position: 'Function',
-                    FunctionName: imageStoreUri.name,
-                    ParameterName: 'uri',
-                    description: 'The Uri for image respository is undefined'
-                }));
-            }
-            return imageStoreUriExits(uri);
-        }).then(uri => {
-            resolve(uri);
-        }).catch(err => {
+        imageStoreUriExits(getPathUri())
+        .then(resolve)
+        .catch(err => {
             reject($rej(err, imageStoreUri.name));
         });
     });
+}
+
+/** 获取uri数据 */
+function getPathUri () {
+    const path = getImageStoreFolderPath();
+    if (path) {
+        // 工作空间内储存有路径数据
+        return createUri(path);
+    } else {
+        // 没有数据则获取插件路径
+        return joinPathUri(ExtensionUri.get, ...getBackgroundResourcePath());
+    }
 }

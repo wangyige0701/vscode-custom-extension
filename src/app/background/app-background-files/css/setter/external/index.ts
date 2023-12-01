@@ -1,6 +1,7 @@
-/** @description 记录背景图样式的外部css文件修改 */
+/** @description 外部设置背景图样式的css文件修改方法 */
 
-
+import type { Disposable } from "vscode";
+import { WError } from "../../../../../../error";
 
 /**
  * 修改外部css文件的背景图属性
@@ -8,18 +9,19 @@
  * @param random 是否为随机设置背景图状态
  * @param tip 是否需要显示提示文本
  */
-export function modifyCssFileForBackground (code: string, random: boolean = false, tip: boolean = true): Promise<void> {
+export function externalCssFileModify (hashCode: string, random: boolean = false, tip: boolean = true): Promise<void> {
     return new Promise((resolve, reject) => {
-        if (!code) {
+        if (!hashCode) {
             return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
-                FunctionName: modifyCssFileForBackground.name,
-                ParameterName: 'code',
+                FunctionName: externalCssFileModify.name,
+                ParameterName: 'hashCode',
                 description: 'The hash code to get image data is undefined'
             }));
         }
         let statusBarTarget: Disposable;
-        getExternalCssContent(code).then(res => {
+        getExternalCssContent(hashCode)
+        .then(res => {
             if (res === false) {
                 // 不需要更新，直接跳出
                 return Promise.reject({ jump: true });
@@ -31,7 +33,7 @@ export function modifyCssFileForBackground (code: string, random: boolean = fals
                     message: `${random?'随机':''}背景图设置中`
                 });
             }
-            return createExParamPromise(writeExternalCssFile(res[0]), res[1]);
+            return createExParamPromise(externalCssFileWrite(res[0]), res[1]);
         }).then(([_, infoContent]) => {
             return settingConfiguration(infoContent, random);
         }).then(() => {
@@ -47,7 +49,7 @@ export function modifyCssFileForBackground (code: string, random: boolean = fals
             if (err.jump) {
                 return resolve();
             }
-            reject($rej(err, modifyCssFileForBackground.name));
+            reject($rej(err, externalCssFileModify.name));
         }).finally(() => {
             statusBarTarget?.dispose();
         });
@@ -58,7 +60,7 @@ export function modifyCssFileForBackground (code: string, random: boolean = fals
  * 将背景样式写入外部样式文件
  * @param content css文本
  */
-export function writeExternalCssFile (content: string): Promise<void> {
+export function externalCssFileWrite (content: string): Promise<void> {
     return new Promise((resolve, reject) => {
         getCssUri(externalFileName).then(uri => {
             if (uri) {
@@ -67,7 +69,7 @@ export function writeExternalCssFile (content: string): Promise<void> {
         }).then(() => {
             resolve();
         }).catch(err => {
-            reject($rej(err, writeExternalCssFile.name));
+            reject($rej(err, externalCssFileWrite.name));
         });
     });
 }

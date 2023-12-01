@@ -1,8 +1,9 @@
 /** @description 背景图模块公用的交互函数，部分交互方法另存于单独层级下 */
 
-import { showMessage, setStatusBar, showMessageModal } from "../../../common/interactive";
+import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "../../../common/interactive";
 import { windowReload } from "../../../common/system";
-import { $rej } from "../../../error";
+import { $rej, errlog } from "../../../error";
+import { resetImageStorePath } from "../app-background-image/folder/setter/modify";
 
 /**
  * 打开系统默认样式的弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
@@ -13,12 +14,12 @@ export function showMessageByModal (message: string = '是否设置此背景图'
         showMessageModal(message)
         .then(res => {
             if (res) {
-                // 返回true
                 return resolve();
             }
             // 选择取消返回reject
             reject();
-        }).catch((err) => {
+        })
+        .catch((err) => {
             reject($rej(err, showMessageByModal.name));
         });
     });
@@ -72,5 +73,33 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
         }
     }).catch(err => {
         return Promise.reject(err);
+    });
+}
+
+/** 选择文件夹作为背景图数据储存路径 */
+export function selectFolderForBackgroundStore (): void {
+    showMessageModal('是否修改背景图储存路径')
+    .then(res => {
+        if (res) {
+            return selectFolderOnly('选择背景图储存文件夹');
+        }
+    }).then(data => {
+        if (data) { 
+            return resetImageStorePath(data.dirName);
+        }
+    }).catch(err => {
+        errlog(err, true);
+    });
+}
+
+/** 重置背景图储存路径 */
+export function resetBackgroundStorePath (): void {
+    showMessageModal('是否重置背景图储存路径')
+    .then(res => {
+        if (res) {
+            return resetImageStorePath('', true);
+        }
+    }).catch(err => {
+        errlog(err, true);
     });
 }

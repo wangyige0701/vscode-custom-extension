@@ -172,7 +172,7 @@ export interface bufferAndCode {
 /**
  * 修改css文件中需要的相关注释信息类型
 */
-export interface info {
+export interface CssFileAnnotationInfo {
     VSCodeVersion: string; // vscode版本号
     ExtensionVersion: string; // 当前版本号
     Date: string; // 日期

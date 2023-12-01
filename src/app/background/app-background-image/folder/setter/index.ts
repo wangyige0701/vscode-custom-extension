@@ -1,8 +1,8 @@
 import { Uri } from "vscode";
-import { createDirectoryUri, isFileExits } from "../../../../common/file";
-import { showMessageWithConfirm } from "../../../../common/interactive";
-import { BackgroundConfiguration } from "../../../../workspace/background";
-import { WError, $rej } from "../../../../error";
+import { createDirectoryUri, isFileExits } from "../../../../../common/file";
+import { showMessageWithConfirm } from "../../../../../common/interactive";
+import { BackgroundConfiguration } from "../../../../../workspace/background";
+import { WError, $rej } from "../../../../../error";
 import { backgroundSendMessage } from "../../webview/executeWebview";
 
 /**

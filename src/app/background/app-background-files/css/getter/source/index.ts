@@ -4,10 +4,10 @@ import type { Uri } from "vscode";
 import { createExParamPromise } from "../../../../../../utils";
 import { $rej } from "../../../../../../error";
 import { getCssUri } from "../uri";
-import { cssNameConfig } from "../../../../config";
+import { cssNameConfig } from "../../../../app-background-config";
 import { readFileUri } from "../../../../../../common/file";
 
-const { cssName } = cssNameConfig();
+const { sourceCssFileName } = cssNameConfig();
 
 /**
  * 获取vscode源样式文件内容，返回内容文本和路径uri
@@ -15,12 +15,13 @@ const { cssName } = cssNameConfig();
  */
 export function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
-        getCssUri(cssName, false).then(uri => {
+        getCssUri(sourceCssFileName, false)
+        .then(uri => {
             if (uri) {
                 return readFile(uri);
             }
         })
-        .then((res) => {
+        .then(res => {
             resolve(res);
         })
         .catch(err => {

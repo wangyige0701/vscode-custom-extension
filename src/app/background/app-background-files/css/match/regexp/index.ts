@@ -11,7 +11,7 @@ import {
     anyWordAndNumber as nw,
     strToReg
 } from "../../../../../../utils/regexp";
-import { cssTagNameConfig } from "../../../../config/data";
+import { cssTagNameConfig } from "../../../../app-background-config";
 
 const {
     importEndMatch,

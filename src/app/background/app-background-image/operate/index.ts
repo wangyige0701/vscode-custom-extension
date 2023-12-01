@@ -2,4 +2,4 @@
 
 export * from "./remove";
 export * from "./select";
-export * from "./setter";
+export * from "./setting";

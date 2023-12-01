@@ -1,7 +1,9 @@
+/** @description 公用工具函数封装模块 */
+
 import { showMessageWithConfirm } from "../../../../common/interactive";
 import { BackgroundConfiguration } from "../../../../workspace/background";
 import { minmax } from "../../../../utils";
-import { backgroundSendMessage } from "./../webview/executeWebview";
+import { backgroundSendMessage } from "../../app-background-webview";
 
 /** 更改缓存中的加载状态属性 */
 export function changeLoadState () {

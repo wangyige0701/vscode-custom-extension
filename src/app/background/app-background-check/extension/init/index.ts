@@ -1,8 +1,8 @@
-/** @description vscode插件初始化时校验 */
+/** @description vscode插件初始化时检测 */
 
-import { isWindowReloadToLoadBackimage } from "../../utils";
-import { errlog } from "../../../../error";
-import { checkImageCssDataIsRight } from "./run";
+import { isWindowReloadToLoadBackimage } from "../../../app-background-common";
+import { errlog } from "../../../../../error";
+import { checkImageCssDataIsRight } from "../run";
 
 /** vscode初始化后检测背景配置是否完整 */
 export async function windowInitCheckCssModifyCompleteness () {

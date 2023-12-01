@@ -3,9 +3,12 @@
 import type { Disposable } from "vscode";
 import { isBackgroundCheckComplete } from "../../data";
 import { setStatusBarResolve } from "../../../../../common/interactive";
-import { BackgroundConfiguration } from "../../../../../workspace";
 import { createExParamPromise } from "../../../../../utils";
 import { setSourceCssImportInfo } from "../../../app-background-files";
+import { checkExternalDataIsRight } from "../../../app-background-files";
+import { changeLoadStateToTrue, getNowIsSetBackground } from "../../../app-background-workspace";
+import { $rej } from "../../../../../error";
+import { setBackgroundImageSuccess } from "../../../app-background-common";
 
 /**
  * vscode开始运行后插件启动时调用，
@@ -22,20 +25,23 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
         setSourceCssImportInfo(true)
         .then((res) => {
             return createExParamPromise(checkExternalDataIsRight(), false || res.modify);
-        }).then(([res, state]) => {
+        })
+        .then(([res, state]) => {
             const needReload = state || res.modify;
             // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
             if (!needReload) {
-                changeLoadState();
+                changeLoadStateToTrue();
             }
             resolve(needReload);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, checkImageCssDataIsRight.name));
-        }).finally(() => {
+        })
+        .finally(() => {
             statusBarTarget?.dispose();
             // 状态栏提示信息
             setBackgroundImageSuccess('背景图文件校验完成');
-            isBackgroundCheckComplete.check = false;
+            isBackgroundCheckComplete.offCheck();
             executeInitFunc();
         });
     });
@@ -43,12 +49,12 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
 
 /** 打开状态栏信息 */
 function createStatusBar () {
-    isBackgroundCheckComplete.check = true;
+    isBackgroundCheckComplete.onCheck();
     const statusBarTarget: Disposable = setStatusBarResolve({
         icon: 'loading~spin',
         message: '背景图文件校验中'
     });
-    const isBack = BackgroundConfiguration.getBackgroundIsSetBackground;
+    const isBack = getNowIsSetBackground();
     if (!isBack) {
         // 当前没有设置背景图，则直接跳出检测
         return false;

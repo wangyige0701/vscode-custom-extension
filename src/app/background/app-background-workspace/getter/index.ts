@@ -30,3 +30,8 @@ export function getImageStoreFolderPath (): string {
 export function getNowSettingOpacity (): number {
     return BackgroundConfiguration.getBackgroundOpacity;
 }
+
+/** 获取工作空间中的是否已经设置背景图状态 */
+export function getNowIsSetBackground (): boolean {
+    return BackgroundConfiguration.getBackgroundIsSetBackground;
+}

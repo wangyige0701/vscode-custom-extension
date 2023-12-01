@@ -5,7 +5,7 @@
  * @param long 长一点的数组，用于校验
  * @param short 短一点的数组
  */
-async function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): Promise<void> {
+export async function compareCodeList (long: string[], short: string[], type: 'add' | 'delete' = 'add'): Promise<void> {
     for (const item of long) {
         const index = short.findIndex(i => i === item);
         // 直接使用字符串进行操作，因为删除一个数据后再传索引对应的数据会不正确

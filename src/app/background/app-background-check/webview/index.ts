@@ -1,6 +1,9 @@
 /** @fileoverview webview加载时图片数据监测模块 */
 
-import { isBackgroundCheckComplete } from "./data";
+import type { Disposable } from "vscode";
+import { isBackgroundCheckComplete } from "../data";
+import { setStatusBarResolve } from "../../../../common/interactive";
+import { refreshImageCodeList } from "../../app-background-cache";
 
 /**
  * webview首次加载或者重置储存路径时获取储存背景图片数据，获取当前设置的背景图哈希码并将其发送给webview页面；
@@ -9,15 +12,15 @@ import { isBackgroundCheckComplete } from "./data";
 export function backgroundImageDataInit () {
     // 正则执行背景图校验或者正在执行初始化函数，则修改状态，等待完成后再次执行
     if (isBackgroundCheckComplete.check || isBackgroundCheckComplete.running) {
-        isBackgroundCheckComplete.init = true;
+        isBackgroundCheckComplete.onInit();
         return;
     }
     // 开始执行
-    isBackgroundCheckComplete.running = true;
-    // 关闭状态
-    isBackgroundCheckComplete.init = false;
-    let length: number = 0,
-    success: boolean = false;
+    isBackgroundCheckComplete.onRunning();
+    // 关闭需要初始化状态
+    isBackgroundCheckComplete.offInit();
+    let length: number = 0;
+    let success: boolean = false;
     /** 状态栏显示提示 */
     const statusBarTarget: Disposable = setStatusBarResolve({
         icon: 'loading~spin',
@@ -81,7 +84,7 @@ export function backgroundImageDataInit () {
         if (length > 0) {
             setBackgroundImageSuccess('侧栏列表初始化成功');
         }
-        isBackgroundCheckComplete.running = false;
+        isBackgroundCheckComplete.offRunning();
         executeInitFunc();
     });
 }

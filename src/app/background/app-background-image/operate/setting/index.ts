@@ -1,6 +1,6 @@
 /** @description  */
 
-import { modifyCssFileForBackground } from "../modify/modify";
+import { externalCssFileModify } from "../modify/modify";
 import { showMessageWithConfirm, showProgress } from "../../../../../common/interactive";
 import { createExParamPromise, delay } from "../../../../../utils";
 import { BackgroundConfiguration } from "../../../../../workspace/background";
@@ -81,7 +81,7 @@ function settimgCallback (code: string, index: number, progress: TheProgress) {
  */
 function setting (code: string, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {
-        modifyCssFileForBackground(code, random).then(() => {
+        externalCssFileModify(code, random).then(() => {
             // 如果传入random参数为true，则不会关闭随机切换背景图状态
             if (!random && BackgroundConfiguration.getBackgroundIsRandom) {
                 // 如果选中背景图设置则会关闭随机切换背景图

@@ -47,3 +47,6 @@ export function cssTagNameConfig () {
         importEndMatch: `\\/\\*\\s\*${tagNameReg}\\.end\\s\*\\*\\/`
     };
 }
+
+/** 动画延迟的时间，单位秒 */
+export const backgroundDelayShowTime = 2;

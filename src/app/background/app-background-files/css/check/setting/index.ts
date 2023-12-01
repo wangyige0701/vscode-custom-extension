@@ -1,7 +1,7 @@
 /** @description 校验是否是设置的背景图 */
 
 import { $rej } from "../../../../../../error";
-import { getExternalCssFileContent } from "../../getter";
+import { getExternalCssFileContent, getExternalCssInfo } from "../../getter";
 
 /**
  * 检查指定code是否是当前设置背景图的code
@@ -27,15 +27,18 @@ export function checkIsSettingImage (codeValue: string): Promise<{
                 const { ImageCode } = data;
                 // 如果和上一次是一个哈希值，不再更新数据
                 if (ImageCode === codeValue) {
-                    return Promise.reject({ jump: true, state: true, code: ImageCode });
+                    return resolve({
+                        state: true,
+                        code: ImageCode
+                    });
                 }
             }
-            resolve({ state: false, code: codeValue });
+            resolve({
+                state: false,
+                code: codeValue
+            });
         })
         .catch(err => {
-            if (err.jump) {
-                return resolve({ state: err.state, code: err.code??void 0 });
-            }
             reject($rej(err, checkIsSettingImage.name));
         });
     });

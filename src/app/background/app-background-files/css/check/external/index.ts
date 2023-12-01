@@ -2,6 +2,7 @@
 
 import { getNowSettingCodeSync } from "../../../../app-background-workspace";
 import { changeLoadState } from "../../../../app-background-common";
+import { checkIsSettingImage } from "../setting";
 
 /** 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码 */
 export function checkExternalDataIsRight (): Promise<{
@@ -23,7 +24,7 @@ export function checkExternalDataIsRight (): Promise<{
             }
             if (data.code) {
                 // 哈希码校验失败或者没有css文件，重新写入
-                return modifyCssFileForBackground(data.code);
+                return externalCssFileModify(data.code);
             }
             return Promise.reject({ jump: true, modify: true });
         }).then(() => {

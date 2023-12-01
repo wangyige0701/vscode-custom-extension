@@ -5,7 +5,7 @@ import { getSourceCssFileContent } from "../../getter";
 import { isSourceCssFileModify } from "../../check";
 import { replaceSourceQueryStringContent } from "../../match/replace";
 import { createBuffer, writeFileUri } from "../../../../../../common/file";
-import { externalCssFileTemplate } from "../../template";
+import { sourceCssFileTemplate } from "../../template";
 import { $rej } from "../../../../../../error";
 import { reChecksum } from "../../../../../../common";
 
@@ -60,7 +60,7 @@ function changeSourceCssFile (content: string, uri: Uri, exits: boolean, init: b
         return [createBuffer(replaceSourceQueryStringContent(content, timestamp)), uri];
     } else {
         // 没有修改过源文件直接修改
-        return [createBuffer(externalCssFileTemplate(timestamp) + content), uri];
+        return [createBuffer(sourceCssFileTemplate(timestamp) + content), uri];
     }
 }
 

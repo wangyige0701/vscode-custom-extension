@@ -16,14 +16,17 @@ export function imageStoreUriExits (uri: Uri): Promise<Uri> {
                 ParameterName: 'uri'
             }));
         }
-        isFileExits(uri).then(res => {
+        isFileExits(uri)
+        .then(res => {
             if (!res) {
                 // 文件夹不存在进行创建
                 return createDirectoryUri(uri);
             }
-        }).then(() => {
+        })
+        .then(() => {
             resolve(uri);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, imageStoreUriExits.name));
         });
     });

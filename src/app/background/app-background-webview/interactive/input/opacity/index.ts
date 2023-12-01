@@ -36,9 +36,9 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
         if (opacity === BackgroundConfiguration.getBackgroundOpacity) {
             return resolve(false);
         }
-        getExternalFileContent().then(data => {
+        getExternalCssFileContent().then(data => {
             const content = replaceExternaOpacityContent(data[0], getNewBackgroundOpacity(opacity));
-            return writeExternalCssFile(content);
+            return externalCssFileWrite(content);
         }).then(() => {
             return setSourceCssImportInfo();
         }).then(() => {

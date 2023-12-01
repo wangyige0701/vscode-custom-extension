@@ -17,7 +17,7 @@ export function deleteBackgroundCssFileModification (): Promise<void> {
             }
         }).then(() => {
             // 删除外部css文件
-            return getExternalFileContent();
+            return getExternalCssFileContent();
         }).then(data => {
             return deleteContentByTagName(...data);
         }).then(({ content, uri }) => {

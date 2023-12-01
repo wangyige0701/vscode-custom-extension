@@ -1,6 +1,6 @@
-import { showMessageWithConfirm } from "../../../common/interactive";
-import { BackgroundConfiguration } from "../../../workspace/background";
-import { minmax } from "../../../utils";
+import { showMessageWithConfirm } from "../../../../common/interactive";
+import { BackgroundConfiguration } from "../../../../workspace/background";
+import { minmax } from "../../../../utils";
 import { backgroundSendMessage } from "./../webview/executeWebview";
 
 /** 更改缓存中的加载状态属性 */

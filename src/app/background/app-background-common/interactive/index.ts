@@ -1,8 +1,8 @@
 /** @description 背景图模块公用的交互函数，部分交互方法另存于单独层级下 */
 
-import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "../../../common/interactive";
-import { windowReload } from "../../../common/system";
-import { $rej, errlog } from "../../../error";
+import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "../../../../common/interactive";
+import { windowReload } from "../../../../common/system";
+import { $rej, errlog } from "../../../../error";
 import { resetImageStorePath } from "../app-background-image/folder/setter/modify";
 
 /**

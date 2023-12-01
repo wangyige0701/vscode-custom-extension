@@ -1,7 +1,7 @@
 /** @description 图片base64数据和哈希码关联储存 */
 
-import { backgroundHashCodes } from "../hash/hashCode";
-import { RecordDataByMap } from "../../../../utils";
+import { backgroundHashCodes } from "../../hash/data";
+import { RecordDataByMap } from "../../../../../utils";
 
 class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: string; }> {
     constructor () {

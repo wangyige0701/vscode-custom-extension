@@ -6,8 +6,8 @@ import { backgroundSendMessage } from "./../../webview/executeWebview";
 import { getCompressImage } from "./../../compress/compress";
 import { range, createExParamPromise } from "../../../../utils";
 import { $rej } from "../../../../error";
-import { backgroundHashCodes } from "../hash/hashCode";
-import { imageDataRepository } from "./map";
+import { backgroundHashCodes } from "../hash/data";
+import { imageDataRepository } from "./data";
 import { BackgroundConfiguration } from "../../../../workspace/background";
 
 /** 新增的哈希码储存至缓存和储存空间 */
@@ -56,9 +56,9 @@ function codeCheck (code: string, data: string, uri: Uri): Promise<{ code: strin
  * @param code 
  * @param state 
  */
-function codeListRefresh(code: string, state: 'check', options: CodeRefreshType): Promise<{ code: string; exist: boolean; }>;
-function codeListRefresh(code: string, state: 'add' | 'delete', options: CodeRefreshType): Promise<string>;
-function codeListRefresh (
+export function codeListRefresh(code: string, state: 'check', options: CodeRefreshType): Promise<{ code: string; exist: boolean; }>;
+export function codeListRefresh(code: string, state: 'add' | 'delete', options: CodeRefreshType): Promise<string>;
+export function codeListRefresh (
     code: string, 
     state: codeChangeType,
     { addData = void 0, compressData = void 0, uri = void 0 }: CodeRefreshType

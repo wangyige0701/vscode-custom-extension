@@ -1,6 +1,6 @@
 /** @fileoverview 获取储存路径下所有图片base64数据和哈希码 */
 
-import { backgroundImageCodeArray } from "../hash/hashCode";
+import { backgroundImageCodeArray } from "../hash/data";
 
 /**
  * 将从储存路径下读取的图片base64数据和对应哈希码一起返回

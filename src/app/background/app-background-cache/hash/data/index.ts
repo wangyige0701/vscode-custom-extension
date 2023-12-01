@@ -1,7 +1,7 @@
 /** @description 哈希码数据储存模块，hash模块中层级最高的文件 */
 
-import { getHashCode } from "../../../../utils";
-import { RecordDataByArray } from "../../../../utils/recordData/array";
+import { getHashCode } from "../../../../../utils";
+import { RecordDataByArray } from "../../../../../utils/recordData/array";
 
 class BackgroundHashCodes extends RecordDataByArray<string> {
     constructor () {

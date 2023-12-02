@@ -5,6 +5,8 @@ import { isBackgroundCheckComplete } from "../data";
 import { setStatusBarResolve } from "../../../../common/interactive";
 import { getHashCodesFromWorkspaceAndCache } from "../../app-background-cache";
 import { imageDataRepository } from "../../app-background-cache";
+import { isCompressDirectoryExist } from "../../app-background-files";
+import { getAllImageFilesData } from "../../app-background-image";
 
 /**
  * webview首次加载或者重置储存路径时获取储存背景图片数据，获取当前设置的背景图哈希码并将其发送给webview页面；
@@ -31,9 +33,10 @@ export function backgroundImageDataInit () {
     // 重置图片数据缓存
     imageDataRepository.clear();
     // 判断压缩文件夹
-    createCompressDirectory().then(() => {
+    isCompressDirectoryExist()
+    .then(() => {
         // 检索数据
-        return selectAllImage();
+        return getAllImageFilesData();
     }).then(({ files, uri }) => {
         return checkImageFiles(files, uri);
     }).then(buffers => {

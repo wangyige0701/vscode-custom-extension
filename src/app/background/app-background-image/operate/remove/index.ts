@@ -44,7 +44,7 @@ function deleteImageProgress (...codes: string[]) {
                 codes
             );
         }).then(([_, codes]) => {
-            refreshImageCodeList();
+            getHashCodesFromWorkspaceAndCache();
             // 发送数据
             backgroundSendMessage({
                 name: 'deleteImageSuccess',

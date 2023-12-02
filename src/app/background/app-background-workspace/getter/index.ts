@@ -35,3 +35,8 @@ export function getNowSettingOpacity (): number {
 export function getNowIsSetBackground (): boolean {
     return BackgroundConfiguration.getBackgroundIsSetBackground;
 }
+
+/** 获取工作空间中储存的所有图片哈希码 */
+export function getAllImageHashCodes (): string[] {
+    return BackgroundConfiguration.getBackgroundAllImageCodes;
+}

@@ -162,9 +162,9 @@ interface backgroundRandomListType extends MessageDataType {
 
 
 /**
- * 读取.wyg文件时返回的格式类型
+ * 读取.wyg文件时返回的格式类型，将unit8Array类型数组数据和哈希码一起返回
  */
-export interface bufferAndCode {
+export interface BufferAndCodeMergeType {
     buffer: Uint8Array;
     code: string;
 }

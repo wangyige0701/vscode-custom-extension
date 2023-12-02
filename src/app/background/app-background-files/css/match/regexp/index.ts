@@ -52,6 +52,9 @@ export const externalCssOpacityModify = strToReg(
     }opacity${s}\:${s})(${ans})(${s};${a}\}${a}${importEndMatch})`
 );
 
+/** 匹配.wyg文件的哈希码数据 */
+export const matchWYGFileName = /(.*?).back.wyg$/;
+
 /**
  * 生成获取外部文件注释信息的正则
  * @param name 

@@ -1,4 +1,4 @@
-/** @description 哈希码数据储存模块，hash模块中层级最高的文件 */
+/** @description 哈希码数据缓存处理模块 */
 
 import { getHashCode } from "../../../../../utils";
 import { RecordDataByArray } from "../../../../../utils/recordData/array";
@@ -23,5 +23,5 @@ class BackgroundHashCodes extends RecordDataByArray<string> {
     }
 }
 
-/** 图片哈希码数据维护 */
+/** 图片哈希码缓存数组维护实例 */
 export const backgroundHashCodes = new BackgroundHashCodes();

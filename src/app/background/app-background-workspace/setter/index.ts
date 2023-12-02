@@ -33,3 +33,8 @@ export function settingConfiguration (options: CssFileAnnotationInfo, random: bo
 export function changeLoadStateToTrue () {
     BackgroundConfiguration.setBackgroundLoad(true);
 }
+
+/** 重置图片路径数据 */
+export function refreshImagesPath (data: string[]) {
+    return BackgroundConfiguration.refreshBackgroundImagePath(data);
+}

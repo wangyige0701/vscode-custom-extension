@@ -3,7 +3,8 @@
 import type { Disposable } from "vscode";
 import { isBackgroundCheckComplete } from "../data";
 import { setStatusBarResolve } from "../../../../common/interactive";
-import { refreshImageCodeList } from "../../app-background-cache";
+import { getHashCodesFromWorkspaceAndCache } from "../../app-background-cache";
+import { imageDataRepository } from "../../app-background-cache";
 
 /**
  * webview首次加载或者重置储存路径时获取储存背景图片数据，获取当前设置的背景图哈希码并将其发送给webview页面；
@@ -26,17 +27,17 @@ export function backgroundImageDataInit () {
         icon: 'loading~spin',
         message: '侧栏列表初始化中'
     });
-    refreshImageCodeList();
-    // 重置repositoryData数据
-    repositoryData.clear();
+    getHashCodesFromWorkspaceAndCache();
+    // 重置图片数据缓存
+    imageDataRepository.clear();
     // 判断压缩文件夹
     createCompressDirectory().then(() => {
         // 检索数据
         return selectAllImage();
     }).then(({ files, uri }) => {
-        return checkImageFile(files, uri);
+        return checkImageFiles(files, uri);
     }).then(buffers => {
-        return changeToString(buffers);
+        return imageFileDataAndHashCodeCache(buffers);
     }).then(codes => {
         return refreshBackgroundImageList(codes);
     }).then(codes => {
@@ -47,7 +48,7 @@ export function backgroundImageDataInit () {
         success = true, length = codes.length;
         return BackgroundConfiguration.refreshBackgroundImagePath(codes);
     }).then(() => {
-        refreshImageCodeList();
+        getHashCodesFromWorkspaceAndCache();
         // 通过缓存获取图片哈希码发送
         const state = BackgroundConfiguration.getBackgroundIsSetBackground;
         if (state) {

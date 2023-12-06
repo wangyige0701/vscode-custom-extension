@@ -69,14 +69,14 @@ function needModify (data: false | [Buffer, Uri]) {
     if (data === false) {
         return data;
     }
-    return sourceCeeFileChangeChecksum(...data);
+    return sourceCeeFileWriteAndChecksum(...data);
 }
 
 /**
  * 源css文件修改并且在修改完成后重置校验和数据
  * @param uri 源文件的uri数据
  */
-function sourceCeeFileChangeChecksum (content: Uint8Array, uri: Uri): Promise<true> {
+export function sourceCeeFileWriteAndChecksum (content: Uint8Array, uri: Uri): Promise<true> {
     return new Promise((resolve, reject) => {
         writeFileUri(uri, content)
         .then(() => {

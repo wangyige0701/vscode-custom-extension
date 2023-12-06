@@ -1,8 +1,9 @@
 /** @description 图片base64数据和哈希码关联储存 */
 
 import type { Uri } from "vscode";
-import { backgroundHashCodes } from "../../hash/data";
+import { backgroundHashCodes as hashCodeArray } from "../../hash/data";
 import { RecordDataByMap, createExParamPromise } from "../../../../../utils";
+import { getCompressImage } from "../../../app-background-files";
 
 class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: string; }> {
     constructor () {
@@ -35,7 +36,7 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
             getCompressImage(code, data, uri)
             .then(({ data: $data }) => {
                 let exist = true;
-                if (backgroundHashCodes.indexOf(code) < 0) {
+                if (hashCodeArray.indexOf(code) < 0) {
                     // 缓存数组中不存在，需要添加
                     exist = false;
                 }
@@ -69,7 +70,7 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
         // 图片base64数据清除
         this.clear();
         // 图片哈希码数组清除
-        backgroundHashCodes.clear();
+        hashCodeArray.clear();
     }
 }
 

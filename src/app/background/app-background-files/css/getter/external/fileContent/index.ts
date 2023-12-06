@@ -7,13 +7,10 @@ import { createExParamPromise } from "../../../../../../../utils";
 import { readFileUri } from "../../../../../../../common/file";
 import { $rej } from "../../../../../../../error";
 
-const {
-    externalCssFileName
-} = cssNameConfig();
-
 /** 获取外部css文件内容 */
 export function getExternalCssFileContent (): Promise<[string, Uri]> {
     return new Promise((resolve, reject) => {
+        const { externalCssFileName } = cssNameConfig();
         // 获取指定路径uri，没有文件则创建
         getCssUri(externalCssFileName)
         .then(uri => {

@@ -9,7 +9,7 @@ import { findSourceCssPosition } from "../regexp";
  * 通过标签名删除css文件的修改内容
  * @param content 需要被处理的文本
  */
-function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndUri> {
+export function deleteContentByTagName (content: string, uri: Uri): Promise<ContentAndUri> {
     return new Promise((resolve, reject) => {
         Promise.resolve().then(() => {
             if (!content) {

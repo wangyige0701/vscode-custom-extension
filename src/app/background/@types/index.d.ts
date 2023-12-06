@@ -182,7 +182,7 @@ export interface CssFileAnnotationInfo {
 /**
  * index.ts中对数组操作的参数
  */
-export type codeChangeType = 'add' | 'delete' | 'check';
+export type CodeChangeType = 'add' | 'delete' | 'check';
 
 /**
  * 文本和uri类型

@@ -1,6 +1,9 @@
 /** @description 背景图片删除模块 */
 
-import { hasHashCode } from "../../../cache";
+import { backgroundHashCodes as hashCodeArray } from "../../../app-background-cache";
+import { showMessageByModal } from "../../../app-background-common";
+import { errlog } from "../../../../../error";
+import { showProgress } from "../../../../../common/interactive";
 
 /**
  * 删除一张图片，不需要判断是否被设置了背景图，图片被删除后背景图样式保持，直到下一次重新设置
@@ -9,9 +12,11 @@ import { hasHashCode } from "../../../cache";
  * @param code 
  */
 export function deleteImage (...code: string[]) {
-    showMessageByModal(code.length > 1 ? '是否删除选中图片' : '是否删除此图片').then(() => {
+    showMessageByModal(code.length > 1 ? '是否删除选中图片' : '是否删除此图片')
+    .then(() => {
         return Promise.resolve(deleteImageProgress(...code));
-    }).catch(err => {
+    })
+    .catch(err => {
         err && errlog(err);
     });
 }
@@ -32,7 +37,7 @@ function deleteImageProgress (...codes: string[]) {
                     randomList.splice(randomList.indexOf(code), 1);
                 }
                 // 删除缓存数组内的数据
-                if (hasHashCode(code)) {
+                if (hashCodeArray.hasHashCode(code)) {
                     backgroundImageCodeArray.splice(backgroundImageCodeArray.indexOf(code), 1);
                 }
             }

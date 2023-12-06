@@ -2,7 +2,7 @@
 
 import { showMessageWithConfirm } from "../../../../common/interactive";
 import { minmax } from "../../../../utils";
-import { backgroundSendMessage } from "../../app-background-webview";
+import { sendRandomListInfo } from "../../app-background-webview";
 
 /**
  * 根据给定透明度计算需要设置的透明度
@@ -22,8 +22,5 @@ export function closeRandomBackground (time: number = 0) {
     setTimeout(() => {
         showMessageWithConfirm('已关闭背景图随机切换');
     }, time);
-    backgroundSendMessage({
-        name: 'backgroundRandomList',
-        value: false
-    });
+    sendRandomListInfo(false);
 }

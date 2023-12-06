@@ -1,7 +1,6 @@
 /** @description 校验储存背景图base64数据的外部css文件信息 */
 
-import { getNowSettingCodeSync } from "../../../../app-background-workspace";
-import { changeLoadStateToTrue } from "../../../../app-background-workspace";
+import { getNowSettingCode, changeLoadStateToTrue } from "../../../../app-background-workspace";
 import { checkIsSettingImage } from "../setting";
 import { externalCssFileModify } from "../../setter";
 import { $rej } from "../../../../../../error";
@@ -12,10 +11,10 @@ import { $rej } from "../../../../../../error";
 export function checkExternalDataIsRight (): Promise<{
     modify: boolean;
 }> {
-    return new Promise((resolve, reject) => {
-        const settingCode = getNowSettingCodeSync();
-        if (settingCode === false) {
-            changeLoadStateToTrue();
+    return new Promise(async (resolve, reject) => {
+        const settingCode = getNowSettingCode();
+        if (!settingCode) {
+            await changeLoadStateToTrue();
             return resolve({
                 modify: false
             });

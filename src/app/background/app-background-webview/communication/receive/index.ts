@@ -2,13 +2,12 @@
 
 import type { Webview } from "vscode";
 import type { backgroundMessageData } from "../../../@types";
-import { backgroundImageDataInit, deleteImage, getBase64DataByCode, getBase64DataFromObject, selectImage } from "../../..";
-import { backgroundOpacityModify, requestImageToBackground } from "../modify/modifyByInput";
-import { randomSettingBackground } from "../modify/modifyRandom";
 import { toViewImage } from "../../../../viewImage";
-import { BackgroundWebviewInstance } from '../send';
-import { settingImage } from '../../../app-background-image/operate/setting';
+import { BackgroundWebviewInstance, sendBase64DataByCode } from '../send';
+import { settingImage, selectImage } from '../../../app-background-image';
 import { messageExecute } from "../../../../../common/webview";
+import { imageDataRepository } from "../../../app-background-cache";
+import { backgroundImageDataInit } from "../../../app-background-check";
 
 /** 创建通信数据对应函数执行配置 */
 const messageReceiver = messageExecute<backgroundMessageData>({
@@ -26,7 +25,7 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 发送code，用于获取具体base64数据 */
     getBackgroundBase64Data: {
         execute: {
-            func: getBase64DataByCode,
+            func: sendBase64DataByCode,
             data: true
         }
     },
@@ -87,7 +86,7 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 查看大图，标题发送哈希码前七位 */
     viewBigImage: {
         execute: {
-            func: data => { toViewImage(data, getBase64DataFromObject.bind(null, data), `${data.slice(0, 7)}...`, BackgroundWebviewInstance.value!); },
+            func: data => { toViewImage(data, imageDataRepository.getImageDataByCode.bind(null, data), `${data.slice(0, 7)}...`, BackgroundWebviewInstance.value!); },
             data: true
         }
     }

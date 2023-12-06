@@ -27,4 +27,4 @@ function showMessageExpand (
 }
 
 /** 系统弹框 */
-export const showMessageModal = curry(showMessageExpand, true, 'information' as MessageBoxMethodType, [{id:0,title: '确认'}], '提示');
+export const showMessageModal = curry(showMessageExpand, true, 'information' as MessageBoxMethodType, [{id:0,title: '确认'} as MessageItemExtend], '提示');

@@ -2,19 +2,18 @@
 
 import type { Disposable, ExtensionContext } from "vscode";
 import { commands } from "vscode";
-import { windowInitCheckCssModifyCompleteness } from "./check";
-import { clearBackgroundConfig, clearRepositoryWhenUninstall } from ".";
+import { windowInitCheckCssModifyCompleteness } from "./app-background-check";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { setStatusBarResolve } from "../../common/interactive";
 import { bindMessageCallback } from "../../common/webview";
 import { registWebviewProvider } from "../../common/webview/provider";
-import { resetBackgroundStorePath, selectFolderForBackgroundStore } from "./store";
 import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
-import { setRandomBackground } from "./operateFile/modifyRandom";
-import { backgroundWebviewCommunication } from "./webview/communication";
 import { copyFileWhenVersionChange } from "../../version";
 import { errlog, $rej } from "../../error";
 import { clearDynamicImport } from "../../library";
+import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./app-background-common";
+import { clearBackgroundConfig } from "./app-background-config";
+import { setRandomBackground, backgroundWebviewCommunication } from "./app-background-webview";
 
 /** 注册背景图设置功能 */
 export function registBackground (subscriptions: ExtensionContext["subscriptions"]): void {
@@ -27,15 +26,18 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
 		return checkRandomCode();
-	}).then(state => {
+	})
+	.then(state => {
 		// 检测配置完整
 		return createExParamPromise(windowInitCheckCssModifyCompleteness(), state);
-	}).then(([_, state]) => {
+	})
+	.then(([_, state]) => {
 		// 开启后判断是否随机修改背景
 		if (state) {
 			return setRandomBackground();
 		}
-	}).then(() => {
+	})
+	.then(() => {
 		// 设置背景图的侧栏webview注册
 		registWebviewProvider(
 			subscriptions,

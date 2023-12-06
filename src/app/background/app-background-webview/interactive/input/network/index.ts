@@ -1,8 +1,12 @@
-/** @description webview侧通过输入框添加网络图片处理模块 */
+/** @fileoverview webview侧通过输入框添加网络图片处理模块 */
 
-
-
-
+import { errlog, $rej } from "../../../../../../error";
+import { GetImage } from "../../../../../../common/request";
+import { base64ByFiletypeAndData, imageToBase64Type } from "../../../../../../common/file";
+import { imageUrl } from "../../../../../../utils";
+import { sendAfterNewNetImageCreate } from "../../../communication";
+import { addImageToStorage } from "../../../../app-background-cache";
+import { showMessageWithConfirm } from "../../../../../../common/interactive";
 
 /**
  * 下载网络图片资源并发送至背景图列表
@@ -10,17 +14,16 @@
  */
 export function requestImageToBackground (url: string) {
     const sendMsg: string[] = [];
-    getImageBase64ByRequest(url).then(data => {
+    getImageBase64ByRequest(url)
+    .then(data => {
         return addImageToStorage([data]);
-    }).then(codes => {
+    })
+    .then(codes => {
         sendMsg.push(...codes);
-    }).catch(err => {
-        err && errlog(err);
-    }).finally(() => {
-        backgroundSendMessage({
-            name: 'newImageNetwork',
-            value: sendMsg
-        });
+    })
+    .catch(errlog)
+    .finally(() => {
+        sendAfterNewNetImageCreate(sendMsg);
     });
 }
 
@@ -34,16 +37,19 @@ function getImageBase64ByRequest (url: string): Promise<string> {
         if (!reg) {
             return reject({ warning: true, message: 'Illegal Image URL' });
         }
-        GetImage(url).then(res => {
+        GetImage(url)
+        .then(res => {
             return base64ByFiletypeAndData('image', imageToBase64Type(reg[2]), res);
-        }).then(data => {
+        })
+        .then(data => {
             resolve(data);
-        }).catch(err => {
+        })
+        .catch(err => {
             if (err.warning) {
                 showMessageWithConfirm(`${err.status??'Error'}: ${err.message??''} [ ${url} ]`, "error");
                 return reject();
             }
-            reject($rej(err, getImageBase64ByRequest.name));
+            reject(err);
         });
     });
 }

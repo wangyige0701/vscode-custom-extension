@@ -1,9 +1,13 @@
 /** @description 背景图片删除模块 */
 
-import { backgroundHashCodes as hashCodeArray } from "../../../app-background-cache";
+import { backgroundHashCodes as hashCodeArray, getHashCodesFromWorkspaceAndCache } from "../../../app-background-cache";
 import { showMessageByModal } from "../../../app-background-common";
 import { errlog } from "../../../../../error";
 import { showProgress } from "../../../../../common/interactive";
+import { deleteFileStore } from "../../file";
+import { getRandomList, settingRandomCode, refreshImagesPath } from "../../../app-background-workspace";
+import { createExParamPromise, delay } from "../../../../../utils";
+import { sendAfterDeleteImageSuccess } from "../../../app-background-webview";
 
 /**
  * 删除一张图片，不需要判断是否被设置了背景图，图片被删除后背景图样式保持，直到下一次重新设置
@@ -29,8 +33,9 @@ function deleteImageProgress (...codes: string[]) {
     }, (progress) => <Promise<void>>new Promise(resolve => {
         Promise.all(codes.map(code => {
             return deleteFileStore(code);
-        })).then(codes => {
-            const randomList = BackgroundConfiguration.getBackgroundRandomList;
+        }))
+        .then(codes => {
+            const randomList = getRandomList();
             for (const code of codes) {
                 // 删除随机数组缓存的数据
                 if (randomList.includes(code)) {
@@ -38,32 +43,30 @@ function deleteImageProgress (...codes: string[]) {
                 }
                 // 删除缓存数组内的数据
                 if (hashCodeArray.hasHashCode(code)) {
-                    backgroundImageCodeArray.splice(backgroundImageCodeArray.indexOf(code), 1);
+                    hashCodeArray.splice(hashCodeArray.indexOf(code), 1);
                 }
             }
             return createExParamPromise(
                 Promise.all([
-                    Promise.resolve(BackgroundConfiguration.setBackgroundRandomList(randomList)),
-                    BackgroundConfiguration.refreshBackgroundImagePath(backgroundImageCodeArray)
+                    Promise.resolve(settingRandomCode(...randomList)),
+                    refreshImagesPath(hashCodeArray.origin)
                 ]),
                 codes
             );
-        }).then(([_, codes]) => {
+        })
+        .then(([_, codes]) => {
             getHashCodesFromWorkspaceAndCache();
             // 发送数据
-            backgroundSendMessage({
-                name: 'deleteImageSuccess',
-                value: codes
-            });
+            sendAfterDeleteImageSuccess(codes);
             progress.report({
                 message: '删除成功',
                 increment: 100
             });
             // 延迟关闭进度条
             return delay(1500);
-        }).catch(err => {
-            errlog(err);
-        }).finally(() => {
+        })
+        .catch(errlog)
+        .finally(() => {
             resolve();
         });
     }));

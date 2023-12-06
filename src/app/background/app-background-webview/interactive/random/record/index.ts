@@ -18,11 +18,13 @@ import { sendRandomListInfo } from "../../../communication";
 export function randomSettingBackground (value: string[] | false, tip: boolean = true): void {
     if (value === false) {
         // 根据tip参数判断是否需要显示弹框提示
-        Promise.resolve().then(() => {
+        Promise.resolve()
+        .then(() => {
             if (tip) {
                 return showMessageByModal('是否关闭背景图随机切换？');
             }
-        }).then(() => {
+        })
+        .then(() => {
             showProgress({
                 location: 'Notification',
                 title: '正在关闭背景图随机切换'

@@ -4,10 +4,11 @@ import type { Webview } from "vscode";
 import type { backgroundMessageData } from "../../../@types";
 import { toViewImage } from "../../../../viewImage";
 import { BackgroundWebviewInstance, sendBase64DataByCode } from '../send';
-import { settingImage, selectImage } from '../../../app-background-image';
+import { settingImage, selectImage, deleteImage } from '../../../app-background-image';
 import { messageExecute } from "../../../../../common/webview";
 import { imageDataRepository } from "../../../app-background-cache";
 import { backgroundImageDataInit } from "../../../app-background-check";
+import { requestImageToBackground, backgroundOpacityModify, randomSettingBackground } from "../../interactive";
 
 /** 创建通信数据对应函数执行配置 */
 const messageReceiver = messageExecute<backgroundMessageData>({
@@ -86,7 +87,9 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 查看大图，标题发送哈希码前七位 */
     viewBigImage: {
         execute: {
-            func: data => { toViewImage(data, imageDataRepository.getImageDataByCode.bind(null, data), `${data.slice(0, 7)}...`, BackgroundWebviewInstance.value!); },
+            func: data => {
+                toViewImage(data, imageDataRepository.getImageDataByCode.bind(null, data), `${data.slice(0, 7)}...`, BackgroundWebviewInstance.value!);
+            },
             data: true
         }
     }

@@ -69,7 +69,13 @@ export function sendSettingImageCode (value: string | number | undefined = void 
 /**
  * 发送当前设置的透明度
  */
-export function sendSettingOpacity () {
+export function sendSettingOpacity (value: number | undefined = void 0) {
+    if (!isUndefined(value)) {
+        return backgroundSendMessage({
+            name: 'nowBackgroundOpacity',
+            value
+        });
+    }
     backgroundSendMessage({
         name: 'nowBackgroundOpacity',
         value: getNowSettingOpacity()
@@ -98,6 +104,26 @@ export function sendRandomListInfo (value: false | string[] | undefined = void 0
 export function sendAfterNewImagesCreate (value: string[]) {
     backgroundSendMessage({
         name: 'newImage',
+        value
+    });
+}
+
+/**
+ * 新的网络图片创建后发送新增图片哈希码
+ */
+export function sendAfterNewNetImageCreate (value: string[]) {
+    backgroundSendMessage({
+        name: 'newImageNetwork',
+        value
+    });
+}
+
+/**
+ * 图片删除成功后发送删除的图片哈希码数组
+ */
+export function sendAfterDeleteImageSuccess (value: string[]) {
+    backgroundSendMessage({
+        name: 'deleteImageSuccess',
         value: value
     });
 }

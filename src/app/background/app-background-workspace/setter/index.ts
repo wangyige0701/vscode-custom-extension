@@ -18,9 +18,9 @@ export function settingConfiguration (options: CssFileAnnotationInfo, random: bo
         .then(() => {
             // 当不是随机切换时，将code存入当前图片缓存，否则存入随机切换图片缓存
             if (!random) {
-                return BackgroundConfiguration.setBackgroundNowImageCode(options.ImageCode);
+                return settingNowImageCode(options.ImageCode);
             }
-            return BackgroundConfiguration.setBackgroundRandomCode(options.ImageCode);
+            return settingRandomCode(options.ImageCode);
         })
         .then(resolve)
         .catch(err => {
@@ -29,7 +29,12 @@ export function settingConfiguration (options: CssFileAnnotationInfo, random: bo
     });
 }
 
-/** 更改缓存中的加载状态属性 */
+/** 设置当前图片哈希码数据 */
+export function settingNowImageCode (value: string) {
+    return Promise.resolve(BackgroundConfiguration.setBackgroundNowImageCode(value));
+}
+
+/** 更改工作空间中的加载状态属性 */
 export function changeLoadStateToTrue () {
     return Promise.resolve(BackgroundConfiguration.setBackgroundLoad(true));
 }
@@ -63,4 +68,9 @@ export function settingRandomCode (firstCode: string, ...otherCodes: string[]) {
 /** 设置默认文件夹路径 */
 export function settingDefaultSelectPath (path: string) {
     return Promise.resolve(BackgroundConfiguration.setBackgroundSelectDefaultPath(path));
+}
+
+/** 设置透明度 */
+export function settingOpacity (value: number) {
+    return Promise.resolve(BackgroundConfiguration.setBackgroundOpacity(value));
 }

@@ -5,14 +5,17 @@ import { backgroundHashCodes as hashCodeArray } from "../../hash/data";
 import { RecordDataByMap, createExParamPromise } from "../../../../../utils";
 import { getCompressImage } from "../../../app-background-files";
 
+var _cache: ImageDataRepository;
+
 class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: string; }> {
     constructor () {
         super();
+        _cache = this;
     }
 
     /** 缓存哈希码新增操作 */
     codeAdd (code: string, originData: string, thumbnailData: string): Promise<string> {
-        this.set(code, {
+        _cache.set(code, {
             origin: originData??'',
             thumbnail: thumbnailData??''
         });
@@ -21,8 +24,8 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
 
     /** 缓存哈希码删除操作 */
     codeDelete (code: string): Promise<string> {
-        if (this.has(code)) {
-            this.delete(code);
+        if (_cache.has(code)) {
+            _cache.delete(code);
         }
         return Promise.resolve(code);
     }
@@ -40,7 +43,7 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
                     // 缓存数组中不存在，需要添加
                     exist = false;
                 }
-                return createExParamPromise(this.codeAdd(code, data, $data), exist);
+                return createExParamPromise(_cache.codeAdd(code, data, $data), exist);
             })
             .then(([$code, exist]) => {
                 resolve({ code: $code, exist });
@@ -55,10 +58,10 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
      * @param thumbnail 是否获取缩略图
      */
     getImageDataByCode (code: string, thumbnail: boolean = false): string {
-        if (!this.has(code)) {
+        if (!_cache.has(code)) {
             return "";
         }
-        const value = this.get(code);
+        const value = _cache.get(code);
         if (!thumbnail || (thumbnail && !value!.thumbnail)) {
             return value!.origin??"";
         }
@@ -68,7 +71,7 @@ class ImageDataRepository extends RecordDataByMap<{ origin: string; thumbnail: s
     /** 卸载前调用，清空缓存数据 */
     clearCache () {
         // 图片base64数据清除
-        this.clear();
+        _cache.clear();
         // 图片哈希码数组清除
         hashCodeArray.clear();
     }

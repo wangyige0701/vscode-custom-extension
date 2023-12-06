@@ -1,29 +1,32 @@
-/** @description webview侧通过输入框修改背景图透明度处理模块 */
+/** @fileoverview webview侧通过输入框修改背景图透明度处理模块 */
 
-
+import { getNowSettingOpacity, settingOpacity } from "../../../../app-background-workspace";
+import { errlog, $rej } from "../../../../../../error";
+import { isWindowReloadToLoadBackimage, getNewBackgroundOpacity } from "../../../../app-background-common";
+import { showMessageWithConfirm } from "../../../../../../common/interactive";
+import { sendSettingOpacity } from "../../../communication";
+import { getExternalCssFileContent, replaceExternaOpacityContent, externalCssFileWrite, setSourceCssImportInfo } from "../../../../app-background-files";
 
 /**
  * 修改背景图透明度
  * @param opacity 透明度数据
  */
 export function backgroundOpacityModify (opacity: number) {
-    let sendOpacity: number = BackgroundConfiguration.getBackgroundOpacity;
-    changeBackgroundFileOpacity(opacity).then(state => {
+    let sendOpacity = getNowSettingOpacity();
+    changeBackgroundFileOpacity(opacity)
+    .then(state => {
         if (state) {
             sendOpacity = opacity;
             isWindowReloadToLoadBackimage('透明度设置完成，是否重启窗口应用');
-            return Promise.resolve(BackgroundConfiguration.setBackgroundOpacity(opacity));
+            return Promise.resolve(settingOpacity(opacity));
         }
         // state为false，和当前透明度相同，不进行修改
         showMessageWithConfirm(`当前透明度已为${opacity}，若需修改，请输入0.1~1间的任意数字`);
-    }).catch(err => {
-        errlog(err);
-    }).finally(() => {
+    })
+    .catch(errlog)
+    .finally(() => {
         // 发送通信，返回设置好的透明度，并关闭按钮加载状态
-        backgroundSendMessage({
-            name: 'nowBackgroundOpacity',
-            value: sendOpacity
-        });
+        sendSettingOpacity(sendOpacity);
     });
 }
 
@@ -33,17 +36,21 @@ export function backgroundOpacityModify (opacity: number) {
  */
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
-        if (opacity === BackgroundConfiguration.getBackgroundOpacity) {
+        if (opacity === getNowSettingOpacity()) {
             return resolve(false);
         }
-        getExternalCssFileContent().then(data => {
+        getExternalCssFileContent()
+        .then(data => {
             const content = replaceExternaOpacityContent(data[0], getNewBackgroundOpacity(opacity));
             return externalCssFileWrite(content);
-        }).then(() => {
+        })
+        .then(() => {
             return setSourceCssImportInfo();
-        }).then(() => {
+        })
+        .then(() => {
             resolve(true);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, changeBackgroundFileOpacity.name));
         });
     });

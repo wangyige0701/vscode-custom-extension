@@ -2,18 +2,19 @@
 
 import type { Disposable, ExtensionContext } from "vscode";
 import { commands } from "vscode";
-import { windowInitCheckCssModifyCompleteness } from "./app-background-check";
+import { errlog } from "../../error";
 import { createExParamPromise, executeAllFunctions } from "../../utils";
 import { setStatusBarResolve } from "../../common/interactive";
 import { bindMessageCallback } from "../../common/webview";
 import { registWebviewProvider } from "../../common/webview/provider";
-import { BackgroundConfiguration, defaultPath } from "../../workspace/background";
 import { copyFileWhenVersionChange } from "../../version";
-import { errlog, $rej } from "../../error";
 import { clearDynamicImport } from "../../library";
+import { windowInitCheckCssModifyCompleteness } from "./app-background-check";
 import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./app-background-common";
 import { clearBackgroundConfig } from "./app-background-config";
 import { setRandomBackground, backgroundWebviewCommunication } from "./app-background-webview";
+import { backgroundHashCodes, imageDataRepository } from "./app-background-cache";
+import { getBackgroundResourcePath, getNowIsSetRandom, getNowRandomCode, settingNowImageCode, settingRandomCode } from "./app-background-workspace";
 
 /** 注册背景图设置功能 */
 export function registBackground (subscriptions: ExtensionContext["subscriptions"]): void {
@@ -21,7 +22,7 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		icon: 'loading~spin',
 		message: '默认路径图片数据检测'
 	});
-	copyFileWhenVersionChange(defaultPath.join('/'))
+	copyFileWhenVersionChange(getBackgroundResourcePath().join('/'))
 	.then(() => {
 		statusBarTarget?.dispose();
 		// 检测是否需要更新缓存图片码
@@ -51,9 +52,9 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		commands.registerCommand('wangyige.background.clear', clearBackgroundConfig);
 		// 绑定事件通信回调
 		bindMessageCallback('onBackground', backgroundWebviewCommunication);
-	}).catch(err => {
-		errlog(err);
-	}).finally(() => {
+	})
+	.catch(errlog)
+	.finally(() => {
 		statusBarTarget?.dispose();
 	});
 }
@@ -61,7 +62,8 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 /** webview切换隐藏时，触发的销毁数据函数 */
 function executeWhenUninstall () {
 	executeAllFunctions(
-		clearRepositoryWhenUninstall,
+		imageDataRepository.clear,
+		backgroundHashCodes.clear,
 		clearDynamicImport
 	);
 }
@@ -69,24 +71,21 @@ function executeWhenUninstall () {
 /** 检测当前状态是否为背景随机切换，是则更新随机图片缓存到当前图片缓存中 */
 function checkRandomCode (): Promise<boolean> {
 	return new Promise((resolve, reject) => {
-		if (!BackgroundConfiguration.getBackgroundIsRandom) {
+		if (!getNowIsSetRandom()) {
 			return resolve(false);
 		}
 		// 当状态为随机切换时，更新当前选择图片数据
-		const code = BackgroundConfiguration.getBackgroundRandomCode;
+		const code = getNowRandomCode();
 		if (!code) {
 			return resolve(false);
 		}
-		Promise.resolve(
-			BackgroundConfiguration.setBackgroundNowImageCode(code)
-		).then(() => {
-			return Promise.resolve(
-				BackgroundConfiguration.setBackgroundRandomCode('')
-			);
-		}).then(() => {
+		settingNowImageCode(code)
+		.then(() => {
+			return settingRandomCode('');
+		})
+		.then(() => {
 			resolve(true);
-		}).catch(err => {
-			reject($rej(err, checkRandomCode.name));
-		});
+		})
+		.catch(reject);
 	});
 }

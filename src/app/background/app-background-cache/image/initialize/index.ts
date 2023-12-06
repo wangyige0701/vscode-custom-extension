@@ -1,6 +1,11 @@
 /** @description 图片数据和哈希码的映射缓存初始化 */
 
+import type { BufferAndCodeMergeType } from "../../../@types";
 import { imageStoreUri } from "../../../app-background-image";
+import { codeListRefresh } from "../refresh";
+import { $rej } from "../../../../../error";
+import { range } from "../../../../../utils";
+import { backgroundHashCodes as hashCodeArray } from "../../hash";
 
 /**
  * 将从储存路径下读取的图片数据和对应哈希码进行缓存
@@ -12,20 +17,23 @@ export function imageFileDataAndHashCodeCache (datas: BufferAndCodeMergeType[]):
         .then(uri => {
             // 校验当前哈希码是否存在于缓存列表中以及获取缩略图
             return Promise.all(datas.map(({ code, buffer }) => {
-                return codeListRefresh(code, 'check', { addData: buffer.toString(), uri });
+                return codeListRefresh(code, 'check', {
+                    addData: buffer.toString(),
+                    uri
+                });
             }));
-        }).then(codes => {
+        })
+        .then(codes => {
             // 判断哪些数据不存在，不存在则插入缓存
             for (const index of range(-1, codes.length - 1)) {
                 const { exist, code } = codes[index];
                 if (!exist) {
-                    backgroundImageCodeArray.unshift(code);
+                    hashCodeArray.unshift(code);
                 }
             }
-            return codes.map(item => item.code);
-        }).then(codes => {
-            resolve(codes);
-        }).catch(err => {
+            resolve(codes.map(item => item.code));
+        })
+        .catch(err => {
             reject($rej(err, imageFileDataAndHashCodeCache.name));
         });
     });

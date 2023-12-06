@@ -31,10 +31,36 @@ export function settingConfiguration (options: CssFileAnnotationInfo, random: bo
 
 /** 更改缓存中的加载状态属性 */
 export function changeLoadStateToTrue () {
-    BackgroundConfiguration.setBackgroundLoad(true);
+    return Promise.resolve(BackgroundConfiguration.setBackgroundLoad(true));
 }
 
 /** 重置图片路径数据 */
 export function refreshImagesPath (data: string[]) {
     return BackgroundConfiguration.refreshBackgroundImagePath(data);
+}
+
+/** 设置工作空间哈希码储存数据 */
+export function settingAllHashCodes (code: string, type: 'add' | 'delete') {
+    return BackgroundConfiguration.setBackgroundAllImageCodes(code, type);
+}
+
+/** 修改是否随机切换背景的状态 */
+export function changeIsRandomState (state: boolean) {
+    return Promise.resolve(BackgroundConfiguration.setBackgroundIsRandom(state));
+}
+
+/** 修改工作空间中储存的随机图片哈希码 */
+export function settingRandomCode (firstCode: string): Promise<void>;
+export function settingRandomCode (...otherCodes: string[]): Promise<void>;
+export function settingRandomCode (firstCode: string, ...otherCodes: string[]) {
+    if (otherCodes.length === 0) {
+        return Promise.resolve(BackgroundConfiguration.setBackgroundRandomCode(firstCode));
+    } else {
+        return Promise.resolve(BackgroundConfiguration.setBackgroundRandomList([firstCode, ...otherCodes]));
+    }
+}
+
+/** 设置默认文件夹路径 */
+export function settingDefaultSelectPath (path: string) {
+    return Promise.resolve(BackgroundConfiguration.setBackgroundSelectDefaultPath(path));
 }

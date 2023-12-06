@@ -1,14 +1,17 @@
-
+/** @fileoverview 根据指定路径创建一个压缩图文件 */
 
 import type { Uri } from "vscode";
-
+import { imageCompression } from "../../../../../../common/compression";
+import { $rej } from "../../../../../../error";
+import { createExParamPromise } from "../../../../../../utils";
+import { writeFileUri, createBuffer, base64ByFiletypeAndData } from "../../../../../../common/file";
 
 /**
  * 根据原图路径在指定路径下生成压缩图
  * @param uri 生成的图片路径uri
  * @param data 图片base64数据
  */
-function createCompressImage (uri: Uri, data: string): Promise<Buffer> {
+export function createCompressImage (uri: Uri, data: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
         imageCompression(data)
         .then(buffer => {

@@ -1,7 +1,7 @@
 /** @description 扩展开始运行后配置检测 */
 
 import type { Disposable } from "vscode";
-import { isBackgroundCheckComplete } from "../../data";
+import { isBackgroundCheckComplete as status } from "../../data";
 import { setStatusBarResolve } from "../../../../../common/interactive";
 import { createExParamPromise } from "../../../../../utils";
 import { setSourceCssImportInfo } from "../../../app-background-files";
@@ -9,6 +9,7 @@ import { checkExternalDataIsRight } from "../../../app-background-files";
 import { changeLoadStateToTrue, getNowIsSetBackground } from "../../../app-background-workspace";
 import { $rej } from "../../../../../error";
 import { setBackgroundImageSuccess } from "../../../app-background-common";
+import { backgroundImageDataInit } from "../../webview";
 
 /**
  * vscode开始运行后插件启动时调用，
@@ -26,11 +27,11 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
         .then((res) => {
             return createExParamPromise(checkExternalDataIsRight(), false || res.modify);
         })
-        .then(([res, state]) => {
+        .then(async ([res, state]) => {
             const needReload = state || res.modify;
             // 更新load加载状态缓存信息，state为false即不需要重启窗口应用背景时更新
             if (!needReload) {
-                changeLoadStateToTrue();
+                await changeLoadStateToTrue();
             }
             resolve(needReload);
         })
@@ -41,15 +42,18 @@ export async function checkImageCssDataIsRight (): Promise<boolean> {
             statusBarTarget?.dispose();
             // 状态栏提示信息
             setBackgroundImageSuccess('背景图文件校验完成');
-            isBackgroundCheckComplete.offCheck();
-            executeInitFunc();
+            status.offCheck();
+            // 根据对象判断是否需要再次执行初始化函数
+            if (status.init) {
+                backgroundImageDataInit();
+            }
         });
     });
 }
 
 /** 打开状态栏信息 */
 function createStatusBar () {
-    isBackgroundCheckComplete.onCheck();
+    status.onCheck();
     const statusBarTarget: Disposable = setStatusBarResolve({
         icon: 'loading~spin',
         message: '背景图文件校验中'
@@ -60,11 +64,4 @@ function createStatusBar () {
         return false;
     }
     return statusBarTarget;
-}
-
-/** 根据对象判断是否需要再次执行初始化函数 */
-function executeInitFunc () {
-    if (isBackgroundCheckComplete.init) {
-        backgroundImageDataInit();
-    }
 }

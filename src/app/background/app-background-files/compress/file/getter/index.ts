@@ -2,8 +2,12 @@
 
 import type { Uri } from "vscode";
 import { FileType } from "vscode";
-import { uriStat, joinPathUri, newUri } from "../../../../../../common/file";
+import { uriStat, joinPathUri, newUri, readFileUri } from "../../../../../../common/file";
 import { $rej } from "../../../../../../error";
+import { checkHasBeenCompressed } from "../exist";
+import { createCompressImage } from "../create";
+import { compressConfig } from "../../../../app-background-config";
+import { imageStoreUri } from "../../../../app-background-image";
 
 /**
  * 当指定哈希码的图片没有压缩图时生成一张压缩图，否则跳出
@@ -45,8 +49,10 @@ export function imageToCompressedPath (code: string, uri?: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
         Promise.resolve(uri ? isUriFolder(uri) : imageStoreUri())
         .then(uri => {
+            const { compressFileName, compressFolderName } = compressConfig();
             resolve(newUri(uri, compressFolderName, `${code}.${compressFileName}`));
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, imageToCompressedPath.name));
         });
     });

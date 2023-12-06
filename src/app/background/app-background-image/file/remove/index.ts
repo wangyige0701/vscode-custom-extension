@@ -1,5 +1,9 @@
 /** @description 删除背景图文件 */
 
+import { backgroundHashCodes as hashCodeArray } from "../../../app-background-cache";
+import { WError, $rej } from "../../../../../error";
+import { imageStoreUri } from "../../folder";
+import { uriDelete, newUri } from "../../../../../common/file";
 
 /**
  * 根据哈希码删除.wyg图片文件
@@ -7,7 +11,7 @@
  */
 export function deleteFileStore (code: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        if (!hasHashCode(code)) {
+        if (!hashCodeArray.hasHashCode(code)) {
             return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
                 FunctionName: deleteFileStore.name,
@@ -15,17 +19,22 @@ export function deleteFileStore (code: string): Promise<string> {
                 description: 'The hash code to delete image is undefined'
             }));
         }
-        imageStoreUri().then(uri => {
+        imageStoreUri()
+        .then(uri => {
             // 原图删除
             return uriDelete(newUri(uri, `${code}.back.wyg`));
-        }).then(() => {
+        })
+        .then(() => {
             // 删除压缩图
             return deleteCompressByCode(code);
-        }).then(() => {
+        })
+        .then(() => {
             return codeListRefresh(code, 'delete', {});
-        }).then($code => {
+        })
+        .then($code => {
             resolve($code);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, deleteFileStore.name));
         });
     });

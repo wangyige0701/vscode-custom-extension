@@ -7,18 +7,9 @@ export function getBackgroundResourcePath (): string[] {
     return defaultPath;
 }
 
-/** 获取工作空间中的当前设置的背景图哈希码数据，如果没有数据，返回false */
-export function getNowSettingCode (): Promise<string | false> {
-    const storageCode = BackgroundConfiguration.getBackgroundNowImageCode;
-    if (storageCode) {
-        return Promise.resolve(storageCode);
-    }
-    return Promise.resolve(false);
-}
-
 /** 同步获取工作空间中的当前设置的背景图哈希码数据 */
-export function getNowSettingCodeSync (): string | false {
-    return BackgroundConfiguration.getBackgroundNowImageCode??false;
+export function getNowSettingCode (): string {
+    return BackgroundConfiguration.getBackgroundNowImageCode;
 }
 
 /** 获取工作空间中设置的图片储存文件夹路径 */
@@ -39,4 +30,19 @@ export function getNowIsSetBackground (): boolean {
 /** 获取工作空间中储存的所有图片哈希码 */
 export function getAllImageHashCodes (): string[] {
     return BackgroundConfiguration.getBackgroundAllImageCodes;
+}
+
+/** 获取工作空间中储存的是否设置了随机背景的状态 */
+export function getNowIsSetRandom (): boolean {
+    return BackgroundConfiguration.getBackgroundIsRandom;
+}
+
+/** 获取工作空间中储存的随机图片列表 */
+export function getRandomList (): string[] {
+    return BackgroundConfiguration.getBackgroundRandomList;
+}
+
+/** 获取打开文件夹的默认路径 */
+export function getDefaultSelectPath (): string {
+    return BackgroundConfiguration.getBackgroundSelectDefaultPath;
 }

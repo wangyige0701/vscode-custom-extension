@@ -1,49 +1,57 @@
 /** @description 背景图片选择模块 */
 
-import { BackgroundConfiguration } from "../../../../../workspace/background";
-import { imageFilesConfig } from "../../../config/data";
-
-
-const {
-    imageFilters
-} = imageFilesConfig();
-
-/** 选择文件的默认路径 */
-var selectFileDefaultPath = BackgroundConfiguration.getBackgroundSelectDefaultPath;
+import type { Uri } from "vscode";
+import { selectFile } from "../../../../../common/interactive";
+import { imageFilesConfig } from "../../../app-background-config";
+import { getDefaultSelectPath, settingDefaultSelectPath } from "../../../app-background-workspace";
+import { $rej } from "../../../../../error";
+import { imageToBase64 } from "../../../../../common/file";
+import { addImageToStorage } from "../../../app-background-cache";
+import { sendAfterNewImagesCreate } from "../../../app-background-webview";
+import { errlog } from "../../../../../error";
 
 /** 侧栏webview页面从本地文件选择背景图 */
 export function selectImage () {
+    const { imageFilters } = imageFilesConfig();
     const sendMsg: string[] = [];
     selectFile({
         many: true,
         files: true,
         filters: imageFilters,
-        defaultUri: selectFileDefaultPath
-    }).then(({ uri, dirName }) => {
-        return <Promise<Uri[]>>new Promise((resolve, reject) => {
-            // 选择一次文件后保存默认选择路径
-            Promise.resolve(
-                BackgroundConfiguration.setBackgroundSelectDefaultPath(selectFileDefaultPath = dirName)
-            ).then(() => {
-                resolve(uri);
-            }).catch(err => {
-                reject($rej(err, selectImage.name + ' > ' + selectFile.name));
-            });
-        });
-    }).then(uris => {
+        defaultUri: getDefaultSelectPath()
+    })
+    .then(({ uri, dirName }) => {
+        return saveSelectPath(dirName, uri);
+    })
+    .then(uris => {
         return Promise.all(
             uris.map(uri => imageToBase64(uri.fsPath))
         );
-    }).then(base64s => {
+    })
+    .then(base64s => {
         return addImageToStorage(base64s);
-    }).then(codes => {
+    })
+    .then(codes => {
         sendMsg.push(...codes);
-    }).catch(err => {
+    })
+    .catch(err => {
         errlog(err, true);
-    }).finally(() => {
-        backgroundSendMessage({
-            name: 'newImage',
-            value: sendMsg
+    })
+    .finally(() => {
+        sendAfterNewImagesCreate(sendMsg);
+    });
+}
+
+/** 保存文件夹选择默认路径 */
+function saveSelectPath (dirName: string, uri: Uri[]): Promise<Uri[]> {
+    return new Promise((resolve, reject) => {
+        // 选择一次文件后保存默认选择路径
+        settingDefaultSelectPath(dirName)
+        .then(() => {
+            resolve(uri);
+        })
+        .catch(err => {
+            reject($rej(err, selectImage.name + ' > ' + selectFile.name));
         });
     });
 }

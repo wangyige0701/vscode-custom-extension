@@ -67,11 +67,13 @@ export function isWindowReloadToLoadBackimage (title: string = '是否重启窗�
             id: 1,
             title: '取消'
         }]
-    }).then(res => {
+    })
+    .then(res => {
         if (res && res.id === 0) {
             windowReload();
         }
-    }).catch(err => {
+    })
+    .catch(err => {
         return Promise.reject(err);
     });
 }
@@ -83,11 +85,13 @@ export function selectFolderForBackgroundStore (): void {
         if (res) {
             return selectFolderOnly('选择背景图储存文件夹');
         }
-    }).then(data => {
+    })
+    .then(data => {
         if (data) { 
             return resetImageStoreFolder(data.dirName);
         }
-    }).catch(err => {
+    })
+    .catch(err => {
         errlog(err, true);
     });
 }
@@ -99,7 +103,8 @@ export function resetBackgroundStorePath (): void {
         if (res) {
             return resetImageStoreFolder('', true);
         }
-    }).catch(err => {
+    })
+    .catch(err => {
         errlog(err, true);
     });
 }

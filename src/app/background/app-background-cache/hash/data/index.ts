@@ -3,21 +3,24 @@
 import { getHashCode } from "../../../../../utils";
 import { RecordDataByArray } from "../../../../../utils/recordData/array";
 
+var _cache: BackgroundHashCodes;
+
 class BackgroundHashCodes extends RecordDataByArray<string> {
     constructor () {
         super();
+        _cache = this;
     }
 
     /** 判断列表中是否含有此图片哈希码 */
     hasHashCode (...codes: string[]): boolean {
-        return this.includesAll(...codes);
+        return _cache.includesAll(...codes);
     }
 
     /** 生成一个没有重复的哈希码 */
     newHashCode (): string {
         let code = getHashCode();
-        if (this.hasHashCode(code)) {
-            return this.newHashCode();
+        if (_cache.hasHashCode(code)) {
+            return _cache.newHashCode();
         }
         return code;
     }

@@ -46,3 +46,8 @@ export function getRandomList (): string[] {
 export function getDefaultSelectPath (): string {
     return BackgroundConfiguration.getBackgroundSelectDefaultPath;
 }
+
+/** 获取当前需要设置的随机图片哈希码 */
+export function getNowRandomCode () : string {
+    return BackgroundConfiguration.getBackgroundRandomCode;
+}

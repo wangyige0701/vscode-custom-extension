@@ -1,9 +1,10 @@
 /** @description 删除背景图文件 */
 
-import { backgroundHashCodes as hashCodeArray } from "../../../app-background-cache";
+import { backgroundHashCodes as hashCodeArray, codeListRefresh } from "../../../app-background-cache";
 import { WError, $rej } from "../../../../../error";
 import { imageStoreUri } from "../../folder";
 import { uriDelete, newUri } from "../../../../../common/file";
+import { deleteCompressByCode } from "../../../app-background-files";
 
 /**
  * 根据哈希码删除.wyg图片文件

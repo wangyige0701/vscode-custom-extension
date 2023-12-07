@@ -58,7 +58,7 @@ function closeRandom (tip: boolean, progress: TheProgress): Promise<void> {
             if (!tip) {
                 return;
             }
-            const code: string = getNowSettingCode();
+            const code = getNowSettingCode();
             // 如果删除随机背景配置，则重置css文件中的背景图为当前选中背景；如果tip为false，则代表是清除所有配置，不需要再次修改
             if (code) {
                 return externalCssFileModify(code, false, false);
@@ -82,9 +82,7 @@ function closeRandom (tip: boolean, progress: TheProgress): Promise<void> {
             closeRandomBackground(500);
             return delay(500);
         })
-        .catch(err => {
-            err && errlog(err);
-        })
+        .catch(errlog)
         .finally(() => {
             resolve();
         });
@@ -116,9 +114,7 @@ function settingRandom (value: string[], progress: TheProgress): Promise<void> {
         .then(() => {
             showMessageWithConfirm('设置完成，下次打开软件会随机切换背景图');
         })
-        .catch(err => {
-            err && errlog(err);
-        })
+        .catch(errlog)
         .finally(() => {
             resolve();
         });

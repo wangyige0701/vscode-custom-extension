@@ -10,6 +10,7 @@ import { setSourceCssImportInfo } from "../source";
 import { setBackgroundImageSuccess } from "../../../../app-background-common";
 import { $rej } from "../../../../../../error";
 import { cssNameConfig } from "../../../../app-background-config";
+import { CssFileAnnotationInfo } from "../../../../@types";
 
 /**
  * 修改外部css文件的背景图属性
@@ -18,7 +19,7 @@ import { cssNameConfig } from "../../../../app-background-config";
  * @param tip 是否需要显示提示文本
  */
 export function externalCssFileModify (hashCode: string, random: boolean = false, tip: boolean = true): Promise<void> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
         if (!hashCode) {
             return reject(new WError('Undefined Hash Code', {
                 position: 'Parameter',
@@ -27,19 +28,31 @@ export function externalCssFileModify (hashCode: string, random: boolean = false
                 description: 'The hash code to get image data is undefined'
             }));
         }
-        const cssContent = await getExternalCssContent(hashCode);
-        if (cssContent === false) {
-            // 不需要更新，直接跳出
-            return resolve();
-        }
-        let statusBarTarget: Disposable;
-        if (tip) {
-            // 状态栏提示文字
-            statusBarTarget = setStatusBarResolve({
-                icon: 'loading~spin',
-                message: `${random?'随机':''}背景图设置中`
-            });
-        }
+        getExternalCssContent(hashCode)
+        .then(cssContent => {
+            if (cssContent === false) {
+                // 不需要更新，直接跳出
+                return resolve();
+            }
+            let statusBarTarget: Disposable | undefined = void 0;
+            if (tip) {
+                // 状态栏提示文字
+                statusBarTarget = setStatusBarResolve({
+                    icon: 'loading~spin',
+                    message: `${random?'随机':''}背景图设置中`
+                });
+            }
+            return setting(cssContent, random, tip, statusBarTarget);
+        })
+        .then(resolve)
+        .catch(err => {
+            reject($rej(err, externalCssFileModify.name));
+        });        
+    });
+}
+
+function setting (cssContent: [string, CssFileAnnotationInfo], random: boolean, tip: boolean, statusBarTarget?: Disposable): Promise<void> {
+    return new Promise((resolve, reject) => {
         externalCssFileWrite(cssContent[0])
         .then(() => {
             return settingConfiguration(cssContent[1], random);
@@ -49,14 +62,12 @@ export function externalCssFileModify (hashCode: string, random: boolean = false
         })
         .then(() => {
             if (tip) {
-                statusBarTarget.dispose();
+                statusBarTarget!.dispose();
                 setBackgroundImageSuccess(`${random?'随机':''}背景图设置成功`);
             }
             resolve();
         })
-        .catch(err => {
-            reject($rej(err, externalCssFileModify.name));
-        })
+        .catch(reject)
         .finally(() => {
             statusBarTarget?.dispose();
         });

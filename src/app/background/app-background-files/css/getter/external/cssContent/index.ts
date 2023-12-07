@@ -47,12 +47,12 @@ export function getExternalCssContent (hashCode: string): Promise<[string, CssFi
             if (res === false) {
                 return resolve(false);
             }
-            return [res, {
+            return resolve([res, {
                 VSCodeVersion: version,
                 ExtensionVersion: extensionVer,
                 Date: date,
                 ImageCode: hashCode
-            }];
+            }]);
         })
         .catch(err => {
             reject($rej(err, getExternalCssContent.name));
@@ -69,9 +69,7 @@ function externalFileWrite (storeUri: Uri, hashCode: string, info: CssFileAnnota
                 imageBase64: image.toString()
             }));
         })
-        .then(str => {
-            resolve(str);
-        })
+        .then(resolve)
         .catch(reject);
     });
 }

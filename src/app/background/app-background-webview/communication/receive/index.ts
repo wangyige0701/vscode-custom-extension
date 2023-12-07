@@ -4,7 +4,7 @@ import type { Webview } from "vscode";
 import type { backgroundMessageData } from "../../../@types";
 import { toViewImage } from "../../../../viewImage";
 import { BackgroundWebviewInstance, sendBase64DataByCode } from '../send';
-import { settingImage, selectImage, deleteImage } from '../../../app-background-image';
+import { settingImage, selectImage, deleteImage } from '../../../app-background-image/operate';
 import { messageExecute } from "../../../../../common/webview";
 import { imageDataRepository } from "../../../app-background-cache";
 import { backgroundImageDataInit } from "../../../app-background-check";

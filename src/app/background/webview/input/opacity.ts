@@ -8,7 +8,7 @@ import { getNewBackgroundOpacity } from "../../common/func";
 import { showMessageWithConfirm } from "../../../../common/interactive";
 import { sendSettingOpacity } from "../communication/send";
 import { getExternalCssFileContent } from "../../css/getter/external";
-import { replaceExternaOpacityContent } from "../../data/cssOpacityReplace";
+import { replaceExternaOpacityContent } from "../../data/css/opacityReplace";
 import { externalCssFileWrite } from "../../css/setter/external";
 import { setSourceCssImportInfo } from "../../css/setter/source";
 

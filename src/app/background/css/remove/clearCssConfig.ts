@@ -2,7 +2,7 @@
 
 import { getExternalCssFileContent } from "../getter/external";
 import { getSourceCssFileContent } from "../getter/source";
-import { deleteContentByTagName } from "../../data/cssTagRemove";
+import { deleteContentByTagName } from "../../data/css/tagRemove";
 import { sourceCeeFileWriteAndChecksum } from "../setter/source";
 import { createBuffer, uriDelete } from "../../../../common/file";
 import { $rej } from "../../../../error";

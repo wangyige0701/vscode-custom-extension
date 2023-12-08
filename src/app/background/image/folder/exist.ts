@@ -1,3 +1,4 @@
+/** @fileoverview 图片储存文件夹路径是否存在 */
 
 import type { Uri } from "vscode";
 import { WError, $rej } from "../../../../error";

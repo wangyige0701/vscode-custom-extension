@@ -1,4 +1,4 @@
-/** @description 背景图片选择模块 */
+/** @fileoverview 背景图片选择模块 */
 
 import type { Uri } from "vscode";
 import { selectFile } from "../../../../common/interactive";
@@ -51,8 +51,6 @@ function saveSelectPath (dirName: string, uri: Uri[]): Promise<Uri[]> {
         .then(() => {
             resolve(uri);
         })
-        .catch(err => {
-            reject($rej(err, selectImage.name + ' > ' + selectFile.name));
-        });
+        .catch(reject);
     });
 }

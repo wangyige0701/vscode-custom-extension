@@ -18,11 +18,7 @@ export function clearBackgroundConfig () {
             // 发送settingBackgroundSuccess数据通知webview侧关闭当前图片的选中样式
             sendSettingImageCode(nowCode);
         }
-    })
-    .then(() => {
-        return Promise.resolve(
-            clearBackgroundConfigExecute()
-        );
+        return clearBackgroundConfigExecute();
     })
     .then(() => {
         if (getNowIsSetRandom()) {
@@ -30,9 +26,7 @@ export function clearBackgroundConfig () {
             randomSettingBackground(false, false);
         }
     })
-    .catch(err => {
-        err && errlog(err);
-    });
+    .catch(errlog);
 }
 
 /** 执行配置清除方法 */
@@ -40,7 +34,7 @@ function clearBackgroundConfigExecute () {
     return showProgress({
         location: 'Notification',
         title: '清除中'
-    }, (progress) => <Promise<void>>new Promise(resolve => {
+    }, (progress) => <Promise<void>>new Promise((resolve, reject) => {
         deleteBackgroundCssFileModification()
         .then(() => {
             progress.report({
@@ -52,9 +46,7 @@ function clearBackgroundConfigExecute () {
         .then(() => {
             isWindowReloadToLoadBackimage("背景图配置清除成功，是否重启窗口");
         })
-        .catch(err => {
-            return Promise.reject(err);
-        })
+        .catch(reject)
         .finally(() => {
             resolve();
         });

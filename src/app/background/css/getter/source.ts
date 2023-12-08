@@ -1,4 +1,4 @@
-/** @description 获取源css文件相关数据 */
+/** @fileoverview 获取源css文件相关数据 */
 
 import type { Uri } from "vscode";
 import { createExParamPromise } from "../../../../utils";
@@ -7,14 +7,13 @@ import { getCssUri } from "../../data/css/uri";
 import { cssNameConfig } from "../../data/config";
 import { readFileUri } from "../../../../common/file";
 
-const { sourceCssFileName } = cssNameConfig();
-
 /**
  * 获取vscode源样式文件内容，返回内容文本和路径uri
  * @returns 内容文本和路径uri
- */
+*/
 export function getSourceCssFileContent (): Promise<[string, Uri] | void> {
     return new Promise((resolve, reject) => {
+        const { sourceCssFileName } = cssNameConfig();
         getCssUri(sourceCssFileName, false)
         .then(uri => {
             if (uri) {
@@ -36,8 +35,6 @@ function readFile (uri: Uri): Promise<[string, Uri]> {
         .then(([res, uri]) =>{
             resolve([res.toString(), uri]);
         })
-        .catch(err => {
-            reject($rej(err, readFile.name));
-        });
+        .catch(reject);
     });
 }

@@ -1,4 +1,4 @@
-/** @description 背景图配置数据删除模块 */
+/** @fileoverview 背景图配置数据删除模块 */
 
 import { getExternalCssFileContent } from "../getter/external";
 import { getSourceCssFileContent } from "../getter/source";

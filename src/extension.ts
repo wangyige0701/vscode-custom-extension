@@ -1,5 +1,5 @@
 import type { ExtensionContext } from 'vscode';
-import { registBackground } from './app/background/regist';
+import { registBackground } from './app/background';
 import { checksumsInit } from './common/checksums';
 import { isNeedToCreateSharpBinaryFile } from "./library/create-sharp-node";
 import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from './app/time';

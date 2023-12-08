@@ -74,3 +74,8 @@ export function settingDefaultSelectPath (path: string) {
 export function settingOpacity (value: number) {
     return Promise.resolve(BackgroundConfiguration.setBackgroundOpacity(value));
 }
+
+/** 设置图片储存文件夹路径 */
+export function settingImageStoreFolderPath (path: string) {
+    return Promise.resolve(BackgroundConfiguration.setBackgroundStorePath(path));
+}

@@ -55,8 +55,6 @@ function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
         .then(() => {
             resolve(true);
         })
-        .catch(err => {
-            reject($rej(err, changeBackgroundFileOpacity.name));
-        });
+        .catch(reject);
     });
 }

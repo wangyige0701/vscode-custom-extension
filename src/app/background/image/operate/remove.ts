@@ -1,4 +1,4 @@
-/** @description 背景图片删除模块 */
+/** @fileoverview 背景图片删除模块 */
 
 import { hashCodeCache } from "../../data/hashCodeCache";
 import { getHashCodesFromWorkspaceAndCache } from "../../data-operate/hashCodeCache";

@@ -1,4 +1,4 @@
-/** @description webview侧设置随机背景图处理 */
+/** @fileoverview webview侧设置随机背景图处理 */
 
 import { getNowIsSetRandom, getRandomList, getAllImageHashCodes } from "../../workspace/getter";
 import { getRandom } from "../../../../utils";

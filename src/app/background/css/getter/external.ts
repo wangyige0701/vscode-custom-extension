@@ -1,4 +1,4 @@
-/** @description 获取外部css文件数据 */
+/** @fileoverview 获取外部css文件数据 */
 
 import type { Uri } from "vscode";
 import type { CssFileAnnotationInfo } from "../../@types";
@@ -62,7 +62,7 @@ export function getExternalCssContent (hashCode: string): Promise<[string, CssFi
     });
 }
 
-/** 数据写入外部css文件 */
+/** 获取写入外部css文件的数据 */
 function externalFileWrite (storeUri: Uri, hashCode: string, info: CssFileAnnotationInfo): Promise<string> {
     return new Promise((resolve, reject) => {
         readFileUri(newUri(storeUri, createWYGFileName(hashCode)))

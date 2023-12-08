@@ -1,4 +1,4 @@
-/** @description 源css文件修改 */
+/** @fileoverview 源css文件修改 */
 
 import type { Uri } from "vscode";
 import { getSourceCssFileContent } from "../getter/source";

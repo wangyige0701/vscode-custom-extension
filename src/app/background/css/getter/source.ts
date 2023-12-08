@@ -3,7 +3,7 @@
 import type { Uri } from "vscode";
 import { createExParamPromise } from "../../../../utils";
 import { $rej } from "../../../../error";
-import { getCssUri } from "./uri";
+import { getCssUri } from "../../data/css/uri";
 import { cssNameConfig } from "../../data/config";
 import { readFileUri } from "../../../../common/file";
 

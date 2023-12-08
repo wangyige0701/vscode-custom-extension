@@ -1,4 +1,4 @@
-/** @description 获取图片文件储存文件夹的uri */
+/** @fileoverview 获取图片文件储存文件夹的uri */
 
 import type { Uri } from "vscode";
 import { $rej } from "../../../../error";

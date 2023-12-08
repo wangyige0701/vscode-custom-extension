@@ -1,4 +1,4 @@
-/** @description 外部设置背景图样式的css文件修改方法 */
+/** @fileoverview 外部设置背景图样式的css文件修改方法 */
 
 import type { Disposable } from "vscode";
 import type { CssFileAnnotationInfo } from "../../@types";

@@ -1,4 +1,4 @@
-/** @description 扩展侧向webview侧发送数据 */
+/** @fileoverview 扩展侧向webview侧发送数据 */
 
 import type { MessageData } from "../../../../common/webview/@types";
 import type { backgroundSendMessageData } from "../../@types";
@@ -125,5 +125,15 @@ export function sendAfterDeleteImageSuccess (value: string[]) {
     backgroundSendMessage({
         name: 'deleteImageSuccess',
         value: value
+    });
+}
+
+/** 
+ * 背景图储存路径修改通知
+ */
+export function sendAfterStorePathChange () {
+    backgroundSendMessage({
+        name: 'backgroundStorePathChange',
+        value: true
     });
 }

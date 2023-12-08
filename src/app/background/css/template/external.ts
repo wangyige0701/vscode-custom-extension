@@ -1,4 +1,4 @@
-/** @description 外部样式css文件模板字符串 */
+/** @fileoverview 外部样式css文件模板字符串 */
 
 import type { CssFileAnnotationInfo } from "../../@types";
 import { cssTagNameConfig, backgroundDelayShowTime as delay } from "../../data/config";

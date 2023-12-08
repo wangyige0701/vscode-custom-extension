@@ -1,4 +1,4 @@
-/** @description vscode样式源css文件导入语句模板字符串 */
+/** @fileoverview vscode样式源css文件导入语句模板字符串 */
 
 import { cssTagNameConfig, cssNameConfig } from "../../data/config";
 

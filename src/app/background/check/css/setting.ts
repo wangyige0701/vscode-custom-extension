@@ -1,7 +1,7 @@
-/** @description 校验是否是设置的背景图 */
+/** @fileoverview 校验是否是设置的背景图 */
 
 import { $rej } from "../../../../error";
-import { getExternalCssFileContent, getExternalCssInfo } from "../getter/external";
+import { getExternalCssFileContent, getExternalCssInfo } from "../../css/getter/external";
 
 /**
  * 检查指定code是否是当前设置背景图的code

@@ -1,4 +1,4 @@
-/** @description 校验vscode样式的源css文件信息 */
+/** @fileoverview 校验vscode样式的源css文件信息 */
 
 import type { Uri } from "vscode";
 import { findSourceCssPosition } from "../../data/css/regexp";

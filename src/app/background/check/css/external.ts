@@ -3,7 +3,7 @@
 import { getNowSettingCode } from "../../workspace/getter";
 import { changeLoadStateToTrue } from "../../workspace/setter";
 import { checkIsSettingImage } from "./setting";
-import { externalCssFileModify } from "../setter/external";
+import { externalCssFileModify } from "../../css/setter/external";
 import { $rej } from "../../../../error";
 
 /** 

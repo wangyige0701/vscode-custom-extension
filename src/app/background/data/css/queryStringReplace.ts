@@ -1,4 +1,4 @@
-/** @description css源文件中导入语句查询字符串部分替换 */
+/** @fileoverview css源文件中导入语句查询字符串部分替换 */
 
 import { findSourceCssVersionContent } from "./regexp";
 

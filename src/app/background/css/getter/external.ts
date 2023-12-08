@@ -10,7 +10,7 @@ import { readFileUri, newUri } from "../../../../common/file";
 import { cssNameConfig } from "../../data/config";
 import { imageStoreUri } from "../../image/folder/getter";
 import { createWYGFileName } from "../../image/file/fileName";
-import { findExternalCssPosition } from "../../data/regexp";
+import { findExternalCssPosition } from "../../data/css/regexp";
 import { externalCssFileTemplate } from "../template/external";
 import { getCssUri } from "./uri";
 

@@ -1,4 +1,4 @@
-/** @description 替换css文件中的透明度部分 */
+/** @fileoverview 替换css文件中的透明度部分 */
 
 
 import { externalCssOpacityModify } from "./regexp";

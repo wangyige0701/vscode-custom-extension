@@ -6,7 +6,7 @@ import { range, bisectionAsce } from "../../../../utils";
 import { newUri } from "../../../../common/file";
 import { $rej } from "../../../../error";
 import { hashCodeCache } from "../../data/hashCodeCache";
-import { matchWYGFileName } from "../../data/regexp";
+import { matchWYGFileName } from "../../data/css/regexp";
 import { getFilDataAndCode } from "./getter";
 
 /**

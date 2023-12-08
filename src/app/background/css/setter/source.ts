@@ -3,7 +3,7 @@
 import type { Uri } from "vscode";
 import { getSourceCssFileContent } from "../getter/source";
 import { isSourceCssFileModify } from "../check/source";
-import { replaceSourceQueryStringContent } from "../../data/cssQueryStringReplace";
+import { replaceSourceQueryStringContent } from "../../data/css/queryStringReplace";
 import { createBuffer, writeFileUri } from "../../../../common/file";
 import { sourceCssFileTemplate } from "../template/source";
 import { $rej } from "../../../../error";

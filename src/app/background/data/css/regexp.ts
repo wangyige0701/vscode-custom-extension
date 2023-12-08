@@ -10,8 +10,8 @@ import {
     anyWord as w,
     anyWordAndNumber as nw,
     strToReg
-} from "../../../utils/regexp";
-import { cssTagNameConfig } from "./config";
+} from "../../../../utils/regexp";
+import { cssTagNameConfig } from "../config";
 
 const {
     importEndMatch,

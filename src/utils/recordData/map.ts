@@ -1,4 +1,4 @@
-import type { RecordDataByMapType } from "./types";
+import type { RecordDataByMapType } from "./@types";
 
 /** 通过map记录数据 */
 export class RecordDataByMap<T> implements RecordDataByMapType<T> {

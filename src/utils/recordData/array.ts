@@ -1,4 +1,4 @@
-import type { RecordDataByArrayType } from "./types";
+import type { RecordDataByArrayType } from "./@types";
 
 /** 通过数组记录数据 */
 export class RecordDataByArray<T> implements RecordDataByArrayType<T> {

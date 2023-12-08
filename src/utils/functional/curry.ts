@@ -1,4 +1,4 @@
-import { CurryResult } from "./types";
+import { CurryResult } from "./@types";
 
 /**
  * 柯里化函数

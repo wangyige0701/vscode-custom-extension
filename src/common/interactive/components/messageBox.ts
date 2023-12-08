@@ -1,4 +1,4 @@
-import type { MessageBoxType, MessageItemExtend } from "../types";
+import type { MessageBoxType, MessageItemExtend } from "../@types";
 import { window } from 'vscode';
 import { isUndefined } from '../../../utils';
 

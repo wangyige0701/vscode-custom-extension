@@ -1,5 +1,5 @@
 import type { Disposable, StatusBarItem } from "vscode";
-import type { StatusBarCallback, StatusBarIconMessage, StatusBarItemOptions, StatusBarParam } from "../types";
+import type { StatusBarCallback, StatusBarIconMessage, StatusBarItemOptions, StatusBarParam } from "../@types";
 import { StatusBarAlignment, window } from "vscode";
 import { isNumber, isObject, isUndefined } from "../../../utils";
 

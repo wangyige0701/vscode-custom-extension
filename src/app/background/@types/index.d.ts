@@ -218,6 +218,6 @@ type BackCheckCompleteOffEvent<T> = {
 }
 
 /** 判断背景图校验是否完成 */
-export type BackCheckComplete = BackCheckCompleteProperty 
+export type BackgroundCheckComplete = BackCheckCompleteProperty 
 & BackCheckCompleteOnEvent<BackCheckCompleteProperty> 
 & BackCheckCompleteOffEvent<BackCheckCompleteProperty>;

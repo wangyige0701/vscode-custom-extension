@@ -1,5 +1,5 @@
 import type { Webview } from "vscode";
-import type { ExternalFile, webFileType } from "../types";
+import type { ExternalFile, webFileType } from "../@types";
 import { FileType, Uri} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../../file";
 import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "../../../utils";

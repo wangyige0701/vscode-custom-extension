@@ -1,5 +1,5 @@
 import type { QuickInputButton } from "vscode";
-import type { ButtonIcon, MyButtonType } from "../types";
+import type { ButtonIcon, MyButtonType } from "../@types";
 import { ThemeColor, ThemeIcon } from "vscode";
 import { isObject, isString } from "../../../utils";
 

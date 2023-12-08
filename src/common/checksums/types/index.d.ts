@@ -1,4 +1,4 @@
-import type { RecordDataByMapType } from "../../../utils/recordData/types"
+import type { RecordDataByMapType } from "../../../utils/recordData/@types"
 
 /** 校验和数据缓存 */
 export interface CheckSumsData {

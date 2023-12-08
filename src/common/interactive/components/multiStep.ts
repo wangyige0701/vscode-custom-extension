@@ -6,7 +6,7 @@ import type {
     Complete, 
     MultiStepCollectFunc, 
     MultiStepInputBoxExtraType 
-} from "../types";
+} from "../@types";
 import type { QuickInputButton } from "vscode";
 import { QuickInputButtons } from "vscode";
 import { creaetInputBox } from "./input";

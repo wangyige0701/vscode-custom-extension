@@ -1,4 +1,4 @@
-import type { SelectFileParams } from "../types";
+import type { SelectFileParams } from "../@types";
 import { Uri, window } from "vscode";
 import { dirname } from "path";
 import { isString } from "../../../utils";

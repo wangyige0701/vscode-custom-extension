@@ -9,12 +9,15 @@ import { bindMessageCallback } from "../../common/webview";
 import { registWebviewProvider } from "../../common/webview/provider";
 import { copyFileWhenVersionChange } from "../../version";
 import { clearDynamicImport } from "../../library";
-import { windowInitCheckCssModifyCompleteness } from "./app-background-check";
-import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./app-background-common";
-import { clearBackgroundConfig } from "./app-background-config";
-import { setRandomBackground, backgroundWebviewCommunication } from "./app-background-webview";
-import { backgroundHashCodes, imageDataRepository } from "./app-background-cache";
-import { getBackgroundResourcePath, getNowIsSetRandom, getNowRandomCode, settingNowImageCode, settingRandomCode } from "./app-background-workspace";
+import { windowInitCheckCssModifyCompleteness } from "./check/extension/init";
+import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./common/interactive";
+import { clearBackgroundConfig } from "./data-operate/clearConfig";
+import { backgroundWebviewCommunication } from "./webview/communication/receive";
+import { setRandomBackground } from "./webview/random/setter";
+import { hashCodeCache } from "./data/hashCodeCache";
+import { imageDataCache } from "./data/imageCache";
+import { settingNowImageCode, settingRandomCode } from "./workspace/setter";
+import { getBackgroundResourcePath, getNowIsSetRandom, getNowRandomCode } from "./workspace/getter";
 
 /** 注册背景图设置功能 */
 export function registBackground (subscriptions: ExtensionContext["subscriptions"]): void {
@@ -62,8 +65,8 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 /** webview切换隐藏时，触发的销毁数据函数 */
 function executeWhenUninstall () {
 	executeAllFunctions(
-		imageDataRepository.clear,
-		backgroundHashCodes.clear,
+		imageDataCache.clear,
+		hashCodeCache.clear,
 		clearDynamicImport
 	);
 }

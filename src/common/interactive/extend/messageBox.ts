@@ -1,4 +1,4 @@
-import type { MessageBoxMethodType, MessageItemExtend } from "../types";
+import type { MessageBoxMethodType, MessageItemExtend } from "../@types";
 import { showMessage } from "../components/messageBox";
 import { curry } from "../../../utils/functional";
 

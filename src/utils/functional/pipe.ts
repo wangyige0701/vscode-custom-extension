@@ -1,4 +1,4 @@
-import { PipeParamsType, PipeReturnType, PipeFirstParamType } from "./types";
+import { PipeParamsType, PipeReturnType, PipeFirstParamType } from "./@types";
 
 /**
  * 函数管道

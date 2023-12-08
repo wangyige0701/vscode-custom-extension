@@ -7,7 +7,7 @@ import type {
     MessageGroupCallback, 
     MessageGroupCallbackName, 
     callbackType
-} from "../types";
+} from "../@types";
 import type { Webview } from "vscode";
 import { errlog } from "../../../error";
 import { firstStrUpperCase, isUndefined } from "../../../utils";

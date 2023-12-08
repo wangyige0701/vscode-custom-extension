@@ -5,7 +5,7 @@ import { initStatusHandle } from "../../data/initStatus";
 import { setStatusBarResolve } from "../../../../common/interactive";
 import { createExParamPromise } from "../../../../utils";
 import { setSourceCssImportInfo } from "../../css/setter/source";
-import { checkExternalDataIsRight } from "../../css/check/external";
+import { checkExternalDataIsRight } from "../css/external";
 import { getNowIsSetBackground } from "../../workspace/getter";
 import { changeLoadStateToTrue } from "../../workspace/setter";
 import { $rej } from "../../../../error";

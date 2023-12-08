@@ -4,7 +4,7 @@ import type { Disposable } from "vscode";
 import type { CssFileAnnotationInfo } from "../../@types";
 import { WError } from "../../../../error";
 import { getExternalCssContent } from "../getter/external";
-import { getCssUri } from "../getter/uri";
+import { getCssUri } from "../../data/css/uri";
 import { setStatusBarResolve } from "../../../../common/interactive";
 import { writeFileUri,createBuffer } from "../../../../common";
 import { settingConfiguration } from "../../workspace/setter";

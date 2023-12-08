@@ -12,7 +12,7 @@ import { imageStoreUri } from "../../image/folder/getter";
 import { createWYGFileName } from "../../image/file/fileName";
 import { findExternalCssPosition } from "../../data/css/regexp";
 import { externalCssFileTemplate } from "../template/external";
-import { getCssUri } from "./uri";
+import { getCssUri } from "../../data/css/uri";
 
 /**
  * 生成外部文件设置的背景样式字符串和相关信息，

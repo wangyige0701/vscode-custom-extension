@@ -9,18 +9,14 @@
 
 import { isNumber, isString } from "../utils";
 import { showMessageWithConfirm } from "../common/interactive";
-import { isDev } from "../version";
 import WError from "./WError";
-
-/** 环境 */
-const environment = isDev();
 
 /**
  * 错误统一处理
  * @param e 
  * @param isThrow 是否抛出错误不进行弹框打印
  */
-function errlog (e: any, isThrow: boolean = !environment): void {
+function errlog (e: any, isThrow: boolean = !(process.env.NODE_ENV === "development")): void {
     if (!e) {
         return;
     }

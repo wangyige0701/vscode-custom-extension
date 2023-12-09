@@ -42,9 +42,7 @@ export async function refreshVersion (id: string, refreshVsc: boolean = true, cl
         }
     }).then(() => {
         return Promise.resolve();
-    }).catch(err => {
-        errlog(err);
-    });
+    }).catch(errlog);
 }
 
 /** 是否是开发环境，本地调试环境变量是development，生产环境没有NODE_ENV */

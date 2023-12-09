@@ -13,9 +13,12 @@ import { reChecksum } from "../../../../common";
  * 将导入语句写入源css样式文件中
  * @param init 是否在初始化时调用，初始化调用此方法仅为校验，不需要进行文件修改
  */
-export function setSourceCssImportInfo (init: boolean = false) : Promise<{modify:boolean}> {
+export function setSourceCssImportInfo (init: boolean = false) : Promise<{
+    modify:boolean;
+}> {
     return new Promise((resolve, reject) => {
-        getSourceCssFileContent().then(data => {
+        getSourceCssFileContent()
+        .then(data => {
             if (data) {
                 // 有数据，进行修改
                 return handleChange(...data, init);

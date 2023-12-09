@@ -13,8 +13,11 @@ function recursiveFiles (pathData, callback) {
         return;
     }
     const isPromise = typeof callback.then === 'function' || callback[Symbol.toStringTag] === "AsyncFunction";
-    async function _run (_pathData, resolvePathData) {
+    async function _run (_pathData, resolvePathData = '') {
         if (isFile(_pathData)) {
+            if (!resolvePathData) {
+                resolvePathData = path.basename(_pathData);
+            }
             const dirname = path.dirname(resolvePathData);
             let basename = path.basename(resolvePathData);
             if (basename.endsWith('.ts')) {

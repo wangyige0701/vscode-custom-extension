@@ -4,7 +4,7 @@ import { getNodeModulePath } from "../../system";
 import { WError, $rej } from "../../../error";
 import { createUri, isFileExits, readFileUri } from "../../file";
 import { createExParamPromise } from "../../../utils";
-import type { GetChecksumsData } from "../types";
+import type { GetChecksumsData } from "../@types";
 
 /** 捕获校验和数据位置 */
 const getChecksumsPositionRegexp = /^([\w\W]*"checksums"\s*:\s*\{)([^\{\}]*)(\}[\w\W]*)$/;

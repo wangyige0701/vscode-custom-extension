@@ -5,7 +5,7 @@ const bundle = require("./rollup-plugin/single-file/index");
 
 /** @type {RollupInput} */
 const config = {
-    input: "./src/extension.ts",
+    input: "./src/",
     output: "./dist/"
 };
 

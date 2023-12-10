@@ -30,5 +30,11 @@ function getRelativePosition (target, source) {
             break;
         }
     }
-    return relative.join("/") + "/" + result.join("/");
+    let resultPath = relative.join("/") + "/" + result.join("/");
+    if (resultPath.startsWith('/')) {
+        resultPath = '.' + resultPath;
+    }
+    return resultPath;
 }
+
+module.exports = getRelativePosition;

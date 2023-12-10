@@ -192,7 +192,7 @@
 		"compile": "rollup -c",
 		"pre": "ts-node package/production.ts",
 		"check": "ts-node package/check.ts",
-		"watch": "ts-node package/cleardist.ts && tsc -watch -p ./",
+		"watch": "ts-node package/cleardist.ts && node rollup.config.dev.js",
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "vitest --run"

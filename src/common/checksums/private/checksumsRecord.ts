@@ -1,7 +1,7 @@
 /**
  * 校验和数据记录
  */
-import type { CheckSumsData, CheckSumsDataRecordType } from "../types";
+import type { CheckSumsData, CheckSumsDataRecordType } from "../@types";
 import { RecordDataByMap } from "../../../utils";
 
 class CheckSumsDataRecord extends RecordDataByMap<CheckSumsData> {

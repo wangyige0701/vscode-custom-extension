@@ -47,66 +47,64 @@ export function getProductRoot (): Promise<string> {
     });
 }
 
-/** 获取检测校验和文件的根目录 */
-export function getCheckRoot (): Promise<string> {
-    return new Promise((resolve, reject) => {
-        getProductRoot().then(path => {
-            resolve(pathjoin(path, 'out'));
-        }).catch(err => {
-            reject($rej(err, getCheckRoot.name));
-        });
-    });
-}
-
-/** 读取校验和文件的数据 */
-export function readChecksumsData (): Promise<string> {
-    return new Promise((resolve, reject) => {
-        getProductRoot().then(path => {
-            const uri = createUri(getProductFileName(path));
-            return createExParamPromise(isFileExits(uri), uri);
-        }).then(([state, path]) => {
-            if (state) {
-                // 文件存在
-                return readFileUri(path);
-            }
-        }).then(value => {
-            if (value) {
-                return resolve(value.toString());
-            }
-            resolve('');
-        }).catch(err => {
-            reject($rej(err, readChecksumsData.name));
-        });
-    });
-}
-
 /** 获取当前所有校验和数据 */
 export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
     return new Promise((resolve, reject) => {
-        readChecksumsData().then(str => {
-            return Promise.resolve(str.match(getChecksumsPositionRegexp));
-        }).then(reg => {
+        readChecksumsData()
+        .then(str => {
+            return str.match(getChecksumsPositionRegexp);
+        })
+        .then(reg => {
             if (reg) {
-                return Promise.resolve(reg[2].matchAll(getChecksumsDataRegexp));
+                return reg[2].matchAll(getChecksumsDataRegexp);
             }
-        }).then(res => {
+        })
+        .then(res => {
             if (res) {
                 const array = [...res];
-                return Promise.resolve(array.reduce((prev, curr) => {
+                return array.reduce((prev, curr) => {
                     prev.push({
                         path: curr[1],
                         hash: curr[2]
                     });
                     return prev;
-                }, <Array<GetChecksumsData>>[]));
+                }, <Array<GetChecksumsData>>[]);
             }
-        }).then(allContent => {
+        })
+        .then(allContent => {
             if (!allContent || allContent.length <= 0) {
                 return resolve([]);
             }
             resolve(allContent);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, getChecksumsData.name));
+        });
+    });
+}
+
+/** 读取校验和文件的数据 */
+function readChecksumsData (): Promise<string> {
+    return new Promise((resolve, reject) => {
+        getProductRoot()
+        .then(path => {
+            const uri = createUri(getProductFileName(path));
+            return createExParamPromise(isFileExits(uri), uri);
+        })
+        .then(([state, path]) => {
+            if (state) {
+                // 文件存在
+                return readFileUri(path);
+            }
+        })
+        .then(value => {
+            if (value) {
+                return resolve(value.toString());
+            }
+            resolve('');
+        })
+        .catch(err => {
+            reject($rej(err, readChecksumsData.name));
         });
     });
 }
@@ -118,11 +116,27 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
  */
 export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
     return new Promise((resolve, reject) => {
-        getCheckRoot().then(root => {
+        getCheckRoot()
+        .then(root => {
             const result = paths.map(path => createUri(pathjoin(root, path)).toString());
             resolve(result);
-        }).catch(err => {
+        })
+        .catch(err => {
             reject($rej(err, getFullPathOfChecksum.name));
+        });
+    });
+}
+
+
+/** 获取检测校验和文件的根目录 */
+function getCheckRoot (): Promise<string> {
+    return new Promise((resolve, reject) => {
+        getProductRoot()
+        .then(path => {
+            resolve(pathjoin(path, 'out'));
+        })
+        .catch(err => {
+            reject($rej(err, getCheckRoot.name));
         });
     });
 }

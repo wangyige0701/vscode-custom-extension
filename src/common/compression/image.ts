@@ -1,7 +1,7 @@
 import type { CompressStyle, InputType } from "./@types";
-import sharp from "../../library/importer/sharp";
-import { $rej } from "../../error";
-import { isString } from "../../utils";
+import sharp from "@/library/importer/sharp";
+import { $rej } from "@/error";
+import { isString } from "@/utils";
 
 
 /**
@@ -24,7 +24,7 @@ export function imageCompression (input: InputType, style: CompressStyle = { qua
             resolve(buffer);
         }).catch(err => {
             reject($rej(err, imageCompression.name));
-        }); 
+        });
     });
 }
 

@@ -1,10 +1,10 @@
 import type { Webview } from "vscode";
 import type { ExternalFile, webFileType } from "../@types";
 import { FileType, Uri} from "vscode";
+import { WError, $rej } from "@/error";
+import { checkVersion, refreshVersion  } from "@/version";
+import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "@/utils";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../../file";
-import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "../../../utils";
-import { checkVersion, refreshVersion  } from "../../../version";
-import { WError, $rej } from "../../../error";
 import { ExtensionUri } from "../../system";
 
 const webFile: webFileType = {
@@ -91,7 +91,7 @@ export class FileMerge {
                 const nonce = getNonce();
                 // html文本处理
                 this.htmlContent = this.htmlContent
-                .replace(/(#policy)/, 
+                .replace(/(#policy)/,
                     `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${
                     webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${webview.cspSource} https: data: blob:;">`
                 )
@@ -264,7 +264,7 @@ export class FileMerge {
     /**
      * 开发环境读取指定路径下的文件，需要限制文件类型
      * @param uri
-     * @param fileType 文件类型 
+     * @param fileType 文件类型
      */
     private readDirectoryFile (uri: Uri, fileType: string): Promise<Uri[]> {
         return new Promise((resolve, reject) => {

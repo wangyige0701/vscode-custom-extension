@@ -1,10 +1,10 @@
 /** @fileoverview 根据指定路径创建一个压缩图文件 */
 
 import type { Uri } from "vscode";
-import { imageCompression } from "../../../../common/compression";
-import { writeFileUri, createBuffer, base64ByFiletypeAndData } from "../../../../common/file";
-import { $rej } from "../../../../error";
-import { createExParamPromise } from "../../../../utils";
+import { $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { imageCompression } from "@/common/compression";
+import { writeFileUri, createBuffer, base64ByFiletypeAndData } from "@/common/file";
 
 /**
  * 根据原图路径在指定路径下生成压缩图

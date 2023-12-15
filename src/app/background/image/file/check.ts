@@ -1,18 +1,18 @@
 /** @fileoverview .wyg图片储存文件数据校验 */
 
 import type { Uri, FileType } from "vscode";
-import type { BufferAndCodeMergeType } from "../../@types";
-import { range, bisectionAsce } from "../../../../utils";
-import { newUri } from "../../../../common/file";
-import { $rej } from "../../../../error";
-import { hashCodeCache } from "../../data/hashCodeCache";
-import { matchWYGFileName } from "../../data/css/regexp";
+import type { BufferAndCodeMergeType } from "@background/@types";
+import { $rej } from "@/error";
+import { newUri } from "@/common/file";
+import { range, bisectionAsce } from "@/utils";
+import { hashCodeCache } from "@background/data/hashCodeCache";
+import { matchWYGFileName } from "@background/data/css/regexp";
 import { getFilDataAndCode } from "./getter";
 
 /**
  * 校验储存图片base64数据的文件并进行读取
  * @param files 指定目录下的所有文件列表
- * @param uri 
+ * @param uri
  */
 export function checkImageFiles (files: [string, FileType][], uri: Uri): Promise<BufferAndCodeMergeType[]> {
     return new Promise((resolve, reject) => {

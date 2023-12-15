@@ -1,6 +1,6 @@
 import type { MessageBoxType, MessageItemExtend } from "../@types";
 import { window } from 'vscode';
-import { isUndefined } from '../../../utils';
+import { isUndefined } from '@/utils';
 
 /** 获取消息弹框所有方法 */
 const getMessageBoxAllData = {
@@ -32,7 +32,7 @@ export function showMessage ({
         }
         Promise.resolve(
             // items是undefinded不传
-            isUndefined(items) 
+            isUndefined(items)
             ? getMessageBoxAllData[type]<MessageItemExtend>(message, {
                 modal,
                 detail

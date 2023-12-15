@@ -1,12 +1,12 @@
 import { Uri } from "vscode";
+import path from 'path';
 import { existsSync } from "fs";
-import { extname, resolve as pathResolve } from 'path';
+import { isString } from "@/utils";
 import { readFileUri, createBuffer } from "./main";
-import { isString } from "../../utils";
 
 /**
  * 传递数组查询多个文件内容
- * @param uri 
+ * @param uri
  */
 export function readFileUriList (uri: Uri[]): Promise<Uint8Array[]> {
     return new Promise((resolve, reject) => {
@@ -51,12 +51,12 @@ export function isFileExitsSync (data: Uri | string): boolean {
 
 /**
  * 将本地图片转为base64编码
- * @param path 
+ * @param pathValue
  */
-export function imageToBase64 (path: string): Promise<string> {
+export function imageToBase64 (pathValue: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        readFileUri(Uri.file(pathResolve(path))).then(content => {
-            const fileType = imageToBase64Type(extname(path).substring(1));
+        readFileUri(Uri.file(path.resolve(pathValue))).then(content => {
+            const fileType = imageToBase64Type(path.extname(pathValue).substring(1));
             return base64ByFiletypeAndData('image', fileType, content);
         }).then(data => {
             resolve(data);
@@ -68,9 +68,9 @@ export function imageToBase64 (path: string): Promise<string> {
 
 /**
  * 根据类型、文件类型、数据合成base64
- * @param type 
- * @param fileType 
- * @param data 
+ * @param type
+ * @param fileType
+ * @param data
  */
 export function base64ByFiletypeAndData (type: string, fileType: string, data: string | Uint8Array | Buffer | readonly number[]): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -87,7 +87,7 @@ export function base64ByFiletypeAndData (type: string, fileType: string, data: s
 
 /**
  * 部分图片格式转换
- * @param fileType 
+ * @param fileType
  */
 export function imageToBase64Type (fileType: string) {
     if (fileType === 'jpg' || fileType === 'webp') {

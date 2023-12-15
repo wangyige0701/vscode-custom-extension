@@ -1,7 +1,7 @@
 /** 主函数 */
 import type { Uri } from "vscode";
-import { createExParamPromise, range, cryHex } from "../../utils";
-import { errlog } from "../../error";
+import { createExParamPromise, range, cryHex } from "@/utils";
+import { errlog } from "@/error";
 import { checksumsMap } from "./private/checksumsRecord";
 import { ChecksumsState } from "./private/checksumsState";
 import { getChecksumsData, getFullPathOfChecksum } from "./private/utils";

@@ -1,8 +1,8 @@
 /** @fileoverview webview侧设置随机背景图处理 */
 
-import { getNowIsSetRandom, getRandomList, getAllImageHashCodes } from "../../workspace/getter";
-import { getRandom } from "../../../../utils";
-import { settingImage } from "../../image/operate/setting";
+import { getRandom } from "@/utils";
+import { settingImage } from "@background/image/operate/setting";
+import { getNowIsSetRandom, getRandomList, getAllImageHashCodes } from "@background/workspace/getter";
 
 /** 随机设置下次的背景图 */
 export function setRandomBackground (): Promise<void> {

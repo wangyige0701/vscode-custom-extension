@@ -1,9 +1,9 @@
 /** @description 背景图模块公用的交互函数，部分交互方法另存于单独层级下 */
 
-import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "../../../common/interactive";
-import { windowReload } from "../../../common/system";
-import { $rej, errlog } from "../../../error";
-import { resetImageStoreFolder } from "../image/folder/setter";
+import { $rej, errlog } from "@/error";
+import { windowReload } from "@/common/system";
+import { showMessage, setStatusBar, showMessageModal, selectFolderOnly } from "@/common/interactive";
+import { resetImageStoreFolder } from "@background/image/folder/setter";
 
 /**
  * 打开系统默认样式的弹框，有一个确认按钮，取消通过reject抛出，默认内容为是否设置背景图
@@ -27,10 +27,10 @@ export function showMessageByModal (message: string = '是否设置此背景图'
 
 /**
  * 允许传入回调函数的状态栏信息展示方法
- * @param message 
- * @param icon 
- * @param time 
- * @param callback 
+ * @param message
+ * @param icon
+ * @param time
+ * @param callback
  */
 export function setBackgroundInfoOnStatusBar (message: string = '', icon: string = 'check', time: number = 3000, callback: () => any) {
     setStatusBar({
@@ -87,7 +87,7 @@ export function selectFolderForBackgroundStore (): void {
         }
     })
     .then(data => {
-        if (data) { 
+        if (data) {
             return resetImageStoreFolder(data.dirName);
         }
     })

@@ -1,7 +1,7 @@
 /** @fileoverview 图片base64数据和哈希码关联储存 */
 
+import { RecordDataByMap } from "@/utils/recordData/map";
 import { hashCodeCache } from "./hashCodeCache";
-import { RecordDataByMap } from "../../../utils/recordData/map";
 
 var _cache: ImageDataCache;
 
@@ -9,9 +9,9 @@ class ImageDataCache extends RecordDataByMap<{ origin: string; thumbnail: string
     constructor () {
         super();
         _cache = this;
-    }    
+    }
 
-    /** 
+    /**
      * 获取缓存中的图片数据
      * @param code 哈希码
      * @param thumbnail 是否获取缩略图

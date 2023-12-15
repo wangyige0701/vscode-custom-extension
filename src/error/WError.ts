@@ -1,5 +1,5 @@
 import type { ErrorOptions, ErrorPosition } from "./@types";
-import { isString, splitByUpperCaseAndJoinWithSpaceUp } from "../utils";
+import { isString, splitByUpperCaseAndJoinWithSpaceUp } from "@/utils";
 import { color } from "./print";
 
 type Message = Array<string | { color: string; noColor: string }>;
@@ -22,14 +22,14 @@ export default class WError extends Error {
         if (message) {
             this.messageList.push(message);
         }
-        
+
         // 错误类型
         this.name = `VSCode Extension Error [${PACKAGE_NAME}]`;
         this.nameColor = `${color('red', 'VSCode Extension Error')} [${color('yellow', PACKAGE_NAME)}]`;
-        
+
         /** 用于记录换行数 */
         let wrap = 1;
-        
+
         let position:ErrorPosition|undefined = void 0;
         let ClassName:string|undefined = void 0;
         let FunctionName:string|undefined = void 0;
@@ -102,7 +102,7 @@ export default class WError extends Error {
 
     /**
      * 属性合并
-     * @returns 
+     * @returns
      */
     private checkPosition (params: ErrorOptions): number {
         let msg = {
@@ -138,9 +138,9 @@ export default class WError extends Error {
 
     /**
      * 判断是否含有某个属性
-     * @param options 
-     * @param property 
-     * @returns 
+     * @param options
+     * @param property
+     * @returns
      */
     private has (options: {[key: string]: any}, property: string): boolean {
         return (property in options) && options[property];

@@ -1,13 +1,13 @@
 import type { ExtensionContext, StatusBarItem } from 'vscode';
+import type { TimeDisplayConfig } from '@time/@types';
 import { MarkdownString, commands } from "vscode";
-import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
-import { errlog } from '../../error';
-import { setStatusBarItem } from '../../common/interactive';
-import { accurateTime, getTimeString } from "./utils";
-import { clockRecord } from './storage';
+import { errlog } from '@/error';
+import { isFunction } from '@/utils';
+import { setStatusBarItem } from '@/common/interactive';
 import { ClockRecord } from './cache';
-import { isFunction } from '../../utils';
-import type { TimeDisplayConfig } from './types';
+import { clockRecord } from './storage';
+import { accurateTime, getTimeString } from "./utils";
+import { initAlarmClock, settingAlarmClock, trigger } from "./logic";
 
 /**
  * 时间显示配置
@@ -95,15 +95,15 @@ function resetTimeDisplay () {
 
 /** 设置时间函数 */
 function timerCaller (statusBar: StatusBarItem) {
-    let time: number, 
-    timeclear: NodeJS.Timeout, 
+    let time: number,
+    timeclear: NodeJS.Timeout,
     latestStorage: number;
     /** 计算延迟并触发文字设置函数 */
     function _timer () {
         _set();
         /** 秒数误差 */
-        const secondMis = 1000 - (time % 1000), 
-        s = new Date(time).getSeconds(), 
+        const secondMis = 1000 - (time % 1000),
+        s = new Date(time).getSeconds(),
         wait = (59 - s) * 1000 + secondMis;
         timeclear = setTimeout(_timer, wait);
     }

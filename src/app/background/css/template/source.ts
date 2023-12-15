@@ -1,6 +1,6 @@
 /** @fileoverview vscode样式源css文件导入语句模板字符串 */
 
-import { cssTagNameConfig, cssNameConfig } from "../../data/config";
+import { cssTagNameConfig, cssNameConfig } from "@background/data/config";
 
 /**
  * 生成一个源css文件中的导入语句字符串

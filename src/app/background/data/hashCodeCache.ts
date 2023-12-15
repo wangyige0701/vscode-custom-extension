@@ -1,7 +1,7 @@
 /** @fileoverview 哈希码数据缓存处理模块 */
 
-import { getHashCode } from "../../../utils";
-import { RecordDataByArray } from "../../../utils/recordData/array";
+import { getHashCode } from "@/utils";
+import { RecordDataByArray } from "@/utils/recordData/array";
 
 var _cache: HashCodeCache;
 

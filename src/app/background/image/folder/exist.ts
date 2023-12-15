@@ -1,12 +1,12 @@
 /** @fileoverview 图片储存文件夹路径是否存在 */
 
 import type { Uri } from "vscode";
-import { WError, $rej } from "../../../../error";
-import { isFileExits, createDirectoryUri } from "../../../../common/file";
+import { WError, $rej } from "@/error";
+import { isFileExits, createDirectoryUri } from "@/common/file";
 
 /**
  * 校验指定路径是否存在，不存在进行创建
- * @param uri 
+ * @param uri
  */
 export function imageStoreUriExits (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {

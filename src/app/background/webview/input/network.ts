@@ -1,16 +1,16 @@
 /** @fileoverview webview侧通过输入框添加网络图片处理模块 */
 
-import { errlog } from "../../../../error";
-import { GetImage } from "../../../../common/request";
-import { base64ByFiletypeAndData, imageToBase64Type } from "../../../../common/file";
-import { showMessageWithConfirm } from "../../../../common/interactive";
-import { imageUrl } from "../../../../utils";
+import { errlog } from "@/error";
+import { imageUrl } from "@/utils";
+import { GetImage } from "@/common/request";
+import { showMessageWithConfirm } from "@/common/interactive";
+import { base64ByFiletypeAndData, imageToBase64Type } from "@/common/file";
+import { addImageToStorage } from "@background/data-operate/hashCodeCache";
 import { sendAfterNewNetImageCreate } from "../communication/send";
-import { addImageToStorage } from "../../data-operate/hashCodeCache";
 
 /**
  * 下载网络图片资源并发送至背景图列表
- * @param url 
+ * @param url
  */
 export function requestImageToBackground (url: string) {
     const sendMsg: string[] = [];

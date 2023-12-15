@@ -1,21 +1,21 @@
 import type { FileStat, FileType } from 'vscode';
 import { Uri, workspace } from 'vscode';
-import { posix } from 'path';
+import path from 'path';
 
 /**
  * 生成新uri
  * @param uri 当前uri
- * @param path 新路径
+ * @param pathValue 新路径
  * @returns 根据新路径生成的新uri
  */
-export function newUri (uri: Uri, ...path: string[]): Uri {
-    return uri.with({ path: posix.join(uri.fsPath, ...path) });
+export function newUri (uri: Uri, ...pathValue: string[]): Uri {
+    return uri.with({ path: path.posix.join(uri.fsPath, ...pathValue) });
 }
 
 /**
  * 根据base uri拼接路径
- * @param uri 
- * @param name 
+ * @param uri
+ * @param name
  */
 export function joinPathUri (uri: Uri, ...name: string[]): Uri {
     return Uri.joinPath(uri, ...name);
@@ -23,18 +23,18 @@ export function joinPathUri (uri: Uri, ...name: string[]): Uri {
 
 /**
  * 根据路径创建一个Uri
- * @param path 
+ * @param pathValue
  */
-export function createUri (path: string): Uri {
-    return Uri.file(path);
+export function createUri (pathValue: string): Uri {
+    return Uri.file(pathValue);
 }
 
 /**
  * 将给定路径转换为相对于vscode的资源路径
- * @param path 
+ * @param pathValue
  */
-export function pathToVscode (path: string): Uri {
-    return Uri.file(path).with({ scheme: 'vscode-resource' });
+export function pathToVscode (pathValue: string): Uri {
+    return Uri.file(pathValue).with({ scheme: 'vscode-resource' });
 }
 
 /**
@@ -48,9 +48,9 @@ export function createBuffer (content: string | Uint8Array | readonly number[]):
 
 /**
  * 复制文件
- * @param source 
- * @param target 
- * @param options 
+ * @param source
+ * @param target
+ * @param options
  */
 export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boolean | undefined } | undefined): Promise<void> {
     return Promise.resolve(workspace.fs.copy(source, target, options));
@@ -58,19 +58,19 @@ export function uriCopy (source: Uri, target: Uri, options?: { overwrite?: boole
 
 /**
  * 删除指定uri文件
- * @param uri 
- * @param options 
+ * @param uri
+ * @param options
  */
-export function uriDelete (uri: Uri, options?: { 
-    recursive?: boolean | undefined, 
-    useTrash?: boolean | undefined 
+export function uriDelete (uri: Uri, options?: {
+    recursive?: boolean | undefined,
+    useTrash?: boolean | undefined
 } | undefined): Promise<void> {
     return Promise.resolve(workspace.fs.delete(uri, options));
 }
 
 /**
  * 查看文件夹内容
- * @param uri 
+ * @param uri
  */
 export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
     return Promise.resolve(workspace.fs.readDirectory(uri));
@@ -78,7 +78,7 @@ export function readDirectoryUri (uri: Uri): Promise<[string, FileType][]> {
 
 /**
  * 创建文件夹
- * @param uri 
+ * @param uri
  */
 export function createDirectoryUri (uri: Uri): Promise<Uri> {
     return new Promise((resolve, reject) => {
@@ -90,7 +90,7 @@ export function createDirectoryUri (uri: Uri): Promise<Uri> {
 
 /**
  * 查看文件内容
- * @param uri 
+ * @param uri
  */
 export function readFileUri (uri: Uri): Promise<Uint8Array> {
     return Promise.resolve(workspace.fs.readFile(uri));
@@ -98,8 +98,8 @@ export function readFileUri (uri: Uri): Promise<Uint8Array> {
 
 /**
  * 写文件
- * @param uri 
- * @param content 
+ * @param uri
+ * @param content
  */
 export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
     return Promise.resolve(workspace.fs.writeFile(uri, content));
@@ -107,7 +107,7 @@ export function writeFileUri (uri: Uri, content: Uint8Array): Promise<void> {
 
 /**
  * 查看对应uri信息
- * @param uri 
+ * @param uri
  */
 export function uriStat (uri: Uri): Promise<FileStat> {
     return Promise.resolve(workspace.fs.stat(uri));

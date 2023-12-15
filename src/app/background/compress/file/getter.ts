@@ -2,12 +2,12 @@
 
 import type { Uri } from "vscode";
 import { FileType } from "vscode";
-import { uriStat, joinPathUri, newUri, readFileUri, isFileExits } from "../../../../common/file";
-import { createExParamPromise } from "../../../../utils";
-import { $rej } from "../../../../error";
+import { $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { uriStat, joinPathUri, newUri, readFileUri, isFileExits } from "@/common/file";
+import { compressConfig } from "@background/data/config";
+import { imageStoreUri } from "@background/image/folder/getter";
 import { createCompressImage } from "./create";
-import { compressConfig } from "../../data/config";
-import { imageStoreUri } from "../../image/folder/getter";
 
 /**
  * 当指定哈希码的图片没有压缩图时生成一张压缩图，否则跳出

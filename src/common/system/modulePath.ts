@@ -1,6 +1,6 @@
-import type { ErrorPosition } from "../../error/@types";
-import { WError } from "../../error";
+import type { ErrorPosition } from "@/error/@types";
 import path from "path";
+import { WError } from "@/error";
 
 /** 获取node主模块文件路径 */
 export const getNodeModulePath = (() => {

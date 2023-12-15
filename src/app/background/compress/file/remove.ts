@@ -1,8 +1,8 @@
 /** @fileoverview 删除一张压缩图 */
 
-import { $rej } from "../../../../error";
-import { createExParamPromise } from "../../../../utils";
-import { isFileExits, uriDelete } from "../../../../common/file";
+import { $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { isFileExits, uriDelete } from "@/common/file";
 import { imageToCompressedPath } from "./getter";
 
 /**

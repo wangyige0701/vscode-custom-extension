@@ -1,7 +1,7 @@
 import type { CancellationToken, QuickPickItem, QuickPickOptions } from "vscode";
 import type { QuickPickItemCallback, QuickPickItemsOptions, QuickPickPanelOptions, } from "../@types";
 import { window } from "vscode";
-import { firstStrUpperCase, isArray, isFunction, isPromise, isString } from "../../../utils";
+import { firstStrUpperCase, isArray, isFunction, isPromise, isString } from "@/utils";
 
 /**
  * 创建并打开一个可选列表
@@ -16,7 +16,7 @@ export function createQuickPick (items: QuickPickItemsOptions[], options: QuickP
         // 判断回调函数属性是否被冻结
         if (!Object.isFrozen(key.callback)) {
             callbackMap[key.label] = key.callback??void 0;
-            delete key.callback;       
+            delete key.callback;
         }
     }
     const quickPick = window.createQuickPick();

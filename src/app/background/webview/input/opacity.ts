@@ -1,16 +1,16 @@
 /** @fileoverview webview侧通过输入框修改背景图透明度处理模块 */
 
-import { getNowSettingOpacity } from "../../workspace/getter";
-import { settingOpacity } from "../../workspace/setter";
-import { errlog, $rej } from "../../../../error";
-import { isWindowReloadToLoadBackimage } from "../../common/interactive";
-import { getNewBackgroundOpacity } from "../../common/func";
-import { showMessageWithConfirm } from "../../../../common/interactive";
+import { errlog } from "@/error";
+import { showMessageWithConfirm } from "@/common/interactive";
+import { settingOpacity } from "@background/workspace/setter";
+import { getNewBackgroundOpacity } from "@background/common/func";
+import { getNowSettingOpacity } from "@background/workspace/getter";
+import { setSourceCssImportInfo } from "@background/css/setter/source";
+import { externalCssFileWrite } from "@background/css/setter/external";
+import { getExternalCssFileContent } from "@background/css/getter/external";
+import { isWindowReloadToLoadBackimage } from "@background/common/interactive";
+import { replaceExternaOpacityContent } from "@background/data/css/opacityReplace";
 import { sendSettingOpacity } from "../communication/send";
-import { getExternalCssFileContent } from "../../css/getter/external";
-import { replaceExternaOpacityContent } from "../../data/css/opacityReplace";
-import { externalCssFileWrite } from "../../css/setter/external";
-import { setSourceCssImportInfo } from "../../css/setter/source";
 
 /**
  * 修改背景图透明度
@@ -37,7 +37,7 @@ export function backgroundOpacityModify (opacity: number) {
 
 /**
  * 将透明度重新写入外部css文件
- * @param opacity 
+ * @param opacity
  */
 function changeBackgroundFileOpacity (opacity: number): Promise<boolean> {
     return new Promise((resolve, reject) => {

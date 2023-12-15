@@ -1,12 +1,12 @@
-import type { AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
-import { $rej, errlog } from "../../error";
-import { arabicNumeralsToChinese, delay, getDate } from "../../utils";
-import { showProgress } from "../../common/interactive";
-import { copyFileWhenVersionChange } from "../../version";
-import { showAlarmClockInfo } from "./prompt";
-import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath, updateSthInTimstamp, deleteTaskInTimestamp } from "./storage";
-import { accurateTime, cycleCalculate } from "./utils";
+import type { AlarmClockRecordItemTask, UpdateTimestampTarget } from "@time/@types";
+import { $rej, errlog } from "@/error";
+import { showProgress } from "@/common/interactive";
+import { copyFileWhenVersionChange } from "@/version";
+import { arabicNumeralsToChinese, delay, getDate } from "@/utils";
 import openAlarmClockPanel from "./panel";
+import { showAlarmClockInfo } from "./prompt";
+import { accurateTime, cycleCalculate } from "./utils";
+import { clockRecord, deleteByTimestamp, fileInit, searchByTimestamp, addByTimestamp, storagePath, updateSthInTimstamp, deleteTaskInTimestamp } from "./storage";
 
 /** 显示的时间格式 */
 const clockFullInfoType = "YYYY年MM月DD日 hh时mm分";
@@ -86,7 +86,7 @@ export function settingAlarmClock () {
                     return delay(progressDelayTime);
                 }).then(resolve);
             }));
-        }, 
+        },
         updateAlarmClockTask: async (timestamp: number, index: number, { content, type, nextTime }: UpdateTimestampTarget) => {
             const typeName = {
                 "TIME": "时间",
@@ -107,7 +107,7 @@ export function settingAlarmClock () {
                     return delay(progressDelayTime);
                 }).then(resolve);
             }));
-        }, 
+        },
         deleteTimestamp: async (timestamp: number) => {
             await showProgress({
                 title: '正在删除闹钟',

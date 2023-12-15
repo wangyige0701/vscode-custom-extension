@@ -1,11 +1,11 @@
 /** @fileoverview 校验是否是设置的背景图 */
 
-import { $rej } from "../../../../error";
-import { getExternalCssFileContent, getExternalCssInfo } from "../../css/getter/external";
+import { $rej } from "@/error";
+import { getExternalCssFileContent, getExternalCssInfo } from "@background/css/getter/external";
 
 /**
  * 检查指定code是否是当前设置背景图的code
- * @param codeValue 
+ * @param codeValue
  * @returns 如果state为false时也传了code，则此code是最新需要被设置的图片哈希码
  */
 export function checkIsSettingImage (codeValue: string): Promise<{

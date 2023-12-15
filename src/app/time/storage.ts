@@ -1,9 +1,9 @@
 import type { Uri } from "vscode";
-import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "../../common/file";
-import { ExtensionUri } from "../../common/system";
-import { isNumber } from "../../utils";
-import { $rej } from "../../error";
-import type { AlarmClockRecordItem, AlarmClockRecordItemTask, UpdateTimestampTarget } from "./types";
+import type { AlarmClockRecordItem, AlarmClockRecordItemTask, UpdateTimestampTarget } from "@time/@types";
+import { $rej } from "@/error";
+import { isNumber } from "@/utils";
+import { ExtensionUri } from "@/common/system";
+import { createBuffer, createDirectoryUri, isFileExits, isFileExitsSync, joinPathUri, readFileUri, uriDelete, writeFileUri } from "@/common/file";
 import { ClockRecord } from "./cache";
 
 /** 闹钟时间数据记录数组，元素为时间戳，升序排列 */
@@ -78,7 +78,7 @@ export function searchByTimestamp (timestamp: number, path?: Uri): Promise<[bool
             }
             return readFileUri(filePath);
         }).then(async uni8 => {
-            const json: AlarmClockRecordItemTask[] = uni8 ? 
+            const json: AlarmClockRecordItemTask[] = uni8 ?
                 JSON.parse(uni8.toString()) :
                 [];
             if (clockRecord.has(timestamp)) {

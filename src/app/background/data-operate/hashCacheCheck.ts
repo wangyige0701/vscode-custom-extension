@@ -1,8 +1,8 @@
 /** @fileoverview 哈希码相关数据管理模块 */
 
-import { $rej } from "../../../error";
-import { settingAllHashCodes } from "../workspace/setter";
-import { getAllImageHashCodes } from "../workspace/getter";
+import { $rej } from "@/error";
+import { settingAllHashCodes } from "@background/workspace/setter";
+import { getAllImageHashCodes } from "@background/workspace/getter";
 
 /**
  * 比较缓存数据和新数据是长度否相同，不相同则表明储存路径下可能有文件被删除，需要更新缓存数组。

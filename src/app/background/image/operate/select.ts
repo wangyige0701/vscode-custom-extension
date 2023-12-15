@@ -1,15 +1,14 @@
 /** @fileoverview 背景图片选择模块 */
 
 import type { Uri } from "vscode";
-import { selectFile } from "../../../../common/interactive";
-import { imageFilesConfig } from "../../data/config";
-import { getDefaultSelectPath } from "../../workspace/getter";
-import { settingDefaultSelectPath } from "../../workspace/setter";
-import { $rej } from "../../../../error";
-import { imageToBase64 } from "../../../../common/file";
-import { addImageToStorage } from "../../data-operate/hashCodeCache";
-import { sendAfterNewImagesCreate } from "../../webview/communication/send";
-import { errlog } from "../../../../error";
+import { errlog } from "@/error";
+import { imageToBase64 } from "@/common/file";
+import { selectFile } from "@/common/interactive";
+import { imageFilesConfig } from "@background/data/config";
+import { getDefaultSelectPath } from "@background/workspace/getter";
+import { settingDefaultSelectPath } from "@background/workspace/setter";
+import { addImageToStorage } from "@background/data-operate/hashCodeCache";
+import { sendAfterNewImagesCreate } from "@background/webview/communication/send";
 
 /** 侧栏webview页面从本地文件选择背景图 */
 export function selectImage () {

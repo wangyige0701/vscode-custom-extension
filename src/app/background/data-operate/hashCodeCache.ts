@@ -1,14 +1,14 @@
 /** @fileoverview 哈希码数据初始化，从工作空间储存数据中获取数据并存入缓存 */
 
-import type { BufferAndCodeMergeType } from "../@types";
-import { hashCodeCache } from "../data/hashCodeCache";
-import { getAllImageHashCodes } from "../workspace/getter";
-import { refreshImagesPath } from "../workspace/setter";
-import { createFileStore } from "../image/file/setter";
-import { imageStoreUri } from "../image/folder/getter";
+import type { BufferAndCodeMergeType } from "@background/@types";
+import { $rej } from "@/error";
+import { range } from "@/utils";
+import { hashCodeCache } from "@background/data/hashCodeCache";
+import { createFileStore } from "@background/image/file/setter";
+import { imageStoreUri } from "@background/image/folder/getter";
+import { refreshImagesPath } from "@background/workspace/setter";
+import { getAllImageHashCodes } from "@background/workspace/getter";
 import { codeListRefresh } from "./imageCache";
-import { range } from "../../../utils";
-import { $rej } from "../../../error";
 
 /** 从工作区中获取储存的哈希码数据并更新至缓存数组中 */
 export function getHashCodesFromWorkspaceAndCache () {

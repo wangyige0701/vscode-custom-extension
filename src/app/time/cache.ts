@@ -1,4 +1,4 @@
-import { isFunction, range, bisectionAsce } from "../../utils";
+import { isFunction, range, bisectionAsce } from "@/utils";
 
 /**
  * 闹钟数据储存类；

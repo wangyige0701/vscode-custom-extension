@@ -7,7 +7,7 @@ const ForkTsCheckerPlugin = require("fork-ts-checker-webpack-plugin");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
 const { DefinePlugin, WebpackError, IgnorePlugin } = require("webpack");
 
-module.exports = 
+module.exports =
 /**
  * @param {{ mode: 'development' | 'production' | 'none' | undefined }} argv
  */
@@ -85,9 +85,9 @@ function getExtensionConfig (mode) {
             extensions: [".ts", ".js", '.json'],
             alias: {
                 "@": path.resolve(__dirname, "src"),
-                "@app/*": path.resolve(__dirname, "src", "app"),
-                "@background/*": path.resolve(__dirname, "src", "app", "background"),
-                "@time/*": path.resolve(__dirname, "src", "app", "time")
+                "@app": path.resolve(__dirname, "src", "app"),
+                "@background": path.resolve(__dirname, "src", "app", "background"),
+                "@time": path.resolve(__dirname, "src", "app", "time")
             }
         },
         externals: {

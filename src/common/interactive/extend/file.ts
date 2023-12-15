@@ -1,4 +1,4 @@
-import { curry } from "../../../utils";
+import { curry } from "@/utils";
 import { selectFile } from "../components/file";
 
 function selectFileExpand (files: boolean, folders: boolean, title: string) {

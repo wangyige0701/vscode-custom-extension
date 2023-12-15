@@ -1,8 +1,8 @@
 /** @fileoverview 移除css文件中标签包裹的自定义内容 */
 
 import type { Uri } from "vscode";
-import type { ContentAndUri } from "../../@types";
-import { $rej } from "../../../../error";
+import type { ContentAndUri } from "@background/@types";
+import { $rej } from "@/error";
 import { findSourceCssPosition } from "./regexp";
 
 /**

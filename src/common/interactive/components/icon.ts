@@ -1,5 +1,5 @@
 import { ThemeColor, ThemeIcon } from "vscode";
-import { isString } from "../../../utils";
+import { isString } from "@/utils";
 
 /**
  * 创建一个图片

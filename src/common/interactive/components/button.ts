@@ -1,12 +1,12 @@
 import type { QuickInputButton } from "vscode";
 import type { ButtonIcon, MyButtonType } from "../@types";
 import { ThemeColor, ThemeIcon } from "vscode";
-import { isObject, isString } from "../../../utils";
+import { isObject, isString } from "@/utils";
 
 class MyButton implements QuickInputButton {
     constructor (
         public id: string,
-        public iconPath: QuickInputButton["iconPath"], 
+        public iconPath: QuickInputButton["iconPath"],
         public tooltip: QuickInputButton["tooltip"],
     ) {}
 }

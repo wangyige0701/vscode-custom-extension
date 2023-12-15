@@ -1,18 +1,18 @@
 /** @fileoverview 扩展侧向webview侧发送数据 */
 
-import type { MessageData } from "../../../../common/webview/@types";
-import type { backgroundSendMessageData } from "../../@types";
-import { isObject, isUndefined } from "../../../../utils";
-import { messageSend, WebviewInstance } from "../../../../common/webview";
-import { imageDataCache } from "../../data/imageCache";
-import { getNowIsSetBackground, getNowSettingCode, getNowSettingOpacity, getNowIsSetRandom, getRandomList } from "../../workspace/getter";
+import type { MessageData } from "@/common/webview/@types";
+import type { backgroundSendMessageData } from "@background/@types";
+import { isObject, isUndefined } from "@/utils";
+import { messageSend, WebviewInstance } from "@/common/webview";
+import { imageDataCache } from "@background/data/imageCache";
+import { getNowIsSetBackground, getNowSettingCode, getNowSettingOpacity, getNowIsSetRandom, getRandomList } from "@background/workspace/getter";
 
 /** 侧栏webview实例保存 */
 export const BackgroundWebviewInstance = new WebviewInstance();
 
 /**
  * 背景图设置webview端发送通信统一处理
- * @param options 
+ * @param options
  */
 export function backgroundSendMessage (options: backgroundSendMessageData): void {
     if (BackgroundWebviewInstance.value && options && isObject(options)) {
@@ -23,7 +23,7 @@ export function backgroundSendMessage (options: backgroundSendMessageData): void
 
 /**
  * 根据传入的哈希码发送对应图片base64数据
- * @param options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用 
+ * @param options 需要获取数据的哈希码以及传递的类型，用于webview侧判断哪边调用
  */
 export function sendBase64DataByCode ({ code, type, thumbnail = false }: { code: string, type: string, thumbnail: boolean }): void {
     if (imageDataCache.has(code)) {
@@ -128,7 +128,7 @@ export function sendAfterDeleteImageSuccess (value: string[]) {
     });
 }
 
-/** 
+/**
  * 背景图储存路径修改通知
  */
 export function sendAfterStorePathChange () {

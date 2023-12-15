@@ -1,3 +1,4 @@
+/** @fileoverview 二分查找  */
 
 /** 二分降序查找 */
 export function bisectionDesc<T> (array: T[], target: T): number {
@@ -31,11 +32,11 @@ export function bisectionAsce<T> (array: T[], target: T): number {
 
 /**
  * 二分查找处理
- * @param array 
- * @param target 
- * @param start 
- * @param length 
- * @param type 
+ * @param array
+ * @param target
+ * @param start
+ * @param length
+ * @param type
  */
 function bisection<T> (array: T[], target: T, start: number, length: number, type: 'desc' | 'asce'): number {
     if (length === 2) {
@@ -49,12 +50,12 @@ function bisection<T> (array: T[], target: T, start: number, length: number, typ
     let judge = array[middle];
     if (judge > target) {
          // 中位数比目标值大，升序取左边继续二分，start不变；降序取右边
-        return type === 'asce' ? 
-            bisection(array, target, start, leftLength, type) : 
+        return type === 'asce' ?
+            bisection(array, target, start, leftLength, type) :
             bisection(array, target, middle, rightLength, type);
     } else {
-        return type === 'asce' ? 
-            bisection(array, target, middle, rightLength, type) : 
+        return type === 'asce' ?
+            bisection(array, target, middle, rightLength, type) :
             bisection(array, target, start, leftLength, type);
     }
 }

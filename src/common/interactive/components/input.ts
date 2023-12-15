@@ -1,7 +1,7 @@
 import type { CancellationToken, InputBoxOptions } from "vscode";
 import type { CreateInputOptions, InputOptions } from "../@types";
 import { window } from "vscode";
-import { firstStrUpperCase, isFunction } from "../../../utils";
+import { firstStrUpperCase, isFunction } from "@/utils";
 
 /**
  * 创建一个输入框面板

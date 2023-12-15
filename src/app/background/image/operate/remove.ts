@@ -1,21 +1,21 @@
 /** @fileoverview 背景图片删除模块 */
 
-import { hashCodeCache } from "../../data/hashCodeCache";
-import { getHashCodesFromWorkspaceAndCache } from "../../data-operate/hashCodeCache";
-import { showMessageByModal } from "../../common/interactive";
-import { errlog } from "../../../../error";
-import { showProgress } from "../../../../common/interactive";
+import { errlog } from "@/error";
+import { showProgress } from "@/common/interactive";
+import { createExParamPromise, delay } from "@/utils";
+import { getRandomList } from "@background/workspace/getter";
+import { hashCodeCache } from "@background/data/hashCodeCache";
+import { showMessageByModal } from "@background/common/interactive";
+import { settingRandomCode, refreshImagesPath } from "@background/workspace/setter";
+import { sendAfterDeleteImageSuccess } from "@background/webview/communication/send";
+import { getHashCodesFromWorkspaceAndCache } from "@background/data-operate/hashCodeCache";
 import { deleteFileStore } from "../file/remove";
-import { getRandomList } from "../../workspace/getter";
-import { settingRandomCode, refreshImagesPath } from "../../workspace/setter";
-import { createExParamPromise, delay } from "../../../../utils";
-import { sendAfterDeleteImageSuccess } from "../../webview/communication/send";
 
 /**
  * 删除一张图片，不需要判断是否被设置了背景图，图片被删除后背景图样式保持，直到下一次重新设置
- * @param messageSend 
- * @param webview 
- * @param code 
+ * @param messageSend
+ * @param webview
+ * @param code
  */
 export function deleteImage (...code: string[]) {
     showMessageByModal(code.length > 1 ? '是否删除选中图片' : '是否删除此图片')

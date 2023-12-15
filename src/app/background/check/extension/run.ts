@@ -1,15 +1,15 @@
 /** @fileoverview 扩展开始运行后配置检测 */
 
 import type { Disposable } from "vscode";
-import { initStatusHandle } from "../../data/initStatus";
-import { setStatusBarResolve } from "../../../../common/interactive";
-import { createExParamPromise } from "../../../../utils";
-import { setSourceCssImportInfo } from "../../css/setter/source";
+import { $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { setStatusBarResolve } from "@/common/interactive";
+import { initStatusHandle } from "@background/data/initStatus";
+import { changeLoadStateToTrue } from "@background/workspace/setter";
+import { getNowIsSetBackground } from "@background/workspace/getter";
+import { setSourceCssImportInfo } from "@background/css/setter/source";
+import { setBackgroundImageSuccess } from "@background/common/interactive";
 import { checkExternalDataIsRight } from "../css/external";
-import { getNowIsSetBackground } from "../../workspace/getter";
-import { changeLoadStateToTrue } from "../../workspace/setter";
-import { $rej } from "../../../../error";
-import { setBackgroundImageSuccess } from "../../common/interactive";
 import { backgroundImageDataInit } from "../webview/load";
 
 /**

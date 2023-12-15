@@ -10,7 +10,7 @@ import {
     anyWord as w,
     anyWordAndNumber as nw,
     strToReg
-} from "../../../../utils/regexp";
+} from "@/utils/regexp";
 import { cssTagNameConfig } from "../config";
 
 const {
@@ -57,7 +57,7 @@ export const matchWYGFileName = /(.*?).back.wyg$/;
 
 /**
  * 生成获取外部文件注释信息的正则
- * @param name 
+ * @param name
  * @param catchData 是否需要捕获对应数据
  */
 function getReg (name: string, catchData: boolean = true): string {

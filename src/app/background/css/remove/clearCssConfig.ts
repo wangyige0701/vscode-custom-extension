@@ -1,13 +1,13 @@
 /** @fileoverview 背景图配置数据删除模块 */
 
-import { getExternalCssFileContent } from "../getter/external";
+import { $rej } from "@/error";
+import { createBuffer, uriDelete } from "@/common/file";
+import { deleteConfiguration } from "@background/workspace/remove";
+import { deleteContentByTagName } from "@background/data/css/tagRemove";
+import { setBackgroundImageSuccess } from "@background/common/interactive";
 import { getSourceCssFileContent } from "../getter/source";
-import { deleteContentByTagName } from "../../data/css/tagRemove";
+import { getExternalCssFileContent } from "../getter/external";
 import { sourceCeeFileWriteAndChecksum } from "../setter/source";
-import { createBuffer, uriDelete } from "../../../../common/file";
-import { $rej } from "../../../../error";
-import { deleteConfiguration } from "../../workspace/remove";
-import { setBackgroundImageSuccess } from "../../common/interactive";
 
 /** 删除外部和源css文件中背景图的相关设置内容 */
 export function deleteBackgroundCssFileModification (): Promise<void> {

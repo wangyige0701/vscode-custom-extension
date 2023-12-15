@@ -1,9 +1,9 @@
-import type { AxiosRequestConfig, AxiosResponse } from "../../library/importer/axios";
-import axios from "../../library/importer/axios";
+import type { AxiosRequestConfig, AxiosResponse } from "@/library/importer/axios";
+import axios from "@/library/importer/axios";
 
 /**
  * axios请求状态处理
- * @param data 
+ * @param data
  */
 function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
@@ -19,8 +19,8 @@ function resultHandle (data: AxiosResponse): Promise<AxiosResponse> {
 
 /**
  * Get请求
- * @param url 
- * @param options 
+ * @param url
+ * @param options
  */
 function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {
@@ -38,9 +38,9 @@ function get (url: string, options?: AxiosRequestConfig): Promise<AxiosResponse>
 
 /**
  * Post请求
- * @param url 
- * @param data 
- * @param options 
+ * @param url
+ * @param data
+ * @param options
  */
 function post (url: string, data: any, options?: AxiosRequestConfig): Promise<AxiosResponse> {
     return new Promise((resolve, reject) => {

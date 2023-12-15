@@ -1,11 +1,11 @@
 /** @fileoverview 删除背景图文件 */
 
-import { hashCodeCache } from "../../data/hashCodeCache";
-import { codeListRefresh } from "../../data-operate/imageCache";
-import { WError, $rej } from "../../../../error";
+import { WError, $rej } from "@/error";
+import { uriDelete, newUri } from "@/common/file";
+import { hashCodeCache } from "@background/data/hashCodeCache";
+import { codeListRefresh } from "@background/data-operate/imageCache";
+import { deleteCompressByCode } from "@background/compress/file/remove";
 import { imageStoreUri } from "../folder/getter";
-import { uriDelete, newUri } from "../../../../common/file";
-import { deleteCompressByCode } from "../../compress/file/remove";
 
 /**
  * 根据哈希码删除.wyg图片文件

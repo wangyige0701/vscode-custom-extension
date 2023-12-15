@@ -12,6 +12,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/rollup.config.js
+**/rollup.config.*.js
 resources/background/**
 resources/alarmclock/**
 resources/extension/**
@@ -31,3 +32,6 @@ dist/**
 resources/theme/**
 rollup-plugin/**
 .eslintcache/**
+**/webpack.config.js
+.prettierignore
+.prettierrc

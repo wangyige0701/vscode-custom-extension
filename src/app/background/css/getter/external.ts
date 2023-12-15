@@ -2,8 +2,7 @@
 
 import type { Uri } from "vscode";
 import type { CssFileAnnotationInfo } from "../../@types";
-import { version } from "vscode";
-import { getVersion } from "../../../../version";
+import { version as VSCODE_VERSION } from "vscode";
 import { $rej } from "../../../../error";
 import { createExParamPromise, getDate } from "../../../../utils";
 import { readFileUri, newUri } from "../../../../common/file";
@@ -21,7 +20,6 @@ import { getCssUri } from "../../data/css/uri";
  */
 export function getExternalCssContent (hashCode: string): Promise<[string, CssFileAnnotationInfo] | false> {
     return new Promise((resolve, reject) => {
-        const extensionVer = getVersion();
         const date = getDate();
         imageStoreUri()
         .then(uri => {
@@ -34,13 +32,13 @@ export function getExternalCssContent (hashCode: string): Promise<[string, CssFi
             if (data) {
                 const { ImageCode, VSCodeVersion, ExtensionVersion } = data;
                 // 如果和上一次是一个哈希值，并且vscode和插件版本号相同，不再更新数据
-                if (ImageCode === hashCode && VSCodeVersion === version && ExtensionVersion === extensionVer) {
+                if (ImageCode === hashCode && VSCodeVersion === VSCODE_VERSION && ExtensionVersion === EXTENSION_VERSION) {
                     return Promise.resolve(false);
                 }
             }
             return externalFileWrite(storeUri, hashCode, {
-                VSCodeVersion: version,
-                ExtensionVersion: extensionVer,
+                VSCodeVersion: VSCODE_VERSION,
+                ExtensionVersion: EXTENSION_VERSION,
                 Date: date,
                 ImageCode: hashCode
             });
@@ -50,8 +48,8 @@ export function getExternalCssContent (hashCode: string): Promise<[string, CssFi
                 return resolve(false);
             }
             return resolve([res, {
-                VSCodeVersion: version,
-                ExtensionVersion: extensionVer,
+                VSCodeVersion: VSCODE_VERSION,
+                ExtensionVersion: EXTENSION_VERSION,
                 Date: date,
                 ImageCode: hashCode
             }]);

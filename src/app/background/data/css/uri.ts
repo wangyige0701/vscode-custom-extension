@@ -1,7 +1,7 @@
 /** @description 获取css文件的uri地址 */
 
 import type { Uri } from "vscode";
-import * as path from "path";
+import path from "path";
 import { getNodeModulePath, getNodeModulePathError } from "../../../../common";
 import { $rej } from "../../../../error";
 import { createUri, writeFileUri, createBuffer, isFileExitsSync } from "../../../../common/file";
@@ -21,7 +21,7 @@ export function getCssUri (name: string, create: boolean = true): Promise<Uri | 
         if (!modulePath) {
             return reject(getNodeModulePathError(getCssUri.name));
         }
-        const uri = createUri(path.join(path.dirname(modulePath), 'vs', 'workbench', name));
+        const uri = createUri(path.join(modulePath, 'vs', 'workbench', name));
         const cssFileExits = isFileExitsSync(uri);
         if (cssFileExits) {
             // 有指定路径

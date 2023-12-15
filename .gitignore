@@ -10,3 +10,4 @@ resources/alarmclock/
 package-lock.json
 pnpm-lock.yaml
 test/
+.eslintcache/

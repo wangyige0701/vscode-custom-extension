@@ -1,5 +1,4 @@
 import type { ExtensionContext } from "vscode";
-import { isDev } from "../version/index";
 import { readdirSync, existsSync, copyFileSync, rmSync } from "fs";
 import { parse, resolve as pathResolve } from "path";
 import { spawnSync } from "child_process";
@@ -61,7 +60,7 @@ function copyFile (path: string) {
 export function isNeedToCreateSharpBinaryFile (context: ExtensionContext) {
     try {
         let pathName = context.extensionUri.fsPath;
-        if (!isDev() && !isNodeBinaryFileExits(pathName)) {
+        if (IS_PRODUCTION && !isNodeBinaryFileExits(pathName)) {
             let status = setStatusBarResolve({
                 icon: "loading~spin",
                 message: "生成sharp二进制文件中"

@@ -5,7 +5,7 @@ import { ProcessExit, consoleByColor } from ".";
 const root = process.cwd();
 const dist = path.join(root, 'dist');
 
-function remove () {    
+function remove () {
     console.log(consoleByColor('red', '路径：' + dist + ' 删除'));
     try {
         if (fs.existsSync(dist)) {
@@ -27,4 +27,6 @@ function check (): boolean {
 
 if (check()) {
     remove();
+} else {
+    console.log(consoleByColor('blue', '当前打包路径不需要清除'));
 }

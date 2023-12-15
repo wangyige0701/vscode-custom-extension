@@ -30,3 +30,4 @@ dist/**
 # 主题文件夹不进行发布
 resources/theme/**
 rollup-plugin/**
+.eslintcache/**

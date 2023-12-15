@@ -1,14 +1,21 @@
 import type { ErrorPosition } from "../../error/@types";
 import { WError } from "../../error";
+import path from "path";
 
 /** 获取node主模块文件路径 */
-export function getNodeModulePath (): string {
-    const module = require.main;
+export const getNodeModulePath = (() => {
+    let module = (eval('require') as NodeRequire).main;
+    let file: string | undefined;
     if (!module) {
-        return '';
+        file = undefined;
+    } else {
+        file = path.dirname(module.filename);
     }
-    return module.filename;
-}
+    module = undefined;
+    return function () {
+        return file;
+    };
+})();
 
 /** 模块获取出错时的报错 */
 export function getNodeModulePathError (functionName: string, className?: string) {

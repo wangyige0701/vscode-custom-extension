@@ -16,11 +16,11 @@ import WError from "./WError";
  * @param e 
  * @param isThrow 是否抛出错误不进行弹框打印
  */
-function errlog (e: any, isThrow: boolean = !(process.env.NODE_ENV === "development")): void {
+function errlog (e: any, isThrow: boolean = (NODE_ENV === "production")): void {
     if (!e) {
         return;
     }
-    console.log(e.toString());
+    console.log(e.toString(true));
     if (isThrow) {
         return;
     }
@@ -29,7 +29,7 @@ function errlog (e: any, isThrow: boolean = !(process.env.NODE_ENV === "developm
         return;
     }
     if (e instanceof WError) {
-        showMessageWithConfirm(e.stack??`${e.name}: ${e.message}`, "error");
+        showMessageWithConfirm(e.toString(false), "error");
         return;
     }
     if (e instanceof Error) {

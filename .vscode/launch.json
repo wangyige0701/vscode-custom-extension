@@ -9,22 +9,29 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			],
-			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js"
-			],
+			"runtimeExecutable": "${execPath}",
+			"args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+			"presentation": {
+				"group": "1_watch",
+				"order": 1
+			},
+			"outFiles": ["${workspaceFolder}/dist/**/*.js"],
+			"skipFiles": ["**/node_modules/**", "**/resources/app/out/vs/**"],
 			"preLaunchTask": "${defaultBuildTask}",
-			"env": {
-				"NODE_ENV": "development"
-			}
+			"pauseForSourceMap": true,
+			"sourceMaps": true,
+			"smartStep": true,
+			"sourceMapRenames": true
 		},
 		{
 			"name": "Run Pre",
 			"type": "node",
 			"request": "launch",
-			"preLaunchTask": "pre"
+			"preLaunchTask": "pre",
+			"presentation": {
+				"group": "2_run_pre",
+				"order": 1
+			}
 		},
 		{
 			"name": "Extension Tests",
@@ -47,7 +54,12 @@
 			"type": "node",
 			"request": "launch",
 			"console": "integratedTerminal",
-			"runtimeArgs": ["-r", "ts-node/register", "${file}"]
+			"runtimeArgs": ["-r", "ts-node/register", "${file}"],
+			"presentation": {
+				"hidden": false,
+				"group": "3_run_file",
+				"order": 1
+			}
 		},
 		{
 			"name": "Run Node",
@@ -55,6 +67,11 @@
 			"request": "launch",
 			"console": "integratedTerminal",
 			"runtimeArgs": ["${file}"],
+			"presentation": {
+				"hidden": false,
+				"group": "3_run_file",
+				"order": 2
+			}
 		}
 	]
 }

@@ -26,6 +26,7 @@
 			"presentation": {
 				"group": "watchers"
 			},
+			"isBackground": true,
 			"problemMatcher": ["$ts-webpack-watch", "$ts-checker-webpack-watch", "$ts-checker-eslint-webpack-watch"]
 		},
 		{

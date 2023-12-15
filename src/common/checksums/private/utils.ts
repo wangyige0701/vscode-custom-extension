@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { join as pathjoin, dirname } from "path";
+import { join as pathjoin } from "path";
 import { getNodeModulePath } from "../../system";
 import { WError, $rej } from "../../../error";
 import { createUri, isFileExits, readFileUri } from "../../file";
@@ -33,18 +33,16 @@ export function computeFileChecksums (content: string): Promise<string> {
 }
 
 /** 获取product.json文件的位置 */
-export function getProductRoot (): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const modulePath = getNodeModulePath();
-        if (!modulePath) {
-            return reject(new WError('NodeModule is Undefined', {
-                position: 'Function',
-                FunctionName: getProductRoot.name,
-                description: 'Current Module is not main module.'
-            }));
-        }
-        resolve(pathjoin(dirname(modulePath), '..'));
-    });
+export function getProductRoot (): string {
+    const modulePath = getNodeModulePath();
+    if (!modulePath) {
+        throw new WError('NodeModule is Undefined', {
+            position: 'Function',
+            FunctionName: getProductRoot.name,
+            description: 'Current Module is not main module.'
+        });
+    }
+    return pathjoin(modulePath, '..');
 }
 
 /** 获取当前所有校验和数据 */
@@ -86,11 +84,8 @@ export function getChecksumsData (): Promise<Array<GetChecksumsData>> {
 /** 读取校验和文件的数据 */
 function readChecksumsData (): Promise<string> {
     return new Promise((resolve, reject) => {
-        getProductRoot()
-        .then(path => {
-            const uri = createUri(getProductFileName(path));
-            return createExParamPromise(isFileExits(uri), uri);
-        })
+        const uri = createUri(getProductFileName(getProductRoot()));
+        createExParamPromise(isFileExits(uri), uri)
         .then(([state, path]) => {
             if (state) {
                 // 文件存在
@@ -115,28 +110,16 @@ function readChecksumsData (): Promise<string> {
  * @returns 根据根路径生成的所有需要计算校验和文件的绝队路径
  */
 export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-        getCheckRoot()
-        .then(root => {
-            const result = paths.map(path => createUri(pathjoin(root, path)).toString());
-            resolve(result);
-        })
-        .catch(err => {
-            reject($rej(err, getFullPathOfChecksum.name));
-        });
+    return new Promise((resolve) => {
+        const result = paths.map(
+            path => createUri(pathjoin(getCheckRoot(), path)).toString()
+        );
+        resolve(result);
     });
 }
 
 
 /** 获取检测校验和文件的根目录 */
-function getCheckRoot (): Promise<string> {
-    return new Promise((resolve, reject) => {
-        getProductRoot()
-        .then(path => {
-            resolve(pathjoin(path, 'out'));
-        })
-        .catch(err => {
-            reject($rej(err, getCheckRoot.name));
-        });
-    });
+function getCheckRoot (): string {
+    return pathjoin(getProductRoot(), 'out');
 }

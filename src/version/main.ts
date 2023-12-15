@@ -1,12 +1,10 @@
 /** 根据扩展版本判断是否需要复制旧版本的某个文件到新版本中 */
 import type { Uri } from 'vscode';
 import { resolve as pathResolve } from 'path';
-import { getVersion, isDev, checkVersion, refreshVersion, getVersionById } from './private/utils';
+import { checkVersion, refreshVersion, getVersionById } from './private/utils';
 import { createUri, isFileExits, newUri, uriCopy } from '../common/file';
 
 export {
-    getVersion,
-    isDev,
     checkVersion,
     refreshVersion
 };
@@ -36,19 +34,16 @@ interface CopyFil {
 export const copyFileWhenVersionChange: CopyFil = (path: string) => {
     return new Promise((resolve, reject) => {
         // 开发环境不进行检测，没有路径或者版本未改变同样跳出
-        if (isDev() || !isExtensionVersionChange || !path) {
+        if (IS_DEVELOPMENT || !isExtensionVersionChange || !path) {
             return resolve();
         }
         if (!copyFileWhenVersionChange.$config) {
             // 存放扩展的根路径，由于只在生产环境下执行，所以，只需要获取到向上两层根目录
-            const rootPath = createUri(pathResolve(__dirname, '../..')),
-            // 获取文件名
-            { publisher, name } = require('../../package.json'),
-            lastExtensionVersion = getVersionById('global', 'ExtensionVersion'),
-            extensionVersion = getVersion(),
+            const rootPath = createUri(pathResolve(__dirname, '../..'));
+            const lastExtensionVersion = getVersionById('global', 'ExtensionVersion');
             // 获取扩展文件夹名称
-            extensionName = `${publisher}.${name}-${extensionVersion}`,
-            lastExtenstionName = `${publisher}.${name}-${lastExtensionVersion}`;
+            const extensionName = `${PUBLISHER}.${PACKAGE_NAME}-${EXTENSION_VERSION}`;
+            const lastExtenstionName = `${PUBLISHER}.${PACKAGE_NAME}-${lastExtensionVersion}`;
             copyFileWhenVersionChange.$config = {
                 rootPath,
                 extensionName,

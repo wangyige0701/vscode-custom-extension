@@ -72,4 +72,23 @@ const config = {
 };
 
 console.log('start');
-bundle(config);
+// bundle(config);
+
+/** @type {RollupInput} */
+const rollupConfig =  {
+    input: "./src/extension.ts",
+    output: {
+        file: "./dist/extension.js",
+        format: "cjs",
+        sourcemap: true,
+    },
+    external: ['vscode', 'axios', 'sharp'],
+    plugins: [
+        tsPlugin,
+        resolvePlugin,
+        commonjs(),
+        $plugin()
+    ]
+};
+
+module.exports = rollupConfig;

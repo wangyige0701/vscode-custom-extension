@@ -3,7 +3,7 @@ import type { ExternalFile, webFileType } from "../@types";
 import { FileType, Uri} from "vscode";
 import { createBuffer, newUri, readDirectoryUri, readFileUri, readFileUriList, writeFileUri } from "../../file";
 import { createExParamPromise, getNonce, bisectionAsce, cryHex } from "../../../utils";
-import { isDev, checkVersion, refreshVersion  } from "../../../version";
+import { checkVersion, refreshVersion  } from "../../../version";
 import { WError, $rej } from "../../../error";
 import { ExtensionUri } from "../../system";
 
@@ -56,7 +56,7 @@ export class FileMerge {
     constructor (path: string, title:string = '') {
         this.baseUri = Uri.joinPath(ExtensionUri.get, path);
         this.title = title;
-        if (isDev()) {
+        if (IS_DEVELOPMENT) {
             // 开发环境
             this.env = 'development';
         } else {

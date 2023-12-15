@@ -47,13 +47,8 @@ function createNewChecksum (path: Uri): Promise<string> {
 /** 更改源文件 */
 function modifySourceFile (pathHash: string, value: string): Promise<void> {
     return new Promise((resolve, reject) => {
-        getProductRoot()
-        .then(path => {
-            return Promise.resolve(createUri(getProductFileName(path)));
-        })
-        .then(uri => {
-            return createExParamPromise(readFileUri(uri), uri);
-        })
+        const uri = createUri(getProductFileName(getProductRoot()));
+        createExParamPromise(readFileUri(uri), uri)
         .then(([fileContent, uri]) => {
             return createExParamPromise(Promise.resolve(checksumsMap.get(pathHash)!.reset(fileContent.toString(), value)), uri);
         })

@@ -1,9 +1,6 @@
-import { version as vscVersion } from "vscode";
+import { version as VSCODE_VERSION } from "vscode";
 import { errlog } from "../../error";
 import { getWorkSpace, setWorkSpace } from "../../workspace";
-
-/** 版本号，加载时直接解析json，避免多次调用 */
-const version = require('../../../package.json').version as string;
 
 /**
  * 根据id获取指定类型的储存数据
@@ -26,7 +23,7 @@ export function checkVersion (id: string, checkVsc: boolean = true): boolean {
     if ((checkVsc && !vscode) || !extension) {
         return false;
     }
-    if ((checkVsc && vscode !== vscVersion) || extension !== getVersion()) {
+    if ((checkVsc && vscode !== VSCODE_VERSION) || extension !== EXTENSION_VERSION) {
         return false;
     }
     return true;
@@ -35,22 +32,12 @@ export function checkVersion (id: string, checkVsc: boolean = true): boolean {
 /** 更新版本信息 */
 export async function refreshVersion (id: string, refreshVsc: boolean = true, clear: boolean = false) {
     await Promise.resolve(
-        setWorkSpace("wangyige."+id, "ExtensionVersion", clear ? "" : getVersion())
+        setWorkSpace("wangyige."+id, "ExtensionVersion", clear ? "" : EXTENSION_VERSION)
     ).then(() => {
         if (refreshVsc) {
-            return Promise.resolve(setWorkSpace("wangyige."+id, "VSCodeVersion", clear ? "" : vscVersion));
+            return Promise.resolve(setWorkSpace("wangyige."+id, "VSCodeVersion", clear ? "" : VSCODE_VERSION));
         }
     }).then(() => {
         return Promise.resolve();
     }).catch(errlog);
-}
-
-/** 是否是开发环境，本地调试环境变量是development，生产环境没有NODE_ENV */
-export function isDev (): boolean {
-    return process.env.NODE_ENV === "development";
-}
-
-/** 获取版本号 */
-export function getVersion (): string {
-    return version;
 }

@@ -1,7 +1,7 @@
 /** @description vscode插件初始化时检测 */
 
-import { isWindowReloadToLoadBackimage } from "../../common/interactive";
-import { errlog } from "../../../../error";
+import { errlog } from "@/error";
+import { isWindowReloadToLoadBackimage } from "@background/common/interactive";
 import { checkImageCssDataIsRight } from "./run";
 
 /** vscode初始化后检测背景配置是否完整 */

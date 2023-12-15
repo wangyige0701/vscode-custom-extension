@@ -1,17 +1,16 @@
 /** @fileoverview 外部设置背景图样式的css文件修改方法 */
 
 import type { Disposable } from "vscode";
-import type { CssFileAnnotationInfo } from "../../@types";
-import { WError } from "../../../../error";
-import { getExternalCssContent } from "../getter/external";
-import { getCssUri } from "../../data/css/uri";
-import { setStatusBarResolve } from "../../../../common/interactive";
-import { writeFileUri,createBuffer } from "../../../../common";
-import { settingConfiguration } from "../../workspace/setter";
+import type { CssFileAnnotationInfo } from "@background/@types";
+import { $rej, WError } from "@/error";
+import { writeFileUri,createBuffer } from "@/common";
+import { setStatusBarResolve } from "@/common/interactive";
+import { getCssUri } from "@background/data/css/uri";
+import { cssNameConfig } from "@background/data/config";
+import { settingConfiguration } from "@background/workspace/setter";
+import { setBackgroundImageSuccess } from "@background/common/interactive";
 import { setSourceCssImportInfo } from "./source";
-import { setBackgroundImageSuccess } from "../../common/interactive";
-import { $rej } from "../../../../error";
-import { cssNameConfig } from "../../data/config";
+import { getExternalCssContent } from "../getter/external";
 
 /**
  * 修改外部css文件的背景图属性
@@ -48,7 +47,7 @@ export function externalCssFileModify (hashCode: string, random: boolean = false
         .then(resolve)
         .catch(err => {
             reject($rej(err, externalCssFileModify.name));
-        });        
+        });
     });
 }
 

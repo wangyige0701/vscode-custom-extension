@@ -1,18 +1,18 @@
 /** @fileoverview webview加载时图片数据监测模块 */
 
 import type { Disposable } from "vscode";
-import { initStatusHandle } from "../../data/initStatus";
-import { setStatusBarResolve } from "../../../../common/interactive";
-import { getHashCodesFromWorkspaceAndCache, imageFileDataAndHashCodeCache } from "../../data-operate/hashCodeCache";
-import { refreshBackgroundImageList } from "../../data-operate/hashCacheCheck";
-import { imageDataCache } from "../../data/imageCache";
-import { isCompressDirectoryExist } from "../../compress/folder/exist";
-import { getAllImageFilesData } from "../../image/file/getter";
-import { checkImageFiles } from "../../image/file/check";
-import { sendInitializeDatas, sendSettingImageCode, sendSettingOpacity, sendRandomListInfo } from "../../webview/communication/send";
-import { refreshImagesPath } from "../../workspace/setter";
-import { errlog } from "../../../../error";
-import { setBackgroundImageSuccess } from "../../common/interactive";
+import { errlog } from "@/error";
+import { setStatusBarResolve } from "@/common/interactive";
+import { imageDataCache } from "@background/data/imageCache";
+import { checkImageFiles } from "@background/image/file/check";
+import { initStatusHandle } from "@background/data/initStatus";
+import { refreshImagesPath } from "@background/workspace/setter";
+import { getAllImageFilesData } from "@background/image/file/getter";
+import { setBackgroundImageSuccess } from "@background/common/interactive";
+import { isCompressDirectoryExist } from "@background/compress/folder/exist";
+import { refreshBackgroundImageList } from "@background/data-operate/hashCacheCheck";
+import { getHashCodesFromWorkspaceAndCache, imageFileDataAndHashCodeCache } from "@background/data-operate/hashCodeCache";
+import { sendInitializeDatas, sendSettingImageCode, sendSettingOpacity, sendRandomListInfo } from "@background/webview/communication/send";
 
 /**
  * webview首次加载或者重置储存路径时获取储存背景图片数据，获取当前设置的背景图哈希码并将其发送给webview页面；

@@ -1,6 +1,6 @@
 /** @fileoverview 工作空间数据获取 */
 
-import { BackgroundConfiguration, defaultPath } from "../../../workspace";
+import { BackgroundConfiguration, defaultPath } from "@/workspace";
 
 /** 获取背景图资源存放路径 */
 export function getBackgroundResourcePath (): string[] {

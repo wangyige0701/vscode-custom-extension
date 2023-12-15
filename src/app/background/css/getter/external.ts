@@ -1,17 +1,17 @@
 /** @fileoverview 获取外部css文件数据 */
 
 import type { Uri } from "vscode";
-import type { CssFileAnnotationInfo } from "../../@types";
+import type { CssFileAnnotationInfo } from "@background/@types";
 import { version as VSCODE_VERSION } from "vscode";
-import { $rej } from "../../../../error";
-import { createExParamPromise, getDate } from "../../../../utils";
-import { readFileUri, newUri } from "../../../../common/file";
-import { cssNameConfig } from "../../data/config";
-import { imageStoreUri } from "../../image/folder/getter";
-import { createWYGFileName } from "../../image/file/fileName";
-import { findExternalCssPosition } from "../../data/css/regexp";
+import { $rej } from "@/error";
+import { readFileUri, newUri } from "@/common/file";
+import { createExParamPromise, getDate } from "@/utils";
+import { getCssUri } from "@background/data/css/uri";
+import { cssNameConfig } from "@background/data/config";
+import { imageStoreUri } from "@background/image/folder/getter";
+import { createWYGFileName } from "@background/image/file/fileName";
+import { findExternalCssPosition } from "@background/data/css/regexp";
 import { externalCssFileTemplate } from "../template/external";
-import { getCssUri } from "../../data/css/uri";
 
 /**
  * 生成外部文件设置的背景样式字符串和相关信息，
@@ -76,7 +76,7 @@ function externalFileWrite (storeUri: Uri, hashCode: string, info: CssFileAnnota
 
 /**
  * 获取设置背景样式的外部css文件的版本、时间、哈希码信息
- * @param content 
+ * @param content
  */
 export function getExternalCssInfo (content: string): Promise<CssFileAnnotationInfo | false> {
     return new Promise(resolve => {

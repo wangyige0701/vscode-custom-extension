@@ -1,4 +1,4 @@
-import { setStatusBarResolve, showMessage } from "../../common/interactive";
+import { setStatusBarResolve, showMessage } from "@/common/interactive";
 
 
 /**

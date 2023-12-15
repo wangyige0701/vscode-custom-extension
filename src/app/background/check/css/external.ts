@@ -1,12 +1,12 @@
 /** @fileoverview 校验储存背景图base64数据的外部css文件信息 */
 
-import { getNowSettingCode } from "../../workspace/getter";
-import { changeLoadStateToTrue } from "../../workspace/setter";
+import { $rej } from "@/error";
+import { getNowSettingCode } from "@background/workspace/getter";
+import { changeLoadStateToTrue } from "@background/workspace/setter";
+import { externalCssFileModify } from "@background/css/setter/external";
 import { checkIsSettingImage } from "./setting";
-import { externalCssFileModify } from "../../css/setter/external";
-import { $rej } from "../../../../error";
 
-/** 
+/**
  * 校验外部设置背景样式css文件是否存在并且当前图片哈希码是否等于缓存中的哈希码
  */
 export function checkExternalDataIsRight (): Promise<{

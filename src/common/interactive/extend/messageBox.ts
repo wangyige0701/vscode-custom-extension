@@ -1,6 +1,6 @@
 import type { MessageBoxMethodType, MessageItemExtend } from "../@types";
 import { showMessage } from "../components/messageBox";
-import { curry } from "../../../utils/functional";
+import { curry } from "@/utils/functional";
 
 /** 带确认按钮的消息弹框 */
 export function showMessageWithConfirm (message: string, type: MessageBoxMethodType = "information") {

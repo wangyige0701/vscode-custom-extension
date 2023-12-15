@@ -1,13 +1,13 @@
 /** @fileoverview 背景图片创建模块 */
 
-import { imageStoreUri } from "../folder/getter";
-import { hashCodeCache } from "../../data/hashCodeCache";
-import { codeListRefresh } from "../../data-operate/imageCache";
-import { createExParamPromise } from "../../../../utils";
-import { writeFileUri, newUri, createBuffer } from "../../../../common/file";
-import { getCompressImage } from "../../compress/file/getter";
+import { $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { writeFileUri, newUri, createBuffer } from "@/common/file";
+import { hashCodeCache } from "@background/data/hashCodeCache";
+import { getCompressImage } from "@background/compress/file/getter";
+import { codeListRefresh } from "@background/data-operate/imageCache";
 import { createWYGFileName } from "./fileName";
-import { $rej } from "../../../../error";
+import { imageStoreUri } from "../folder/getter";
 
 /** 创建.wyg文件储存图片文件，文件格式是 (哈希码.back.wyg) */
 export function createFileStore (base64: string): Promise<string> {

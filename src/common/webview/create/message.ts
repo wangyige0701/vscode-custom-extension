@@ -1,16 +1,16 @@
-import type { 
-    ExecuteFunction, 
-    ExecuteType, 
-    GetName, 
-    MessageData, 
-    MessageExecuteType, 
-    MessageGroupCallback, 
-    MessageGroupCallbackName, 
+import type {
+    ExecuteFunction,
+    ExecuteType,
+    GetName,
+    MessageData,
+    MessageExecuteType,
+    MessageGroupCallback,
+    MessageGroupCallbackName,
     callbackType
 } from "../@types";
 import type { Webview } from "vscode";
-import { errlog } from "../../../error";
-import { firstStrUpperCase, isUndefined } from "../../../utils";
+import { errlog } from "@/error";
+import { firstStrUpperCase, isUndefined } from "@/utils";
 
 /** 绑定通信回调函数对象 */
 const messageCallback: MessageGroupCallback = {
@@ -46,7 +46,7 @@ export function messageHandle (webview: Webview) {
             return;
         }
         messageCallback[executeName]?.({
-            name: message.name, 
+            name: message.name,
             value: message.value
         }, webview);
     });
@@ -100,8 +100,8 @@ export function messageExecute<T extends MessageDataType> (config: MessageExecut
             }
             const executeFunction = isUndefined(param) // 当局部传参有数据时默认传局部参数
             ? (!isUndefined(value) && !noneParam) // 全局传参是否有数据并且需要参数
-                ? (func as (value: any) => void).bind(null, value) 
-                : (func as () => void).bind(null) 
+                ? (func as (value: any) => void).bind(null, value)
+                : (func as () => void).bind(null)
             : (func as (value: any) => void).bind(null, param);
             // 判断是否队列执行
             queue ? config.queue!(executeFunction) : executeFunction();

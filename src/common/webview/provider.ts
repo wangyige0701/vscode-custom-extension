@@ -1,7 +1,7 @@
 import type { ExtensionContext, Disposable, CancellationToken, WebviewView, WebviewViewProvider, WebviewViewResolveContext } from "vscode";
 import type { RegistWebviewProviderOptions } from "./@types";
 import { window } from "vscode";
-import { errlog } from "../../error";
+import { errlog } from "@/error";
 import { messageHandle, FileMerge } from "./create";
 
 /** 通过html文件插入webview */
@@ -49,13 +49,13 @@ export class webviewCreateProvider implements WebviewViewProvider {
 /** 注册webview provider */
 export function registWebviewProvider (
     subscriptions: ExtensionContext["subscriptions"],
-    viewId: string, 
-    provider: { path: string, title: string }, 
+    viewId: string,
+    provider: { path: string, title: string },
     { retainContextWhenHidden = false, visibleHiddenCallback = void 0 }: RegistWebviewProviderOptions
 ): Disposable {
     const dispose = window.registerWebviewViewProvider(
-        viewId, 
-        new webviewCreateProvider(provider.path, provider.title, visibleHiddenCallback), 
+        viewId,
+        new webviewCreateProvider(provider.path, provider.title, visibleHiddenCallback),
         {
             webviewOptions: { retainContextWhenHidden }
         }

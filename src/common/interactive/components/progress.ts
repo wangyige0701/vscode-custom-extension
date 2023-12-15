@@ -1,12 +1,12 @@
 import type { ProgressOptions } from "vscode";
 import type { ProgressLocationData, ProgressOptionsNew, ProgressTaskType } from '../@types';
 import { ProgressLocation, window } from "vscode";
-import { isString } from '../../../utils';
+import { isString } from '@/utils';
 
 /**
  * 调用进度条api
- * @param options 
- * @param task 
+ * @param options
+ * @param task
  */
 export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTaskType<R>): Thenable<R> {
     if (isString(options.location)) {
@@ -17,7 +17,7 @@ export function showProgress<R> (options: ProgressOptionsNew, task: ProgressTask
 
 /**
  * 获取location的值
- * @param name 
+ * @param name
  */
 function getProgressLocation (name: ProgressLocationData) {
     return ProgressLocation[name];

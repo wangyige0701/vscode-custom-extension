@@ -86,7 +86,7 @@ export const randomHexString: () => string = (function () {
 
 /**
  * 是否是字符串类型
- * @param value 
+ * @param value
  */
 export function isString (value: any): value is string {
     return typeof value === 'string';
@@ -94,7 +94,7 @@ export function isString (value: any): value is string {
 
 /**
  * 是否是数字类型
- * @param value 
+ * @param value
  */
 export function isNumber (value: any): value is number {
     return typeof value === 'number' && !isNaN(value);
@@ -102,7 +102,7 @@ export function isNumber (value: any): value is number {
 
 /**
  * 是否是数组类型
- * @param value 
+ * @param value
  */
 export function isArray (value: any): value is any[] {
     return Array.isArray(value);
@@ -110,7 +110,7 @@ export function isArray (value: any): value is any[] {
 
 /**
  * 是否是null类型
- * @param value 
+ * @param value
  */
 export function isNull (value: any): value is null {
     return value === null;
@@ -118,7 +118,7 @@ export function isNull (value: any): value is null {
 
 /**
  * 是否是对象类型
- * @param value 
+ * @param value
  */
 export function isObject (value: any): value is {[key:string|number]:any} {
     return typeof value === 'object' && !isArray(value) && !isNull(value);
@@ -126,7 +126,7 @@ export function isObject (value: any): value is {[key:string|number]:any} {
 
 /**
  * 是否是undefined类型
- * @param value 
+ * @param value
  */
 export function isUndefined (value: any): value is undefined {
     return typeof value === 'undefined';
@@ -134,7 +134,7 @@ export function isUndefined (value: any): value is undefined {
 
 /**
  * 是否是函数类型
- * @param value 
+ * @param value
  */
 export function isFunction (value: any): value is Function {
     return typeof value === 'function';
@@ -142,7 +142,7 @@ export function isFunction (value: any): value is Function {
 
 /**
  * 是否是布朗类型
- * @param value 
+ * @param value
  */
 export function isBoolean (value: any): value is boolean {
     return typeof value === 'boolean';
@@ -176,7 +176,7 @@ export function minmax (min: number, max: number, value: number): number {
 
 /**
  * 延迟指定时间
- * @param time 
+ * @param time
  */
 export function delay (time: number = 0): Promise<void> {
     return new Promise(resolve => {
@@ -186,9 +186,7 @@ export function delay (time: number = 0): Promise<void> {
 
 /** 返回一个空的Promise函数 */
 export function voidFunc (): Promise<void> {
-    return new Promise(resolve => {
-        resolve();
-    });
+    return new Promise(resolve => resolve);
 }
 
 /**

@@ -1,20 +1,20 @@
-import { showProgressByTime, MultiStep } from "../../common/interactive";
-import { weeksName, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
-import type { 
-    AlarmClockRecordItemTask, 
-    CreateAlarmClockCallback, 
-    CreateTimeInputSteps, 
-    SettingOptionsAllTypes, 
-    SettingOptionsCallbackParams, 
-    SettingOptionsCallbackType, 
-    SettingOptionsExcludeType, 
-    SettingOptionIsPromise, 
-    SettingOptionsType, 
-    SpecificWeek 
-} from "./types";
-import { CycleItem } from "./cycle";
 import type { QuickPickItem } from "vscode";
-import { getDate, isArray, isFunction, isNumber } from "../../utils";
+import type {
+    AlarmClockRecordItemTask,
+    CreateAlarmClockCallback,
+    CreateTimeInputSteps,
+    SettingOptionsAllTypes,
+    SettingOptionsCallbackParams,
+    SettingOptionsCallbackType,
+    SettingOptionsExcludeType,
+    SettingOptionIsPromise,
+    SettingOptionsType,
+    SpecificWeek
+} from "@time/@types";
+import { getDate, isArray, isFunction, isNumber } from "@/utils";
+import { showProgressByTime, MultiStep } from "@/common/interactive";
+import { CycleItem } from "./cycle";
+import { weeksName, accurateTime, changeHourTo24, cycleCalculate, isDateExist } from "./utils";
 
 /**
  * 初始化设置面板
@@ -23,8 +23,8 @@ export default function settingInit ({
     createAlarmClock,
     clockFullInfoType
 }: {
-    createAlarmClock: CreateAlarmClockCallback, 
-    clockFullInfoType: string, 
+    createAlarmClock: CreateAlarmClockCallback,
+    clockFullInfoType: string,
 }) {
     /** 校验时间格式，连接符：[:] */
     const timeCheck = /(?:^([1-9]|0[1-9]|1[0-9]|2[0-4]):([0-9]|0[0-9]|[1-5][0-9])$)|(?:^([1-9]|0[1-9]|1[0-2]):([0-9]|0[0-9]|[1-5][0-9])\s*[pPaA]$).*/;
@@ -124,9 +124,9 @@ export default function settingInit ({
                     if (!res) { return; }
                     // 返回false则不进行下一步的跳转
                     const state = await res.$callback(
-                        { defaultNext, stepSetting: stepSetting ? { step: stepSetting.step, totalSteps: stepSetting.totalSteps } : void 0 }, 
-                        accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()), 
-                        Date.now(), 
+                        { defaultNext, stepSetting: stepSetting ? { step: stepSetting.step, totalSteps: stepSetting.totalSteps } : void 0 },
+                        accurateTime(new Date(getDate(Date.now(), `YYYY-MM-DD ${time}:00`)).getTime()),
+                        Date.now(),
                         time
                     );
                     if (state === false) {
@@ -166,9 +166,9 @@ export default function settingInit ({
                         return resolve(false);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, void 0, timestamp, true, stepSetting ? { 
-                            step: stepSetting.step + 1, 
-                            totalSteps: stepSetting.totalSteps 
+                        const [taskInfo] = await _writeInfo(void 0, void 0, timestamp, true, stepSetting ? {
+                            step: stepSetting.step + 1,
+                            totalSteps: stepSetting.totalSteps
                         } : void 0);
                         return inserResolve({
                             timestamp,
@@ -201,9 +201,9 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.DAY);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, CycleItem.DAY, timestamp, true, stepSetting ? { 
-                            step: stepSetting.step + 1, 
-                            totalSteps: stepSetting.totalSteps 
+                        const [taskInfo] = await _writeInfo(void 0, CycleItem.DAY, timestamp, true, stepSetting ? {
+                            step: stepSetting.step + 1,
+                            totalSteps: stepSetting.totalSteps
                         } : void 0);
                         return inserResolve({
                             timestamp,
@@ -236,9 +236,9 @@ export default function settingInit ({
                         timestamp = cycleCalculate(timestamp, CycleItem.WEEK);
                     }
                     if (defaultNext) {
-                        const [taskInfo] = await _writeInfo(void 0, CycleItem.WEEK, timestamp, true, stepSetting ? { 
-                            step: stepSetting.step + 1, 
-                            totalSteps: stepSetting.totalSteps 
+                        const [taskInfo] = await _writeInfo(void 0, CycleItem.WEEK, timestamp, true, stepSetting ? {
+                            step: stepSetting.step + 1,
+                            totalSteps: stepSetting.totalSteps
                         } : void 0);
                         return inserResolve({
                             timestamp,
@@ -275,8 +275,8 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const [taskInfo] = await _writeInfo(void 0, weekList, timestamp, true, stepSettingChild ? { 
-                                    step: stepSettingChild.step, 
+                                const [taskInfo] = await _writeInfo(void 0, weekList, timestamp, true, stepSettingChild ? {
+                                    step: stepSettingChild.step,
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
                                 return inserResolve({
@@ -290,8 +290,8 @@ export default function settingInit ({
                                 cycle: weekList
                             }, hideFunction]);
                         });
-                    }, stepSetting ? { 
-                        step: stepSetting.step + 1, 
+                    }, stepSetting ? {
+                        step: stepSetting.step + 1,
                         totalSteps: stepSetting.totalSteps + (defaultNext ? 1 : 0)
                     } : void 0);
                 });
@@ -319,8 +319,8 @@ export default function settingInit ({
                             }
                             callResolve();
                             if (defaultNext) {
-                                const [taskInfo] = await _writeInfo(void 0, void 0, settingTime, true, stepSettingChild ? { 
-                                    step: stepSettingChild.step, 
+                                const [taskInfo] = await _writeInfo(void 0, void 0, settingTime, true, stepSettingChild ? {
+                                    step: stepSettingChild.step,
                                     totalSteps: stepSettingChild.totalSteps
                                 } : void 0);
                                 return inserResolve({
@@ -334,8 +334,8 @@ export default function settingInit ({
                                 cycle: void 0
                             }, hideFunction]);
                         });
-                    }, stepSetting ? { 
-                        step: stepSetting.step + 1, 
+                    }, stepSetting ? {
+                        step: stepSetting.step + 1,
                         totalSteps: stepSetting.totalSteps + (defaultNext ? 1 : 0)
                     } : void 0);
                 });
@@ -344,7 +344,7 @@ export default function settingInit ({
         });
     }
 
-    /** 
+    /**
      * 输入提示信息
      * @param _goback 返回按钮点击时调用的函数
      * @param cycle 周期数据
@@ -388,7 +388,7 @@ export default function settingInit ({
 
     /** 选择指定星期 */
     function _selectWeeks (
-        callback: (list: SpecificWeek[], hide: () => void, stepSettingChild?: CreateTimeInputSteps) => Promise<void>, 
+        callback: (list: SpecificWeek[], hide: () => void, stepSettingChild?: CreateTimeInputSteps) => Promise<void>,
         stepSetting?: CreateTimeInputSteps
     ) {
         /** 星期列表 */

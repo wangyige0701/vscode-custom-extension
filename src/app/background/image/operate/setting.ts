@@ -1,15 +1,15 @@
 /** @fileoverview 设置背景图片方法  */
 
 import type { Progress } from "vscode";
-import { externalCssFileModify } from "../../css/setter/external";
-import { showMessageWithConfirm, showProgress } from "../../../../common/interactive";
-import { createExParamPromise, delay } from "../../../../utils";
-import { sendSettingImageCode } from "../../webview/communication/send";
-import { errlog } from "../../../../error";
-import { getNowIsSetRandom, getNowSettingCode } from "../../workspace/getter";
-import { changeIsRandomState } from "../../workspace/setter";
-import { isWindowReloadToLoadBackimage, showMessageByModal } from "../../common/interactive";
-import { closeRandomBackground } from "../../common/func";
+import { errlog } from "@/error";
+import { createExParamPromise, delay } from "@/utils";
+import { showMessageWithConfirm, showProgress } from "@/common/interactive";
+import { closeRandomBackground } from "@background/common/func";
+import { changeIsRandomState } from "@background/workspace/setter";
+import { externalCssFileModify } from "@background/css/setter/external";
+import { sendSettingImageCode } from "@background/webview/communication/send";
+import { getNowIsSetRandom, getNowSettingCode } from "@background/workspace/getter";
+import { isWindowReloadToLoadBackimage, showMessageByModal } from "@background/common/interactive";
 
 type SettingImageDataType = {
     code: string;
@@ -73,14 +73,14 @@ function settimgCallback (code: string, index: number, progress: TheProgressType
         .finally(() => {
             resolve();
         });
-    }); 
+    });
 }
 
 /**
  * 不同情况的判断
- * @param code 
- * @param random 
- * @returns 
+ * @param code
+ * @param random
+ * @returns
  */
 function setting (code: string, random: boolean): Promise<void> {
     return new Promise((resolve, reject) => {

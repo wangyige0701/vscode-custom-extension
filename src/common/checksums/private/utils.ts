@@ -1,10 +1,10 @@
-import { createHash } from "crypto";
-import { join as pathjoin } from "path";
-import { getNodeModulePath } from "../../system";
-import { WError, $rej } from "../../../error";
-import { createUri, isFileExits, readFileUri } from "../../file";
-import { createExParamPromise } from "../../../utils";
 import type { GetChecksumsData } from "../@types";
+import { createHash } from "crypto";
+import path from "path";
+import { WError, $rej } from "@/error";
+import { createExParamPromise } from "@/utils";
+import { getNodeModulePath } from "../../system";
+import { createUri, isFileExits, readFileUri } from "../../file";
 
 /** 捕获校验和数据位置 */
 const getChecksumsPositionRegexp = /^([\w\W]*"checksums"\s*:\s*\{)([^\{\}]*)(\}[\w\W]*)$/;
@@ -14,7 +14,7 @@ const getChecksumsDataRegexp = /(?:"(.*)"\s*:\s*"(.*)")/g;
 
 /** 通过根路径获取product.json文件的实际路径 */
 export function getProductFileName (root: string) {
-    return pathjoin(root, 'product.json');
+    return path.join(root, 'product.json');
 }
 
 /**
@@ -42,7 +42,7 @@ export function getProductRoot (): string {
             description: 'Current Module is not main module.'
         });
     }
-    return pathjoin(modulePath, '..');
+    return path.join(modulePath, '..');
 }
 
 /** 获取当前所有校验和数据 */
@@ -106,13 +106,13 @@ function readChecksumsData (): Promise<string> {
 
 /**
  * 获取所有校验和文件内路径属性的完整路径
- * @param paths 配置文件中所有校验和文件的相对路径
+ * @param pathValues 配置文件中所有校验和文件的相对路径
  * @returns 根据根路径生成的所有需要计算校验和文件的绝队路径
  */
-export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
+export function getFullPathOfChecksum (pathValues: string[]): Promise<string[]> {
     return new Promise((resolve) => {
-        const result = paths.map(
-            path => createUri(pathjoin(getCheckRoot(), path)).toString()
+        const result = pathValues.map(
+            pathValue => createUri(path.join(getCheckRoot(), pathValue)).toString()
         );
         resolve(result);
     });
@@ -121,5 +121,5 @@ export function getFullPathOfChecksum (paths: string[]): Promise<string[]> {
 
 /** 获取检测校验和文件的根目录 */
 function getCheckRoot (): string {
-    return pathjoin(getProductRoot(), 'out');
+    return path.join(getProductRoot(), 'out');
 }

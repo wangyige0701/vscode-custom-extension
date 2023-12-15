@@ -1,12 +1,12 @@
 /** @fileoverview 设置工作空间配置的背景图哈希码数据 */
 
-import type { CssFileAnnotationInfo } from "../@types";
-import { $rej } from "../../../error";
-import { BackgroundConfiguration } from "../../../workspace";
+import type { CssFileAnnotationInfo } from "@background/@types";
+import { $rej } from "@/error";
+import { BackgroundConfiguration } from "@/workspace";
 
 /**
  * 设置当前背景哈希码缓存，将是否设置背景状态值改为true
- * @param options 
+ * @param options
  * @param random 是否是随机切换背景图方法内调用
  */
 export function settingConfiguration (options: CssFileAnnotationInfo, random: boolean): Promise<void> {

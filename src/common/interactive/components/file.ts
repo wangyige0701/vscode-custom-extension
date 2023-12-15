@@ -1,11 +1,11 @@
 import type { SelectFileParams } from "../@types";
 import { Uri, window } from "vscode";
-import { dirname } from "path";
-import { isString } from "../../../utils";
+import path from "path";
+import { isString } from "@/utils";
 
 /**
  * 选择文件
- * @param param 
+ * @param param
  */
 export function selectFile ({
     files = true,
@@ -48,7 +48,7 @@ export function selectFile ({
             if (res) {
                 let dirName;
                 if (files) {
-                    dirName = dirname(res[0].fsPath);
+                    dirName = path.dirname(res[0].fsPath);
                 } else {
                     dirName = res[0].path;
                 }
@@ -56,7 +56,7 @@ export function selectFile ({
             }
             reject();
         }).catch(err => {
-            reject(new Error('ShowOpenDialog Error', { cause: err }));     
+            reject(new Error('ShowOpenDialog Error', { cause: err }));
         });
     });
 }

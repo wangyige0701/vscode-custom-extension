@@ -2,7 +2,7 @@
 import type { Uri } from 'vscode';
 import { resolve as pathResolve } from 'path';
 import { checkVersion, refreshVersion, getVersionById } from './private/utils';
-import { createUri, isFileExits, newUri, uriCopy } from '../common/file';
+import { createUri, isFileExits, newUri, uriCopy } from '@/common/file';
 
 export {
     checkVersion,

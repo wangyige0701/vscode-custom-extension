@@ -1,17 +1,17 @@
-import type { 
-    InputOptions, 
-    QuickPickItemsOptions, 
-    ShowInputBoxValidation, 
-    ShowQuickPickOptions, 
-    Complete, 
-    MultiStepCollectFunc, 
-    MultiStepInputBoxExtraType 
+import type {
+    InputOptions,
+    QuickPickItemsOptions,
+    ShowInputBoxValidation,
+    ShowQuickPickOptions,
+    Complete,
+    MultiStepCollectFunc,
+    MultiStepInputBoxExtraType
 } from "../@types";
 import type { QuickInputButton } from "vscode";
 import { QuickInputButtons } from "vscode";
+import { isFunction, isString } from "@/utils";
 import { creaetInputBox } from "./input";
 import { createQuickPick } from "./quickPick";
-import { isFunction, isString } from "../../../utils";
 
 export class MultiStep {
     private static collect: [Function, string | undefined][] = [];
@@ -121,7 +121,7 @@ export class MultiStep {
                                 MultiStep.clear();
                             } else {
                                 notActiveHide = false;
-                                MultiStep.run(toCollect, $proxy ? this.value : void 0);    
+                                MultiStep.run(toCollect, $proxy ? this.value : void 0);
                             }
                         }
                         return hideFunction;

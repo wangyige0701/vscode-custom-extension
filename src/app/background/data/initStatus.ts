@@ -1,6 +1,6 @@
 /** @fileoverview webview列表允许初始化的状态判断数据类 */
 
-import type { BackgroundCheckComplete } from "../@types";
+import type { BackgroundCheckComplete } from "@background/@types";
 
 class InitStatusHandle implements BackgroundCheckComplete {
     private _check: boolean;

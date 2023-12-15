@@ -2,9 +2,9 @@
 
 import type { Uri } from "vscode";
 import path from "path";
-import { getNodeModulePath, getNodeModulePathError } from "../../../../common";
-import { $rej } from "../../../../error";
-import { createUri, writeFileUri, createBuffer, isFileExitsSync } from "../../../../common/file";
+import { $rej } from "@/error";
+import { getNodeModulePath, getNodeModulePathError } from "@/common";
+import { createUri, writeFileUri, createBuffer, isFileExitsSync } from "@/common/file";
 
 /**
  * 获取vscode样式文件目录的Uri，文件不存在则进行创建

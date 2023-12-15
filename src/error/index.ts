@@ -7,13 +7,13 @@
  * URIError：uri地址错误
  */
 
-import { isNumber, isString } from "../utils";
-import { showMessageWithConfirm } from "../common/interactive";
+import { isNumber, isString } from "@/utils";
+import { showMessageWithConfirm } from "@/common/interactive";
 import WError from "./WError";
 
 /**
  * 错误统一处理
- * @param e 
+ * @param e
  * @param isThrow 是否抛出错误不进行弹框打印
  */
 function errlog (e: any, isThrow: boolean = (NODE_ENV === "production")): void {
@@ -41,9 +41,9 @@ function errlog (e: any, isThrow: boolean = (NODE_ENV === "production")): void {
 
 /**
  * Promise通过reject抛出错误时的错误信息
- * @param err 
- * @param FunctionName 
- * @returns 
+ * @param err
+ * @param FunctionName
+ * @returns
  */
 function $rej(err: any, FunctionName: string, ClassName?:string): WError {
     return new WError('Promise rejected', {

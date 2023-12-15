@@ -1,14 +1,14 @@
 /** @fileoverview webview侧设置随机背景图后的状态记录处理 */
 
 import type { Progress } from "vscode";
-import { showMessageByModal } from "../../common/interactive";
-import { closeRandomBackground } from "../../common/func";
-import { showProgress, showMessageWithConfirm } from "../../../../common";
-import { changeIsRandomState, settingRandomCode } from "../../workspace/setter";
-import { getNowSettingCode } from "../../workspace/getter";
-import { externalCssFileModify } from "../../css/setter/external";
-import { delay } from "../../../../utils";
-import { errlog } from "../../../../error";
+import { delay } from "@/utils";
+import { errlog } from "@/error";
+import { showProgress, showMessageWithConfirm } from "@/common";
+import { closeRandomBackground } from "@background/common/func";
+import { getNowSettingCode } from "@background/workspace/getter";
+import { showMessageByModal } from "@background/common/interactive";
+import { externalCssFileModify } from "@background/css/setter/external";
+import { changeIsRandomState, settingRandomCode } from "@background/workspace/setter";
 import { setRandomBackground } from "./setter";
 import { sendRandomListInfo } from "../communication/send";
 

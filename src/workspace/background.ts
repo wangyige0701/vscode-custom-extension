@@ -1,8 +1,8 @@
 import type { ImageCodes, Res, Rej, SetCodesQueue } from "./@types/background";
 import { getWorkSpace, setWorkSpace } from "./main";
-import { isFunction, isString, cryHex } from "../utils";
-import { joinPathUri, isFileExitsSync } from "../common/file";
-import { ExtensionUri } from "../common/system";
+import { isFunction, isString, cryHex } from "@/utils";
+import { joinPathUri, isFileExitsSync } from "@/common/file";
+import { ExtensionUri } from "@/common/system";
 
 /** 背景图片默认存储路径 */
 export const defaultPath = ['resources', 'background'];
@@ -54,8 +54,8 @@ export class BackgroundConfiguration {
 
     /**
      * 更新背景图配置信息
-     * @param name 
-     * @param value 
+     * @param name
+     * @param value
      */
     private static setBackgroundConfiguration (name: string, value: any): Thenable<void> {
         return setWorkSpace(this.namespace, name, value);
@@ -90,7 +90,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置当前路径下的哈希码数组缓存
-     * @param value 
+     * @param value
      */
     private static setBackgroundAllImageObject (value: string[]): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -179,7 +179,7 @@ export class BackgroundConfiguration {
 
     /**
      * 更新图片数组数据
-     * @param value 
+     * @param value
      */
     static refreshBackgroundImagePath (value: string[]): Promise<void> {
         // 只更新对应属性的数据
@@ -193,7 +193,7 @@ export class BackgroundConfiguration {
 
     /**
      * 是否设置了背景图状态修改
-     * @param value 
+     * @param value
      */
     static setBackgroundIsSetBackground (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('isSetBackground', value);
@@ -206,7 +206,7 @@ export class BackgroundConfiguration {
 
     /**
      * 当前选中图片哈希值数据更新
-     * @param value 
+     * @param value
      */
     static setBackgroundNowImageCode (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('nowImageCode', value);
@@ -219,7 +219,7 @@ export class BackgroundConfiguration {
 
     /**
      * 背景透明度数据更新
-     * @param value 
+     * @param value
      */
     static setBackgroundOpacity (value: number): Thenable<void> {
         return this.setBackgroundConfiguration('opacity', value);
@@ -232,7 +232,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置默认路径
-     * @param value 
+     * @param value
      */
     static setBackgroundSelectDefaultPath (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('defaultPath', value);
@@ -245,7 +245,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置背景图加载状态
-     * @param value 
+     * @param value
      */
     static setBackgroundLoad (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('load', value);
@@ -258,7 +258,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置背景图储存路径
-     * @param value 
+     * @param value
      */
     static setBackgroundStorePath (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('storePath', value);
@@ -271,7 +271,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置是否开启了随机切换背景图状态
-     * @param value 
+     * @param value
      */
     static setBackgroundIsRandom (value: boolean): Thenable<void> {
         return this.setBackgroundConfiguration('isRandom', value);
@@ -284,7 +284,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置随机切换的背景图哈希码数组
-     * @param value 
+     * @param value
      */
     static setBackgroundRandomList (value: string[]): Thenable<void> {
         return this.setBackgroundConfiguration('randomList', value);
@@ -297,7 +297,7 @@ export class BackgroundConfiguration {
 
     /**
      * 设置下一次启动时随机切换的图片哈希码
-     * @param value 
+     * @param value
      */
     static setBackgroundRandomCode (value: string): Thenable<void> {
         return this.setBackgroundConfiguration('randomCode', value);

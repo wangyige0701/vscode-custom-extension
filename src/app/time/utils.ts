@@ -1,6 +1,6 @@
-import { getDate, isArray, isNumber } from "../../utils";
+import type { Cycle, SpecificWeek } from "@time/@types";
+import { getDate, isArray, isNumber } from "@/utils";
 import { CycleItem } from "./cycle";
-import type { Cycle, SpecificWeek } from "./types";
 
 /** 星期对应的汉字数组 */
 export const weeksName = ['日', '一', '二', '三', '四', '五', '六'];

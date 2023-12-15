@@ -1,13 +1,13 @@
 /** @fileoverview 源css文件修改 */
 
 import type { Uri } from "vscode";
+import { $rej } from "@/error";
+import { reChecksum } from "@/common";
+import { createBuffer, writeFileUri } from "@/common/file";
+import { isSourceCssFileModify } from "@background/check/css/source";
+import { replaceSourceQueryStringContent } from "@background/data/css/queryStringReplace";
 import { getSourceCssFileContent } from "../getter/source";
-import { isSourceCssFileModify } from "../../check/css/source";
-import { replaceSourceQueryStringContent } from "../../data/css/queryStringReplace";
-import { createBuffer, writeFileUri } from "../../../../common/file";
 import { sourceCssFileTemplate } from "../template/source";
-import { $rej } from "../../../../error";
-import { reChecksum } from "../../../../common";
 
 /**
  * 将导入语句写入源css样式文件中

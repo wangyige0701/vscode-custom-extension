@@ -1,11 +1,11 @@
 /** @fileoverview 获取源css文件相关数据 */
 
 import type { Uri } from "vscode";
-import { createExParamPromise } from "../../../../utils";
-import { $rej } from "../../../../error";
-import { getCssUri } from "../../data/css/uri";
-import { cssNameConfig } from "../../data/config";
-import { readFileUri } from "../../../../common/file";
+import { $rej } from "@/error";
+import { readFileUri } from "@/common/file";
+import { createExParamPromise } from "@/utils";
+import { getCssUri } from "@background/data/css/uri";
+import { cssNameConfig } from "@background/data/config";
 
 /**
  * 获取vscode源样式文件内容，返回内容文本和路径uri

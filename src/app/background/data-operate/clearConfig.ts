@@ -1,13 +1,13 @@
 /** @fileoverview 清除所有背景图配置 */
 
-import { showMessageByModal, isWindowReloadToLoadBackimage } from "../common/interactive";
-import { getNowSettingCode, getNowIsSetRandom } from "../workspace/getter";
-import { sendSettingImageCode } from "../webview/communication/send";
-import { randomSettingBackground } from "../webview/random/record";
-import { showProgress } from "../../../common/interactive";
-import { deleteBackgroundCssFileModification } from "../css/remove/clearCssConfig";
-import { delay } from "../../../utils";
-import { errlog } from "../../../error";
+import { delay } from "@/utils";
+import { errlog } from "@/error";
+import { showProgress } from "@/common/interactive";
+import { randomSettingBackground } from "@background/webview/random/record";
+import { sendSettingImageCode } from "@background/webview/communication/send";
+import { getNowSettingCode, getNowIsSetRandom } from "@background/workspace/getter";
+import { deleteBackgroundCssFileModification } from "@background/css/remove/clearCssConfig";
+import { showMessageByModal, isWindowReloadToLoadBackimage } from "@background/common/interactive";
 
 /** 清除背景图相关设置 */
 export function clearBackgroundConfig () {

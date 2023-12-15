@@ -1,4 +1,4 @@
-import { range } from "../main";
+import { range } from "./main";
 
 /**
  * 阿拉伯数字转汉字
@@ -45,7 +45,7 @@ export function arabicNumeralsToChinese (num: number) {
         const start = origin.length - (i * 4);
         const str = _unit(origin.slice( Math.max(start - 4, 0), start));
         if (result.startsWith('零') && str === '零') {
-            continue; 
+            continue;
         }
         if (result === '零' && str !== '零') {
             result = str;

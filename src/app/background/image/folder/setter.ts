@@ -1,15 +1,15 @@
 /** @fileoverview 背景图图片文件储存文件夹设置模块 */
 
 import { Uri } from "vscode";
-import { showMessageWithConfirm } from "../../../../common/interactive";
-import { $rej } from "../../../../error";
-import { getImageStoreFolderPath } from "../../workspace/getter";
-import { settingImageStoreFolderPath } from "../../workspace/setter";
-import { sendAfterStorePathChange } from "../../webview/communication/send";
+import { $rej } from "@/error";
+import { showMessageWithConfirm } from "@/common/interactive";
+import { getImageStoreFolderPath } from "@background/workspace/getter";
+import { settingImageStoreFolderPath } from "@background/workspace/setter";
+import { sendAfterStorePathChange } from "@background/webview/communication/send";
 
 /**
  * 重新设置背景图图片文件储存文件夹
- * @param path 
+ * @param path
  * @param reset 是否重置路径
  */
 export async function resetImageStoreFolder (path: string, reset: boolean = false): Promise<void> {

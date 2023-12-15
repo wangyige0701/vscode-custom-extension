@@ -2,21 +2,21 @@
 
 import type { Disposable, ExtensionContext } from "vscode";
 import { commands } from "vscode";
-import { errlog } from "../../error";
-import { createExParamPromise, executeAllFunctions } from "../../utils";
-import { setStatusBarResolve } from "../../common/interactive";
-import { bindMessageCallback } from "../../common/webview";
-import { registWebviewProvider } from "../../common/webview/provider";
-import { copyFileWhenVersionChange } from "../../version";
-import { clearDynamicImport } from "../../library";
-import { windowInitCheckCssModifyCompleteness } from "./check/extension/init";
-import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./common/interactive";
-import { clearBackgroundConfig } from "./data-operate/clearConfig";
-import { backgroundWebviewCommunication } from "./webview/communication/receive";
-import { setRandomBackground } from "./webview/random/setter";
-import { hashCodeCache } from "./data/hashCodeCache";
+import { errlog } from "@/error";
+import { clearDynamicImport } from "@/library";
+import { copyFileWhenVersionChange } from "@/version";
+import { bindMessageCallback } from "@/common/webview";
+import { setStatusBarResolve } from "@/common/interactive";
+import { registWebviewProvider } from "@/common/webview/provider";
+import { createExParamPromise, executeAllFunctions } from "@/utils";
 import { imageDataCache } from "./data/imageCache";
+import { hashCodeCache } from "./data/hashCodeCache";
+import { setRandomBackground } from "./webview/random/setter";
+import { clearBackgroundConfig } from "./data-operate/clearConfig";
 import { settingNowImageCode, settingRandomCode } from "./workspace/setter";
+import { windowInitCheckCssModifyCompleteness } from "./check/extension/init";
+import { backgroundWebviewCommunication } from "./webview/communication/receive";
+import { selectFolderForBackgroundStore, resetBackgroundStorePath } from "./common/interactive";
 import { getBackgroundResourcePath, getNowIsSetRandom, getNowRandomCode } from "./workspace/getter";
 
 /** 注册背景图设置功能 */
@@ -45,8 +45,8 @@ export function registBackground (subscriptions: ExtensionContext["subscriptions
 		// 设置背景图的侧栏webview注册
 		registWebviewProvider(
 			subscriptions,
-			'wangyige.custom.backgroundImage', 
-			{ path: 'webview/src/background', title: '背景图片' }, 
+			'wangyige.custom.backgroundImage',
+			{ path: 'webview/src/background', title: '背景图片' },
 			{ visibleHiddenCallback: executeWhenUninstall }
 		);
 		// 命令事件注册

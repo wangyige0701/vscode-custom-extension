@@ -1,26 +1,27 @@
-import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "./types";
-import type { QuickPickItemsOptions } from "../../common/interactive/@types";
-import { QuickInputButtons, QuickPickItemKind, QuickInputButton, QuickPickItem, QuickPick } from "vscode";
-import { arabicNumeralsToChinese, createExParamPromise, delay, getDate, isNumber, isUndefined } from "../../utils";
-import { createQuickPick, createThemeIcon, showMessage } from "../../common/interactive";
+import type { QuickInputButton, QuickPickItem, QuickPick } from 'vscode';
+import type { AlarmClockRecordItemTask, CreateAlarmClockCallback, DeleteTaskInTimestampType, DeleteTimestampType, UpdateAlarmClockTaskCallback } from "@time/@types";
+import type { QuickPickItemsOptions } from "@/common/interactive/@types";
+import { QuickInputButtons, QuickPickItemKind } from "vscode";
+import { errlog } from "@/error";
+import { createQuickButton } from "@/common/interactive";
+import { createQuickPick, createThemeIcon, showMessage } from "@/common/interactive";
 import { weeksName, cycleInfo, changeHourTo24, accurateTime, isTimeLegel } from "./utils";
-import { createQuickButton } from "../../common/interactive";
-import { clockRecord, searchByTimestamp } from "./storage";
-import { errlog } from "../../error";
+import { arabicNumeralsToChinese, createExParamPromise, delay, getDate, isNumber, isUndefined } from "@/utils";
 import settingInit from "./settingPanels";
+import { clockRecord, searchByTimestamp } from "./storage";
 
 /**
  * 打开设置闹钟的操作面板
  */
 export default function openAlarmClockPanel ({
-    createAlarmClock, 
+    createAlarmClock,
     updateAlarmClockTask,
     deleteTimestamp,
     deleteTaskInTimestamp,
     clockFullInfoType
 }: {
     /** 创建闹钟调用 */
-    createAlarmClock: CreateAlarmClockCallback, 
+    createAlarmClock: CreateAlarmClockCallback,
     /** 更新闹钟中的某个数据调用 */
     updateAlarmClockTask: UpdateAlarmClockTaskCallback,
     /** 删除某个时间的所有任务调用 */
@@ -139,12 +140,12 @@ export default function openAlarmClockPanel ({
 
     /** 闹钟任务删除 */
     function _alarmTaskDelete (
-        option: QuickPickItemsOptions, 
-        index: number, 
-        timestamp: number, 
-        task: AlarmClockRecordItemTask, 
-        renderList: QuickPickItemsOptions[], 
-        allTasks: AlarmClockRecordItemTask[], 
+        option: QuickPickItemsOptions,
+        index: number,
+        timestamp: number,
+        task: AlarmClockRecordItemTask,
+        renderList: QuickPickItemsOptions[],
+        allTasks: AlarmClockRecordItemTask[],
         quick: QuickPick<QuickPickItem>
     ) {
         _confirmDelete(timestamp, index).then(() => {
@@ -218,10 +219,10 @@ export default function openAlarmClockPanel ({
             async didTriggerItemButton (res) {
                 if (!res) { return; }
                 const theButton = res.button;
-                const { id, timestamp: theTimestamp, task: theTask, tasks: allTasks } = (theButton as QuickInputButton & { 
-                    id: string; 
-                    timestamp: number; 
-                    task: AlarmClockRecordItemTask; 
+                const { id, timestamp: theTimestamp, task: theTask, tasks: allTasks } = (theButton as QuickInputButton & {
+                    id: string;
+                    timestamp: number;
+                    task: AlarmClockRecordItemTask;
                     tasks: AlarmClockRecordItemTask[];
                 });
                 if (!id) { return; }

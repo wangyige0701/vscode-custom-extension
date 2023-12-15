@@ -1,18 +1,18 @@
 /** @fileoverview webview侧和扩展侧的数据通信处理 */
 
 import type { Webview } from "vscode";
-import type { backgroundMessageData } from "../../@types";
-import { toViewImage } from "../../../viewImage";
-import { BackgroundWebviewInstance, sendBase64DataByCode } from './send';
-import { deleteImage } from '../../image/operate/remove';
-import { selectImage } from "../../image/operate/select";
-import { settingImage } from "../../image/operate/setting";
-import { messageExecute } from "../../../../common/webview";
-import { imageDataCache } from "../../data/imageCache";
-import { backgroundImageDataInit } from "../../check/webview/load";
+import type { backgroundMessageData } from "@background/@types";
+import { messageExecute } from "@/common/webview";
+import { toViewImage } from "@app/viewImage";
+import { imageDataCache } from "@background/data/imageCache";
+import { deleteImage } from '@background/image/operate/remove';
+import { selectImage } from "@background/image/operate/select";
+import { settingImage } from "@background/image/operate/setting";
+import { backgroundImageDataInit } from "@background/check/webview/load";
 import { randomSettingBackground } from "../random/record";
 import { requestImageToBackground } from "../input/network";
 import { backgroundOpacityModify } from "../input/opacity";
+import { BackgroundWebviewInstance, sendBase64DataByCode } from './send';
 
 /** 创建通信数据对应函数执行配置 */
 const messageReceiver = messageExecute<backgroundMessageData>({
@@ -79,7 +79,7 @@ const messageReceiver = messageExecute<backgroundMessageData>({
     /** 设置背景透明度 */
     backgroundOpacity: {
         execute: {
-            func: data => { 
+            func: data => {
                 if (data >= 0.1 && data <= 1) {
                     backgroundOpacityModify(data);
                 }
@@ -109,10 +109,10 @@ const messageReceiver = messageExecute<backgroundMessageData>({
 
 /**
  * 背景图webview侧栏页面通信数据处理
- * @param name 
- * @param value 
- * @param messageSend 
- * @param webview 
+ * @param name
+ * @param value
+ * @param messageSend
+ * @param webview
  */
 export function backgroundWebviewCommunication ({ name, value }: backgroundMessageData, webview: Webview) {
     if (!BackgroundWebviewInstance.value) {

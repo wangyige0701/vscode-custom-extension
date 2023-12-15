@@ -1,9 +1,9 @@
 /** @fileoverview 外部样式css文件模板字符串 */
 
-import type { CssFileAnnotationInfo } from "../../@types";
-import { cssTagNameConfig, backgroundDelayShowTime as delay } from "../../data/config";
-import { getNewBackgroundOpacity } from "../../common/func";
-import { getNowSettingOpacity } from "../../workspace/getter";
+import type { CssFileAnnotationInfo } from "@background/@types";
+import { getNewBackgroundOpacity } from "@background/common/func";
+import { getNowSettingOpacity } from "@background/workspace/getter";
+import { cssTagNameConfig, backgroundDelayShowTime as delay } from "@background/data/config";
 
 /**
  * 生成一个外部css文件中的css字符串

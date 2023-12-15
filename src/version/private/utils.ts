@@ -1,11 +1,11 @@
 import { version as VSCODE_VERSION } from "vscode";
-import { errlog } from "../../error";
-import { getWorkSpace, setWorkSpace } from "../../workspace";
+import { errlog } from "@/error";
+import { getWorkSpace, setWorkSpace } from "@/workspace";
 
 /**
  * 根据id获取指定类型的储存数据
- * @param id 
- * @param type 
+ * @param id
+ * @param type
  */
 export function getVersionById (id: string, type: 'VSCodeVersion'|'ExtensionVersion') {
     return getWorkSpace("wangyige."+id).get(type);

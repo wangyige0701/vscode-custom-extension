@@ -1,4 +1,4 @@
-import { isFunction, isPromise } from "../main";
+import { isFunction, isPromise } from "./main";
 
 /**
  * 创建一个队列执行对象

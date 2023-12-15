@@ -1,11 +1,11 @@
 /** @fileoverview 获取图片文件储存文件夹的uri */
 
 import type { Uri } from "vscode";
-import { $rej } from "../../../../error";
-import { joinPathUri, createUri } from "../../../../common/file";
-import { ExtensionUri } from "../../../../common/system";
+import { $rej } from "@/error";
+import { ExtensionUri } from "@/common/system";
+import { joinPathUri, createUri } from "@/common/file";
+import { getImageStoreFolderPath, getBackgroundResourcePath } from "@background/workspace/getter";
 import { imageStoreUriExits } from "./exist";
-import { getImageStoreFolderPath, getBackgroundResourcePath } from "../../workspace/getter";
 
 /** 获取储存背景图资源的uri，指定路径不存在则会进行创建 */
 export function imageStoreUri (): Promise<Uri> {

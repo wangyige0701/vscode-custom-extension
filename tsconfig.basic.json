@@ -1,18 +1,24 @@
 {
 	"compilerOptions": {
 		"baseUrl": ".",
-		"module": "CommonJS",
+		"module": "ESNext",
 		"target": "ES2022",
 		"outDir": "dist",
 		"lib": [
 			"ES2022"
 		],
+		"experimentalDecorators": true,
+		"forceConsistentCasingInFileNames": true,
+		"incremental": true,
+		"moduleResolution": "Node",
+		"noFallthroughCasesInSwitch": true,
 		"sourceMap": true,
 		"rootDir": "src",
 		"strict": true,
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
-		"typeRoots": ["./node_modules/@types", "./src/@types/*.d.ts"]
-	},
-	"include": ["src/**/*"]
+		"typeRoots": ["./node_modules/@types", "./src/@types/*.d.ts"],
+		"useDefineForClassFields": false,
+		"useUnknownInCatchVariables": false
+	}
 }

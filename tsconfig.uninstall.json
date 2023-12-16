@@ -1,18 +1,4 @@
 {
-	"compilerOptions": {
-		"module": "ESNext",
-		"target": "ES2022",
-        "moduleResolution": "Node",
-		"outDir": "dist",
-		"lib": [
-			"ES2022"
-		],
-		"sourceMap": false,
-		"rootDir": "src",
-		"resolveJsonModule": true,
-		"esModuleInterop": true,
-	},
-	"include": [
-		"src/uninstall.ts"
-	]
+	"extends": "./tsconfig.basic.json",
+	"include": ["src/uninstall.ts"]
 }

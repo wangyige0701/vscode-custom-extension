@@ -1,6 +1,7 @@
 {
 	"extends": "./tsconfig.basic.json",
 	"compilerOptions": {
+		"typeRoots": ["./node_modules/@types", "./src/@types/*.d.ts"],
 		"paths": {
 			"@/*": ["src/*"],
 			"@app/*": ["src/app/*"],

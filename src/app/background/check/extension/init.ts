@@ -13,6 +13,6 @@ export async function windowInitCheckCssModifyCompleteness () {
 	});
     if (state) {
         // 需要重启应用背景
-        isWindowReloadToLoadBackimage('检测到背景图配置修改或删除，当前状态可能为插件重装，如果需要重新应用背景请选择确认重启窗口');
+        isWindowReloadToLoadBackimage($t('app.background.modify-and-restart'));
     }
 }

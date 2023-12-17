@@ -3,7 +3,7 @@
 declare const EXTENSION_VERSION: string;
 
 /** NODE运行环境 */
-declare const NODE_ENV: "development" | "production";
+declare const NODE_ENV: "development" | "production" | "none";
 
 /** 是否是生产环境 */
 declare const IS_PRODUCTION: boolean;

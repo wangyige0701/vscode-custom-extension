@@ -1,1 +1,1 @@
-/** @description 指定导出的语言模块 */
+/** @fileoverview 语言模块处理 */

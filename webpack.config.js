@@ -44,8 +44,8 @@ function getExtensionConfig (mode) {
             }
         }),
         new DefinePlugin({
-            IS_PRODUCTION: JSON.stringify(mode === 'production'),
-            IS_DEVELOPMENT: JSON.stringify(mode === 'development'),
+            IS_PRODUCTION: mode === 'production',
+            IS_DEVELOPMENT: mode === 'development',
             "process.env.NODE_ENV": JSON.stringify(mode),
             NODE_ENV: JSON.stringify(mode),
             EXTENSION_VERSION: JSON.stringify(packageJson.version),

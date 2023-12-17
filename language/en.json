@@ -1,0 +1,7 @@
+{
+  "app": {
+    "background": {
+      "modify-and-restart": "It is detected that the background image configuration is modified or deleted. The current status may be plug-in reinstallation. If you need to re-apply the background, please select the confirmation window to restart."
+    }
+  }
+}

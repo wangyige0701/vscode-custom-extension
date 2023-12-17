@@ -16,3 +16,6 @@ declare const PUBLISHER: string;
 
 /** 项目名 */
 declare const PACKAGE_NAME: string;
+
+/** i18n规范方法 */
+declare function $t (path: string): string;

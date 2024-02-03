@@ -13,3 +13,4 @@ test/
 .eslintcache/
 tsconfig.tsbuildinfo
 .rollup.cache
+src/@types/auto-import.d.ts

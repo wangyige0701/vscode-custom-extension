@@ -1,4 +1,4 @@
-import zhcn from '@/language/zh-cn.json';
+import zhcn from '../language/zh-cn.json';
 
 const languages = {
 	zhcn: {

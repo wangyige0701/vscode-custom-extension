@@ -2,7 +2,7 @@
 .vscode-test/**
 node_modules/**
 src/**
-.gitignore
+**/.gitignore
 .yarnrc
 pnpm-lock.yaml
 vsc-extension-quickstart.md
@@ -35,3 +35,5 @@ rollup-plugin/**
 **/webpack.config.js
 .prettierignore
 .prettierrc
+tsconfig.tsbuildinfo
+.rollup.cache/**

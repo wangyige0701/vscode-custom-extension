@@ -17,7 +17,6 @@
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "editor.formatOnSave": true
     },
-    "npm.packageManager": "pnpm",
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "i18n-ally.localesPaths": [

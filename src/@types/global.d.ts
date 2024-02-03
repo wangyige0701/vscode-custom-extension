@@ -1,8 +1,5 @@
 export {};
 declare global {
-	/** i18n规范方法 */
-	const $t: (typeof import('@/i18n/index.ts'))['$t'];
-
 	/** 扩展版本号 */
 	const EXTENSION_VERSION: string;
 

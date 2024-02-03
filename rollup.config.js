@@ -9,6 +9,7 @@ const commonjs = require('@rollup/plugin-commonjs');
 const typescript = require('@rollup/plugin-typescript');
 const resolve = require('@rollup/plugin-node-resolve');
 const json = require('@rollup/plugin-json');
+const autoImport = require('unplugin-auto-import/rollup');
 
 // 文件打包配置函数
 const bundle = require('./rollup-plugin/bundle');
@@ -65,7 +66,7 @@ module.exports = [
             const PACKAGE_NAME = "${require('./package.json').name}";
             const NODE_ENV = "production";
             const IS_PRODUCTION = true;
-            const IS_DEVELOPMENT = false;`
+            const IS_DEVELOPMENT = false;`,
         },
         external: ["vscode"],
     }, [
@@ -74,6 +75,10 @@ module.exports = [
         resolvePlugin,
         jsonPlugin,
         commonjs(),
+        autoImport.default({
+            dts: 'src/@types/auto-import.d.ts',
+            dirs: ['src/i18n']
+        }),
         terserPlugin,
         mainJsonRequireChange(rootPath, 'dist', 'extension.js'),
         mainModuleRequirePathChange(rootPath, [

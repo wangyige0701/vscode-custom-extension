@@ -1,7 +1,7 @@
 import type { ExtensionContext } from 'vscode';
 import { ExtensionUri } from '@/common/system';
 import { checksumsInit } from '@/common/checksums';
-import { isNeedToCreateSharpBinaryFile } from "@/library/create-sharp-node";
+import { isNeedToCreateSharpBinaryFile } from '@/library/create-sharp-node';
 import { registBackground } from '@/app/background';
 import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from '@/app/time';
 

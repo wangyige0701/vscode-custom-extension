@@ -7,7 +7,7 @@ import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from '@/app/time';
 
 export function activate(context: ExtensionContext) {
 	// 将扩展uri赋值全局
-	ExtensionUri.set(context.extensionUri);
+	ExtensionUri.set(context.extensionUri || context.extension?.extensionUri);
 	// 检测sharp二进制文件
 	isNeedToCreateSharpBinaryFile(context);
 	// 初始化校验和数据

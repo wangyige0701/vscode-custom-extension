@@ -4,10 +4,13 @@ import { checksumsInit } from '@/common/checksums';
 import { isNeedToCreateSharpBinaryFile } from '@/library/create-sharp-node';
 import { registBackground } from '@/app/background';
 import { initTimeDisplayInStatusBar, destroyTimeInStatusBar } from '@/app/time';
+import { BackgroundConfiguration } from '@/workspace/background';
 
 export function activate(context: ExtensionContext) {
 	// 将扩展uri赋值全局
 	ExtensionUri.set(context.extensionUri || context.extension?.extensionUri);
+	// 执行数据校验
+	BackgroundConfiguration.check();
 	// 检测sharp二进制文件
 	isNeedToCreateSharpBinaryFile(context);
 	// 初始化校验和数据

@@ -17,4 +17,6 @@ declare global {
 
 	/** 项目名 */
 	const PACKAGE_NAME: string;
+
+	const $t: (s: string) => string;
 }

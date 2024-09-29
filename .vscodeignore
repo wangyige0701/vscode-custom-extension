@@ -37,3 +37,5 @@ rollup-plugin/**
 .prettierrc
 tsconfig.tsbuildinfo
 .rollup.cache/**
+
+.eslintcache

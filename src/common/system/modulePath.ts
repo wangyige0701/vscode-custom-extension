@@ -7,7 +7,7 @@ export const getNodeModulePath = (() => {
 	let module = (eval('require') as NodeRequire).main;
 	let file: string | undefined;
 	if (!module) {
-		file = undefined;
+		file = path.join(process.execPath, '../resources', 'app', 'out');
 	} else {
 		file = path.dirname(module.filename);
 	}

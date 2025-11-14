@@ -23,5 +23,10 @@
         "language"
     ],
     "i18n-ally.keystyle": "nested",
-    "i18n-ally.sourceLanguage": "zh-cn"
+    "i18n-ally.sourceLanguage": "zh-cn",
+    "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.patterns": {
+        "tsconfig.json": "tsconfig.*.json",
+        "package.json": "package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb, bun.lock"
+    }
 }
